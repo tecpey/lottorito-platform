@@ -6,6 +6,7 @@ Continue Lottorito from the repository's verified state. Do not restart planning
 ## Mandatory entry sequence
 1. Read this file.
 2. Read `docs/en/engineering/project-status.md` and `docs/fa/engineering/project-status.md`.
+3. Read `docs/en/engineering/continuation-ledger.md` and `docs/fa/engineering/continuation-ledger.md` for the durable task inventory and exact next step.
 3. Read the bilingual execution procedure: `docs/en/engineering/codex-vscode-execution-runbook.md` and its Persian counterpart.
 4. Inspect the live GitHub default branch, current branch and SHA, open/closed issues, PRs, review comments, and CI/workflow state.
 5. Read relevant domain documents in both languages. Do not assume a document on an unmerged branch exists on `main`.
