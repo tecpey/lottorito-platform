@@ -127,3 +127,27 @@
 ## 11. وضعیت فعلی
 
 این Runbook در شاخه `docs/codex-execution-baseline` تهیه شده و هنوز در `main` ادغام نشده است. وجود این سند به معنی اتصال یا پیکربندی موفق Codex Cloud، VS Code، API، Secrets، CI یا محیط اجرا نیست. این اتصال‌ها باید جداگانه و با شواهد واقعی تأیید شوند.
+
+
+## 12. تفکیک Codex، Cloud و OpenAI API
+
+این سه مفهوم را یکی فرض نکن:
+
+- **ورود به Codex:** مستندات رسمی، ورود با حساب ChatGPT یا استفاده از API key را برای کلاینت‌های پشتیبانی‌شده توضیح می‌دهند. روش فعال در کلاینت نصب‌شده باید در همان محیط بررسی شود.
+- **Codex Cloud:** اجرای task روی محیط مدیریت‌شده ابری است. ابتدا باید repository، ابزارها، dependencyها، دسترسی GitHub و تنظیمات محیط آماده و منتشر شوند. هر task محیط کاری جداگانه دارد؛ برای حفظ کار باید تغییرات مهم commit شوند. بازکردن task جدید، تغییرات commit‌نشده task قبلی را بازیابی نمی‌کند.
+- **OpenAI API برای محصول:** کلید API برنامه Lottorito برای فراخوانی مدل‌ها/سرویس‌های OpenAI است؛ این کلید با مجوز GitHub یا ورود Codex یکی نیست و نباید در مخزن ثبت شود.
+- **OpenAI Developer Docs MCP:** سرور `https://developers.openai.com/mcp` فقط مستندات رسمی را جست‌وجو و می‌خواند؛ خودش درخواست API محصول را اجرا نمی‌کند.
+
+### مسیر عملی پیشنهادی
+1. در VS Code افزونه رسمی Codex را نصب و با روش مجاز حساب/کلید وارد شو.
+2. مخزن `tecpey/lottorito-platform` را در VS Code باز کن و مطمئن شو branch و SHA با GitHub هماهنگ‌اند.
+3. در صورت استفاده از Codex Cloud، محیطی برای همین repository بساز، dependencyها و ابزارها را تعریف کن و دسترسی GitHub را جداگانه آزمایش کن.
+4. یک task آزمایشی فقط‌مستنداتی از Issue #16 اجرا کن؛ خروجی باید branch و PR قابل بازبینی باشد.
+5. پس از اثبات این مسیر، اولین task کدنویسی محصول را از Issueهای موجود و پس از تکمیل ADRها انتخاب کن.
+
+### منابع رسمی بررسی‌شده
+- Codex و روش‌های ورود: https://help.openai.com/en/articles/11369540-using-codex-with-your-chatgpt-plan
+- Codex Cloud و محیط‌های task: https://help.openai.com/en/articles/20001545-using-codex-cloud
+- OpenAI Developer Docs MCP: https://developers.openai.com/learn/docs-mcp
+
+**محدودیت:** این توضیح، روش رسمی محصول را توصیف می‌کند؛ اتصال واقعی حساب، فعال بودن Cloud، مجوز repository و موفقیت اجرای task در محیط کاربر باید جداگانه آزمایش شود.
