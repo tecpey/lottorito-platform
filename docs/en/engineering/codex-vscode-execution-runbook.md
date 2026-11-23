@@ -127,3 +127,27 @@ Agents may modify documentation and code on a working branch and create PRs with
 ## 11. Current status
 
 This Runbook was prepared on branch `docs/codex-execution-baseline` and has not been merged into `main`. Its existence does not mean Cloud Codex, VS Code, API access, Secrets, CI, or a runtime environment has been successfully connected or configured. Those connections must be verified separately with real evidence.
+
+
+## 12. Distinguish Codex, Cloud, and the OpenAI API
+
+Do not treat these as the same capability:
+
+- **Codex sign-in:** Official documentation describes signing in with a ChatGPT account or using an API key in supported clients. Verify the active method in the installed client.
+- **Codex Cloud:** Runs tasks in managed cloud environments. The repository, tools, dependencies, GitHub access, and environment settings must first be prepared and published. Each task has its own workspace; commit important changes. Starting a new task does not recover another task's uncommitted changes.
+- **OpenAI API for the product:** The Lottorito application's API key is used by the application to call OpenAI models/services. It is not the same as GitHub permission or Codex sign-in and must never be committed.
+- **OpenAI Developer Docs MCP:** `https://developers.openai.com/mcp` provides read-only search and access to official documentation; it does not execute product API requests.
+
+### Recommended practical path
+1. Install the official Codex extension in VS Code and sign in using an allowed account/key method.
+2. Open `tecpey/lottorito-platform` in VS Code and verify that the branch and SHA match GitHub.
+3. If using Codex Cloud, create an environment for this repository, define tools/dependencies, and test GitHub access separately.
+4. Run a documentation-only proof task from Issue #16; its output must be a reviewable branch and PR.
+5. Only after this path is proven, select the first product-coding task from existing issues and after the required ADRs are complete.
+
+### Official references reviewed
+- Codex access and sign-in methods: https://help.openai.com/en/articles/11369540-using-codex-with-your-chatgpt-plan
+- Codex Cloud environments and tasks: https://help.openai.com/en/articles/20001545-using-codex-cloud
+- OpenAI Developer Docs MCP: https://developers.openai.com/learn/docs-mcp
+
+**Limitation:** This section describes the official product workflow; the user's actual account connection, Cloud availability, repository permission, and successful task execution must be tested separately.
