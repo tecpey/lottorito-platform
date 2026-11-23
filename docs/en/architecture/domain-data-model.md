@@ -57,7 +57,7 @@ Each context owns its logic and data contract. Direct access to another context'
 |---|---|---|
 | `tenants` | id, name, slug, status, default_timezone, default_locale, created_at | unique slug; active/suspended lifecycle; owns Tenant data |
 | `users` | id, email_normalized, phone_normalized, auth_status, created_at | global login identity; uniqueness follows approved identity policy |
-| `tenant_memberships` | id, tenant_id, user_id, status, joined_at, ended_at | one active membership per user/Tenant unless explicitly allowed |
+| `tenant_memberships` | id, tenant_id, user_id, status, joined_at, ended_at | proposed default: one active membership per user/Tenant; exceptions require an approved identity policy. Tenant administration requires an active, authorized membership |
 | `roles` | id, tenant_id nullable, code, name | global or Tenant-scoped roles; code unique within scope |
 | `permissions` | id, code, description | atomic, controlled permissions |
 | `role_permissions` | role_id, permission_id | composite key; no implicit permissions |
@@ -135,7 +135,7 @@ Rules:
 - Raw clicks and conversions are separate from attribution decisions.
 - One conversion may have multiple touches; total weights must follow the selected model.
 - Last-click, first-click, linear, or another model is a product decision; this document does not select one as final.
-- Attribution windows, code/cookie precedence, cross-device behavior, consent, and invalid-traffic filtering require a separate Attribution specification.
+- A separate Attribution specification must define windows, code/cookie precedence, cross-device behavior, consent, and when to exclude invalid traffic from attribution. Exclusion does not authorize deleting source records.
 - IP and user-agent are personal/sensitive data; collection, hashing, retention, and access must be minimized and lawful.
 
 ## 7. Partner event intake and normalization
@@ -151,7 +151,7 @@ Rules:
 
 Mandatory rules:
 1. Validate source authentication/signature before an event can have effects.
-2. `external_event_id` is unique within partner connection scope when the partner guarantees its semantics; otherwise document an alternative deduplication policy.
+2. Use only a deduplication key whose uniqueness scope the partner guarantees (see §12 and DATA-Q11). A stable ID alone is insufficient. Without a guaranteed key, document an alternative policy before applying effects.
 3. Preserve the unmodified raw payload under restricted access; encrypt sensitive data and define retention.
 4. Inbox processing and canonical event creation must be retry-safe.
 5. Arrival order is not event order; use `occurred_at` and explicit late-arrival rules.
@@ -200,7 +200,8 @@ Requirements:
 - Once `posted`, entries and lines are immutable. Correct using reversal and a new entry.
 - `idempotency_key` is unique within the appropriate scope (Tenant + source/action).
 - Concurrency control prevents withdrawals above eligible funds and double-spend.
-- Available balance is derived from ledger postings, holds, and eligibility policy; it is not merely a balance column.
+- Available balance is derived from ledger postings, holds, and eligibility policy. Do not assume it equals the amount eligible for withdrawal; the withdrawal policy remains open.
+- Each journal line belongs to its entry’s Tenant. Its ledger account and its participant, if present, must belong to that same Tenant.
 - Promotional accounts, pending/approved commission, holds, payable, and clearing must be distinct for accounting purposes; this does not necessarily mean separate UI wallets.
 - USD 100 is only an example. Ownership, funder, allowed use, transferability, expiry, clawback, and withdrawability are undecided; do not connect it to withdrawable commission until formally decided.
 
@@ -252,7 +253,7 @@ erDiagram
   COMMISSION_EVALUATION ||--o{ COMMISSION_CALCULATION : produces
   COMMISSION_CALCULATION ||--o{ COMMISSION_ALLOCATION : allocates
   PARTICIPANT ||--o{ WALLET_ACCOUNT : owns
-  WALLET_ACCOUNT ||--o{ LEDGER_ACCOUNT : maps
+  WALLET_ACCOUNT |o--o{ LEDGER_ACCOUNT : maps
   JOURNAL_ENTRY ||--|{ JOURNAL_LINE : contains
   LEDGER_ACCOUNT ||--o{ JOURNAL_LINE : posts_to
   WALLET_ACCOUNT ||--o{ PAYOUT_REQUEST : funds
@@ -262,11 +263,13 @@ erDiagram
 
 The ERD is intentionally conceptual. Optionality, composite keys, polymorphic references, and product-dependent cardinalities must be completed in the logical schema.
 
+The journal-entry relationship shows one or more lines because this notation cannot express a minimum of two; posting requires at least two (§9.2).
+
 ## 12. Integrity constraints and required indexes
 
 ### Constraints
 - unique(tenant_id, normalized_slug/code) for Tenant-scoped codes.
-- unique(partner_connection_id, external_event_id, event_type) for deduplication when partner event semantics guarantee it.
+- For example, use unique(partner_connection_id, external_event_id) if the partner guarantees connection-wide uniqueness; include event_type if uniqueness is guaranteed only within each event type on that connection. Neither key is a default (§7.1).
 - unique(tenant_id, idempotency_key, operation_scope) for sensitive operations.
 - Composite foreign keys including tenant_id to prevent cross-Tenant references.
 - checks such as amount > 0, debit_amount >= 0, credit_amount >= 0, and XOR debit/credit per journal line.
@@ -307,6 +310,8 @@ The ERD is intentionally conceptual. Optionality, composite keys, polymorphic re
 9. Build read models, reporting, and observability.
 10. Complete security review, threat model, and backup recovery before pilot.
 
+**Tenant-isolation acceptance case:** Submit an otherwise valid, balanced entry for Tenant A. In separate cases, give one line a ledger account from Tenant B, then a participant from Tenant B with an account from A. Reject each posting atomically: no entry or lines committed and no balance change in either Tenant. The same posting with all references in A must succeed, including when the optional participant is absent.
+
 **Acceptance criteria:** Every entity has an owning context, tenant scope, key, relationships, lifecycle, sensitive-data classification, uniqueness rules, and corresponding tests; unresolved decisions remain explicit; Persian and English versions match in meaning, values, constraints, and diagrams.
 
 ## 15. Open decisions blocking final schema
@@ -318,7 +323,7 @@ The ERD is intentionally conceptual. Optionality, composite keys, polymorphic re
 | DATA-Q03 | Is network depth exactly ten or a configurable ceiling? | validation and queries |
 | DATA-Q04 | Are Affiliate and Agent one shared identity/account or separate accounts? | Participant and membership model |
 | DATA-Q05 | What attribution model and attribution window apply? | conversion and revenue allocation |
-| DATA-Q06 | Exactly which items are included in/excluded from NGR? | financial calculation basis |
+| DATA-Q06 | Which items increase NGR, which are deducted, and which are excluded entirely? | financial calculation basis |
 | DATA-Q07 | When is commission recognized, and what are reversal/chargeback rules? | pending/approved states and reversals |
 | DATA-Q08 | Who owns the USD 100 promotional credit, and is it withdrawable/transferable? | accounts and usage policy |
 | DATA-Q09 | What are payout, currency, minimum/maximum, and provider rules? | payout and compliance |
