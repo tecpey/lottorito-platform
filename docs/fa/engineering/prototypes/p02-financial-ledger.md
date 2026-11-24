@@ -1,6 +1,6 @@
 # P-02 — نمونه دفترکل مالی و تطبیق
 
-**شناسه سند:** LOT-PROT-P02-001 | **نسخه:** ۰.۵.۰ | **وضعیت:** CI مربوط به Prototype موفق؛ P-02 کامل همچنان جزئی است | **تاریخ بازبینی:** ۲۰۲۶-۱۱-۲۴
+**شناسه سند:** LOT-PROT-P02-001 | **نسخه:** ۰.۶.۰ | **وضعیت:** CI مربوط به Prototype موفق؛ P-02 کامل همچنان جزئی است | **تاریخ بازبینی:** ۲۰۲۶-۱۱-۲۴
 
 ## هدف و مرز تصمیم
 
@@ -51,8 +51,8 @@ P-02 یک آزمایش با داده‌های ساختگی برای زیرساخ
 
 ## شواهد CI تأییدشده
 
-- اجرای P-02 با شناسه [45415806446](https://github.com/tecpey/lottorito-platform/actions/runs/45415806446) روی Head شاخه PR یعنی 003551df55921413ccff3bfe746a2f671d8d35bd موفق شد: ۱۹ تست Node موفق، صفر شکست و صفر Skip؛ با npm ci، Lockfile ثبت‌شده، Node.js 26.13.0 و PostgreSQL 18.7.
-- اجرای Documentation Governance با شناسه [45415805992](https://github.com/tecpey/lottorito-platform/actions/runs/45415805992) روی Head مستندات دوزبانه پیش از افزودن این یادداشت شواهد موفق شد.
+- اجرای P-02 با شناسه [45416076701](https://github.com/tecpey/lottorito-platform/actions/runs/45416076701) روی Head شاخه PR یعنی a47e5e2107ecfe96c77c48bea3d8921f726b8a17 موفق شد: ۱۹ تست Node موفق، صفر شکست و صفر Skip؛ با npm ci، Lockfile ثبت‌شده، Node.js 26.13.0 و PostgreSQL 18.7.
+- اجرای Documentation Governance با شناسه [45416076624](https://github.com/tecpey/lottorito-platform/actions/runs/45416076624) روی Head مستندات دوزبانه پیش از افزودن این یادداشت شواهد موفق شد.
 - اجرای محلی در این محیط انجام نشده است. موفقیت CI فقط سناریوهای ساختگی تعریف‌شده را اثبات می‌کند و به معنی آمادگی Production نیست.
 
 ## اجرای محلی و بازتولیدپذیری
