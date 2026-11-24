@@ -30,7 +30,7 @@ LOT-FIN-POST-001 defines proposed financial posting and reconciliation controls;
 | Architecture | [Domain model & logical ERD](architecture/domain-model-and-erd.md) | Proposed ownership and logical relationships; not physical schema |
 | Architecture | [Tenant isolation model](architecture/tenant-isolation-model.md) | Proposed identity/context and isolation controls |
 | Architecture | [Technology, deployment & reliability ADRs](architecture/technology-deployment-adrs.md) | LOT-TECH-ADR-001; proposed decision framework, no stack/provider approved |
-| Commission | [Commission engine](commission/commission-engine.md) | Versioned commission concepts and open policy choices |
+| Architecture | [Technology, deployment & reliability ADRs](architecture/technology-deployment-adrs.md) | LOT-TECH-ADR-001; proposed decision framework, no stack/provider approved |\n| Commission | [Commission engine](commission/commission-engine.md) | Versioned commission concepts and open policy choices |
 | Finance | [Wallet & ledger](finance/wallet-and-ledger.md) | Initial ledger principles and open mappings |
 | Finance | [Posting & reconciliation model](finance/financial-posting-and-reconciliation.md) | LOT-FIN-POST-001; proposed accounting controls, states and reconciliation |
 | Partners | [Affiliate integration contract](partners/integration-contract.md) | Initial Affiliate partner-event contract |
