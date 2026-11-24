@@ -287,4 +287,4 @@ The prototype phase is complete only when all eight experiments have reproducibl
 - LOT-EVENT-001 — canonical event contract.
 - LOT-OPS-001 — verified project status.
 
-**Status reminder:** the plan remains proposed. A partial P-01 HTTP/PostgreSQL RLS code slice is present on PR #36; its local/CI execution is not yet verified, the full P-01 experiment remains incomplete, and no technology approval is claimed.
+**Status reminder:** the plan remains proposed. The partial P-01 HTTP/PostgreSQL RLS slice on PR #36 passed 12 defined CI tests in run [45405602237](https://github.com/tecpey/lottorito-platform/actions/runs/45405602237). This does not pass the full P-01 experiment: asynchronous execution, revocation, support/break-glass, other storage boundaries, load and recovery remain untested. The shared-role custom-GUC trust limitation is explicitly demonstrated. No technology approval is claimed.
