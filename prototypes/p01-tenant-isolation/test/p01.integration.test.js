@@ -821,6 +821,8 @@ test("search adapter injects a trusted tenant filter and does not accept caller 
   assert.deepEqual(lastRequest.tenantFilter, { tenant_id: TENANT_B });
   assert.equal(Object.isFrozen(lastRequest.tenantFilter), true);
   assert.throws(() => search.search(TENANT_A, { query: "monthly", tenant_id: TENANT_B }), TypeError);
+  assert.throws(() => search.search(TENANT_A, "  "), TypeError);
+  assert.throws(() => search.search(TENANT_A, "monthly\\nreport"), TypeError);
 });
 
 test("reporting rows are isolated by RLS for shared and identity-bound database roles", async () => {
