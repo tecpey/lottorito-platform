@@ -18,7 +18,7 @@ It is not a production service, authentication implementation, complete P-01 pas
 - A single-connection pool deliberately forces alternating tenant requests to reuse the same physical connection.
 - Job creation writes a tenant-scoped job row and metadata-only dispatch row in one database transaction; the tenant ID is derived from the authenticated principal.
 - A separate non-superuser/non-BYPASSRLS dispatcher role can claim global dispatch metadata with `FOR UPDATE SKIP LOCKED`, but has no grant on job payloads. Its UPDATE grant is limited to dispatch status/attempt/lease columns.
-- Dispatch envelopes bind version, tenant ID, job ID, attempt and issue time with HMAC-SHA-256; the worker verifies the signature before setting tenant context and reloading the job under RLS.
+- Dispatch envelopes bind key ID, version, tenant ID, job ID, attempt and issue time with Ed25519 signatures. The dispatcher holds the private signing key; the worker receives only the public verification key and verifies before setting tenant context and reloading the job under RLS. Tests generate a fresh ephemeral key pair for each run.
 - The worker re-checks the originating subject's active membership in the job transaction, uses row locks and an idempotent status transition, and rejects jobs whose membership was revoked before execution.
 
 ## Acceptance scenarios
@@ -75,13 +75,12 @@ docker compose -f compose.yaml up -d --wait
 export ADMIN_DATABASE_URL='postgres://postgres:p01-admin-only-not-production@127.0.0.1:55432/lottorito_p01'
 export DATABASE_URL='postgres://app_runtime:p01-only-not-for-production@127.0.0.1:55432/lottorito_p01'
 export DISPATCHER_DATABASE_URL='postgres://job_dispatcher:p01-dispatcher-not-for-production@127.0.0.1:55432/lottorito_p01'
-export JOB_ENVELOPE_SECRET='p01-only-synthetic-envelope-secret-not-production'
 npm ci --ignore-scripts --no-audit --no-fund
 npm test
 docker compose -f compose.yaml down
 ```
 
-The workflow provisions an ephemeral PostgreSQL 18.7 service and uses synthetic credentials only. The workflow also exposes a manual-dispatch trigger. The SQL setup drops and recreates the prototype fixture tables and resets synthetic roles; never point it at a shared, staging or production database. The dispatcher credential and envelope key above are synthetic test values only.
+The workflow provisions an ephemeral PostgreSQL 18.7 service and uses synthetic credentials only. The workflow also exposes a manual-dispatch trigger. The SQL setup drops and recreates the prototype fixture tables and resets synthetic roles; never point it at a shared, staging or production database. The dispatcher credential is a synthetic test value only; Ed25519 test keys are generated ephemerally by the test process and are never stored in the repository.
 
 ## Dependency and CI limitations
 
