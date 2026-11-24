@@ -1,43 +1,48 @@
 # Verified Project Status and Continuation Point
 
-**Document ID:** LOT-OPS-001 | **Version:** 0.2.0 | **Reviewed:** 2026-11-24
+**Document ID:** LOT-OPS-001 | **Version:** 0.3.0 | **Reviewed:** 2026-11-24
 
-## Verified state
-- Repository tecpey/lottorito-platform exists; default branch is main and visibility is Public, remaining public per the owner's current decision.
-- GitHub connection reported admin, maintain, push, pull, and triage permissions.
-- docs/fa/README.md and docs/en/README.md were created and their contents were successfully read back from GitHub.
-- Foundational product documentation, agent guide, and continuation record are being established.
+## Verified repository state
+- Repository: tecpey/lottorito-platform; default branch main; public visibility by owner decision.
+- PR #19 is open and Draft, based on main. PR #20 is open and Draft, based on PR #19's head branch. Neither is merged.
+- The current PR #20 head previously reported as 895901b44ca04caf8f99a498fab8db5d1ec79e23 before the latest document commits; refresh the PR metadata for the current head.
+- The repository work remains documentation-first. No runtime application, physical schema, provider integration, sandbox, financial posting, payout or production deployment is verified.
+- CI status for the previously inspected PR #20 head was empty; no passing CI claim is made.
 
-## Documentation baseline updated on 2026-11-24
-- Added LOT-AGENT-001, a bilingual low-context operating manual for agents and contributors.
-- Added LOT-ADR-REG-001, a bilingual register distinguishing owner directions, proposals and unresolved decisions.
-- Added LOT-LOTTERY-001, a proposed Lottery discovery PRD; it is not approved for implementation or launch.
-- Added LOT-LOTINT-001, a proposed provider-neutral Lottery lifecycle contract; no provider API or sandbox is verified.
-- Added LOT-DOM-001, a proposed cross-product bounded-context model and logical ERD; no physical schema is approved.
-- Added LOT-TEN-001, a proposed tenant isolation and context propagation model; no implementation or negative-test evidence exists.
-- Added LOT-EVENT-001, a proposed canonical event envelope and delivery contract; no event API/schema registry is implemented.
-- Updated both documentation indexes to route agents to these sources.
-- These changes are on docs/agent-ready-foundation-v1 and are not merged to main.
+## Documentation baseline
+The branch docs/agent-ready-foundation-v1 contains proposed bilingual references:
+- LOT-AGENT-001: low-context agent operating manual.
+- LOT-ADR-REG-001: decision authority and unresolved-decision register.
+- LOT-LOTTERY-001 and LOT-LOTINT-001: Lottery discovery PRD and provider-neutral lifecycle contract.
+- LOT-DOM-001, LOT-TEN-001 and LOT-EVENT-001: proposed domain model, tenant isolation and canonical event contract.
+- LOT-FIN-001: proposed financial posting, account ownership, balance semantics and reconciliation.
+- LOT-SEC-TM-001: proposed system threat model and minimum security verification matrix.
+- LOT-API-001: proposed resource, authorization, error, pagination, idempotency and webhook conventions.
 
-## Not yet verified
-No application implementation, database schema, CI workflow, automated language-parity check, partner API connection, sandbox, financial calculation, payout, or production deployment has been verified. Never claim tests or deployment succeeded without evidence.
+The new finance, security and API references are proposals, not approved policy or implemented controls. The English/Persian pairs must be reviewed for semantic parity.
 
-## Continuation instructions for every agent
-1. Read this document and AGENTS.md.
-2. Read relevant documents in both languages.
-3. Inspect actual branches, files, issues, and pull requests.
-4. Search for existing work before creating anything.
-5. Convert ambiguity into questions or issues; never turn assumptions into rules.
-6. Deliver changes bilingually, tested, and with evidence.
+## Not verified
+No application implementation, physical database schema/migrations, CI workflow, automated bilingual parity check, partner API connection, sandbox certification, financial calculation/posting, payout, penetration test or production deployment has been verified.
+
+## Continuation rules
+1. Read AGENTS.md and this status record.
+2. Read the relevant English and Persian canonical documents.
+3. Inspect current PR head, changed files, branch ancestry, statuses and repository tree before editing.
+4. Search for existing work before creating a new file or issue.
+5. Keep proposals, owner directions, decisions, implementation and verification evidence distinct.
+6. Update both languages in the same change; validate links, IDs, content parity and scope.
+7. Do not merge, deploy, alter settings or perform destructive actions without explicit owner approval.
 
 ## Next sequence
-1. Complete cross-product domain model, bounded contexts, ownership map and ERD.
-2. Add explicit tenant/identity model and threat model.
-3. Define canonical API conventions and shared event envelope, including source-event/economic-effect/journal-entry identities.
-4. Expand finance posting, reconciliation, payout-control and product/tenant account mappings.
-5. Create technology, deployment, reliability and data-residency ADRs with decision criteria.
-6. Add automated bilingual parity and documentation link/metadata checks.
-7. Only after owner decisions and evidence, scaffold the platform and implement isolated vertical slices.
+1. Review the proposed finance, threat and API baselines with the owner and domain reviewers.
+2. Add technology/deployment/reliability/data-residency ADRs with alternatives and measurable decision criteria.
+3. Define automated bilingual documentation checks (stable IDs, paired paths, links, metadata and semantic review gates).
+4. Complete cross-product architecture and product-specific release gates.
+5. Decide jurisdiction, operating model, provider due diligence and commercial/financial policies.
+6. Only after decisions, scaffold the platform and implement isolated vertical slices with tests.
 
-## Owner decisions required
-Nature of the USD 100 promotional credit, NGR definition, commission rates/distribution, progression rules, withdrawal policy, jurisdictions, and partner API details.
+## Owner decisions still required
+Legal entity and operating model; initial jurisdiction; provider and source-of-truth rules; USD 100 illustrative agent credit; commission/NGR and network progression; account mapping and funding/custody; payout permissions; technology and deployment choices; data residency and retention; official logo source asset.
+
+## Evidence discipline
+This record summarizes repository inspection, not an external audit. Re-fetch PR metadata and commit statuses before relying on a head SHA or CI state.
