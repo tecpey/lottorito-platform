@@ -1,6 +1,6 @@
 # ثبت سند دوطرفه محدود به Tenant در P-02
 
-**شناسه سند:** LOT-PROT-P02-001 | **نسخه:** ۰.۷.۰ | **وضعیت:** Prototype ساختگی؛ ذخیره‌سازی مستقل Effect/Request و Alias پایدار درخواست اضافه شد؛ CI در انتظار
+**شناسه سند:** LOT-PROT-P02-001 | **نسخه:** ۰.۸.۰ | **وضعیت:** Prototype ساختگی؛ ۲۵ تست یکپارچه و کنترل دوزبانه موفق؛ کنترل‌های حسابداری Production تصویب‌نشده
 
 ## هدف و اعتبار
 
@@ -58,11 +58,13 @@
 
 ## وضعیت شواهد
 
-تمام داده‌ها و Credentialها ساختگی‌اند. اجرای P-02 با شناسه [45463594552](https://github.com/tecpey/lottorito-platform/actions/runs/45463594552) روی Head کد `63a5ced2f3611e200a9c681e1a972d77c176c0e4` با ۲۵ تست موفق، صفر شکست و صفر Skip همراه بود؛ اجرای Documentation Governance با شناسه [45463594523](https://github.com/tecpey/lottorito-platform/actions/runs/45463594523) نیز موفق شد. این نتیجه فقط ناورداهای دیتابیسی Prototype ساختگی را اثبات می‌کند، نه صحت حسابداری، صلاحیت قانونی، پذیرش مشتری یا آمادگی Production.
+تمام داده‌ها و Credentialها ساختگی‌اند. اجرای P-02 با شناسه [45465421133](https://github.com/tecpey/lottorito-platform/actions/runs/45465421133) روی Head کد `f4e8551c2297b9a4fd0771f66c3f9e7a91dbe7a0` با ۲۵ تست موفق، صفر شکست و صفر Skip همراه بود؛ اجرای Documentation Governance با شناسه [45465421155](https://github.com/tecpey/lottorito-platform/actions/runs/45465421155) نیز موفق شد. مجموعه تست، Alias پایدار کلید درخواست، هویت مستقل و تغییرناپذیر اثر مالی، همگرایی Duplicate هم‌زمان، رد محتوای ناسازگار و انتشار Effect ID در Outbox را نیز پوشش می‌دهد. این نتیجه فقط ناورداهای دیتابیسی Prototype ساختگی را اثبات می‌کند، نه صحت حسابداری، صلاحیت قانونی، پذیرش مشتری یا آمادگی Production.
 
 ## مراجع تحقیق
 
 - [PostgreSQL 18 — Numeric Types](https://www.postgresql.org/docs/18/datatype-numeric.html): نوع Numeric دقیق و دقت مبالغ.
+- [PostgreSQL 18 — Row Security Policies](https://www.postgresql.org/docs/18/ddl-rowsecurity.html): رفتار Default-deny، FORCE ROW LEVEL SECURITY، قواعد مالک و BYPASSRLS و ملاحظات Referential Integrity.
+- [PostgreSQL 18 — CREATE FUNCTION](https://www.postgresql.org/docs/18/sql-createfunction.html): ایمنی SECURITY DEFINER، Search Path مورد اعتماد، قرارگیری pg_temp در انتها و مجوزهای محدود EXECUTE.
 - [PostgreSQL 18 — INSERT / ON CONFLICT](https://www.postgresql.org/docs/18/sql-insert.html): مدیریت تعارض Unique در درج‌های هم‌زمان.
 - [node-postgres — Transactions](https://node-postgres.com/features/transactions): برای چند Statement در یک Transaction باید از یک Client Checkoutشده استفاده شود.
 - [AWS Builders' Library — Making retries safe with idempotent APIs](https://aws.amazon.com/builders-library/making-retries-safe-with-idempotent-APIs/): هویت درخواست، تعارض پارامترها و اثر Idempotent اتمیک.
