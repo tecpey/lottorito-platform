@@ -1,6 +1,6 @@
 # P-01 Support Access and Break-Glass Prototype
 
-**Document ID:** LOT-PROT-P01-SUPPORT-001 | **Version:** 0.1.0 | **Status:** Implemented prototype slice; CI verification pending  
+**Document ID:** LOT-PROT-P01-SUPPORT-001 | **Version:** 0.2.0 | **Status:** Synthetic prototype slice; 26 CI tests passed; not production-ready  
 **Status:** Implemented prototype slice; CI verification pending  
 **Parent experiment:** LOT-PROT-P01-001
 
@@ -49,4 +49,4 @@ No production identity provider, SSO/MFA, operator UI, dual-control approval, cu
 
 ## Reproduction and evidence
 
-The support tests are included in the P-01 PostgreSQL integration workflow. Required synthetic environment variable: SUPPORT_DATABASE_URL. Until an observed run for the current branch head passes, these scenarios remain **Not verified**.
+The support tests are included in the P-01 PostgreSQL integration workflow. Required synthetic environment variable: SUPPORT_DATABASE_URL. Run [45416127663](https://github.com/tecpey/lottorito-platform/actions/runs/45416127663) passed on head `00229676fd3867706e1959da9854dd03147a8767`: 26 tests passed, 0 failed, 0 skipped, using Node.js 26.13.0, PostgreSQL 18.7, npm ci and immutable action SHAs. Documentation Governance run [45416127746](https://github.com/tecpey/lottorito-platform/actions/runs/45416127746) also passed. These results validate this synthetic experiment only, not production readiness.
