@@ -1,6 +1,6 @@
 # مستندات فارسی Lottorito
 
-**شناسه سند:** LOT-DOC-INDEX-FA-001 | **نسخه:** ۲.۵.۰ | **وضعیت:** فهرست مرجع و در حال نگهداری
+**شناسه سند:** LOT-DOC-INDEX-FA-001 | **نسخه:** ۲.۶.۰ | **وضعیت:** فهرست مرجع و در حال نگهداری
 
 این پوشه مرجع رسمی مستندات فارسی Lottorito است. مستندات انگلیسی در docs/en/ نیز به همان اندازه معتبرند.
 
@@ -64,6 +64,7 @@ LOT-FIN-POST-001 کنترل‌های پیشنهادی ثبت مالی و تطب�
 | مهندسی | [کارگزار اعتبارنامه و Pool اختصاصی Tenant در P-01](engineering/prototypes/p01-tenant-pool-broker.md) | LOT-PROT-P01-POOL-001؛ Resolve امن اعتبارنامه، Pool محدود، بررسی هویت دیتابیس، Eviction و تخلیه ایمن Lease هنگام لغو/Shutdown؛ Prototype ساختگی، CI در انتظار |
 | مهندسی | [ثبت سند دوطرفه محدود به Tenant در P-02](engineering/prototypes/p02-ledger-posting.md) | LOT-PROT-P02-001؛ مبلغ صحیح دقیق، توازن مستقل هر ارز، Journal تغییرناپذیر، Idempotency درخواست/اثر مالی، مرز امن SECURITY DEFINER و Transactional Outbox؛ ۲۵ تست CI موفق در PR شماره ۴۶، فقط آزمایش ساختگی |
 | مهندسی | [تحویل Outbox محدود به Tenant در P-03](engineering/prototypes/p03-outbox-delivery.md) | LOT-PROT-P03-001؛ Relay مبتنی بر Lease، Retry محدود/Dead-letter، Fence کردن Worker قدیمی و Inbox تغییرناپذیر Consumer؛ ۱۰ تست CI موفق در PR شماره ۵۰، فقط آزمایش ساختگی |
+| مهندسی | [تکامل Schema و سازگاری در P-04](engineering/prototypes/p04-schema-evolution.md) | LOT-PROT-P04-001؛ Expand افزایشی، سازگاری Writer قدیم/جدید، Backfill قابل ادامه و محدود به Tenant، Checksum Migration، Lock Timeout و بازیابی Index Concurrent؛ PR شماره ۵۱ در وضعیت Draft و CI در انتظار |
 | مهندسی | [راهنمای عملیاتی ایجنت‌ها](engineering/agent-operating-manual.md) | مسیریابی کم‌هزینه و تحویل کار |
 | مهندسی | [دفتر ثبت تصمیم‌ها](engineering/decision-register.md) | دستور مالک، پیشنهاد و تصمیم باز |
 | مهندسی | [وضعیت پروژه](engineering/project-status.md) | وضعیت تأییدشده و نقطه ادامه |
