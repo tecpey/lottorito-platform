@@ -6,7 +6,7 @@
 ۲. **Cross-product Domain & Data Design:** بازبینی LOT-DOM-001؛ تصویب Bounded Context مستقل Affiliate و Lottery، مالکیت قابلیت مشترک، ERD منطقی، چرخه داده، مرز Tenant و راهبرد Migration.
 ۳. **Tenant & Security Architecture:** بازبینی LOT-TEN-001 و LOT-SEC-TM-001؛ تکمیل هویت/عضویت، زمینه Worker، تحلیل مرز اعتماد و سوءاستفاده، راستی‌آزمایی جداسازی، دسترسی پشتیبانی و کنترل پاسخ رخداد.
 ۴. **API & Event Foundation:** بازبینی LOT-API-001 و LOT-EVENT-001؛ نهایی‌سازی قرارداد Resource/احراز هویت، سازگاری Schema، Inbox/Outbox، Idempotency، امضای Webhook و کنترل Replay.
-۵. **Technology & Platform ADRs:** انتخاب Stack و مدل استقرار با ADR مبتنی بر شواهد؛ تعریف پیکربندی امن، Logging، Health، قابلیت اطمینان و CI پایه.
+۵. **Technology & Platform ADRs:** بازبینی LOT-TECH-ADR-001؛ اجرای Prototypeهای لازم و اخذ تأیید مالک/امنیت/مالی/حقوقی پیش از انتخاب Stack، Hosting، Region یا SLO/RPO/RTO عددی.
 ۶. **Identity & Tenant Implementation:** هویت، نشست، RBAC، عضویت Tenant و تست جداسازی.
 ۷. **Affiliate & Attribution:** پروفایل، شبکه ارجاع، لینک رهگیری، رویداد و انتساب.
 ۸. **Finance Core:** بازبینی LOT-FIN-POST-001؛ تصویب مالکیت حساب، Chart of Accounts، ثبت تغییرناپذیر، معنای موجودی، صورت‌حساب، تطبیق و دروازه‌های پرداخت.
