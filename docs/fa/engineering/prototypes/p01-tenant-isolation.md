@@ -18,7 +18,7 @@
 - Pool تک‌اتصالی، درخواست‌های متناوب Tenantها را عمداً روی یک اتصال فیزیکی مشترک اجرا می‌کند.
 - ایجاد Job، ردیف Job مختص Tenant و ردیف Dispatch فاقد Payload را در یک تراکنش دیتابیس می‌نویسد؛ Tenant ID از Principal احراز‌شده گرفته می‌شود.
 - Role جداگانه Dispatcher که Superuser و BYPASSRLS نیست، می‌تواند Metadata سراسری Dispatch را با `FOR UPDATE SKIP LOCKED` Claim کند، اما هیچ مجوزی برای Payloadهای Job ندارد. مجوز UPDATE آن فقط به ستون‌های وضعیت/تلاش/Lease محدود است.
-- Envelope مربوط به Dispatch، نسخه، Tenant ID، Job ID، شماره تلاش و زمان صدور را با HMAC-SHA-256 امضا می‌کند؛ Worker پیش از ایجاد Tenant Context امضا را بررسی و سپس Job را تحت RLS دوباره بارگذاری می‌کند.
+- Envelope مربوط به Dispatch، Key ID، نسخه، Tenant ID، Job ID، شماره تلاش و زمان صدور را با امضای Ed25519 مقید می‌کند. Dispatcher کلید خصوصی امضا را نگه می‌دارد؛ Worker فقط کلید عمومی اعتبارسنجی را دریافت می‌کند و پیش از ایجاد Tenant Context امضا را بررسی و سپس Job را تحت RLS دوباره بارگذاری می‌کند. تست‌ها در هر اجرا یک جفت کلید موقت و تازه تولید می‌کنند.
 - Worker عضویت فعال Actor مبدأ را در تراکنش Job دوباره بررسی می‌کند، از Row Lock و تغییر وضعیت Idempotent استفاده می‌کند و Jobهایی را که عضویتشان پیش از اجرا لغو شده رد می‌کند.
 
 ## سناریوهای پذیرش
@@ -75,13 +75,12 @@ docker compose -f compose.yaml up -d --wait
 export ADMIN_DATABASE_URL='postgres://postgres:p01-admin-only-not-production@127.0.0.1:55432/lottorito_p01'
 export DATABASE_URL='postgres://app_runtime:p01-only-not-for-production@127.0.0.1:55432/lottorito_p01'
 export DISPATCHER_DATABASE_URL='postgres://job_dispatcher:p01-dispatcher-not-for-production@127.0.0.1:55432/lottorito_p01'
-export JOB_ENVELOPE_SECRET='p01-only-synthetic-envelope-secret-not-production'
 npm ci --ignore-scripts --no-audit --no-fund
 npm test
 docker compose -f compose.yaml down
 ```
 
-Workflow یک سرویس موقت PostgreSQL 18.7 ایجاد می‌کند و فقط از Credentialهای ساختگی استفاده می‌کند. Workflow امکان اجرای دستی نیز دارد. اسکریپت SQL جدول‌های Fixture مربوط به Prototype را حذف و دوباره ایجاد می‌کند و Roleهای ساختگی را Reset می‌کند؛ هرگز آن را به دیتابیس مشترک، Staging یا Production متصل نکنید. Credential مربوط به Dispatcher و کلید Envelope بالا فقط مقادیر آزمایشی ساختگی هستند.
+Workflow یک سرویس موقت PostgreSQL 18.7 ایجاد می‌کند و فقط از Credentialهای ساختگی استفاده می‌کند. Workflow امکان اجرای دستی نیز دارد. اسکریپت SQL جدول‌های Fixture مربوط به Prototype را حذف و دوباره ایجاد می‌کند و Roleهای ساختگی را Reset می‌کند؛ هرگز آن را به دیتابیس مشترک، Staging یا Production متصل نکنید. Credential مربوط به Dispatcher فقط یک مقدار آزمایشی ساختگی است؛ کلیدهای Ed25519 در هر اجرای تست به‌صورت موقت تولید می‌شوند و در مخزن ذخیره نمی‌شوند.
 
 ## محدودیت Dependency و CI
 
