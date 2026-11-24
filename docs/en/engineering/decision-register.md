@@ -34,6 +34,10 @@ This register prevents agents from turning discussion, examples or proposals int
 | LDR-021 | Future product horizons | Not in current scope | Casino, poker, blackjack, backgammon, sportsbook and VPN/exchange-related ideas are future horizons, not approved current modules. | Separate product and legal decision required for each. |
 | LDR-022 | Merge/deploy authority | Owner constraint | No merge, production deployment, repository settings change or destructive operation without explicit owner approval. | Mandatory across all agent tasks. |
 
+| LDR-023 | Financial posting and reconciliation | Proposed | LOT-FIN-001 defines immutable posting, account dimensions, balance states and reconciliation controls; it does not authorize custody or payouts. | Owner/finance/legal review required; accounting policy and account mapping remain open. |
+| LDR-024 | Security threat model | Proposed | LOT-SEC-TM-001 defines trust boundaries, abuse cases and minimum verification; it is not a security audit or certification. | Security review and implementation evidence required. |
+| LDR-025 | API resource contract | Proposed | LOT-API-001 defines resource, auth, tenant context, error, pagination, idempotency and webhook conventions; no endpoint is thereby implemented. | Architecture and owner approval required before publishing API commitments. |
+
 ## Decision-change protocol
 1. Propose a change with rationale, alternatives, impact and evidence.
 2. Identify the decision owner and affected documents/domains.
