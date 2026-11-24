@@ -46,4 +46,6 @@
 
 ## وضعیت شواهد
 
+اجرای P-01 Tenant Isolation با شناسه [45425122143](https://github.com/tecpey/lottorito-platform/actions/runs/45425122143) روی Head کد `097ef0d0f00a5f36dc0d1f8fea33f1934a5a4d70` موفق شد: ۳۵ تست موفق، صفر شکست و صفر تست Skip‌شده. اجرای Documentation Governance با شناسه [45425122209](https://github.com/tecpey/lottorito-platform/actions/runs/45425122209) نیز موفق بود. اجرای محلی و تحویل دانلود با Provider واقعی هنوز تأیید نشده‌اند.
+
 کد، Schema و سناریوهای یکپارچه‌سازی ساختگی در یک Draft PR پشته‌شده پیاده‌سازی شده‌اند. CI و اجرای محلی در انتظار هستند. تمام Fixtureها و Credentialها ساختگی‌اند.
