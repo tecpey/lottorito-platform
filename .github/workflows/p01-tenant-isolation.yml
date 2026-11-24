@@ -7,6 +7,8 @@ on:
       - "prototypes/p01-tenant-isolation/**"
       - "docs/en/engineering/prototypes/p01-tenant-isolation.md"
       - "docs/fa/engineering/prototypes/p01-tenant-isolation.md"
+      - "docs/en/engineering/prototypes/p01-support-breakglass.md"
+      - "docs/fa/engineering/prototypes/p01-support-breakglass.md"
       - ".github/workflows/p01-tenant-isolation.yml"
   push:
     branches:
