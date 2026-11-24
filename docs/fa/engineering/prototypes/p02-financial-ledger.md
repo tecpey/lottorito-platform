@@ -1,6 +1,6 @@
 # P-02 — نمونه دفترکل مالی و تطبیق
 
-**شناسه سند:** LOT-PROT-P02-001 | **نسخه:** ۰.۲.۰ | **وضعیت:** Prototype موقت؛ شواهد CI در انتظار | **تاریخ بازبینی:** ۲۰۲۶-۱۱-۲۴
+**شناسه سند:** LOT-PROT-P02-001 | **نسخه:** ۰.۳.۰ | **وضعیت:** CI مربوط به Prototype موفق؛ P-02 کامل همچنان جزئی است | **تاریخ بازبینی:** ۲۰۲۶-۱۱-۲۴
 
 ## هدف و مرز تصمیم
 
@@ -49,6 +49,12 @@ P-02 یک آزمایش با داده‌های ساختگی برای زیرساخ
 | P02-LEDGER-18 | ثبت Event خارج از محدوده Source Event همان Tenant/Product | Posting پیش از ساخت Journal رد شود |
 | P02-LEDGER-19 | Commit کردن Effect/Outbox متصل به Journal در وضعیت Draft | Deferred Constraint در زمان Commit تراکنش را رد کند |
 
+## شواهد CI تأییدشده
+
+- اجرای P-02 با شناسه [45415122608](https://github.com/tecpey/lottorito-platform/actions/runs/45415122608) روی Head کد 24e299badfee5ac0207347c1be3b6ea14759a016 موفق شد: ۱۹ تست Node موفق، صفر شکست و صفر Skip؛ با npm ci، Lockfile ثبت‌شده، Node.js 26.13.0 و PostgreSQL 18.7.
+- اجرای Documentation Governance با شناسه [45415219866](https://github.com/tecpey/lottorito-platform/actions/runs/45415219866) روی Head مستندات دوزبانه پیش از افزودن این یادداشت شواهد موفق شد.
+- اجرای محلی در این محیط انجام نشده است. موفقیت CI فقط سناریوهای ساختگی تعریف‌شده را اثبات می‌کند و به معنی آمادگی Production نیست.
+
 ## اجرای محلی و بازتولیدپذیری
 
 فقط از دیتابیس محلی و دورریختنی استفاده کنید. اسکریپت Setup اشیای Fixture مربوط به P-02 را حذف و دوباره ایجاد می‌کند؛ هرگز آن را به دیتابیس مشترک، Staging یا Production متصل نکنید.
@@ -67,7 +73,7 @@ P-02 یک آزمایش با داده‌های ساختگی برای زیرساخ
 
 - P-02 برای RLS از الگوی Role مشترک و Custom GUC استفاده می‌کند. در P-01 نشان داده شد Role مشترک برنامه در صورت تسخیر می‌تواند GUC را تغییر دهد؛ بنابراین این Prototype اثبات جداسازی در برابر مهاجم نیست.
 - این Prototype هنوز Workflow حاکمیت Chart of Accounts، وجوه Pending/Available/Held، قفل جلوگیری از Overdraft، Serialize کردن Account در بار هم‌زمان بالا، تجمیع چند Ledger، تبدیل FX، مالیات، سیاست Rounding، Chargeback، تسویه Payout یا Reconciliation با بانک/Provider خارجی را مدل نمی‌کند.
-- Reconciliation فعلی مقایسه Source Event ساختگی است، نه اتصال به صورت‌حساب بانک یا Partner.
+- Reconciliation فعلی مقایسه Source Event ساختگی است، نه اتصال به صورت‌حساب بانک یا Partner. مبلغ مورد انتظار Source Event یک ورودی مستقل محسوب می‌شود؛ این Prototype مبلغ کمیسیون بالادستی را محاسبه یا تصویب نمی‌کند.
 - Outbox به‌صورت اتمیک ذخیره می‌شود، اما Broker خارجی، Retry ناشر، Dead-letter Queue یا Deployment مصرف‌کننده انتخاب نشده است.
 - هیچ ادعایی درباره Load، Failover، Backup/Restore، Disaster Recovery، Penetration Test، بازبینی حقوقی/حسابداری یا آمادگی Production وجود ندارد.
 - P-02 تا زمان تحقیق و آزمایش مرزهای باقی‌مانده همچنان جزئی است.
