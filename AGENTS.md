@@ -4,11 +4,12 @@
 Continue Lottorito from the repository's verified state. Do not restart planning, recreate existing files, or claim unfinished work is complete.
 
 ## Before every task
-1. Read this guide and the relevant Persian and English documents under docs/.
-2. Read docs/en/engineering/project-status.md and relevant decision records.
+1. Read this guide, then follow docs/en/engineering/agent-operating-manual.md (LOT-AGENT-001) or its Persian counterpart for token-efficient task routing.
+2. Read the relevant language versions of docs/en/engineering/project-status.md (LOT-OPS-001) and docs/en/engineering/decision-register.md (LOT-ADR-REG-001).
 3. Inspect current branches, files, issues, pull requests, and implementation before editing.
 4. Search for existing modules, tests, and documents before creating replacements.
 5. State assumptions explicitly; unresolved business rules must remain open questions.
+6. Read only the domain documents required by the task; do not load the entire documentation set by default.
 
 ## Mandatory bilingual documentation
 - docs/fa and docs/en are equally authoritative.
@@ -16,7 +17,8 @@ Continue Lottorito from the repository's verified state. Do not restart planning
 - Update both language versions in the same commit or pull request.
 - Preserve semantic parity for amounts, formulas, constraints, statuses, examples, and acceptance criteria.
 - File existence alone does not prove synchronization.
-- Until automated parity CI is implemented and verified, reviewers must manually compare both versions.
+- A structural validator is available at scripts/check_docs.py and is run by .github/workflows/docs-governance.yml. It checks paired Markdown paths, stable/unique IDs, level-one titles, version/status metadata and local links; it does not prove semantic translation parity.
+- Reviewers must continue manually comparing both versions for meaning, formulas, amounts, constraints and policy status.
 
 ## Engineering rules
 - Prefer small, reviewable, independently testable changes.
@@ -28,11 +30,12 @@ Continue Lottorito from the repository's verified state. Do not restart planning
 - Test happy paths, boundaries, duplicate/replayed events, concurrency, tenant isolation, reversals, and failure recovery.
 - Report exact commands, results, skipped checks, and limitations. Never fabricate test or CI evidence.
 
-## Verified baseline at 2026-11-23
+## Verified baseline at 2026-11-24
 - Repository: tecpey/lottorito-platform; default branch: main; visibility: public by owner decision.
-- GitHub connection reported admin, maintain, push, pull, and triage permissions.
-- docs/fa/README.md and docs/en/README.md exist and were read back successfully.
-- No application code, database schema, partner API integration, CI workflow, or production deployment has yet been verified.
+- The repository contains paired Persian/English product, architecture, commission, finance, partner, security, glossary, roadmap and status documents.
+- Agent operating manual (LOT-AGENT-001), decision register (LOT-ADR-REG-001), Lottery discovery PRD (LOT-LOTTERY-001), Lottery provider contract (LOT-LOTINT-001), finance posting (LOT-FIN-POST-001), threat model (LOT-SEC-TM-001), API resource specification (LOT-API-001), and technology/deployment ADRs (LOT-TECH-ADR-001) are maintained in a documentation work branch pending review.
+- The README refinement remains in open Draft PR #19; it has not been merged.
+- No application code, physical database schema, partner API integration, sandbox, or production deployment has been verified. A structural documentation CI workflow exists and has passed; it checks paired paths, stable IDs and local links, not semantic translation parity.
 
 ## Definition of done
 A task is done only when implementation exists, relevant tests pass, documentation is synchronized in both languages, security and tenant implications are reviewed, and commit/PR/CI evidence is linked.
