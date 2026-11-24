@@ -9,6 +9,13 @@ import { withTenantTransaction } from "../src/tenant-db.js";
 import { acknowledgeJob, claimNextJob } from "../src/job-dispatch.js";
 import { processTenantJob } from "../src/job-worker.js";
 import {
+  TenantScopedCache,
+  TenantScopedObjectStore,
+  TenantScopedSearch,
+  tenantCacheKey,
+  tenantObjectKey
+} from "../src/data-plane.js";
+import {
   authenticateSyntheticRequest,
   TENANT_A,
   TENANT_B,
@@ -750,4 +757,97 @@ test("grant revocation blocks behind an in-flight authorized support read lock",
     token: "p01-synthetic-support-token", headers: { "x-support-grant-id": SUPPORT_GRANT_ACTIVE }
   });
   assert.equal(denied.status, 403);
+});
+
+
+test("cache keys are tenant-scoped and reject path/control segment injection", async () => {
+  const entries = new Map();
+  const cache = new TenantScopedCache({
+    async get(key) { return entries.get(key) ?? null; },
+    async set(key, value) { entries.set(key, value); return true; },
+    async delete(key) { return entries.delete(key); }
+  });
+
+  await cache.set(TENANT_A, "profile", "summary", "tenant A cache value");
+  await cache.set(TENANT_B, "profile", "summary", "tenant B cache value");
+  assert.equal(await cache.get(TENANT_A, "profile", "summary"), "tenant A cache value");
+  assert.equal(await cache.get(TENANT_B, "profile", "summary"), "tenant B cache value");
+  assert.notEqual(tenantCacheKey(TENANT_A, "profile", "summary"), tenantCacheKey(TENANT_B, "profile", "summary"));
+  await assert.rejects(cache.get(TENANT_A, "../tenant-b", "summary"), TypeError);
+  await assert.rejects(cache.set(TENANT_A, "profile", "%2e%2e", "forged"), TypeError);
+  assert.equal(await cache.get(TENANT_B, "profile", "summary"), "tenant B cache value");
+});
+
+test("object storage keys enforce tenant prefixes and reject traversal segments", async () => {
+  const objects = new Map();
+  const store = new TenantScopedObjectStore({
+    async get(key) { return objects.get(key) ?? null; },
+    async put(key, value) { objects.set(key, value); return true; },
+    async delete(key) { return objects.delete(key); }
+  });
+
+  await store.put(TENANT_A, "documents", SHARED_RECORD_ID, "tenant A object");
+  await store.put(TENANT_B, "documents", SHARED_RECORD_ID, "tenant B object");
+  assert.equal(await store.get(TENANT_A, "documents", SHARED_RECORD_ID), "tenant A object");
+  assert.equal(await store.get(TENANT_B, "documents", SHARED_RECORD_ID), "tenant B object");
+  assert.notEqual(tenantObjectKey(TENANT_A, "documents", SHARED_RECORD_ID), tenantObjectKey(TENANT_B, "documents", SHARED_RECORD_ID));
+  await assert.rejects(store.get(TENANT_A, "../tenant-b", SHARED_RECORD_ID), TypeError);
+  await assert.rejects(store.put(TENANT_A, "documents", "../private", "forged"), TypeError);
+  assert.equal(await store.get(TENANT_B, "documents", SHARED_RECORD_ID), "tenant B object");
+});
+
+test("search adapter injects a trusted tenant filter and does not accept caller tenant overrides", async () => {
+  const documents = [
+    { tenant_id: TENANT_A, id: "a-1", text: "monthly affiliate report A" },
+    { tenant_id: TENANT_B, id: "b-1", text: "monthly affiliate report B" }
+  ];
+  let lastRequest;
+  const search = new TenantScopedSearch({
+    async search(request) {
+      lastRequest = request;
+      return documents.filter((document) =>
+        document.tenant_id === request.tenantFilter.tenant_id &&
+        document.text.includes(request.query)
+      );
+    }
+  });
+
+  const resultA = await search.search(TENANT_A, "monthly");
+  const resultB = await search.search(TENANT_B, "monthly");
+  assert.deepEqual(resultA.map((item) => item.id), ["a-1"]);
+  assert.deepEqual(resultB.map((item) => item.id), ["b-1"]);
+  assert.deepEqual(lastRequest.tenantFilter, { tenant_id: TENANT_B });
+  assert.equal(Object.isFrozen(lastRequest.tenantFilter), true);
+  await assert.rejects(search.search(TENANT_A, { query: "monthly", tenant_id: TENANT_B }), TypeError);
+});
+
+test("reporting rows are isolated by RLS for shared and identity-bound database roles", async () => {
+  const reportId = "99999999-9999-4999-8999-999999999999";
+  const sharedA = await withTenantTransaction(pool, TENANT_A, (client) =>
+    client.query("SELECT report_id, report_key, payload FROM public.tenant_reports WHERE report_id = $1", [reportId])
+  );
+  const sharedB = await withTenantTransaction(pool, TENANT_B, (client) =>
+    client.query("SELECT report_id, report_key, payload FROM public.tenant_reports WHERE report_id = $1", [reportId])
+  );
+  assert.equal(sharedA.rowCount, 1);
+  assert.equal(sharedA.rows[0].payload, "tenant A private report");
+  assert.equal(sharedB.rowCount, 1);
+  assert.equal(sharedB.rows[0].payload, "tenant B private report");
+
+  const aCannotReadB = await withTenantTransaction(pool, TENANT_A, (client) =>
+    client.query("SELECT payload FROM public.tenant_reports WHERE tenant_id = $1", [TENANT_B])
+  );
+  assert.equal(aCannotReadB.rowCount, 0);
+
+  const identityA = await tenantAPool.query("SELECT payload FROM public.tenant_reports WHERE report_id = $1", [reportId]);
+  const identityB = await tenantBPool.query("SELECT payload FROM public.tenant_reports WHERE report_id = $1", [reportId]);
+  assert.deepEqual(identityA.rows.map((row) => row.payload), ["tenant A private report"]);
+  assert.deepEqual(identityB.rows.map((row) => row.payload), ["tenant B private report"]);
+
+  const noContext = await pool.query("SELECT count(*)::int AS count FROM public.tenant_reports");
+  assert.equal(noContext.rows[0].count, 0);
+  await assert.rejects(
+    pool.query("INSERT INTO public.tenant_reports (tenant_id, report_id, report_key, payload) VALUES ($1, $2, $3, $4)", [TENANT_A, reportId, "unauthorized", "must fail"]),
+    (error) => error.code === "42501"
+  );
 });
