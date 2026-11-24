@@ -1,6 +1,6 @@
 # Lottorito — English Documentation
 
-**Document ID:** LOT-DOC-INDEX-EN-001 | **Version:** 2.0.0 | **Status:** Maintained index
+**Document ID:** LOT-DOC-INDEX-EN-001 | **Version:** 2.1.0 | **Status:** Maintained index
 
 This directory is the authoritative English documentation space for Lottorito. The Persian documentation under docs/fa/ is equally authoritative.
 
@@ -48,6 +48,7 @@ LOT-FIN-POST-001 defines proposed financial posting and reconciliation controls;
 | Architecture | [Unified multi-tenant B2B2C platform architecture](architecture/unified-b2b2c-platform-architecture.md) | LOT-PLATFORM-001; proposed B2B/B2C/white-label experiences, tenants, identity, dashboards, wallet, payments, chat, security and delivery roadmap |
 | Architecture | [Payment orchestration and provider adapter contract](architecture/payment-orchestration-contract.md) | LOT-PAYMENT-001; proposed provider-neutral intents/attempts, adapters, callbacks, routing, refunds, settlement and reconciliation; no provider selected |
 | Product | [Role-based dashboards and workspace blueprint](product/role-based-dashboards-blueprint.md) | LOT-DASH-001; detailed workspaces for Platform, Tenant, White-Label, Affiliate/Agent, Support, Finance, Compliance and B2C, with journeys, KPIs and acceptance tests |
+| Product | [First-party B2C application PRD](product/first-party-b2c-app-prd.md) | LOT-B2C-PRD-001; dedicated B2C tenant, customer journeys, eligible module composition, wallet/payments/payouts, chat, support, localization and release gates |
 | Architecture | [Tenant, identity, membership and authorization model](architecture/tenant-identity-authorization-model.md) | LOT-IAM-TENANT-001; tenant lifecycle, principal/membership model, RBAC/ABAC, dashboard access matrix, isolation and security acceptance tests |
 | Architecture | [Embeddable chat module](architecture/embeddable-chat-module.md) | LOT-CHAT-WIDGET-001; reusable first-party and third-party widget, secure session bootstrap and API contract |
 | Architecture | [Future gaming domains and provider strategy](architecture/future-gaming-domains-and-provider-strategy.md) | LOT-GAMING-STRATEGY-001; future Sportsbook, Live Casino and E-Gaming taxonomy, provider RFI and regulatory gates |
