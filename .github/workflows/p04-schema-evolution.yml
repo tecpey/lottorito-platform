@@ -3,9 +3,6 @@ on:
   workflow_dispatch:
   pull_request:
     paths: ["prototypes/p04-schema-evolution/**", "docs/en/engineering/prototypes/p04-schema-evolution.md", "docs/fa/engineering/prototypes/p04-schema-evolution.md", ".github/workflows/p04-schema-evolution.yml"]
-  push:
-    branches: ["spike/p04-schema-evolution"]
-    paths: ["prototypes/p04-schema-evolution/**", ".github/workflows/p04-schema-evolution.yml"]
 permissions: {contents: read}
 concurrency:
   group: p04-schema-evolution-${{ github.ref }}
