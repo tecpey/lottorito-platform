@@ -41,7 +41,8 @@ export async function issueExportDownloadGrant({
          FROM public.tenant_exports
         WHERE export_id = $1
           AND created_by = $2
-          AND status = 'ready'`,
+          AND status = 'ready'
+        FOR SHARE`,
       [exportId, subjectId]
     );
     if (ownedExport.rowCount !== 1) return null;
@@ -85,7 +86,7 @@ export async function consumeExportDownloadGrant({
         WHERE g.tenant_id = $1
           AND g.subject_id = $2
           AND g.token_hash = $3
-        FOR UPDATE OF g`,
+        FOR UPDATE OF g FOR SHARE OF e`,
       [tenantId, subjectId, tokenHash]
     );
     const grant = selected.rows[0];
@@ -93,8 +94,7 @@ export async function consumeExportDownloadGrant({
       !grant ||
       grant.consumed_at !== null ||
       grant.revoked_at !== null ||
-      grant.export_status !== "ready" ||
-      new Date(grant.expires_at).getTime() <= Date.now()
+      grant.export_status !== "ready"
     ) {
       return null;
     }
