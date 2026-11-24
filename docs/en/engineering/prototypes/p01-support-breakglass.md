@@ -1,6 +1,6 @@
 # P-01 Support Access and Break-Glass Prototype
 
-**Document ID:** LOT-PROT-P01-SUPPORT-001 | **Version:** 0.2.0 | **Status:** Synthetic prototype slice; 26 CI tests passed; not production-ready  
+**Document ID:** LOT-PROT-P01-SUPPORT-001 | **Version:** 0.2.1 | **Status:** Synthetic prototype slice; 26 CI tests passed; not production-ready  
 **Status:** Implemented prototype slice; CI verification pending  
 **Parent experiment:** LOT-PROT-P01-001
 
@@ -17,7 +17,7 @@ This is a disposable synthetic-data experiment. It is not a production support c
 - Caller-supplied grant/tenant identifiers are not authorization proof; the database lookup matches the authenticated support subject, tenant, scope, expiry and revocation state.
 - A dedicated support-authorizer DB role can read grant metadata and append audit events. It cannot read tenant records, jobs, wallet data or other payload tables.
 - The tenant-scoped read is performed through the existing RLS transaction. The support role itself never receives tenant payload privileges.
-- The grant row is locked with FOR SHARE for the duration of the read so concurrent revocation serializes with access.
+- The grant row is locked with FOR SHARE for the duration of the read so concurrent revocation serializes with access. PostgreSQL also evaluates an UPDATE RLS policy for this row-locking clause; the support role receives only column-level UPDATE on inert lock_version, never revoked_at.
 - Audit events are append-only for the support-authorizer role and include subject, grant, tenant, resource, action, reason, outcome and database timestamp.
 - Support access is read-only. No write, financial, credential, payout, wallet or identity mutation is in scope.
 
@@ -49,4 +49,4 @@ No production identity provider, SSO/MFA, operator UI, dual-control approval, cu
 
 ## Reproduction and evidence
 
-The support tests are included in the P-01 PostgreSQL integration workflow. Required synthetic environment variable: SUPPORT_DATABASE_URL. Run [45416127663](https://github.com/tecpey/lottorito-platform/actions/runs/45416127663) passed on head `00229676fd3867706e1959da9854dd03147a8767`: 26 tests passed, 0 failed, 0 skipped, using Node.js 26.13.0, PostgreSQL 18.7, npm ci and immutable action SHAs. Documentation Governance run [45416127746](https://github.com/tecpey/lottorito-platform/actions/runs/45416127746) also passed. These results validate this synthetic experiment only, not production readiness.
+The support tests are included in the P-01 PostgreSQL integration workflow. Required synthetic environment variable: SUPPORT_DATABASE_URL. Run [45416768795](https://github.com/tecpey/lottorito-platform/actions/runs/45416768795) passed on head `4058e5f9a55e35780d5fe88d927fa651784b2236`: 26 tests passed, 0 failed, 0 skipped, using Node.js 26.13.0, PostgreSQL 18.7, npm ci and immutable action SHAs. Documentation Governance run [45416768461](https://github.com/tecpey/lottorito-platform/actions/runs/45416768461) also passed. These results validate this synthetic experiment only, not production readiness.
