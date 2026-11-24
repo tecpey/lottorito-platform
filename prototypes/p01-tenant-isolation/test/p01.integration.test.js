@@ -455,6 +455,27 @@ test("identity-bound per-tenant database roles resist GUC spoofing and role swit
     assert.equal(identity.rows[0].current_user, expectedRole);
     assert.equal(identity.rows[0].tenant_id, ownTenant);
 
+    const functionSecurity = await poolForTenant.query(
+      "SELECT p.prosecdef, p.proconfig, pg_get_userbyid(p.proowner) AS function_owner, r.rolcanlogin, r.rolsuper, r.rolbypassrls, has_schema_privilege(current_user, 'private', 'CREATE') AS can_create_in_private FROM pg_proc p JOIN pg_roles r ON r.rolname = pg_get_userbyid(p.proowner) WHERE p.oid = 'private.current_tenant_id()'::regprocedure"
+    );
+    assert.equal(functionSecurity.rows.length, 1);
+    assert.equal(functionSecurity.rows[0].prosecdef, true);
+    assert.equal(functionSecurity.rows[0].function_owner, "tenant_identity_owner");
+    assert.equal(functionSecurity.rows[0].rolcanlogin, false);
+    assert.equal(functionSecurity.rows[0].rolsuper, false);
+    assert.equal(functionSecurity.rows[0].rolbypassrls, false);
+    assert.equal(functionSecurity.rows[0].can_create_in_private, false);
+    assert.ok(functionSecurity.rows[0].proconfig.includes("search_path=pg_catalog, private, pg_temp"));
+
+    // Try to shadow the private identity map from a caller-controlled temp schema.
+    await poolForTenant.query("CREATE TEMP TABLE tenant_role_map (database_role name, tenant_id uuid)");
+    await poolForTenant.query(
+      "INSERT INTO pg_temp.tenant_role_map (database_role, tenant_id) VALUES ($1, $2)",
+      [expectedRole, otherTenant]
+    );
+    const afterTempShadow = await poolForTenant.query("SELECT private.current_tenant_id()::text AS tenant_id");
+    assert.equal(afterTempShadow.rows[0].tenant_id, ownTenant);
+
     const roleState = await poolForTenant.query(
       "SELECT r.rolsuper, r.rolbypassrls, pg_has_role(session_user, $1, 'SET') AS can_set_other_role FROM pg_roles r WHERE r.rolname = session_user",
       [ownTenant === TENANT_A ? "tenant_b_runtime" : "tenant_a_runtime"]
@@ -462,6 +483,18 @@ test("identity-bound per-tenant database roles resist GUC spoofing and role swit
     assert.equal(roleState.rows[0].rolsuper, false);
     assert.equal(roleState.rows[0].rolbypassrls, false);
     assert.equal(roleState.rows[0].can_set_other_role, false);
+
+    const expectedSubject = ownTenant === TENANT_A ? "synthetic-user-a" : "synthetic-user-b";
+    const memberships = await poolForTenant.query(
+      "SELECT subject_id FROM public.tenant_memberships ORDER BY subject_id"
+    );
+    assert.deepEqual(memberships.rows.map((row) => row.subject_id), [expectedSubject]);
+
+    const jobs = await poolForTenant.query(
+      "SELECT subject_id, payload FROM public.tenant_jobs ORDER BY job_id"
+    );
+    assert.ok(jobs.rowCount > 0);
+    assert.equal(jobs.rows.every((row) => row.subject_id === expectedSubject), true);
 
     const ownRow = await poolForTenant.query(
       "SELECT payload FROM public.tenant_records WHERE record_id = $1",
@@ -486,6 +519,10 @@ test("identity-bound per-tenant database roles resist GUC spoofing and role swit
 
     await assert.rejects(
       poolForTenant.query("SET ROLE " + (ownTenant === TENANT_A ? "tenant_b_runtime" : "tenant_a_runtime")),
+      (error) => error.code === "42501"
+    );
+    await assert.rejects(
+      poolForTenant.query("SET SESSION AUTHORIZATION " + (ownTenant === TENANT_A ? "tenant_b_runtime" : "tenant_a_runtime")),
       (error) => error.code === "42501"
     );
     await assert.rejects(
