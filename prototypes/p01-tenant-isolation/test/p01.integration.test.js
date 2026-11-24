@@ -985,3 +985,29 @@ test("malformed download tokens and invalid tenant context fail closed", async (
     pool, tenantId: "not-a-tenant", subjectId: "synthetic-user-a", token: "not-a-token"
   }), TypeError);
 });
+
+
+test("revoked tenant membership blocks new export grants and redemption of existing grants", async () => {
+  const grant = await issueExportDownloadGrant({
+    pool, tenantId: TENANT_A, exportId: EXPORT_ID_SHARED, subjectId: "synthetic-user-a"
+  });
+  assert.ok(grant);
+
+  await adminPool.query(
+    "UPDATE public.tenant_memberships SET active = false WHERE tenant_id = $1 AND subject_id = $2",
+    [TENANT_A, "synthetic-user-a"]
+  );
+  try {
+    assert.equal(await issueExportDownloadGrant({
+      pool, tenantId: TENANT_A, exportId: EXPORT_ID_SHARED, subjectId: "synthetic-user-a"
+    }), null);
+    assert.equal(await consumeExportDownloadGrant({
+      pool, tenantId: TENANT_A, subjectId: "synthetic-user-a", token: grant.token
+    }), null);
+  } finally {
+    await adminPool.query(
+      "UPDATE public.tenant_memberships SET active = true WHERE tenant_id = $1 AND subject_id = $2",
+      [TENANT_A, "synthetic-user-a"]
+    );
+  }
+});
