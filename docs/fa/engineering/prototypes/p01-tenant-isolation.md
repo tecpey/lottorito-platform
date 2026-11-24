@@ -31,6 +31,8 @@
 | P01-DB-02 | بررسی Role اجرایی و تنظیمات جدول | نه Superuser، نه مالک جدول و نه BYPASSRLS؛ RLS و FORCE RLS فعال |
 | P01-DB-03 | Query/Insert بدون Tenant Context | Select هیچ سطری نمی‌بیند؛ Insert رد می‌شود |
 | P01-DB-04 | تلاش برای تغییر app.tenant_id با Role مشترک app_runtime | افشای مورد انتظار: Role می‌تواند Tenant دیگری را اظهار کند؛ اثبات می‌کند GUC/RLS در برابر Credential اجرایی تسخیرشده مرز امنیتی نیست |
+| P01-DB-05 | اجرای UPDATE/DELETE روی شیء اختصاصی Tenant B در Context مربوط به A | هیچ ردیفی تغییر یا حذف نمی‌شود؛ شیء B بدون تغییر باقی می‌ماند |
+| P01-DB-06 | INSERT ردیف Tenant B در Context مربوط به A، با دور زدن HTTP | قاعده RLS از طریق WITH CHECK نوشتن را رد می‌کند؛ تراکنش ناموفق پیش از استفاده مجدد Pool Rollback می‌شود |
 
 ## تفسیر امنیتی مهم
 
@@ -84,4 +86,6 @@ Dependency مستقیم pg در Prototype Pin شده است، اما هنوز np
 - LOT-PROT-001 — برنامه Prototype و شواهد معماری.
 - LOT-TECH-ADR-001 — ADR فناوری، استقرار و قابلیت اطمینان.
 - PostgreSQL 18 — [سیاست‌های Row Security](https://www.postgresql.org/docs/18/ddl-rowsecurity.html).
+- OWASP — [راهنمای امنیت چندمستاجری](https://cheatsheetseries.owasp.org/cheatsheets/Multi_Tenant_Security_Cheat_Sheet.html)، شامل منشأ Tenant Context، Context تراکنش‌محور و انتخاب راهبرد جداسازی.
+- AWS — [انتخاب الگوی دسترسی PostgreSQL مناسب برای SaaS](https://aws.amazon.com/blogs/database/choose-the-right-postgresql-data-access-pattern-for-your-saas-application/)، شامل Trade-off متغیرهای Runtime مشترک و Roleهای دیتابیس مستقل برای هر Tenant.
 - Node.js — [برنامه انتشار و پشتیبانی](https://github.com/nodejs/Release).
