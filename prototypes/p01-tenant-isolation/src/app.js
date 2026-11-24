@@ -41,6 +41,7 @@ async function readSupportRecord({ supportPool, pool, principal, tenantId, recor
   try {
     await client.query("BEGIN");
     transactionOpen = true;
+    await client.query("SELECT set_config('app.support_subject_id', $1, true)", [principal.subjectId]);
     const safeGrantId = isUuid(grantId) ? grantId : null;
     const grant = safeGrantId
       ? await client.query(
