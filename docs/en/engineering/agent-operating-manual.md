@@ -20,7 +20,7 @@ Do not load every document by default. Retrieve only the relevant domain source 
 |---|---|
 | Product scope, personas, MVP boundaries | LOT-PROD-001 |
 | Lottery requirements | LOT-LOTTERY-001 |
-| Architecture and domain boundaries | LOT-ARCH-001 |
+| Architecture and domain boundaries | LOT-ARCH-001; LOT-TECH-ADR-001 |
 | Affiliate commission policy | LOT-COM-001 |
 | Wallet, accounting and financial invariants | LOT-FIN-001 |
 | Affiliate partner events | LOT-INT-001 |
@@ -68,6 +68,9 @@ No agent may turn a proposed commercial value, jurisdiction, provider behavior, 
 
 ## Financial and security stop conditions
 Stop and escalate potential duplicate economic effects, cross-tenant access, ledger mutation, untraceable adjustments, unauthorized payouts, secret/PII disclosure, or operation in a jurisdiction without required review. Financial history is append-only; corrections use linked reversals/adjustments.
+
+## Technology decisions
+Use LOT-TECH-ADR-001 as the only current technology/deployment decision framework. Its candidate directions remain Proposed; do not treat PostgreSQL, Modular Monolith, managed containers, OpenTelemetry or any vendor as approved until the required prototypes and owner reviews are recorded.
 
 ## Document maintenance
 Every authoritative document has a stable ID, version, status, review responsibility and bilingual counterpart. Update indexes and decision register when scope or decision state changes. Use synthetic examples only. Never commit credentials, real customer/player data or production exports.
