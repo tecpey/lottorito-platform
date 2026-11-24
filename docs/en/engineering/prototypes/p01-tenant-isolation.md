@@ -1,6 +1,6 @@
 # P-01 — Tenant Isolation Prototype
 
-**Document ID:** LOT-PROT-P01-001 | **Version:** 0.2.0 | **Status:** Prototype implemented; baseline CI passed; identity-bound comparison CI pending | **Review date:** 2026-11-24
+**Document ID:** LOT-PROT-P01-001 | **Version:** 0.2.0 | **Status:** Prototype implemented; identity-bound comparison CI passed; full P-01 remains partial | **Review date:** 2026-11-24
 
 ## Purpose and decision boundary
 
@@ -95,18 +95,18 @@ The prototype pins the direct `pg` dependency and commits `package-lock.json`; C
 ## Result record
 
 - Implementation state: files added on spike/p01-tenant-isolation.
-- CI result: PASS — latest verified GitHub Actions run [45409321843](https://github.com/tecpey/lottorito-platform/actions/runs/45409321843), on head `d9bcee4581523e0d9e4f11070f4196060ce7d537`. It used Node.js v26.13.0, PostgreSQL 18.7 and npm ci with the committed lockfile; all 18 Node test cases passed, 0 failed, 0 skipped. GitHub Actions are pinned to verified immutable commit SHAs.
-- The passing run includes atomic job/outbox writes, concurrent dispatcher claims using `SKIP LOCKED`, lease retry and stale-ack rejection, Ed25519-signed tenant/job envelopes (private key at dispatcher; public key only at worker), metadata-only dispatcher permissions, idempotent replay, worker-side membership re-authorization and rejection after revocation. It also includes request-time membership revocation, tenant-table RLS, narrow `UPDATE(lock_version)` for `SELECT FOR SHARE` without permission to change `active`, cross-tenant UPDATE/DELETE denial, WITH CHECK rejection and pool reuse.
-- A deliberate red-team test still demonstrates that a compromised shared `app_runtime` role can set the custom GUC to another tenant. This is a known trust boundary, not evidence of adversarial isolation.
+- CI result: PASS — GitHub Actions run [45410971589](https://github.com/tecpey/lottorito-platform/actions/runs/45410971589), on head `318e1329e2e8c723401580ec396ebed6269e5e6d`. Node.js v26.13.0 + PostgreSQL 18.7; `npm ci` with the committed lockfile; 19 Node tests passed, 0 failed, 0 skipped. Documentation Governance run [45410971541](https://github.com/tecpey/lottorito-platform/actions/runs/45410971541) also passed. GitHub Actions are pinned to verified immutable commit SHAs.
+- The passing run includes the earlier request-time RLS, pool reuse, membership re-authorization and async outbox/dispatcher/Ed25519 job-envelope tests, plus the comparative per-tenant LOGIN-role test: session identity maps to exactly one tenant; changing the custom GUC cannot change visibility; `SET ROLE` to the other tenant, reading the private identity map and cross-tenant inserts are denied.
+- A deliberate red-team test still demonstrates that a compromised shared `app_runtime` role can set the custom GUC to another tenant. This is a known trust boundary, not evidence of adversarial isolation. The per-tenant LOGIN-role variant is stronger against SQL injection confined to one tenant connection, but depends on safely brokering credentials and partitioning connection pools; those operational controls and scale characteristics are not yet tested.
 - Local execution: Not run in this environment; the verified run is GitHub-hosted CI.
-- Overall P-01: Inconclusive / partial scope only until the remaining asynchronous, revocation, privileged-support and other storage boundaries are tested.
+- Overall P-01: Inconclusive / partial scope only. The comparison proves one database-level identity pattern in a synthetic fixture, not end-to-end tenant isolation across cache, object storage, search, exports, reporting, support access, production workload identity or deployment boundaries.
 - Technology decision: remains Proposed; no stack approval is implied.
 
 ## References
 
 - LOT-PROT-001 — architecture prototype and evidence plan.
 - LOT-TECH-ADR-001 — technology, deployment and reliability ADRs.
-- PostgreSQL 18 — [Row Security Policies](https://www.postgresql.org/docs/18/ddl-rowsecurity.html) and [Privileges](https://www.postgresql.org/docs/18/ddl-priv.html) (SELECT FOR SHARE privilege requirement).
+- PostgreSQL 18 — [Row Security Policies](https://www.postgresql.org/docs/18/ddl-rowsecurity.html), [Session Information Functions](https://www.postgresql.org/docs/18/functions-info.html), [SET ROLE](https://www.postgresql.org/docs/18/sql-set-role.html), [SET SESSION AUTHORIZATION](https://www.postgresql.org/docs/18/sql-set-session-authorization.html), [CREATE FUNCTION / safe SECURITY DEFINER](https://www.postgresql.org/docs/18/sql-createfunction.html), and [Privileges](https://www.postgresql.org/docs/18/ddl-priv.html) (SELECT FOR SHARE privilege requirement).
 - OWASP — [Multi-Tenant Security Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Multi_Tenant_Security_Cheat_Sheet.html), including tenant-context provenance, transaction-local context and isolation-strategy selection.
 - AWS — [Choose the right PostgreSQL data access pattern for your SaaS application](https://aws.amazon.com/blogs/database/choose-the-right-postgresql-data-access-pattern-for-your-saas-application/), including the trade-off between shared runtime variables and per-tenant database roles.
 - AWS Prescriptive Guidance — [Transactional outbox pattern](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html), including atomic outbox writes and idempotent at-least-once consumers.
