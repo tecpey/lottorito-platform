@@ -369,7 +369,7 @@ BEGIN
      AND f.journal_id = r.journal_id
    WHERE r.tenant_id = v_tenant_id
      AND r.idempotency_key = p_idempotency_key
-   FOR UPDATE OF r;
+;
 
   IF FOUND THEN
     IF v_existing_effect_id IS DISTINCT FROM p_effect_id
@@ -398,7 +398,7 @@ BEGIN
       FROM public.financial_effects
      WHERE tenant_id = v_tenant_id
        AND effect_id = p_effect_id
-     FOR UPDATE;
+;
 
     IF NOT FOUND THEN
       RAISE EXCEPTION 'financial effect state is unavailable' USING ERRCODE = '40001';
@@ -468,7 +468,7 @@ BEGIN
        AND f.journal_id = r.journal_id
      WHERE r.tenant_id = v_tenant_id
        AND r.idempotency_key = p_idempotency_key
-     FOR UPDATE OF r;
+  ;
 
     IF NOT FOUND THEN
       RAISE EXCEPTION 'idempotency state is unavailable' USING ERRCODE = '40001';
@@ -791,7 +791,7 @@ BEGIN
       FROM public.posting_requests
      WHERE tenant_id = v_tenant_id
        AND (idempotency_key = p_idempotency_key OR effect_id = p_effect_id)
-     FOR UPDATE;
+;
 
     IF NOT FOUND THEN
       RAISE EXCEPTION 'idempotency state is unavailable' USING ERRCODE = '40001';
