@@ -1,6 +1,6 @@
 # Lottorito Architecture Prototype and Evidence Plan
 
-**Document ID:** LOT-PROT-001 | **Version:** 1.2.0 | **Status:** Proposed experiment plan; execution and technology choices not approved
+**Document ID:** LOT-PROT-001 | **Version:** 1.3.0 | **Status:** Proposed experiment plan; execution and technology choices not approved
 
 ## 1. Purpose and authority
 
@@ -287,4 +287,4 @@ The prototype phase is complete only when all eight experiments have reproducibl
 - LOT-EVENT-001 — canonical event contract.
 - LOT-OPS-001 — verified project status.
 
-**Status reminder:** the plan remains proposed. The partial P-01 HTTP/PostgreSQL RLS slice on PR #36 passed 19 defined CI tests in run [45411486646](https://github.com/tecpey/lottorito-platform/actions/runs/45411486646) on code head `278ac96a161cd545ca60d4f9d43be220c9eabf16`, using the committed npm lockfile and SHA-pinned GitHub Actions. It covers tenant-scoped async jobs, atomic outbox/dispatch writes, concurrent dispatcher claims, Ed25519 envelopes, worker-side membership re-authorization and a comparative per-tenant LOGIN-role/session_user RLS model across records, membership and jobs. This does not pass the full P-01 experiment: secure credential brokering, pool scaling, cache/object storage/search/reporting, support/break-glass, load and recovery remain untested. The shared-role custom-GUC trust limitation is explicitly demonstrated. No technology approval is claimed.
+**Status reminder:** the plan remains proposed. The partial P-01 HTTP/PostgreSQL RLS slice on PR #36 passed 19 defined CI tests in run [45411879156](https://github.com/tecpey/lottorito-platform/actions/runs/45411879156) on code head `38475c0e47a8ffa485c6f9aeca58e4df8cd921fe`, using the committed npm lockfile and SHA-pinned GitHub Actions. It covers tenant-scoped async jobs, atomic outbox/dispatch writes, concurrent dispatcher claims, Ed25519 envelopes, worker-side membership re-authorization and a comparative per-tenant LOGIN-role/session_user RLS model across records, membership and jobs, including SECURITY DEFINER owner/search_path and temporary-schema shadowing checks. This does not pass the full P-01 experiment: secure credential brokering, pool scaling, cache/object storage/search/reporting, support/break-glass, load and recovery remain untested. The shared-role custom-GUC trust limitation is explicitly demonstrated. No technology approval is claimed.
