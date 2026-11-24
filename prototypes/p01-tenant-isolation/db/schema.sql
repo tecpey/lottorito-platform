@@ -38,6 +38,57 @@ ALTER ROLE support_authorizer
   LOGIN PASSWORD 'p01-support-not-for-production'
   NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
 
+-- Alternative identity-bound isolation experiment: a database login identity
+-- maps to exactly one tenant. These are synthetic per-tenant credentials.
+DO $tenant_roles$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'tenant_a_runtime') THEN
+    CREATE ROLE tenant_a_runtime LOGIN PASSWORD 'p01-tenant-a-not-for-production'
+      NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'tenant_b_runtime') THEN
+    CREATE ROLE tenant_b_runtime LOGIN PASSWORD 'p01-tenant-b-not-for-production'
+      NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'tenant_identity_owner') THEN
+    CREATE ROLE tenant_identity_owner NOLOGIN
+      NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
+  END IF;
+END;
+$tenant_roles$;
+
+ALTER ROLE tenant_a_runtime LOGIN PASSWORD 'p01-tenant-a-not-for-production'
+  NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
+ALTER ROLE tenant_b_runtime LOGIN PASSWORD 'p01-tenant-b-not-for-production'
+  NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
+ALTER ROLE tenant_identity_owner NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
+
+CREATE SCHEMA IF NOT EXISTS private AUTHORIZATION tenant_identity_owner;
+REVOKE ALL ON SCHEMA private FROM PUBLIC;
+GRANT USAGE ON SCHEMA private TO tenant_a_runtime, tenant_b_runtime;
+
+CREATE TABLE IF NOT EXISTS private.tenant_role_map (
+  database_role name PRIMARY KEY,
+  tenant_id uuid NOT NULL UNIQUE
+);
+ALTER TABLE private.tenant_role_map OWNER TO tenant_identity_owner;
+GRANT SELECT ON private.tenant_role_map TO tenant_identity_owner;
+
+CREATE OR REPLACE FUNCTION private.current_tenant_id()
+RETURNS uuid
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = pg_catalog, private, pg_temp
+AS $function$
+  SELECT tenant_id
+    FROM private.tenant_role_map
+   WHERE database_role = session_user::name
+$function$;
+ALTER FUNCTION private.current_tenant_id() OWNER TO tenant_identity_owner;
+REVOKE ALL ON FUNCTION private.current_tenant_id() FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION private.current_tenant_id() TO tenant_a_runtime, tenant_b_runtime;
+
 DROP TABLE IF EXISTS public.support_audit;
 DROP TABLE IF EXISTS public.support_grants;
 DROP TABLE IF EXISTS public.job_dispatch;
@@ -75,6 +126,14 @@ CREATE POLICY tenant_memberships_tenant_guard
   WITH CHECK (
     tenant_id = NULLIF(current_setting('app.tenant_id', true), '')::uuid
   );
+
+CREATE POLICY tenant_memberships_identity_guard
+  ON public.tenant_memberships
+  AS PERMISSIVE
+  FOR ALL
+  TO tenant_a_runtime, tenant_b_runtime
+  USING (tenant_id = private.current_tenant_id())
+  WITH CHECK (tenant_id = private.current_tenant_id());
 
 CREATE TABLE public.support_grants (
   grant_id uuid PRIMARY KEY,
@@ -154,6 +213,14 @@ CREATE POLICY tenant_jobs_tenant_guard
   WITH CHECK (
     tenant_id = NULLIF(current_setting('app.tenant_id', true), '')::uuid
   );
+
+CREATE POLICY tenant_jobs_identity_guard
+  ON public.tenant_jobs
+  AS PERMISSIVE
+  FOR ALL
+  TO tenant_a_runtime, tenant_b_runtime
+  USING (tenant_id = private.current_tenant_id())
+  WITH CHECK (tenant_id = private.current_tenant_id());
 
 -- Cross-tenant dispatch metadata contains no job payload. Only the dispatcher
 -- can scan/claim it; the application can insert only within its current tenant.
@@ -241,9 +308,20 @@ CREATE POLICY tenant_records_tenant_guard
     tenant_id = NULLIF(current_setting('app.tenant_id', true), '')::uuid
   );
 
+CREATE POLICY tenant_records_identity_guard
+  ON public.tenant_records
+  AS PERMISSIVE
+  FOR ALL
+  TO tenant_a_runtime, tenant_b_runtime
+  USING (tenant_id = private.current_tenant_id())
+  WITH CHECK (tenant_id = private.current_tenant_id());
+
+GRANT USAGE ON SCHEMA public TO support_authorizer;
+GRANT SELECT ON public.support_grants TO support_authorizer;
+GRANT UPDATE (lock_version) ON public.support_grants TO support_authorizer;
+GRANT INSERT ON public.support_audit TO support_authorizer;
 GRANT USAGE ON SCHEMA public TO app_runtime;
 GRANT USAGE ON SCHEMA public TO job_dispatcher;
-GRANT USAGE ON SCHEMA public TO support_authorizer;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.tenant_records TO app_runtime;
 GRANT SELECT ON public.tenant_memberships TO app_runtime;
 -- PostgreSQL requires UPDATE on at least one column for SELECT ... FOR SHARE.
@@ -252,9 +330,18 @@ GRANT UPDATE (lock_version) ON public.tenant_memberships TO app_runtime;
 GRANT SELECT, INSERT, UPDATE (status, completed_at) ON public.tenant_jobs TO app_runtime;
 GRANT INSERT ON public.job_dispatch TO app_runtime;
 GRANT SELECT, UPDATE (status, attempts, claimed_at) ON public.job_dispatch TO job_dispatcher;
-GRANT SELECT ON public.support_grants TO support_authorizer;
-GRANT UPDATE (lock_version) ON public.support_grants TO support_authorizer;
-GRANT INSERT ON public.support_audit TO support_authorizer;
+-- Per-tenant login roles receive data access only through identity-bound RLS.
+GRANT USAGE ON SCHEMA public TO tenant_a_runtime, tenant_b_runtime;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.tenant_records TO tenant_a_runtime, tenant_b_runtime;
+GRANT SELECT ON public.tenant_memberships TO tenant_a_runtime, tenant_b_runtime;
+GRANT UPDATE (lock_version) ON public.tenant_memberships TO tenant_a_runtime, tenant_b_runtime;
+GRANT SELECT, INSERT, UPDATE (status, completed_at) ON public.tenant_jobs TO tenant_a_runtime, tenant_b_runtime;
+
+
+INSERT INTO private.tenant_role_map (database_role, tenant_id) VALUES
+  ('tenant_a_runtime', '11111111-1111-4111-8111-111111111111'),
+  ('tenant_b_runtime', '22222222-2222-4222-8222-222222222222')
+ON CONFLICT (database_role) DO UPDATE SET tenant_id = EXCLUDED.tenant_id;
 
 -- Synthetic active memberships; production membership lifecycle is not implemented.
 INSERT INTO public.tenant_memberships (tenant_id, subject_id, active) VALUES
@@ -271,4 +358,7 @@ INSERT INTO public.tenant_records (tenant_id, record_id, natural_key, payload) V
    'welcome', 'synthetic tenant B fixture'),
   ('22222222-2222-4222-8222-222222222222',
    'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
-   'tenant-b-private', 'tenant B private fixture');
+   'tenant-b-private', 'tenant B private fixture'),
+  ('11111111-1111-4111-8111-111111111111',
+   'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
+   'tenant-a-private', 'tenant A private fixture');
