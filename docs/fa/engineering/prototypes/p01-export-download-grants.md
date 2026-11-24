@@ -1,6 +1,6 @@
 # Grant دانلود Export متصل به Tenant در P-01
 
-**شناسه سند:** LOT-PROT-P01-EXPORT-001 | **نسخه:** ۰.۵.۰ | **وضعیت:** Prototype ساختگی؛ ۳۷ تست CI موفق؛ سرویس تحویل تأییدنشده
+**شناسه سند:** LOT-PROT-P01-EXPORT-001 | **نسخه:** ۰.۶.۰ | **وضعیت:** Prototype ساختگی؛ ۳۷ تست CI موفق؛ سرویس تحویل تأییدنشده
 
 ## هدف
 
@@ -10,7 +10,7 @@
 
 ## قرارداد پیاده‌سازی‌شده
 
-- هویت Export ترکیبی است: `(tenant_id, export_id)`؛ Object Key باید با Prefix ذخیره‌سازی همان Tenant آغاز شود.
+- هویت Export ترکیبی است: `(tenant_id, export_id)`؛ دیتابیس Prefix دقیق Tenant و یک Segment امن نام فایل را اعمال می‌کند و Traversal، Separator کدگذاری‌شده و Prefix متعلق به Tenant دیگر را رد می‌کند.
 - هنگام صدور و Redeem، فعال‌بودن Membership همان Subject در Tenant با قفل ردیف `FOR SHARE` دوباره بررسی می‌شود.
 - صدور Grant به Tenant Resolve‌شده در سمت سرور، Subject احرازشده، Export ایجادشده توسط همان Subject و وضعیت `ready` نیاز دارد.
 - Token دارای ۲۵۶ بیت تصادفی رمزنگاری‌شده و امن است و فقط یک‌بار برگردانده می‌شود. PostgreSQL فقط Hash از نوع SHA-256 را ذخیره می‌کند و هرگز Raw Token را نگه نمی‌دارد.
@@ -38,6 +38,7 @@
 | P01-EXPORT-11 | عضویت Tenant پس از صدور Grant لغو می‌شود | صدور Grant جدید و Redeem کردن Grant قبلی رد شود |
 | P01-EXPORT-11 | Membership کاربر پس از صدور Grant لغو می‌شود | صدور Grant جدید و Redeem Grant قبلی رد شود |
 | P01-EXPORT-12 | لغو Membership با Redeem در حال اجرا هم‌زمان می‌شود | قفل‌های FOR SHARE و FOR UPDATE عملیات را Serialize کنند؛ تراکنشی که زودتر قفل ردیف را می‌گیرد ترتیب مجوزدهی را تعیین کند |
+| P01-EXPORT-13 | Object Key مربوط به Export دارای Traversal، Separator کدگذاری‌شده یا Prefix Tenant دیگر است | Constraint دیتابیس، ردیف را پیش از رسیدن به Adapter ذخیره‌سازی رد کند |
 
 ## مرزهای امنیتی و محدودیت‌ها
 
@@ -51,6 +52,6 @@
 
 ## وضعیت شواهد
 
-آخرین اجرای P-01 با شناسه [45427819046](https://github.com/tecpey/lottorito-platform/actions/runs/45427819046) روی Head کد فعلی `46d8e837ab1c3b5f54ad2b17d6119419020b52f8` تعداد ۳۷ تست موفق، صفر شکست و صفر Skip داشته است؛ از جمله Serialization قطعی لغو Membership با Redeem در حال اجرا در آزمایش دو اتصالی. اجرای Documentation Governance با شناسه [45427818883](https://github.com/tecpey/lottorito-platform/actions/runs/45427818883) نیز روی همین Head موفق شد. اجرای محلی و تحویل دانلود با Provider واقعی هنوز تأیید نشده‌اند.
+آخرین اجرای P-01 با شناسه [45427819046](https://github.com/tecpey/lottorito-platform/actions/runs/45427819046) روی Head کد `46d8e837ab1c3b5f54ad2b17d6119419020b52f8` تعداد ۳۷ تست موفق، صفر شکست و صفر Skip داشته است؛ از جمله Serialization قطعی لغو Membership با Redeem در حال اجرا در آزمایش دو اتصالی. سپس Constraint دیتابیس برای Object Key و تست‌های Traversal/Separator کدگذاری‌شده/Prefix Tenant دیگر اضافه شد؛ CI جدید در انتظار است. اجرای Documentation Governance با شناسه [45427818883](https://github.com/tecpey/lottorito-platform/actions/runs/45427818883) روی Head مستندات قبلی موفق شد. اجرای محلی و تحویل دانلود با Provider واقعی هنوز تأیید نشده‌اند.
 
 کد، Schema و سناریوهای یکپارچه‌سازی ساختگی در یک Draft PR پشته‌شده پیاده‌سازی شده‌اند. تمام Fixtureها و Credentialها ساختگی‌اند.
