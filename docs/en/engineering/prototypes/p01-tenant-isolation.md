@@ -1,6 +1,6 @@
 # P-01 — Tenant Isolation Prototype
 
-**Document ID:** LOT-PROT-P01-001 | **Version:** 0.2.0 | **Status:** Prototype implemented; identity-bound comparison CI passed; full P-01 remains partial | **Review date:** 2026-11-24
+**Document ID:** LOT-PROT-P01-001 | **Version:** 0.3.0 | **Status:** Prototype implemented; identity-bound comparison CI passed; full P-01 remains partial | **Review date:** 2026-11-24
 
 ## Purpose and decision boundary
 
