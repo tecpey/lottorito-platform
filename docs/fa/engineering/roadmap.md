@@ -7,7 +7,7 @@
 ۳. **Tenant & Security Architecture:** بازبینی LOT-TEN-001 و LOT-SEC-TM-001؛ تکمیل هویت/عضویت، زمینه Worker، تحلیل مرز اعتماد و سوءاستفاده، راستی‌آزمایی جداسازی، دسترسی پشتیبانی و کنترل پاسخ رخداد.
 ۴. **API & Event Foundation:** بازبینی LOT-API-001 و LOT-EVENT-001؛ نهایی‌سازی قرارداد Resource/احراز هویت، سازگاری Schema، Inbox/Outbox، Idempotency، امضای Webhook و کنترل Replay.
 ۵. **Architecture Quality Baseline:** بازبینی LOT-QA-001؛ تعریف مسیرهای حیاتی، پروفایل بار، سناریوهای قابل‌اندازه‌گیری، ناورداها و روش تولید شواهد. آستانه‌های عددی تا تصویب مالک پاسخ‌گو تعیین‌نشده می‌مانند.
-۶. **Technology & Platform ADRs:** بازبینی LOT-TECH-ADR-001 بر اساس LOT-QA-001؛ اجرای Prototypeهای لازم و اخذ تأیید مالک/امنیت/مالی/حقوقی پیش از انتخاب Stack، Hosting، Region یا SLO/RPO/RTO عددی.
+۶. **Technology & Platform ADRs:** بازبینی LOT-TECH-ADR-001 بر اساس LOT-QA-001 و LOT-PROT-001؛ تصویب مالکان و محدوده آزمایش و سپس اجرای P-01 تا P-08 در محیط ایزوله و با داده ساختگی و اخذ تأیید مالک/امنیت/مالی/حقوقی پیش از انتخاب Stack، Hosting، Region یا SLO/RPO/RTO عددی.
 ۷. **Identity & Tenant Implementation:** هویت، نشست، RBAC، عضویت Tenant و تست جداسازی.
 ۸. **Affiliate & Attribution:** پروفایل، شبکه ارجاع، لینک رهگیری، رویداد و انتساب.
 ۹. **Finance Core:** بازبینی LOT-FIN-POST-001؛ تصویب مالکیت حساب، Chart of Accounts، ثبت تغییرناپذیر، معنای موجودی، صورت‌حساب، تطبیق و دروازه‌های پرداخت.

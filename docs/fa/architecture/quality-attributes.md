@@ -95,6 +95,11 @@ Prototypeهای LOT-TECH-ADR-001 باید برای ویژگی‌های زیر ش
 
 موفقیت Prototype به‌تنهایی هدف Production یا انتخاب فناوری را تصویب نمی‌کند. نتیجه، محدودیت، گزینه جایگزین و مرجع تصمیم ثبت شود.
 
+- Prototype ترکیب مستقل Affiliate-only و Lottery-only ← QA-01، QA-02، QA-13، QA-14، QA-15.
+- Prototype استقرار، Health Gate و Rollback ← QA-06، QA-08، QA-09، QA-12، QA-14.
+
+برنامه کامل هشت Prototype و شواهد پذیرش در LOT-PROT-001 آمده است.
+
 ## ۸. دروازه انتشار
 
 Candidate انتشار هر محصول/دامنه تا زمانی از دروازه کیفیت عبور نمی‌کند که:

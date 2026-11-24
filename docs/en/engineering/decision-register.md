@@ -1,6 +1,6 @@
 # Lottorito Decision Register
 
-**Document ID:** LOT-ADR-REG-001 | **Version:** 1.1.0 | **Status:** Maintained register; entries retain their individual authority state
+**Document ID:** LOT-ADR-REG-001 | **Version:** 1.2.0 | **Status:** Maintained register; entries retain their individual authority state
 
 ## How to read this register
 This register prevents agents from turning discussion, examples or proposals into product rules. A record is not approved merely because it is listed here. The state and authority column govern. Evidence must be linked for every change.
@@ -39,6 +39,7 @@ This register prevents agents from turning discussion, examples or proposals int
 | LDR-025 | API resource contract | Proposed | LOT-API-001 defines resource, auth, tenant context, error, pagination, idempotency and webhook conventions; no endpoint is thereby implemented. | Architecture and owner approval required before publishing API commitments. |
 | LDR-026 | Technology and deployment framework | Proposed | LOT-TECH-ADR-001 defines evidence criteria and candidate directions for architecture, database, async work, hosting, observability, recovery, security and data lifecycle; it does not approve a stack or vendor. | Owner and relevant security/finance/legal/operations review plus prototypes required. |
 | LDR-027 | Architecture quality attributes | Proposed | LOT-QA-001 defines measurable quality scenarios, cross-cutting invariants, evidence methods and release gates; numeric thresholds remain TBD. | Product, engineering/SRE, security, finance, legal/privacy and owner review; approve thresholds per workload and release tier. |
+| LDR-028 | Architecture prototype evidence plan | Proposed | LOT-PROT-001 defines eight reproducible experiments and acceptance evidence mapped to LOT-QA-001; no experiment is claimed as executed. | Execute only in isolated synthetic environments after experiment scope and accountable owners are approved; record results and ADR updates. |
 
 ## Decision-change protocol
 1. Propose a change with rationale, alternatives, impact and evidence.
