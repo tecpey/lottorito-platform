@@ -76,6 +76,7 @@ docker compose -f compose.yaml up -d --wait
 export ADMIN_DATABASE_URL='postgres://postgres:p01-admin-only-not-production@127.0.0.1:55432/lottorito_p01'
 export DATABASE_URL='postgres://app_runtime:p01-only-not-for-production@127.0.0.1:55432/lottorito_p01'
 export DISPATCHER_DATABASE_URL='postgres://job_dispatcher:p01-dispatcher-not-for-production@127.0.0.1:55432/lottorito_p01'
+export SUPPORT_DATABASE_URL='postgres://support_authorizer:p01-support-not-for-production@127.0.0.1:55432/lottorito_p01'
 npm ci --ignore-scripts --no-audit --no-fund
 npm test
 docker compose -f compose.yaml down
@@ -85,12 +86,12 @@ The workflow provisions an ephemeral PostgreSQL 18.7 service and uses synthetic 
 
 ## Dependency and CI limitations
 
-The prototype pins the direct pg dependency but does not yet commit an npm lockfile; transitive dependency reproducibility and supply-chain pinning remain follow-up work. GitHub Actions are referenced by version tags rather than immutable commit SHAs in this first experiment. These are explicit prototype limitations, not production recommendations.
+The prototype commits `package-lock.json` and CI uses `npm ci` to enforce the resolved dependency graph. The direct `pg` dependency is pinned. This improves repeatability but is not a complete software-supply-chain assurance program: dependency provenance review, automated vulnerability policy, SBOM, provenance attestations and update automation remain follow-up work. The P-01 workflow pins its GitHub Actions to immutable commit SHAs.
 
 ## Result record
 
 - Implementation state: files added on spike/p01-tenant-isolation.
-- CI result: PASS — latest verified GitHub Actions run [45409321843](https://github.com/tecpey/lottorito-platform/actions/runs/45409321843), on head `d9bcee4581523e0d9e4f11070f4196060ce7d537`. It used Node.js v26.13.0, PostgreSQL 18.7 and npm ci with the committed lockfile; all 18 Node test cases passed, 0 failed, 0 skipped. GitHub Actions are pinned to verified immutable commit SHAs.
+- CI result: PASS — latest verified GitHub Actions run [45409663708](https://github.com/tecpey/lottorito-platform/actions/runs/45409663708), on PR #36 head `bc086b73e3cd48b071af71a4c281575504c33bc4`. It used Node.js v26.13.0, PostgreSQL 18.7 and npm ci with the committed lockfile; all 18 Node test cases passed, 0 failed, 0 skipped. GitHub Actions are pinned to verified immutable commit SHAs.
 - The passing run includes atomic job/outbox writes, concurrent dispatcher claims using `SKIP LOCKED`, lease retry and stale-ack rejection, Ed25519-signed tenant/job envelopes (private key at dispatcher; public key only at worker), metadata-only dispatcher permissions, idempotent replay, worker-side membership re-authorization and rejection after revocation. It also includes request-time membership revocation, tenant-table RLS, narrow `UPDATE(lock_version)` for `SELECT FOR SHARE` without permission to change `active`, cross-tenant UPDATE/DELETE denial, WITH CHECK rejection and pool reuse.
 - A deliberate red-team test still demonstrates that a compromised shared `app_runtime` role can set the custom GUC to another tenant. This is a known trust boundary, not evidence of adversarial isolation.
 - Local execution: Not run in this environment; the verified run is GitHub-hosted CI.
