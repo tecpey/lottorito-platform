@@ -4,11 +4,12 @@
 Continue Lottorito from the repository's verified state. Do not restart planning, recreate existing files, or claim unfinished work is complete.
 
 ## Before every task
-1. Read this guide and the relevant Persian and English documents under docs/.
-2. Read docs/en/engineering/project-status.md and relevant decision records.
+1. Read this guide, then follow docs/en/engineering/agent-operating-manual.md (LOT-AGENT-001) or its Persian counterpart for token-efficient task routing.
+2. Read the relevant language versions of docs/en/engineering/project-status.md (LOT-OPS-001) and docs/en/engineering/decision-register.md (LOT-ADR-REG-001).
 3. Inspect current branches, files, issues, pull requests, and implementation before editing.
 4. Search for existing modules, tests, and documents before creating replacements.
 5. State assumptions explicitly; unresolved business rules must remain open questions.
+6. Read only the domain documents required by the task; do not load the entire documentation set by default.
 
 ## Mandatory bilingual documentation
 - docs/fa and docs/en are equally authoritative.
@@ -28,11 +29,12 @@ Continue Lottorito from the repository's verified state. Do not restart planning
 - Test happy paths, boundaries, duplicate/replayed events, concurrency, tenant isolation, reversals, and failure recovery.
 - Report exact commands, results, skipped checks, and limitations. Never fabricate test or CI evidence.
 
-## Verified baseline at 2026-11-23
+## Verified baseline at 2026-11-24
 - Repository: tecpey/lottorito-platform; default branch: main; visibility: public by owner decision.
-- GitHub connection reported admin, maintain, push, pull, and triage permissions.
-- docs/fa/README.md and docs/en/README.md exist and were read back successfully.
-- No application code, database schema, partner API integration, CI workflow, or production deployment has yet been verified.
+- The repository contains paired Persian/English product, architecture, commission, finance, partner, security, glossary, roadmap and status documents.
+- Agent operating manual (LOT-AGENT-001), decision register (LOT-ADR-REG-001), Lottery discovery PRD (LOT-LOTTERY-001), and Lottery provider contract baseline (LOT-LOTINT-001) are maintained in a separate documentation work branch pending review.
+- The README refinement remains in open Draft PR #19; it has not been merged.
+- No application code, database schema, partner API integration, sandbox, CI workflow, automated bilingual parity check, or production deployment has been verified.
 
 ## Definition of done
 A task is done only when implementation exists, relevant tests pass, documentation is synchronized in both languages, security and tenant implications are reviewed, and commit/PR/CI evidence is linked.
