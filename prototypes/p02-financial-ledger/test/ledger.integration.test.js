@@ -377,6 +377,91 @@ test("source events and economic effects are append-only", async () => {
   );
 });
 
+
+test("runtime role is non-owner and missing tenant/product context defaults to deny", async () => {
+  const role = await adminPool.query(
+    `SELECT r.rolsuper, r.rolbypassrls, r.rolcanlogin,
+            pg_get_userbyid(t.relowner) AS table_owner
+       FROM pg_roles r
+       CROSS JOIN pg_class t
+      WHERE r.rolname = 'ledger_runtime'
+        AND t.oid = 'public.ledger_accounts'::regclass`
+  );
+  assert.equal(role.rows[0].rolsuper, false);
+  assert.equal(role.rows[0].rolbypassrls, false);
+  assert.equal(role.rows[0].rolcanlogin, true);
+  assert.notEqual(role.rows[0].table_owner, "ledger_runtime");
+
+  const noContext = await runtimePool.query("SELECT count(*)::int AS count FROM public.ledger_accounts");
+  assert.equal(noContext.rows[0].count, 0);
+});
+
+test("account-currency composite foreign key rejects currency substitution", async () => {
+  const source = await createSourceEvent();
+  const input = buildInput(source, {
+    entries: [
+      { account_id: ACCOUNTS.tenantA.affiliate.usdExpense, currency_code: "USD", side: "debit", amount: "125.37" },
+      { account_id: ACCOUNTS.tenantA.affiliate.usdtPayable, currency_code: "USD", side: "credit", amount: "125.37" }
+    ]
+  });
+  await assert.rejects(postLedgerEffect(runtimePool, input), (error) => error.code === "23503");
+});
+
+test("posting rejects source events outside the authenticated tenant/product scope", async () => {
+  const missingSource = {
+    tenantId: TENANT_A,
+    productId: PRODUCT_AFFILIATE,
+    sourceEventId: "not-created-" + randomUUID(),
+    effectKey: "agent-" + randomUUID(),
+    currency: "USD",
+    amount: "12.34"
+  };
+  await assert.rejects(
+    postLedgerEffect(runtimePool, buildInput(missingSource)),
+    (error) => error.code === "P02_SOURCE_EVENT_NOT_FOUND"
+  );
+});
+
+test("deferred constraints reject economic effects and outbox rows referencing draft journals", async () => {
+  const source = await createSourceEvent();
+  for (const referenceKind of ["effect", "outbox"]) {
+    const client = await adminPool.connect();
+    const journalId = randomUUID();
+    try {
+      await client.query("BEGIN");
+      await client.query(
+        `INSERT INTO public.journal_transactions
+          (tenant_id, product_id, journal_id, source_event_id, effect_type,
+           effect_key, idempotency_key, request_fingerprint, status)
+         VALUES ($1, $2, $3, $4, 'affiliate_commission_accrual', $5, $6, 'draft-reference', 'draft')`,
+        [TENANT_A, PRODUCT_AFFILIATE, journalId, source.sourceEventId,
+         source.effectKey + "-" + referenceKind, referenceKind + "-" + randomUUID()]
+      );
+      if (referenceKind === "effect") {
+        await client.query(
+          `INSERT INTO public.economic_effects
+            (tenant_id, product_id, effect_type, source_event_id, effect_key,
+             idempotency_key, request_fingerprint, journal_id)
+           VALUES ($1, $2, 'affiliate_commission_accrual', $3, $4, $5, 'draft-reference', $6)`,
+          [TENANT_A, PRODUCT_AFFILIATE, source.sourceEventId,
+           source.effectKey + "-effect", "effect-" + randomUUID(), journalId]
+        );
+      } else {
+        await client.query(
+          `INSERT INTO public.outbox_events
+            (tenant_id, product_id, event_id, journal_id, event_type, payload)
+           VALUES ($1, $2, $3, $4, 'ledger.journal.posted', '{}'::jsonb)`,
+          [TENANT_A, PRODUCT_AFFILIATE, randomUUID(), journalId]
+        );
+      }
+      await assert.rejects(client.query("COMMIT"), (error) => error.code === "23514");
+      await client.query("ROLLBACK").catch(() => {});
+    } finally {
+      client.release();
+    }
+  }
+});
+
 test("journal headers cannot be inserted directly as posted", async () => {
   const source = await createSourceEvent();
   await assert.rejects(
