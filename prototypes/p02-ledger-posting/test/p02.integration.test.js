@@ -82,10 +82,10 @@ test("a valid balanced journal posts atomically with exact integer minor units",
   ]);
 
   const outbox = await adminPool.query(
-    "SELECT event_type, payload->>'journal_id' AS journal_id FROM public.ledger_outbox WHERE tenant_id = $1 AND journal_id = $2",
+    "SELECT event_type, payload->>'journal_id' AS journal_id, payload->>'effect_id' AS effect_id FROM public.ledger_outbox WHERE tenant_id = $1 AND journal_id = $2",
     [TENANT_A, result.journal_id]
   );
-  assert.deepEqual(outbox.rows, [{ event_type: "ledger.journal.posted", journal_id: result.journal_id }]);
+  assert.deepEqual(outbox.rows, [{ event_type: "ledger.journal.posted", journal_id: result.journal_id, effect_id: effectIdFor("p02-basic-001") }]);
 });
 
 test("a repeated idempotency key returns the original journal without a second outbox event", async () => {
