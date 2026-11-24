@@ -227,9 +227,9 @@ CREATE TABLE public.support_audit (
   audit_id uuid PRIMARY KEY,
   grant_id uuid,
   support_subject_id text NOT NULL,
-  tenant_id uuid NOT NULL,
-  resource_id uuid NOT NULL,
-  action text NOT NULL CHECK (action = 'records:read'),
+  tenant_id uuid,
+  resource_id uuid,
+  action text NOT NULL CHECK (action IN ('records:read', 'tenant-route:denied')),
   outcome text NOT NULL CHECK (outcome IN ('allowed', 'denied')),
   reason text NOT NULL,
   created_at timestamptz NOT NULL DEFAULT clock_timestamp()
