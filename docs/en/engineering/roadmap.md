@@ -1,6 +1,6 @@
 # Lottorito Delivery Roadmap
 
-**Document ID:** LOT-ROAD-001 | **Version:** 1.2.0 | **Status:** Proposed sequence; owner approval required for product gates
+**Document ID:** LOT-ROAD-001 | **Version:** 1.3.0 | **Status:** Proposed sequence; owner approval required for product gates
 
 1. **Foundation & Governance:** bilingual agent handbook, decision register, stable document IDs, glossary, contribution rules and automated documentation checks; keep the finance, security and API baselines explicitly proposed until reviewed.
 2. **Cross-product Domain & Data Design:** review LOT-DOM-001; approve independent Affiliate and Lottery bounded contexts, shared capability ownership, logical ERD, data lifecycle, tenant boundaries and migration strategy.
@@ -14,7 +14,7 @@
 10. **Finance, Wallet, Payment & Payout Core:** review LOT-FIN-POST-001, LOT-WALLET-001, LOT-PAYMENT-001 and LOT-PAYOUT-001 together while preserving their bounded contexts; approve legal/account ownership, unit classes, chart of accounts, immutable posting, balance projections, holds, payment intent/attempt, provider evidence, refunds, payout eligibility, beneficiary controls, settlement and reconciliation. Do not infer custody, stored value or withdrawal permission.
 11. **Commission Engine:** versioned rules, CPA/Revenue Share/Hybrid and reproducible calculations.
 12. **Provider Evaluation & RFI Governance:** adopt LOT-PROVIDER-EVAL-001 as the common evidence and due-diligence process before supplier selection; confirm accountable reviewers and the exact decision unit. This creates no provider selection or integration authorization.
-13. **Affiliate Partner Pilot:** apply the standard to the first Affiliate pilot decision unit; obtain actual partner documentation and an authorized sandbox, then build the Affiliate adapter and contract tests only after approvals.
+13. **Initial RaidenBet customer delivery (Affiliate + Chat):** deliver only Advanced Affiliate & Agent and Live Chat Widget; complete internal module gates, prepare the versioned customer handoff package, obtain RaidenBet support/technical review and explicit contract approval, then integrate its existing script through a narrow controlled API using actual customer documentation and an authorized sandbox. No customer DB/source access is assumed; no production activation before separate customer acceptance and owner/legal/operations approval.
 14. **Lottery Provider Discovery & Certification:** apply the same standard to a separately scoped Lottery decision unit; legal/provider due diligence, capability profile, sandbox evidence, lifecycle adapter and result/settlement reconciliation only after owner approval.
 15. **Future regulated gaming discovery (not an MVP delivery commitment):** maintain separate Sportsbook, Live Casino and RNG/E-Gaming discovery tracks; apply the standard for provider RFIs, jurisdiction matrices, domain state machines, wallet/ledger semantics, certification and risk proofs only after Affiliate and Lottery priorities and their gates. See LOT-GAMING-STRATEGY-001.
 16. **Admin, Reporting & Operations:** operator/agent/customer surfaces, audit, reporting, support and controlled financial workflows.
