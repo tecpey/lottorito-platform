@@ -1,6 +1,6 @@
 # Verified Project Status and Continuation Point
 
-**Document ID:** LOT-OPS-001 | **Version:** 1.18.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-24
+**Document ID:** LOT-OPS-001 | **Version:** 1.19.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-24
 
 ## Verified repository state
 - Repository: tecpey/lottorito-platform; default branch main; public visibility by owner decision.
@@ -93,3 +93,8 @@ Legal entity and operating model; initial jurisdiction; provider and source-of-t
 
 ## Evidence discipline
 This record summarizes repository inspection, not an external audit. Re-fetch PR metadata and commit statuses before relying on a head SHA or CI state.
+
+
+## Parallel P-02 experiment plan
+
+A documentation-only P-02 branch, `spike/p02-credential-broker-pooling`, is being prepared from the PR #36 tenant-isolation base. It adds bilingual LOT-PROT-P02-001 to compare per-tenant LOGIN roles, credential lifecycle and PgBouncer pool scaling. It is parallel to the P-01 support extension (PR #37), not stacked on it. No provider, broker or pooler is approved.
