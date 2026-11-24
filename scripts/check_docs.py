@@ -37,6 +37,11 @@ def extract_doc_id(path: Path) -> str | None:
     return match.group(1) if match else None
 
 
+def normalize_doc_id(doc_id: str) -> str:
+    """Normalize language-qualified index IDs while preserving all other IDs."""
+    return doc_id.replace("-EN-", "-LANG-").replace("-FA-", "-LANG-")
+
+
 def check_pairs(errors: list[str]) -> int:
     files = {lang: markdown_files(lang) for lang in LANGUAGES}
     en_paths, fa_paths = set(files["en"]), set(files["fa"])
@@ -53,7 +58,7 @@ def check_pairs(errors: list[str]) -> int:
             errors.append(f"Missing stable document ID: docs/en/{relative}")
         if not fa_id:
             errors.append(f"Missing stable document ID: docs/fa/{relative}")
-        if en_id and fa_id and en_id != fa_id:
+        if en_id and fa_id and normalize_doc_id(en_id) != normalize_doc_id(fa_id):
             errors.append(
                 f"Document ID mismatch for {relative}: English={en_id}, Persian={fa_id}"
             )
