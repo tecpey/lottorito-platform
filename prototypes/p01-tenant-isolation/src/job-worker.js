@@ -2,11 +2,11 @@ import { withTenantTransaction } from "./tenant-db.js";
 import { verifyJobEnvelope } from "./job-dispatch.js";
 
 /**
- * The queue envelope is authenticated before tenant context is established.
- * The job and its actor membership are then reloaded under tenant RLS.
+ * The queue envelope is authenticated with the dispatcher's public key before
+ * tenant context is established. The worker never receives the signing key.
  */
-export async function processTenantJob(pool, envelope, secret) {
-  if (!verifyJobEnvelope(envelope, secret)) {
+export async function processTenantJob(pool, envelope, publicKeyPem) {
+  if (!verifyJobEnvelope(envelope, publicKeyPem)) {
     return { status: "invalid_envelope" };
   }
 
