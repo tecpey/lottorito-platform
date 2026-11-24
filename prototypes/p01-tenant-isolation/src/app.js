@@ -124,6 +124,32 @@ async function readSupportRecord({ supportPool, pool, principal, tenantId, recor
   }
 }
 
+async function auditDeniedSupportTenantRoute({ supportPool, principal }) {
+  const client = await supportPool.connect();
+  let transactionOpen = false;
+  let destroyConnection = null;
+  try {
+    await client.query("BEGIN");
+    transactionOpen = true;
+    await client.query("SELECT set_config('app.support_subject_id', $1, true)", [principal.subjectId]);
+    await client.query(
+      `INSERT INTO public.support_audit
+        (audit_id, grant_id, support_subject_id, tenant_id, resource_id, action, outcome, reason)
+       VALUES ($1, NULL, $2, NULL, NULL, 'tenant-route:denied', 'denied', $3)`,
+      [randomUUID(), principal.subjectId, "Support principal attempted a tenant route outside the approved support surface"]
+    );
+    await client.query("COMMIT");
+    transactionOpen = false;
+  } catch (error) {
+    if (transactionOpen) {
+      try { await client.query("ROLLBACK"); } catch (rollbackError) { destroyConnection = rollbackError; }
+    }
+    throw error;
+  } finally {
+    client.release(destroyConnection);
+  }
+}
+
 async function readJson(req) {
   const contentType = String(req.headers["content-type"] ?? "").split(";")[0].trim().toLowerCase();
   if (contentType !== "application/json") throw httpError(415, "application/json is required");
@@ -174,7 +200,12 @@ export function createTenantServer({ pool, supportPool, authenticate }) {
       }
 
       if (principal.kind === "support") {
-        if (!supportMatch || req.method !== "GET" || !supportPool) {
+        if (!supportPool) {
+          respond(res, 503, { error: "support_authorizer_unavailable" });
+          return;
+        }
+        if (!supportMatch || req.method !== "GET") {
+          await auditDeniedSupportTenantRoute({ supportPool, principal });
           respond(res, 403, { error: "support_access_denied" });
           return;
         }
