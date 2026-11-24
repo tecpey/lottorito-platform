@@ -112,7 +112,37 @@ Timestamp بر اساس منطقه زمانی و Locale انتخابی گیرن�
 - Template هر ۱۲ Locale از بازبینی بومی و تست RTL/LTR/دسترس‌پذیری عبور کند.
 - اعلان امنیتی/تراکنشی از بازاریابی متمایز و رضایت آن جداگانه مدیریت شود.
 
-## ۱۱. اسناد مرتبط
+## ۱۱. بررسی پیاده‌سازی مرجع TecPey — مشاهده شد، کپی نشده است
+
+مخزن TecPey با نام `tecpey/Tecpey-Os` به‌عنوان مرجع طراحی بررسی شد. فایل‌های مرتبط در زمان بازبینی:
+- `src/lib/notifications/creation.ts` — Blob SHA: `248e8bd798d845b0b99ee664af68b1b65636ef6e`.
+- `src/lib/notifications/policy.ts` — Blob SHA: `fc6ef6b7cf4832af4256b3768444249e151250b1`.
+- `src/lib/notifications/types.ts` — Blob SHA: `c38646f86467d8a37f55794bc62412a5bfe8602e`.
+- `src/lib/notifications/copy-safety.ts` — Blob SHA: `dbf28f5a5276a779948a1add1f7900cb3312ffc4`.
+- `src/lib/notifications/principal.ts` — Blob SHA: `3cfb6d5c6327930b90541e47f3dc7ad3382d5a69`.
+- `scripts/check-notification-runtime-authority.mjs` — Blob SHA: `e5e62b2eadc1d5ebf8d7ce3aeb49ba27b69f30a7`.
+
+**الگوهای ارزشمند برای اقتباس:**
+- یک مرز واحد و کنترل‌شده ایجاد اعلان در سمت سرور که Policy قطعی اعلان را فراخوانی می‌کند؛
+- ایجاد Intent اعلان، رکورد Inbox و تحویل به Outbox در یک تراکنش دیتابیس؛
+- محافظت Retry و تعارض Payload تغییرکرده با Correlation Key، Hash محتوای Canonical و Advisory Lock در محدوده تراکنش؛
+- ورود ترجیح گیرنده، Quiet Hours، موجودبودن Template زبان، انقضا، رضایت، فوریت و سقف فراوانی دسته به‌عنوان ورودی Policy؛
+- کنترل ایمنی متن قابل مشاهده کاربر در Runtime، در کنار Guard متن منبع در CI؛
+- بررسی شواهد Intent تغییرناپذیر، قابلیت مشاهده پس از تحویل، پردازش Outbox با Lease، Retry/DLQ، تطبیق و چرخه عمر صریح Worker توسط Guard حاکمیت Runtime.
+
+**محدودیت‌ها و شکاف‌های مهم — بدون بررسی کپی نشوند:**
+- سرویس ایجاد بررسی‌شده، Pilot را صریحاً به `in_app`، یک Principal برای هر Intent و Dispatch از نوع Event محدود می‌کند؛ کانال خارجی و Campaign غیرفعال‌اند؛
+- قرارداد Type بررسی‌شده فقط Localeهای `fa` و `en` را دارد؛
+- Resolver مربوط به Principal شناسه Tenant پیش‌فرض `tecpey` دارد؛ لوتاریتو هرگز نباید Default تک‌مستاجری یا دورزدن Context احراز‌شده Tenant را به ارث ببرد؛
+- Allowlist طبقه اعلان مخصوص محصول TecPey است و باید برای سه تجربه مستقل اپراتور، Affiliate/Agent و مشتری لوتاریتو بازطراحی شود؛
+- Query ایجاد بررسی‌شده و Guard حاکمیت آن، اعلان‌های تحویل‌شده را برای پنجره فراوانی دسته می‌شمارند. این شواهد کنترل خستگی مبتنی بر Pending/In-flight را اثبات نمی‌کنند. LOT-NOTIF-001 عمداً شمارش Pending/In-flight همراه رزرو ایمن در برابر هم‌زمانی را الزام می‌کند؛ این بخش باید مستقل پیاده‌سازی و آزموده شود؛
+- Guard منبع جایگزین تست رفتاری، هم‌زمانی، امنیت و یکپارچه‌سازی نیست.
+
+**قاعده اقتباس در Lottorito:** فقط اصول معماری پس از بازبینی طراحی جداگانه اقتباس شوند. Templateهای Locale-aware برای هر ۱۲ زبان، Policy محدود به Tenant/Product، هدف‌های رضایت مجزا، مقصدهای تأییدشده مختص کانال، بودجه خستگی با احتساب Pending و Adapterهای مستقل ساخته شوند. شناسه Tenant، فرض دو زبان، طبقه‌های محصول، سقف‌ها یا کد Runtime مربوط به TecPey بدون بازبینی سازگاری/امنیت کپی نشوند.
+
+این بررسی مرجع، ممیزی امنیتی TecPey، بررسی مجوز کد یا اثبات ایمنی Production برای Lottorito نیست.
+
+## ۱۲. اسناد مرتبط
 
 LOT-I18N-001؛ LOT-COMMS-001؛ LOT-GROWTH-001؛ LOT-EVENT-001؛ LOT-TEN-001؛ LOT-SEC-TM-001؛ LOT-FIN-POST-001؛ LOT-QA-001.
 
