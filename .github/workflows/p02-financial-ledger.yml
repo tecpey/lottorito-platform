@@ -1,0 +1,62 @@
+name: P-02 Financial Ledger
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "prototypes/p02-financial-ledger/**"
+      - "docs/en/engineering/prototypes/p02-financial-ledger.md"
+      - "docs/fa/engineering/prototypes/p02-financial-ledger.md"
+      - ".github/workflows/p02-financial-ledger.yml"
+  push:
+    branches:
+      - "spike/p02-financial-ledger"
+    paths:
+      - "prototypes/p02-financial-ledger/**"
+      - ".github/workflows/p02-financial-ledger.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: p02-financial-ledger-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  integration:
+    name: Node.js 26 + PostgreSQL 18.7 integration
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:18.7-bookworm
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: p02-admin-only-not-production
+          POSTGRES_DB: lottorito_p02
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d lottorito_p02"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      ADMIN_DATABASE_URL: postgres://postgres:p02-admin-only-not-production@127.0.0.1:5432/lottorito_p02
+      RUNTIME_DATABASE_URL: postgres://ledger_runtime:p02-runtime-not-for-production@127.0.0.1:5432/lottorito_p02
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 26.13.0
+          package-manager-cache: false
+      - name: Install pinned prototype dependency
+        working-directory: prototypes/p02-financial-ledger
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Run PostgreSQL integration tests
+        working-directory: prototypes/p02-financial-ledger
+        run: npm test

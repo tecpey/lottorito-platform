@@ -1,6 +1,6 @@
 # Verified Project Status and Continuation Point
 
-**Document ID:** LOT-OPS-001 | **Version:** 1.18.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-24
+**Document ID:** LOT-OPS-001 | **Version:** 1.22.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-24
 
 ## Verified repository state
 - Repository: tecpey/lottorito-platform; default branch main; public visibility by owner decision.
@@ -21,7 +21,7 @@ The branch docs/agent-ready-foundation-v1 contains proposed bilingual references
 - LOT-API-001: proposed resource, authorization, error, pagination, idempotency and webhook conventions.
 - LOT-TECH-ADR-001: proposed technology, deployment, reliability, observability and data-lifecycle decision framework; no stack/provider approved.
 - LOT-QA-001: proposed measurable quality scenarios, cross-cutting invariants, evidence strategy and release gates; numeric thresholds remain TBD.
-- LOT-PROT-001: proposed eight-prototype experiment plan with pass/fail criteria and evidence templates; no prototype execution is verified.
+- LOT-PROT-001: proposed eight-prototype experiment plan with pass/fail criteria and evidence templates. P-01 and P-02 now have partial, disposable synthetic executions; neither is production evidence or a technology approval.
 - LOT-I18N-001: owner-directed 12-language launch target (ten-language shortlist proposed) with equal product/content/support quality gates; no locale implementation is verified.
 - LOT-COMMS-001: proposed multilingual live-chat and customer-communications architecture; no provider/runtime is verified.
 - LOT-GROWTH-001: proposed multilingual content, SEO/GEO/AEO and channel-automation workflow; no publishing integration is verified.
@@ -50,15 +50,16 @@ The finance, security, API and technology/deployment references are proposals, n
 - LOT-CUSTOMER-PILOT-001 records the proposed customer review, API/widget handoff, sandbox, acceptance and production gates. The customer API, legal entity, jurisdiction, sandbox, credentials, commercial contract and technical compatibility are not yet verified. No database/source-code access is assumed.
 - This is an owner-directed scope and planning baseline, not evidence of signed commercial terms, implementation, customer acceptance or production authorization.
 
-## Current executable experiment
+## Current executable experiments
 - PR #36, [P-01 Tenant Isolation](https://github.com/tecpey/lottorito-platform/pull/36), is an open Draft stacked directly on PR #35. Branch: spike/p01-tenant-isolation. Re-fetch the live PR head before relying on a SHA.
 - A disposable Node.js HTTP + PostgreSQL RLS slice exists with synthetic tenants, server-resolved test principals, transaction-local tenant context, a least-privilege runtime role, and integration tests for spoofing, cross-tenant object access and pooled-connection reuse.
 - Candidate versions are Node.js 26.13.0, PostgreSQL 18.7 and node-postgres 8.23.1. They remain experiment inputs, not accepted technology decisions.
 - GitHub Actions run [45412556456](https://github.com/tecpey/lottorito-platform/actions/runs/45412556456) passed on Node.js 26.13.0 + PostgreSQL 18.7 with committed npm lockfile and SHA-pinned Actions: 20 tests passed, 0 failed, 0 skipped on code head `f53caa4e801c9eeed94dfe706e03c6dfcf02a660`. In addition to HTTP/RLS and async outbox/dispatcher/Ed25519 job tests, the slice compares per-tenant LOGIN roles bound to PostgreSQL session_user across records, membership and jobs; GUC spoofing, cross-role SET ROLE/SET SESSION AUTHORIZATION, identity-map reads and cross-tenant writes are denied in that variant. The SECURITY DEFINER function's NOLOGIN/non-BYPASSRLS owner and fixed search_path are verified, including a temporary-schema shadowing attempt. Local execution has not been performed in this environment. The red-team test explicitly confirms the shared-role GUC trust limitation; the per-tenant credential broker and pool-scaling model remain untested.
-- Overall P-01 remains partial/inconclusive: secure per-tenant credential brokering and pool scaling, in-flight revocation race stress, support/break-glass, cache/object storage/search/reporting, load, failover and recovery remain untested.
+- PR #38, [P-02 Financial Ledger](https://github.com/tecpey/lottorito-platform/pull/38), is an open Draft stacked on PR #36 branch spike/p01-tenant-isolation. Branch: spike/p02-financial-ledger. CI run [45416076701](https://github.com/tecpey/lottorito-platform/actions/runs/45416076701) passed 19 tests on Node.js 26.13.0 + PostgreSQL 18.7 on PR head a47e5e2107ecfe96c77c48bea3d8921f726b8a17; it covers exact NUMERIC amounts, per-currency double-entry, tenant/product RLS, concurrent idempotency, immutable postings, exact reversals, atomic outbox and reconciliation. Documentation Governance run [45415219866](https://github.com/tecpey/lottorito-platform/actions/runs/45415219866) passed on the bilingual docs head. P-02 is synthetic and partial; no production wallet, payout, payment, commission formula or financial policy is implemented or approved.
+- Overall P-01 remains partial/inconclusive: secure per-tenant credential brokering and pool scaling, high-contention revocation-race stress, support/break-glass, cache/object storage/search/reporting, load, failover and recovery remain untested.
 
 ## Not verified
-No production application, production physical schema/migrations, provider API connection, sandbox certification, financial calculation/posting, payout, penetration test or production deployment has been verified. The disposable P-01 slice has a passing CI result for 19 defined tests, including an identity-bound per-tenant database-role comparison, but is not production software; full P-01 remains partial/inconclusive. Documentation Governance CI exists and has passed structural checks on selected PR heads; it does not prove semantic bilingual parity, runtime behavior, legal eligibility or security.
+No production application, production physical schema/migrations, provider API connection, sandbox certification, financial calculation/posting, payout, penetration test or production deployment has been verified. The disposable P-01 slice has a passing CI result for 20 defined tests, including an identity-bound per-tenant database-role comparison, but is not production software; full P-01 remains partial/inconclusive. The separate P-02 ledger slice has 19 passing synthetic CI tests; it is not a production financial ledger. Documentation Governance CI exists and has passed structural checks on selected PR heads; it does not prove semantic bilingual parity, runtime behavior, legal eligibility or security.
 
 ## Continuation rules
 1. Read AGENTS.md and this status record.

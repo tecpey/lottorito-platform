@@ -1,6 +1,6 @@
 # وضعیت واقعی پروژه و نقطه ادامه کار
 
-**شناسه:** LOT-OPS-001 | **نسخه:** ۱.۱۸.۰ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۴
+**شناسه:** LOT-OPS-001 | **نسخه:** ۱.۲۲.۰ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۴
 
 ## وضعیت تأییدشده مخزن
 - مخزن tecpey/lottorito-platform؛ شاخه پیش‌فرض main؛ سطح دسترسی Public طبق تصمیم مالک.
@@ -21,7 +21,7 @@
 - LOT-API-001: قرارداد پیشنهادی Resource، مجوزدهی، خطا، Pagination، Idempotency و Webhook.
 - LOT-TECH-ADR-001: چارچوب پیشنهادی تصمیم فناوری، استقرار، قابلیت اطمینان، Observability و چرخه داده؛ بدون تصویب Stack/Provider.
 - LOT-QA-001: سناریوهای کیفی قابل‌اندازه‌گیری، ناورداهای سراسری، راهبرد شواهد و دروازه انتشار پیشنهادی؛ آستانه‌های عددی تعیین‌نشده‌اند.
-- LOT-PROT-001: برنامه پیشنهادی هشت Prototype همراه معیار Pass/Fail و قالب شواهد؛ اجرای هیچ Prototype تأیید نشده است.
+- LOT-PROT-001: برنامه پیشنهادی هشت Prototype همراه معیار Pass/Fail و قالب شواهد. اکنون P-01 و P-02 دارای اجرای محدود، دورریختنی و با داده ساختگی هستند؛ هیچ‌کدام شاهد Production یا تصویب فناوری نیستند.
 - LOT-I18N-001: هدف عرضه ۱۲زبانه به دستور مالک (فهرست ده‌زبانه پیشنهادی) با دروازه کیفیت برابر محصول/محتوا/پشتیبانی؛ پیاده‌سازی Locale تأیید نشده است.
 - LOT-COMMS-001: معماری پیشنهادی Live Chat و ارتباط چندزبانه با مشتری؛ Provider/Runtime تأیید نشده است.
 - LOT-GROWTH-001: گردش پیشنهادی محتوای چندزبانه، SEO/GEO/AEO و اتوماسیون کانال؛ اتصال انتشار تأیید نشده است.
@@ -50,15 +50,16 @@
 - LOT-CUSTOMER-PILOT-001 محدوده مشتری و برنامه پیشنهادی بازبینی، بسته تحویل API/Widget، Sandbox، پذیرش و دروازه Production را ثبت می‌کند. API مشتری، شخصیت حقوقی، حوزه قضایی، Sandbox، Credential، قرارداد تجاری و سازگاری فنی هنوز راستی‌آزمایی نشده‌اند. دسترسی به دیتابیس/کد منبع فرض نشده است.
 - این مورد دستور مالک و خط مبنای برنامه‌ریزی است؛ نه مدرک شرایط تجاری امضاشده، پیاده‌سازی، پذیرش مشتری یا مجوز Production.
 
-## آزمایش اجرایی جاری
+## آزمایش‌های اجرایی جاری
 - PR شماره ۳۶، [آزمایش جداسازی Tenant در P-01](https://github.com/tecpey/lottorito-platform/pull/36)، یک Draft باز است که مستقیماً روی PR شماره ۳۵ قرار گرفته است. شاخه: spike/p01-tenant-isolation. برای SHA معتبر، Metadata زنده PR را دوباره بخوانید.
 - یک برش آزمایشی و دورریختنی با HTTP در Node.js و PostgreSQL RLS وجود دارد که شامل Tenantهای ساختگی، Principal آزمایشی با Context سمت سرور، Context تراکنش‌محور، Role اجرایی با حداقل مجوز و تست‌های یکپارچه‌سازی برای جعل Tenant، دسترسی بین Tenantها و استفاده مجدد از Connection Pool است.
 - نسخه‌های کاندید آزمایش Node.js 26.13.0، PostgreSQL 18.7 و node-postgres 8.23.1 هستند؛ این نسخه‌ها ورودی آزمایش‌اند و تصمیم فناوری پذیرفته‌شده نیستند.
 - اجرای GitHub Actions با شناسه [45412556456](https://github.com/tecpey/lottorito-platform/actions/runs/45412556456) روی Node.js 26.13.0 و PostgreSQL 18.7، با Lockfile ثبت‌شده و Actionهای Pin‌شده با SHA، موفق شد: ۲۰ تست موفق، صفر شکست و صفر تست Skip‌شده روی Head کد `f53caa4e801c9eeed94dfe706e03c6dfcf02a660`. علاوه بر تست‌های HTTP/RLS و Async Outbox/Dispatcher/Envelope امضاشده Ed25519، این برش Roleهای LOGIN مستقل Tenant متصل به `session_user` دیتابیس را برای Records، Membership و Jobs مقایسه می‌کند؛ جعل GUC، SET ROLE/SET SESSION AUTHORIZATION بین Tenantها، خواندن Identity Map و Write بین Tenantها در این مدل رد می‌شود. مالک NOLOGIN/غیر BYPASSRLS تابع SECURITY DEFINER و search_path ثابت نیز با تلاش Shadow کردن Temporary Schema بررسی شده‌اند؛ یک تست دو اتصالی Deterministic نیز اثبات می‌کند لغو Membership پشت قفل `FOR SHARE` درخواست در حال اجرا منتظر می‌ماند. اجرای محلی در این محیط انجام نشده است. تست Red-Team محدودیت اعتماد GUC در Role مشترک را صریحاً تأیید می‌کند؛ Credential Broker و مقیاس‌پذیری Poolهای مستقل هنوز آزمایش نشده‌اند.
+- PR شماره ۳۸، [دفترکل مالی P-02](https://github.com/tecpey/lottorito-platform/pull/38)، یک Draft باز است که روی شاخه PR شماره ۳۶ یعنی spike/p01-tenant-isolation قرار گرفته است. شاخه: spike/p02-financial-ledger. اجرای CI با شناسه [45416076701](https://github.com/tecpey/lottorito-platform/actions/runs/45416076701) شامل ۱۹ تست موفق روی Node.js 26.13.0 و PostgreSQL 18.7 روی Head شاخه PR یعنی a47e5e2107ecfe96c77c48bea3d8921f726b8a17 است؛ این تست‌ها NUMERIC دقیق، Double-entry متوازن به تفکیک Currency، RLS Tenant/Product، Idempotency هم‌زمان، Posting تغییرناپذیر، Reversal دقیق، Outbox اتمیک و Reconciliation را پوشش می‌دهند. اجرای Documentation Governance با شناسه [45415219866](https://github.com/tecpey/lottorito-platform/actions/runs/45415219866) روی Head مستندات دوزبانه موفق شد. P-02 ساختگی و جزئی است؛ هیچ Wallet، Payout، Payment، فرمول کمیسیون یا سیاست مالی Production پیاده‌سازی یا تصویب نشده است.
 - وضعیت کلی P-01 همچنان جزئی/نامعین است: Credential Broker امن و مقیاس Poolهای مستقل، آزمون فشار Race ابطال Membership در درخواست در حال اجرا، Support/Break-glass، Cache/Object Storage/Search/Reporting، بار، Failover و Recovery هنوز آزمایش نشده‌اند.
 
 ## موارد تأییدنشده
-هیچ برنامه Production، Schema/Migration فیزیکی Production، اتصال API Provider، Certification سندباکس، محاسبه/ثبت مالی، پرداخت، تست نفوذ یا Deploy عملیاتی تأیید نشده است. برش اجرایی موقت P-01 برای ۱۹ تست تعریف‌شده CI موفق دارد و مقایسه Roleهای مستقل دیتابیس را نیز شامل می‌شود، اما نرم‌افزار Production نیست؛ محدوده کامل P-01 همچنان جزئی/نامعین است. Documentation Governance CI وجود دارد و روی برخی Headهای PR کنترل ساختاری موفق داشته است؛ این کنترل هم‌ارزی معنایی فارسی/انگلیسی، رفتار Runtime، صلاحیت قانونی یا امنیت را اثبات نمی‌کند.
+هیچ برنامه Production، Schema/Migration فیزیکی Production، اتصال API Provider، Certification سندباکس، محاسبه/ثبت مالی، پرداخت، تست نفوذ یا Deploy عملیاتی تأیید نشده است. برش اجرایی موقت P-01 برای ۲۰ تست تعریف‌شده CI موفق دارد و مقایسه Roleهای مستقل دیتابیس را نیز شامل می‌شود، اما نرم‌افزار Production نیست؛ محدوده کامل P-01 همچنان جزئی/نامعین است. برش دفترکل P-02 نیز ۱۹ تست CI ساختگی موفق دارد، اما دفترکل مالی Production نیست. Documentation Governance CI وجود دارد و روی برخی Headهای PR کنترل ساختاری موفق داشته است؛ این کنترل هم‌ارزی معنایی فارسی/انگلیسی، رفتار Runtime، صلاحیت قانونی یا امنیت را اثبات نمی‌کند.
 
 ## قواعد ادامه کار
 ۱. AGENTS.md و این سند را بخوان.
