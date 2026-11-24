@@ -18,7 +18,7 @@
 - Caller می‌تواند شناسه Grant و Tenant هدف را ارسال کند، اما هیچ‌کدام اثبات مجوز نیستند. دیتابیس باید هر دو را با Subject احراز‌شده پشتیبان و Grant فعال تطبیق دهد.
 - Role اختصاصی Support Authorizer می‌تواند Metadata مربوط به Grant را بخواند و رویداد Audit اضافه کند؛ اما اجازه خواندن رکوردهای Tenant، Jobها، Wallet یا سایر جدول‌های Payload را ندارد.
 - Role اجرایی Tenant با حداقل مجوز، خواندن واقعی داده را در تراکنش RLS محدود به همان Tenant انجام می‌دهد.
-- ردیف Grant در طول خواندن داده قفل می‌شود تا لغو هم‌زمان با دسترسی Serialize شود.
+- ردیف Grant در طول خواندن داده قفل می‌شود تا لغو هم‌زمان با دسترسی Serialize شود. PostgreSQL برای `SELECT ... FOR SHARE` به Policy از نوع UPDATE در RLS نیاز دارد؛ بنابراین Role پشتیبانی فقط یک Policy محدود UPDATE و مجوز ستونی UPDATE روی `lock_version` غیرحساس دریافت می‌کند. این Role نمی‌تواند `revoked_at`، Scope، Subject یا Tenant را تغییر دهد و در نتیجه قادر به اعطا یا لغو مجوز نیست.
 - رویدادهای Audit برای Role مربوط به Support Authorizer فقط قابل‌افزودن هستند و Subject، Grant، Tenant، Resource، Action، دلیل، نتیجه و Timestamp دیتابیس را ثبت می‌کنند. این Role فقط INSERT دارد و مجوز SELECT/UPDATE/DELETE روی جدول Audit ندارد. این محدودیت در سطح Role دیتابیس اعمال شده است؛ به معنی ذخیره‌سازی رمزنگاری‌شده ضد‌دستکاری یا مخزن مستقل و Immutable نیست.
 - دسترسی پشتیبانی فقط‌خواندنی است. هیچ Write، عملیات مالی، Credential، Payout، Wallet یا تغییر هویت در محدوده نیست.
 
