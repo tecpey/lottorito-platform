@@ -13,7 +13,7 @@ export async function backfillBatch(pool,size=100){
  if(!Number.isInteger(size)||size<1||size>500)throw new RangeError("batch size must be 1..500");
  const c=await pool.connect();
  try{await c.query("BEGIN");await c.query("SET LOCAL lock_timeout='2s'");
- const q="WITH b AS (SELECT tenant_id,event_id FROM partner_events WHERE canonical_payload IS NULL ORDER BY created_at,event_id FOR UPDATE SKIP LOCKED LIMIT $1) UPDATE partner_events e SET canonical_payload=e.payload FROM b WHERE e.tenant_id=b.tenant_id AND e.event_id=b.event_id AND e.canonical_payload IS NULL RETURNING e.event_id";
+ const q="WITH b AS (SELECT tenant_id,event_id FROM partner_events WHERE canonical_payload IS NULL ORDER BY created_at,event_id LIMIT $1 FOR UPDATE SKIP LOCKED) UPDATE partner_events e SET canonical_payload=e.payload FROM b WHERE e.tenant_id=b.tenant_id AND e.event_id=b.event_id AND e.canonical_payload IS NULL RETURNING e.event_id";
  const r=await c.query(q,[size]);await c.query("COMMIT");return r.rowCount;
  }catch(e){await c.query("ROLLBACK");throw e;}finally{c.release();}
 }

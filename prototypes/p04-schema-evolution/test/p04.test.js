@@ -11,18 +11,18 @@ before(async()=>{
  await applyMigration(admin,"p04-expand-v1",await readFile(new URL("../db/002-expand.sql",import.meta.url),"utf8"));
 });after(async()=>{await Promise.all([admin.end(),a1?.end(),a2?.end(),b1?.end(),b2?.end()]);});
 test("v1/v2 writers and readers coexist in both directions",async()=>{
- await a1.query("INSERT INTO partner_events(tenant_id,event_id,event_type,payload) VALUES($1,$2,'v1','{"v":1}'::jsonb)",[A,id(201)]);
- await a2.query("INSERT INTO partner_events(tenant_id,event_id,event_type,canonical_payload) VALUES($1,$2,'v2','{"v":2}'::jsonb)",[A,id(202)]);
+   await a1.query("INSERT INTO partner_events(tenant_id,event_id,event_type,payload) VALUES($1,$2,'v1',$3::jsonb)",[A,id(201),JSON.stringify({v:1})]);
+   await a2.query("INSERT INTO partner_events(tenant_id,event_id,event_type,canonical_payload) VALUES($1,$2,'v2',$3::jsonb)",[A,id(202),JSON.stringify({v:2})]);
  assert.deepEqual((await a2.query("SELECT canonical_payload FROM partner_events WHERE event_id=$1",[id(201)])).rows[0].canonical_payload,{v:1});
  assert.deepEqual((await a1.query("SELECT payload FROM partner_events WHERE event_id=$1",[id(202)])).rows[0].payload,{v:2});
 });
-test("conflicting dual-write fails closed",async()=>{await assert.rejects(a2.query("UPDATE partner_events SET payload='{"v":1}'::jsonb,canonical_payload='{"v":2}'::jsonb WHERE event_id=$1",[id(201)]),e=>e.code==="23514");});
+test("conflicting dual-write fails closed",async()=>{await assert.rejects(a2.query("UPDATE partner_events SET payload=$1::jsonb,canonical_payload=$2::jsonb WHERE event_id=$3",[JSON.stringify({v:1}),JSON.stringify({v:2}),id(201)]),e=>e.code==="23514");});
 test("backfill stops and resumes; RLS scopes each tenant",async()=>{
  assert.equal(await backfillBatch(a1,2),2);await a1.end();a1=new Pool({connectionString:u.a1});
  let n=0;while(await backfillBatch(a1,2))n++;assert.equal(n,2);
  assert.equal((await a1.query("SELECT count(*)::int n FROM partner_events WHERE canonical_payload IS NULL")).rows[0].n,0);
  assert.equal(await backfillBatch(b2,2),2);assert.equal((await a1.query("SELECT * FROM partner_events WHERE tenant_id=$1",[B])).rowCount,0);
- await assert.rejects(a1.query("INSERT INTO partner_events(tenant_id,event_id,event_type,payload) VALUES($1,$2,'spoof','{"x":1}'::jsonb)",[B,id(299)]),e=>e.code==="42501");
+   await assert.rejects(a1.query("INSERT INTO partner_events(tenant_id,event_id,event_type,payload) VALUES($1,$2,'spoof',$3::jsonb)",[B,id(299),JSON.stringify({x:1})]),e=>e.code==="42501");
 });
 test("migration replay is idempotent and checksum drift is rejected",async()=>{
  assert.equal(await applyMigration(admin,"p04-repeat-v1","SELECT 1"),true);assert.equal(await applyMigration(admin,"p04-repeat-v1","SELECT 1"),false);
