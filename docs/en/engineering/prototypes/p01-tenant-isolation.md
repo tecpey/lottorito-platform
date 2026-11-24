@@ -34,6 +34,7 @@ It is not a production service, authentication implementation, complete P-01 pas
 | P01-DB-04 | Attempt to set app.tenant_id using shared app_runtime role | Expected exposure: role can assert another tenant; proves GUC RLS is not a boundary against compromised runtime credentials |
 | P01-DB-05 | UPDATE/DELETE tenant-B-only object while scoped to A | Zero rows affected; B's object remains unchanged |
 | P01-DB-06 | INSERT a tenant-B row while scoped to A, bypassing HTTP | RLS WITH CHECK rejects the write; failed transaction is rolled back before pool reuse |
+| P01-DB-07 | Read tenant membership rows under A and B contexts | Membership table RLS exposes only the active tenant's membership rows |
 
 ## Important security interpretation
 
