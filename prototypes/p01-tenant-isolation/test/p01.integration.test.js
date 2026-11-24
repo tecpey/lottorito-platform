@@ -760,6 +760,17 @@ test("support principals cannot use tenant routes or mutate records, and tenant 
     headers: { "x-support-grant-id": SUPPORT_GRANT_ACTIVE }
   });
   assert.equal(tenantToSupport.status, 403);
+
+  const deniedAttempts = await adminPool.query(
+    "SELECT support_subject_id, tenant_id, resource_id, action, outcome FROM public.support_audit WHERE action = 'tenant-route:denied' ORDER BY created_at"
+  );
+  assert.equal(deniedAttempts.rowCount, 2);
+  assert.equal(deniedAttempts.rows.every((row) =>
+    row.support_subject_id === "synthetic-support-a" &&
+    row.tenant_id === null &&
+    row.resource_id === null &&
+    row.outcome === "denied"
+  ), true);
 });
 
 test("support-authorizer role is non-privileged and has only the intended metadata/audit grants", async () => {
