@@ -34,6 +34,95 @@ async function withAuthorizedTenantTransaction(pool, principal, operation) {
   });
 }
 
+async function readSupportRecord({ supportPool, pool, principal, tenantId, recordId, grantId }) {
+  const client = await supportPool.connect();
+  let transactionOpen = false;
+  let destroyConnection = null;
+  try {
+    await client.query("BEGIN");
+    transactionOpen = true;
+    const safeGrantId = isUuid(grantId) ? grantId : null;
+    const grant = safeGrantId
+      ? await client.query(
+          `SELECT grant_id, reason
+             FROM public.support_grants
+            WHERE grant_id = $1
+              AND support_subject_id = $2
+              AND tenant_id = $3
+              AND resource_scope = 'records:read'
+              AND revoked_at IS NULL
+              AND expires_at > clock_timestamp()
+            FOR SHARE`,
+          [safeGrantId, principal.subjectId, tenantId]
+        )
+      : { rows: [] };
+
+    if (grant.rows.length !== 1) {
+      await client.query(
+        `INSERT INTO public.support_audit
+          (audit_id, grant_id, support_subject_id, tenant_id, resource_id, action, outcome, reason)
+         VALUES ($1, $2, $3, $4, $5, 'records:read', 'denied', $6)`,
+        [
+          randomUUID(),
+          safeGrantId,
+          principal.subjectId,
+          tenantId,
+          recordId,
+          "No active grant matches support subject, tenant, scope and expiry"
+        ]
+      );
+      await client.query("COMMIT");
+      transactionOpen = false;
+      return { authorized: false, row: null };
+    }
+
+    await client.query(
+      `INSERT INTO public.support_audit
+        (audit_id, grant_id, support_subject_id, tenant_id, resource_id, action, outcome, reason)
+       VALUES ($1, $2, $3, $4, $5, 'records:read', 'allowed', $6)`,
+      [
+        randomUUID(),
+        grant.rows[0].grant_id,
+        principal.subjectId,
+        tenantId,
+        recordId,
+        grant.rows[0].reason
+      ]
+    );
+
+    let row;
+    try {
+      row = await withTenantTransaction(pool, tenantId, async (dataClient) => {
+        const result = await dataClient.query(
+          "SELECT record_id, natural_key, payload FROM public.tenant_records WHERE record_id = $1",
+          [recordId]
+        );
+        return result.rows[0] ?? null;
+      });
+    } catch (error) {
+      // Preserve the audit event even when the subsequent tenant read fails.
+      await client.query("COMMIT");
+      transactionOpen = false;
+      throw error;
+    }
+
+    await client.query("COMMIT");
+    transactionOpen = false;
+    return { authorized: true, row };
+  } catch (error) {
+    if (transactionOpen) {
+      try {
+        await client.query("ROLLBACK");
+      } catch (rollbackError) {
+        destroyConnection = rollbackError;
+      }
+    }
+    throw error;
+  } finally {
+    client.release(destroyConnection);
+  }
+}
+
 async function readJson(req) {
   const contentType = String(req.headers["content-type"] ?? "").split(";")[0].trim().toLowerCase();
   if (contentType !== "application/json") throw httpError(415, "application/json is required");
@@ -59,7 +148,7 @@ async function readJson(req) {
  * inside the same transaction as tenant data access. Caller tenant IDs are never
  * authorization proof.
  */
-export function createTenantServer({ pool, authenticate }) {
+export function createTenantServer({ pool, supportPool, authenticate }) {
   if (!pool || typeof authenticate !== "function") {
     throw new TypeError("pool and authenticate are required");
   }
@@ -70,14 +159,56 @@ export function createTenantServer({ pool, authenticate }) {
       const isCollection = url.pathname === "/records";
       const isJobsCollection = url.pathname === "/jobs";
       const recordMatch = url.pathname.match(/^\/records\/([0-9a-f-]+)$/i);
+      const supportMatch = url.pathname.match(/^\/support\/tenants\/([0-9a-f-]+)\/records\/([0-9a-f-]+)$/i);
 
-      if (!isCollection && !isJobsCollection && !recordMatch) {
+      if (!isCollection && !isJobsCollection && !recordMatch && !supportMatch) {
         respond(res, 404, { error: "not_found" });
         return;
       }
 
       const principal = await authenticate(req);
-      if (!principal || typeof principal.subjectId !== "string" || !isUuid(principal.tenantId)) {
+      if (!principal || typeof principal.subjectId !== "string") {
+        respond(res, 401, { error: "unauthorized" });
+        return;
+      }
+
+      if (principal.kind === "support") {
+        if (!supportMatch || req.method !== "GET" || !supportPool) {
+          respond(res, 403, { error: "support_access_denied" });
+          return;
+        }
+        const tenantId = supportMatch[1];
+        const recordId = supportMatch[2];
+        if (!isUuid(tenantId) || !isUuid(recordId)) {
+          respond(res, 404, { error: "not_found" });
+          return;
+        }
+        const result = await readSupportRecord({
+          supportPool,
+          pool,
+          principal,
+          tenantId,
+          recordId,
+          grantId: req.headers["x-support-grant-id"]
+        });
+        if (!result.authorized) {
+          respond(res, 403, { error: "support_access_denied" });
+          return;
+        }
+        if (!result.row) {
+          respond(res, 404, { error: "not_found" });
+          return;
+        }
+        respond(res, 200, { data: result.row });
+        return;
+      }
+
+      if (supportMatch) {
+        respond(res, 403, { error: "support_access_denied" });
+        return;
+      }
+
+      if (!isUuid(principal.tenantId)) {
         respond(res, 401, { error: "unauthorized" });
         return;
       }
