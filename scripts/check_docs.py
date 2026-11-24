@@ -19,8 +19,8 @@ DOC_ID_RE = re.compile(
     re.MULTILINE,
 )
 LINK_RE = re.compile(r"(?<!!)\[[^\]]*\]\(([^)]+)\)")
-VERSION_RE = re.compile(r"^\*\*(?:Version|نسخه)\s*:\*\*\s*\S+", re.MULTILINE)
-STATUS_RE = re.compile(r"^\*\*(?:Status|وضعیت)\s*:\*\*\s*\S+", re.MULTILINE)
+VERSION_RE = re.compile(r"\*\*(?:Version|نسخه):\*\*\s*\S+")
+STATUS_RE = re.compile(r"\*\*(?:Status|وضعیت):\*\*\s*\S+")
 TITLE_RE = re.compile(r"^#\s+\S", re.MULTILINE)
 
 
