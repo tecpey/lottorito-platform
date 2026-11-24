@@ -213,14 +213,14 @@ export async function ingestProviderWebhook(pool, {
 }
 
 export async function claimNextInboxEvent(pool, {
-  tenantId, productId, workerId, now = new Date(), leaseSeconds = 30
+  tenantId, productId, workerId, now = null, leaseSeconds = 30
 }) {
   return withEventTransaction(pool, tenantId, productId, async (client) => {
     const selected = await client.query(
       `SELECT provider_id, provider_event_id
          FROM public.provider_event_inbox
-        WHERE (status IN ('accepted', 'retry') AND available_at <= $1)
-           OR (status = 'processing' AND lease_until <= $1)
+        WHERE (status IN ('accepted', 'retry') AND available_at <= COALESCE($1::timestamptz, clock_timestamp()))
+           OR (status = 'processing' AND lease_until <= COALESCE($1::timestamptz, clock_timestamp()))
         ORDER BY received_at, provider_event_id
         LIMIT 1
         FOR UPDATE SKIP LOCKED`,
@@ -233,7 +233,7 @@ export async function claimNextInboxEvent(pool, {
           SET status = 'processing',
               attempt_count = attempt_count + 1,
               claimed_by = $3,
-              lease_until = $4::timestamptz + ($5::int * interval '1 second')
+              lease_until = COALESCE($4::timestamptz, clock_timestamp()) + ($5::int * interval '1 second')
         WHERE tenant_id = $1 AND product_id = $2
           AND provider_id = $6 AND provider_event_id = $7
         RETURNING provider_id, provider_event_id, event_type,
@@ -263,7 +263,7 @@ export async function completeInboxEvent(pool, {
 
 export async function failInboxEvent(pool, {
   tenantId, productId, providerId, eventId, workerId, attemptCount,
-  errorCode, now = new Date(), baseDelaySeconds = 5, maxDelaySeconds = 3600,
+  errorCode, now = null, baseDelaySeconds = 5, maxDelaySeconds = 3600,
   maxAttempts = 5, jitter = 0
 }) {
   if (!Number.isFinite(jitter) || jitter < 0 || jitter > 1) throw new RangeError("jitter must be between 0 and 1");
@@ -281,7 +281,7 @@ export async function failInboxEvent(pool, {
     const delay = Math.min(maxDelaySeconds, baseDelaySeconds * (2 ** Math.max(0, attemptCount - 1))) * (1 + jitter);
     const result = await client.query(
       `UPDATE public.provider_event_inbox
-          SET status = $7, available_at = $8::timestamptz + ($9::double precision * interval '1 second'),
+          SET status = $7, available_at = COALESCE($8::timestamptz, clock_timestamp()) + ($9::double precision * interval '1 second'),
               lease_until = NULL, claimed_by = NULL, last_error_code = $10
         WHERE tenant_id = $1 AND product_id = $2
           AND provider_id = $3 AND provider_event_id = $4
@@ -364,7 +364,7 @@ export async function claimNextOutboundDelivery(pool, {
 
 export async function recordOutboundResult(pool, {
   tenantId, productId, deliveryId, workerId, attemptCount,
-  httpStatus = null, errorCode = null, now = new Date(),
+  httpStatus = null, errorCode = null, now = null,
   baseDelaySeconds = 5, maxDelaySeconds = 3600, maxAttempts = 5, jitter = 0
 }) {
   if (!Number.isFinite(jitter) || jitter < 0 || jitter > 1) throw new RangeError("jitter must be between 0 and 1");
@@ -388,7 +388,7 @@ export async function recordOutboundResult(pool, {
 
     await client.query(
       `UPDATE public.webhook_delivery_attempts
-          SET finished_at = $5, outcome = $6, http_status = $7, error_code = $8
+          SET finished_at = COALESCE($5::timestamptz, clock_timestamp()), outcome = $6, http_status = $7, error_code = $8
         WHERE tenant_id = $1 AND product_id = $2
           AND delivery_id = $3 AND attempt_no = $4`,
       [tenantId, productId, deliveryId, attemptCount, now,
@@ -401,7 +401,7 @@ export async function recordOutboundResult(pool, {
               available_at = CASE WHEN $4 = 'retry' OR $4 = 'dead_letter'
                 THEN $5::timestamptz + ($6::double precision * interval '1 second')
                 ELSE available_at END,
-              delivered_at = CASE WHEN $4 = 'delivered' THEN $5 ELSE delivered_at END,
+              delivered_at = CASE WHEN $4 = 'delivered' THEN COALESCE($5::timestamptz, clock_timestamp()) ELSE delivered_at END,
               lease_until = NULL, claimed_by = NULL,
               last_http_status = $7, last_error_code = $8
         WHERE tenant_id = $1 AND product_id = $2 AND delivery_id = $3
