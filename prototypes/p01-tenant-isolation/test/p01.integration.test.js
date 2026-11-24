@@ -38,6 +38,8 @@ const adminPool = new Pool({ connectionString: adminDatabaseUrl, max: 2 });
 const dispatcherPool = new Pool({ connectionString: dispatcherDatabaseUrl, max: 1 });
 const dispatcherPool2 = new Pool({ connectionString: dispatcherDatabaseUrl, max: 1 });
 const supportPool = new Pool({ connectionString: supportDatabaseUrl, max: 2 });
+const tenantAPool = new Pool({ connectionString: process.env.TENANT_A_DATABASE_URL, max: 1 });
+const tenantBPool = new Pool({ connectionString: process.env.TENANT_B_DATABASE_URL, max: 1 });
 const pool = new Pool({
   connectionString: databaseUrl,
   max: 1,
@@ -80,6 +82,8 @@ after(async () => {
   await adminPool.end();
   await dispatcherPool.end();
   await dispatcherPool2.end();
+  await tenantAPool.end();
+  await tenantBPool.end();
   await supportPool.end();
 });
 
@@ -243,9 +247,10 @@ test("RLS returns only rows for the authenticated tenant", async () => {
   const b = await request("/records", { token: "p01-synthetic-token-b" });
   assert.equal(a.status, 200);
   assert.equal(b.status, 200);
-  assert.equal(a.body.data.length, 1);
+  assert.equal(a.body.data.length, 2);
   assert.equal(b.body.data.length, 2);
-  assert.equal(a.body.data[0].payload, "synthetic tenant A fixture");
+  assert.ok(a.body.data.some((row) => row.payload === "synthetic tenant A fixture"));
+  assert.ok(a.body.data.some((row) => row.payload === "tenant A private fixture"));
   assert.ok(b.body.data.some((row) => row.payload === "synthetic tenant B fixture"));
   assert.ok(b.body.data.some((row) => row.payload === "tenant B private fixture"));
 
@@ -265,8 +270,10 @@ test("a forged tenant header cannot switch the authenticated tenant", async () =
     headers: { "x-tenant-id": TENANT_B }
   });
   assert.equal(result.status, 200);
-  assert.equal(result.body.data.length, 1);
-  assert.equal(result.body.data[0].payload, "synthetic tenant A fixture");
+  assert.equal(result.body.data.length, 2);
+  assert.ok(result.body.data.some((row) => row.payload === "synthetic tenant A fixture"));
+  assert.ok(result.body.data.some((row) => row.payload === "tenant A private fixture"));
+  assert.equal(result.body.data.some((row) => row.payload.includes("tenant B")), false);
 });
 
 test("the same object UUID resolves only inside the authenticated tenant", async () => {
@@ -367,6 +374,7 @@ test("runtime role is not superuser, table owner or BYPASSRLS and FORCE RLS is e
     policies.rows.map((policy) => [policy.policyname, policy.permissive]),
     [
       ["tenant_records_app_access", "PERMISSIVE"],
+      ["tenant_records_identity_guard", "PERMISSIVE"],
       ["tenant_records_tenant_guard", "RESTRICTIVE"]
     ]
   );
@@ -430,6 +438,67 @@ test("red-team boundary: a compromised shared runtime role can assert another te
   } finally {
     await client.query("ROLLBACK");
     client.release();
+  }
+});
+
+
+test("identity-bound per-tenant database roles resist GUC spoofing and role switching", async () => {
+  for (const [poolForTenant, ownTenant, otherTenant, ownRecordId, ownPayload, otherRecordId] of [
+    [tenantAPool, TENANT_A, TENANT_B, SHARED_RECORD_ID, "synthetic tenant A fixture", TENANT_B_ONLY_RECORD_ID],
+    [tenantBPool, TENANT_B, TENANT_A, TENANT_B_ONLY_RECORD_ID, "tenant B private fixture", "dddddddd-dddd-4ddd-8ddd-dddddddddddd"]
+  ]) {
+    const identity = await poolForTenant.query(
+      "SELECT session_user::text AS session_user, current_user::text AS current_user, private.current_tenant_id()::text AS tenant_id"
+    );
+    const expectedRole = ownTenant === TENANT_A ? "tenant_a_runtime" : "tenant_b_runtime";
+    assert.equal(identity.rows[0].session_user, expectedRole);
+    assert.equal(identity.rows[0].current_user, expectedRole);
+    assert.equal(identity.rows[0].tenant_id, ownTenant);
+
+    const roleState = await poolForTenant.query(
+      "SELECT r.rolsuper, r.rolbypassrls, pg_has_role(session_user, $1, 'SET') AS can_set_other_role FROM pg_roles r WHERE r.rolname = session_user",
+      [ownTenant === TENANT_A ? "tenant_b_runtime" : "tenant_a_runtime"]
+    );
+    assert.equal(roleState.rows[0].rolsuper, false);
+    assert.equal(roleState.rows[0].rolbypassrls, false);
+    assert.equal(roleState.rows[0].can_set_other_role, false);
+
+    const ownRow = await poolForTenant.query(
+      "SELECT payload FROM public.tenant_records WHERE record_id = $1",
+      [ownRecordId]
+    );
+    assert.equal(ownRow.rowCount, 1);
+    assert.equal(ownRow.rows[0].payload, ownPayload);
+
+    const otherRow = await poolForTenant.query(
+      "SELECT payload FROM public.tenant_records WHERE record_id = $1",
+      [otherRecordId]
+    );
+    assert.equal(otherRow.rowCount, 0);
+
+    // This role can set arbitrary custom GUCs, but the identity policy never reads them.
+    await poolForTenant.query("SELECT set_config('app.tenant_id', $1, false)", [otherTenant]);
+    const stillIsolated = await poolForTenant.query(
+      "SELECT payload FROM public.tenant_records WHERE record_id = $1",
+      [otherRecordId]
+    );
+    assert.equal(stillIsolated.rowCount, 0);
+
+    await assert.rejects(
+      poolForTenant.query("SET ROLE " + (ownTenant === TENANT_A ? "tenant_b_runtime" : "tenant_a_runtime")),
+      (error) => error.code === "42501"
+    );
+    await assert.rejects(
+      poolForTenant.query("SELECT * FROM private.tenant_role_map"),
+      (error) => error.code === "42501"
+    );
+    await assert.rejects(
+      poolForTenant.query(
+        "INSERT INTO public.tenant_records (tenant_id, record_id, natural_key, payload) VALUES ($1, $2, $3, $4)",
+        [otherTenant, "cccccccc-cccc-4ccc-8ccc-cccccccccccc", "identity-forged", "must be rejected"]
+      ),
+      (error) => error.code === "42501"
+    );
   }
 });
 
