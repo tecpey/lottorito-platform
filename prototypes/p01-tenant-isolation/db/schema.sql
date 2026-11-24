@@ -386,6 +386,7 @@ GRANT USAGE ON SCHEMA public TO job_dispatcher;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.tenant_records TO app_runtime;
 GRANT SELECT ON public.tenant_reports TO app_runtime, tenant_a_runtime, tenant_b_runtime;
 GRANT SELECT ON public.tenant_exports TO app_runtime, tenant_a_runtime, tenant_b_runtime;
+GRANT UPDATE (lock_version) ON public.tenant_exports TO app_runtime;
 GRANT SELECT, INSERT ON public.export_download_grants TO app_runtime;
 GRANT UPDATE (consumed_at) ON public.export_download_grants TO app_runtime;
 GRANT SELECT ON public.tenant_memberships TO app_runtime;
@@ -456,6 +457,7 @@ INSERT INTO public.tenant_records (tenant_id, record_id, natural_key, payload) V
    'tenant-a-private', 'tenant A private fixture');
 ),
   status text NOT NULL CHECK (status IN ('ready', 'revoked', 'deleted')),
+  lock_version bigint NOT NULL DEFAULT 0,
   created_at timestamptz NOT NULL DEFAULT clock_timestamp(),
   PRIMARY KEY (tenant_id, export_id),
   CHECK (object_key LIKE 'tenants/' || tenant_id::text || '/exports/%'),
@@ -468,16 +470,18 @@ ALTER TABLE public.tenant_exports FORCE ROW LEVEL SECURITY;
 CREATE POLICY tenant_exports_app_access
   ON public.tenant_exports
   AS PERMISSIVE
-  FOR SELECT
+  FOR ALL
   TO app_runtime
-  USING (true);
+  USING (true)
+  WITH CHECK (true);
 
 CREATE POLICY tenant_exports_app_tenant_guard
   ON public.tenant_exports
   AS RESTRICTIVE
-  FOR SELECT
+  FOR ALL
   TO app_runtime
-  USING (tenant_id = NULLIF(current_setting('app.tenant_id', true), '')::uuid);
+  USING (tenant_id = NULLIF(current_setting('app.tenant_id', true), '')::uuid)
+  WITH CHECK (tenant_id = NULLIF(current_setting('app.tenant_id', true), '')::uuid);
 
 CREATE POLICY tenant_exports_identity_guard
   ON public.tenant_exports
