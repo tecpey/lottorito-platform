@@ -1,6 +1,6 @@
 # P-01 Tenant Credential and Connection-Pool Registry
 
-**Document ID:** LOT-PROT-P01-POOL-001 | **Version:** 0.3.0 | **Status:** Synthetic prototype; 40 CI tests passed; production controls unverified
+**Document ID:** LOT-PROT-P01-POOL-001 | **Version:** 0.4.0 | **Status:** Synthetic prototype; 40 CI tests passed; production controls unverified
 
 ## Purpose
 
@@ -48,4 +48,4 @@ This experiment uses synthetic credentials and PostgreSQL roles only. It is not 
 
 ## Evidence status
 
-The rebuilt PR #45 P-01 run [45424342187](https://github.com/tecpey/lottorito-platform/actions/runs/45424342187) passed 40 tests (0 failed, 0 skipped) on code head `5a9b18a0a1cd121ff89223fe5829c8975acbfe87`. Documentation Governance run [45424342166](https://github.com/tecpey/lottorito-platform/actions/runs/45424342166) also passed. This verifies the synthetic prototype only; local execution, production secret management, credential rotation, fleet-wide quotas, PgBouncer, TLS policy, failover and scale remain unverified. No PostgreSQL topology, secret manager, pooler or production deployment is approved.
+The rebuilt PR #45 P-01 run [45424792886](https://github.com/tecpey/lottorito-platform/actions/runs/45424792886) passed 40 tests (0 failed, 0 skipped) on code head `153fc8974c9c620acd8d509afdea0341669e5c`. Documentation Governance run [45424793114](https://github.com/tecpey/lottorito-platform/actions/runs/45424793114) also passed. This verifies the synthetic prototype only; local execution, production secret management, credential rotation, fleet-wide quotas, PgBouncer, TLS policy, failover and scale remain unverified. No PostgreSQL topology, secret manager, pooler or production deployment is approved.
