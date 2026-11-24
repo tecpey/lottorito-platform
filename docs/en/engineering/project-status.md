@@ -25,7 +25,7 @@ The branch docs/agent-ready-foundation-v1 contains proposed bilingual references
 - LOT-I18N-001: owner-directed 12-language launch target (ten-language shortlist proposed) with equal product/content/support quality gates; no locale implementation is verified.
 - LOT-COMMS-001: proposed multilingual live-chat and customer-communications architecture; no provider/runtime is verified.
 - LOT-GROWTH-001: proposed multilingual content, SEO/GEO/AEO and channel-automation workflow; no publishing integration is verified.
-- LOT-NOTIF-001: proposed policy-gated smart-notification architecture; no notification runtime/provider is verified.
+- LOT-NOTIF-001: proposed policy-gated smart-notification architecture; no notification runtime/provider is verified. TecPey notification source was inspected as a reference: policy-only creation, transactional outbox, replay protection and runtime copy safety are useful patterns; its in-app-only, fa/en, single-tenant pilot and delivered-only frequency counter are not Lottorito-ready.
 
 The finance, security, API and technology/deployment references are proposals, not approved policies or implemented controls. LOT-TECH-ADR-001 compares architecture, database, queues/workflows, hosting, observability, recovery, security and data-residency decision criteria. No technology vendor or stack is approved by that document.
 
