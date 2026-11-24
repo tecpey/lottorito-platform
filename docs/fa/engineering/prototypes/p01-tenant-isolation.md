@@ -76,6 +76,7 @@ docker compose -f compose.yaml up -d --wait
 export ADMIN_DATABASE_URL='postgres://postgres:p01-admin-only-not-production@127.0.0.1:55432/lottorito_p01'
 export DATABASE_URL='postgres://app_runtime:p01-only-not-for-production@127.0.0.1:55432/lottorito_p01'
 export DISPATCHER_DATABASE_URL='postgres://job_dispatcher:p01-dispatcher-not-for-production@127.0.0.1:55432/lottorito_p01'
+export SUPPORT_DATABASE_URL='postgres://support_authorizer:p01-support-not-for-production@127.0.0.1:55432/lottorito_p01'
 npm ci --ignore-scripts --no-audit --no-fund
 npm test
 docker compose -f compose.yaml down
@@ -90,7 +91,7 @@ Dependency مستقیم pg در Prototype Pin شده است، اما هنوز np
 ## ثبت نتیجه
 
 - وضعیت پیاده‌سازی: فایل‌ها در شاخه spike/p01-tenant-isolation اضافه شده‌اند.
-- نتیجه CI: موفق — آخرین اجرای تأییدشده GitHub Actions با شناسه [45409321843](https://github.com/tecpey/lottorito-platform/actions/runs/45409321843)، روی Head با شناسه `d9bcee4581523e0d9e4f11070f4196060ce7d537`. این اجرا از Node.js نسخه 26.13.0، PostgreSQL نسخه 18.7 و npm ci با Lockfile ثبت‌شده استفاده کرد؛ هر ۱۸ تست Node موفق شدند، صفر شکست و صفر تست Skip‌شده. GitHub Actions با SHAهای Commit تغییرناپذیر و تأییدشده Pin شده‌اند.
+- نتیجه CI: موفق — آخرین اجرای تأییدشده GitHub Actions با شناسه [45409663708](https://github.com/tecpey/lottorito-platform/actions/runs/45409663708)، روی Head مربوط به PR شماره ۳۶ با شناسه `bc086b73e3cd48b071af71a4c281575504c33bc4`. این اجرا از Node.js نسخه 26.13.0، PostgreSQL نسخه 18.7 و npm ci با Lockfile ثبت‌شده استفاده کرد؛ هر ۱۸ تست Node موفق شدند، صفر شکست و صفر تست Skip‌شده. GitHub Actions با SHAهای Commit تغییرناپذیر و تأییدشده Pin شده‌اند.
 - اجرای موفق شامل نوشتن اتمیک Job/Outbox، Claim هم‌زمان Dispatcher با `SKIP LOCKED`، Retry مربوط به Lease و رد Ack قدیمی، Envelope امضاشده Ed25519 برای Tenant/Job (کلید خصوصی فقط در Dispatcher و کلید عمومی در Worker)، مجوز Metadata-only برای Dispatcher، Replay بی‌اثر و Idempotent، بررسی مجدد Membership در Worker و رد Job پس از لغو Membership است. همچنین ابطال Membership در درخواست بعدی، RLS جدول‌ها، مجوز محدود `UPDATE(lock_version)` برای `SELECT FOR SHARE` بدون مجوز تغییر `active`، جلوگیری از UPDATE/DELETE بین Tenantها، رد Write با WITH CHECK و Pool Reuse بررسی شده‌اند.
 - تست Red-Team عمدی همچنان نشان می‌دهد Role مشترک `app_runtime` در صورت تسخیر می‌تواند GUC سفارشی را به Tenant دیگری تغییر دهد. این یک مرز اعتماد شناخته‌شده است، نه اثبات جداسازی در برابر نفوذگر.
 - اجرای محلی: در این محیط اجرا نشده است؛ اجرای تأییدشده در CI میزبانی‌شده GitHub انجام شده است.
