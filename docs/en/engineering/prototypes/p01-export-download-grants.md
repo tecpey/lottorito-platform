@@ -46,4 +46,6 @@ This experiment uses synthetic PostgreSQL 18.7 data and the existing Node.js 26 
 
 ## Evidence status
 
+The P-01 Tenant Isolation run [45425122143](https://github.com/tecpey/lottorito-platform/actions/runs/45425122143) passed on code head `097ef0d0f00a5f36dc0d1f8fea33f1934a5a4d70`: 35 tests passed, 0 failed, 0 skipped. Documentation Governance run [45425122209](https://github.com/tecpey/lottorito-platform/actions/runs/45425122209) also passed. Local execution and provider-specific download delivery remain unverified.
+
 Code, schema and synthetic integration scenarios are implemented on a stacked Draft PR. CI and local execution are pending. All fixtures and credentials are synthetic.
