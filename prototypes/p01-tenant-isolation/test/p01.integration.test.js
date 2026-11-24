@@ -45,9 +45,11 @@ after(async () => {
   await pool.end();
 });
 
-test("unauthenticated requests cannot access tenant data", async () => {
-  const result = await request("/records");
-  assert.equal(result.status, 401);
+test("missing and invalid synthetic credentials cannot access tenant data", async () => {
+  const missing = await request("/records");
+  const invalid = await request("/records", { token: "not-a-valid-token" });
+  assert.equal(missing.status, 401);
+  assert.equal(invalid.status, 401);
 });
 
 test("RLS returns only rows for the authenticated tenant", async () => {
