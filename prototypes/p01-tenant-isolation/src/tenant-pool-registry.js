@@ -53,9 +53,12 @@ export class TenantPoolRegistry {
     if (typeof operation !== "function") throw new TypeError("operation must be a function");
     const entry = await this.#getEntry(normalizedTenantId);
     if (this.closed || this.revokedTenants.has(normalizedTenantId) || entry.revoked || entry.closed) {
+      entry.pendingLeases -= 1;
+      await this.#maybeCloseRetired(entry);
       throw new Error("tenant database access is unavailable");
     }
 
+    entry.pendingLeases -= 1;
     entry.activeLeases += 1;
     entry.lastUsedAt = this.now();
     try {
@@ -63,16 +66,14 @@ export class TenantPoolRegistry {
     } finally {
       entry.activeLeases -= 1;
       entry.lastUsedAt = this.now();
-      if (entry.retireWhenIdle && entry.activeLeases === 0) {
-        await this.#closeEntry(entry);
-      }
+      await this.#maybeCloseRetired(entry);
     }
   }
 
   async evictIdle() {
     const cutoff = this.now() - this.idleTtlMs;
     const expired = [...this.entries.values()].filter(
-      (entry) => entry.activeLeases === 0 && entry.lastUsedAt <= cutoff
+      (entry) => entry.activeLeases === 0 && entry.pendingLeases === 0 && entry.lastUsedAt <= cutoff
     );
     for (const entry of expired) await this.#closeEntry(entry);
     return expired.length;
@@ -85,7 +86,7 @@ export class TenantPoolRegistry {
     if (!entry) return false;
     entry.revoked = true;
     entry.retireWhenIdle = true;
-    if (entry.activeLeases === 0) await this.#closeEntry(entry);
+    await this.#maybeCloseRetired(entry);
     return true;
   }
 
@@ -98,8 +99,9 @@ export class TenantPoolRegistry {
       entry.retireWhenIdle = true;
     }
     await Promise.allSettled([...this.pending.values()]);
-    const idle = [...this.entries.values()].filter((entry) => entry.activeLeases === 0);
-    await Promise.all(idle.map((entry) => this.#closeEntry(entry)));
+    const entries = [...this.entries.values()];
+    await Promise.all(entries.map((entry) => this.#maybeCloseRetired(entry)));
+    await Promise.all(entries.map((entry) => entry.closedPromise));
   }
 
   get size() {
@@ -112,10 +114,18 @@ export class TenantPoolRegistry {
     }
     const existing = this.entries.get(tenantId);
     if (existing && !existing.revoked && !existing.retireWhenIdle && !existing.closed) {
+      existing.pendingLeases += 1;
       return existing;
     }
     const inFlight = this.pending.get(tenantId);
-    if (inFlight) return inFlight;
+    if (inFlight) {
+      const entry = await inFlight;
+      if (entry.revoked || entry.retireWhenIdle || entry.closed || this.closed || this.revokedTenants.has(tenantId)) {
+        throw new Error("tenant database access is unavailable");
+      }
+      entry.pendingLeases += 1;
+      return entry;
+    }
 
     const creation = this.#serializeCreation(async () => {
       if (this.closed || this.revokedTenants.has(tenantId)) {
@@ -145,7 +155,7 @@ export class TenantPoolRegistry {
       } catch {
         throw new Error("tenant database pool creation failed");
       }
-      if (!pool || typeof pool.end !== "function") {
+      if (!pool || typeof pool.end !== "function" || typeof pool.query !== "function") {
         throw new Error("tenant database pool creation failed");
       }
 
@@ -159,18 +169,27 @@ export class TenantPoolRegistry {
         pool,
         credentialVersion: typeof credential.version === "string" ? credential.version : "unversioned",
         activeLeases: 0,
+        pendingLeases: 0,
         lastUsedAt: this.now(),
         revoked: false,
         retireWhenIdle: false,
-        closed: false
+        closed: false,
+        closingPromise: null,
+        closedPromise: null
       };
+      entry.closedPromise = new Promise((resolve) => { entry.resolveClosed = resolve; });
       this.entries.set(tenantId, entry);
       return entry;
     });
 
     this.pending.set(tenantId, creation);
     try {
-      return await creation;
+      const entry = await creation;
+      if (entry.revoked || entry.retireWhenIdle || entry.closed || this.closed || this.revokedTenants.has(tenantId)) {
+        throw new Error("tenant database access is unavailable");
+      }
+      entry.pendingLeases += 1;
+      return entry;
     } finally {
       if (this.pending.get(tenantId) === creation) this.pending.delete(tenantId);
     }
@@ -179,17 +198,30 @@ export class TenantPoolRegistry {
   async #ensureCapacity() {
     if (this.entries.size < this.maxTenantPools) return;
     const candidates = [...this.entries.values()]
-      .filter((entry) => entry.activeLeases === 0 && !entry.closed)
+      .filter((entry) => entry.activeLeases === 0 && entry.pendingLeases === 0 && !entry.closed)
       .sort((a, b) => a.lastUsedAt - b.lastUsedAt);
     if (candidates.length === 0) throw new TenantPoolCapacityError();
     await this.#closeEntry(candidates[0]);
   }
 
+  async #maybeCloseRetired(entry) {
+    if (!entry.retireWhenIdle || entry.activeLeases > 0 || entry.pendingLeases > 0) return;
+    await this.#closeEntry(entry);
+  }
+
   async #closeEntry(entry) {
+    if (entry.closingPromise) return entry.closingPromise;
     if (entry.closed) return;
     entry.closed = true;
     if (this.entries.get(entry.tenantId) === entry) this.entries.delete(entry.tenantId);
-    await entry.pool.end();
+    entry.closingPromise = (async () => {
+      try {
+        await entry.pool.end();
+      } finally {
+        entry.resolveClosed?.();
+      }
+    })();
+    return entry.closingPromise;
   }
 
   async #serializeCreation(operation) {
