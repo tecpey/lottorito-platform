@@ -65,6 +65,105 @@ test("missing and invalid synthetic credentials cannot access tenant data", asyn
   assert.equal(invalid.status, 401);
 });
 
+test("async jobs preserve signed tenant context, retry safely and expose no payload to dispatcher", async () => {
+  const createA = await request("/jobs", {
+    token: "p01-synthetic-token-a",
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ payload: "tenant A background task" })
+  });
+  const createB = await request("/jobs", {
+    token: "p01-synthetic-token-b",
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ payload: "tenant B background task" })
+  });
+  const forged = await request("/jobs", {
+    token: "p01-synthetic-token-a",
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ tenant_id: TENANT_B, payload: "forged task" })
+  });
+  assert.equal(createA.status, 202);
+  assert.equal(createB.status, 202);
+  assert.equal(forged.status, 403);
+
+  const jobA = createA.body.data.job_id;
+  const jobB = createB.body.data.job_id;
+  const metadata = await dispatcherPool.query(
+    "SELECT tenant_id, job_id, status FROM public.job_dispatch ORDER BY tenant_id, job_id"
+  );
+  assert.equal(metadata.rowCount, 2);
+  assert.equal(metadata.rows.every((row) => row.status === "pending"), true);
+  await assert.rejects(
+    dispatcherPool.query("SELECT payload FROM public.tenant_jobs"),
+    (error) => error.code === "42501"
+  );
+  const dispatcherRole = await dispatcherPool.query(
+    "SELECT rolsuper, rolbypassrls FROM pg_roles WHERE rolname = current_user"
+  );
+  assert.equal(dispatcherRole.rows[0].rolsuper, false);
+  assert.equal(dispatcherRole.rows[0].rolbypassrls, false);
+
+  const firstAttempt = await claimNextJob(dispatcherPool, jobEnvelopeSecret, { leaseSeconds: 30 });
+  const retryAttempt = await claimNextJob(dispatcherPool, jobEnvelopeSecret, { leaseSeconds: 0 });
+  assert.equal(firstAttempt.job_id, jobA);
+  assert.equal(retryAttempt.job_id, jobA);
+  assert.equal(retryAttempt.attempt, 2);
+
+  const tampered = { ...retryAttempt, tenant_id: TENANT_B };
+  assert.equal((await processTenantJob(pool, tampered, jobEnvelopeSecret)).status, "invalid_envelope");
+
+  const completed = await processTenantJob(pool, firstAttempt, jobEnvelopeSecret);
+  assert.deepEqual(completed, { status: "completed", payload: "tenant A background task" });
+  assert.equal((await processTenantJob(pool, retryAttempt, jobEnvelopeSecret)).status, "already_processed");
+  assert.equal(await acknowledgeJob(dispatcherPool, firstAttempt, jobEnvelopeSecret), false);
+  assert.equal(await acknowledgeJob(dispatcherPool, retryAttempt, jobEnvelopeSecret), true);
+
+  const bAttempt = await claimNextJob(dispatcherPool, jobEnvelopeSecret);
+  assert.equal(bAttempt.job_id, jobB);
+  assert.equal((await processTenantJob(pool, bAttempt, jobEnvelopeSecret)).status, "completed");
+  assert.equal(await acknowledgeJob(dispatcherPool, bAttempt, jobEnvelopeSecret), true);
+  assert.equal(await claimNextJob(dispatcherPool, jobEnvelopeSecret), null);
+
+  const aCannotReadB = await withTenantTransaction(pool, TENANT_A, (client) =>
+    client.query("SELECT job_id FROM public.tenant_jobs WHERE job_id = $1", [jobB])
+  );
+  assert.equal(aCannotReadB.rowCount, 0);
+});
+
+test("an async job is rejected when its originating membership is revoked before execution", async () => {
+  const created = await request("/jobs", {
+    token: "p01-synthetic-token-a",
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ payload: "must not execute after revocation" })
+  });
+  assert.equal(created.status, 202);
+
+  await adminPool.query(
+    "UPDATE public.tenant_memberships SET active = false WHERE tenant_id = $1 AND subject_id = $2",
+    [TENANT_A, "synthetic-user-a"]
+  );
+  try {
+    const envelope = await claimNextJob(dispatcherPool, jobEnvelopeSecret);
+    assert.equal(envelope.job_id, created.body.data.job_id);
+    const result = await processTenantJob(pool, envelope, jobEnvelopeSecret);
+    assert.equal(result.status, "membership_revoked");
+
+    const stored = await withTenantTransaction(pool, TENANT_A, (client) =>
+      client.query("SELECT status FROM public.tenant_jobs WHERE job_id = $1", [envelope.job_id])
+    );
+    assert.equal(stored.rows[0].status, "rejected");
+    assert.equal(await acknowledgeJob(dispatcherPool, envelope, jobEnvelopeSecret), true);
+  } finally {
+    await adminPool.query(
+      "UPDATE public.tenant_memberships SET active = true WHERE tenant_id = $1 AND subject_id = $2",
+      [TENANT_A, "synthetic-user-a"]
+    );
+  }
+});
+
 test("membership revocation blocks the next request without affecting another tenant", async () => {
   const revoked = await adminPool.query(
     "UPDATE public.tenant_memberships SET active = false WHERE tenant_id = $1 AND subject_id = $2",
