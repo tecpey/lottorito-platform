@@ -15,7 +15,8 @@
 11. **Commission Engine:** versioned rules, CPA/Revenue Share/Hybrid and reproducible calculations.
 12. **Affiliate Partner Pilot:** obtain actual partner documentation and sandbox, build the Affiliate adapter and contract tests.
 13. **Lottery Provider Discovery & Certification:** legal/provider due diligence, capability profile, sandbox evidence, lifecycle adapter and result/settlement reconciliation; only after owner approval.
-14. **Future regulated gaming discovery (not an MVP delivery commitment):** maintain separate Sportsbook, Live Casino and RNG/E-Gaming discovery tracks; complete provider RFIs, jurisdiction matrices, domain state machines, wallet/ledger semantics, certification and risk proofs only after Affiliate and Lottery priorities and their gates. See LOT-GAMING-STRATEGY-001.\n15. **Admin, Reporting & Operations:** operator/agent/customer surfaces, audit, reporting, support and controlled financial workflows.
+14. **Future regulated gaming discovery (not an MVP delivery commitment):** maintain separate Sportsbook, Live Casino and RNG/E-Gaming discovery tracks; complete provider RFIs, jurisdiction matrices, domain state machines, wallet/ledger semantics, certification and risk proofs only after Affiliate and Lottery priorities and their gates. See LOT-GAMING-STRATEGY-001.
+15. **Admin, Reporting & Operations:** operator/agent/customer surfaces, audit, reporting, support and controlled financial workflows.
 16. **Hardening & Pilot:** load/security tests, backup recovery, UAT, operational readiness and jurisdiction-specific legal approval.
 
 ## Exit gates
