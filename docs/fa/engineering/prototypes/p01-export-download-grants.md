@@ -1,6 +1,6 @@
 # Grant دانلود Export متصل به Tenant در P-01
 
-**شناسه سند:** LOT-PROT-P01-EXPORT-001 | **نسخه:** ۰.۴.۰ | **وضعیت:** Prototype ساختگی؛ ۳۶ تست CI موفق؛ سرویس تحویل تأییدنشده
+**شناسه سند:** LOT-PROT-P01-EXPORT-001 | **نسخه:** ۰.۵.۰ | **وضعیت:** Prototype ساختگی؛ ۳۷ تست CI موفق؛ سرویس تحویل تأییدنشده
 
 ## هدف
 
@@ -51,6 +51,6 @@
 
 ## وضعیت شواهد
 
-اجرای P-01 با شناسه [45426841612](https://github.com/tecpey/lottorito-platform/actions/runs/45426841612) روی Head کد `cd4247b5e42bc68194ed3d9f1a7f9a14489ed32a` تعداد ۳۶ تست موفق، صفر شکست و صفر Skip داشته است. سپس تست قطعی Race دو اتصالی برای لغو Membership اضافه شد؛ اجرای CI جدید در انتظار است. اجرای Documentation Governance با شناسه [45426841734](https://github.com/tecpey/lottorito-platform/actions/runs/45426841734) روی Head مستندات قبلی موفق بود. اجرای محلی و تحویل دانلود با Provider واقعی هنوز تأیید نشده‌اند.
+آخرین اجرای P-01 با شناسه [45427819046](https://github.com/tecpey/lottorito-platform/actions/runs/45427819046) روی Head کد فعلی `46d8e837ab1c3b5f54ad2b17d6119419020b52f8` تعداد ۳۷ تست موفق، صفر شکست و صفر Skip داشته است؛ از جمله Serialization قطعی لغو Membership با Redeem در حال اجرا در آزمایش دو اتصالی. اجرای Documentation Governance با شناسه [45427818883](https://github.com/tecpey/lottorito-platform/actions/runs/45427818883) نیز روی همین Head موفق شد. اجرای محلی و تحویل دانلود با Provider واقعی هنوز تأیید نشده‌اند.
 
 کد، Schema و سناریوهای یکپارچه‌سازی ساختگی در یک Draft PR پشته‌شده پیاده‌سازی شده‌اند. تمام Fixtureها و Credentialها ساختگی‌اند.
