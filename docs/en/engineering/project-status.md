@@ -15,7 +15,7 @@ The branch docs/agent-ready-foundation-v1 contains proposed bilingual references
 - LOT-ADR-REG-001: decision authority and unresolved-decision register.
 - LOT-LOTTERY-001 and LOT-LOTINT-001: Lottery discovery PRD and provider-neutral lifecycle contract.
 - LOT-DOM-001, LOT-TEN-001 and LOT-EVENT-001: proposed domain model, tenant isolation and canonical event contract.
-- LOT-FIN-001: proposed financial posting, account ownership, balance semantics and reconciliation.
+- LOT-FIN-POST-001: proposed financial posting, account ownership, balance semantics and reconciliation.
 - LOT-SEC-TM-001: proposed system threat model and minimum security verification matrix.
 - LOT-API-001: proposed resource, authorization, error, pagination, idempotency and webhook conventions.
 
