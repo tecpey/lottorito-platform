@@ -163,8 +163,12 @@ CREATE POLICY tenant_memberships_app_access
   AS PERMISSIVE
   FOR ALL
   TO app_runtime
-  USING (true)
-  WITH CHECK (true);
+  USING (
+    support_subject_id = NULLIF(current_setting('app.support_subject_id', true), '')
+  )
+  WITH CHECK (
+    support_subject_id = NULLIF(current_setting('app.support_subject_id', true), '')
+  );
 
 CREATE POLICY tenant_memberships_tenant_guard
   ON public.tenant_memberships
@@ -205,7 +209,9 @@ CREATE POLICY support_grants_authorizer_read
   AS PERMISSIVE
   FOR SELECT
   TO support_authorizer
-  USING (true);
+  USING (
+    support_subject_id = NULLIF(current_setting('app.support_subject_id', true), '')
+  );
 
 -- SELECT ... FOR SHARE also requires an UPDATE RLS policy. The role has
 -- column-level UPDATE only on inert lock_version, never on revoked_at or scope.
