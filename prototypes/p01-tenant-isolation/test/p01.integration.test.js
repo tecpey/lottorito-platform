@@ -648,6 +648,11 @@ test("database access without transaction-local tenant context is default-deny",
 
 
 test("support principal can read only a tenant record covered by its active grant and emits an audit event", async () => {
+  const visibleGrant = await supportPool.query(
+    "SELECT grant_id, support_subject_id, tenant_id, resource_scope, revoked_at, expires_at FROM public.support_grants WHERE grant_id = $1 AND support_subject_id = $2 AND tenant_id = $3 AND resource_scope = 'records:read' AND revoked_at IS NULL AND expires_at > clock_timestamp()",
+    [SUPPORT_GRANT_ACTIVE, "synthetic-support-a", TENANT_A]
+  );
+  assert.equal(visibleGrant.rowCount, 1, "support_authorizer must see the exact active grant before the HTTP authorization path");
   const result = await request("/support/tenants/" + TENANT_A + "/records/" + SHARED_RECORD_ID, {
     token: "p01-synthetic-support-token",
     headers: { "x-support-grant-id": SUPPORT_GRANT_ACTIVE }
