@@ -61,7 +61,7 @@
 
 **یادداشت وضعیت آزمایش P-01 (۲۰۲۶-۱۱-۲۴):** PR شماره ۳۶ تعداد ۲۰ تست یکپارچه‌سازی ساختگی را با موفقیت گذرانده است. PR تکمیلی شماره ۳۹، Grant پشتیبانی محدود، زمان‌دار و فقط‌خواندنی و Audit فقط‌افزودنی را اضافه می‌کند؛ آخرین اجرای CI با شناسه 45418177150 روی Head با شناسه d2e9fc81a17036e5d6e63c07ee1e64fa055a24eb تعداد ۲۶ تست را با موفقیت گذرانده است. این فقط شواهد جزئی است: حداقل‌سازی Metadata پشتیبانی، هویت/MFA عملیاتی، آزمون فشار Race و Failure در سطح Endpoint، Credential Broker، Cache/Storage/Search/Reporting، بار و Recovery همچنان باز هستند. هیچ فناوری یا معماری Production تصویب نشده است.
 
-**وضعیت آزمایش Data Plane ثانویه در P-01 (۲۰۲۶-۱۱-۲۴):** یک Prototype تکمیلی، Cache Key مشتق از Tenant، Object Key دارای Prefix Tenant، فیلتر Search تزریق‌شده از سمت سرور و جدول Reporting با RLS مستقل اضافه می‌کند. Cache/Object/Search فقط از Adapterهای In-memory استفاده می‌کنند؛ رفتار Provider واقعی Redis/S3/OpenSearch/Warehouse صریحاً تأییدنشده است. مجموعه تست Data Plane در انتظار CI روی شاخه تکمیلی است.
+**وضعیت آزمایش Data Plane ثانویه در P-01 (۲۰۲۶-۱۱-۲۴):** یک Prototype تکمیلی، Cache Key مشتق از Tenant، Object Key دارای Prefix Tenant، فیلتر Search تزریق‌شده از سمت سرور و جدول Reporting با RLS مستقل اضافه می‌کند. Cache/Object/Search فقط از Adapterهای In-memory استفاده می‌کنند؛ رفتار Provider واقعی Redis/S3/OpenSearch/Warehouse صریحاً تأییدنشده است. مجموعه تست Data Plane در اجرای CI با شناسه 45419828256 روی Head کد 02850c6374dd295ec0df6ba42addf266a2d8a977 تعداد ۳۰ تست موفق داشته است. رفتار Provider واقعی همچنان تأییدنشده است.
 
 ### P-02 — تراکنش مالی و تطبیق
 
