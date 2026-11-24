@@ -1,6 +1,6 @@
 # مستندات فارسی Lottorito
 
-**شناسه سند:** LOT-DOC-INDEX-FA-001 | **نسخه:** ۲.۵.۰ | **وضعیت:** فهرست مرجع و در حال نگهداری
+**شناسه سند:** LOT-DOC-INDEX-FA-001 | **نسخه:** ۲.۶.۰ | **وضعیت:** فهرست مرجع و در حال نگهداری
 
 این پوشه مرجع رسمی مستندات فارسی Lottorito است. مستندات انگلیسی در docs/en/ نیز به همان اندازه معتبرند.
 
@@ -61,7 +61,9 @@ LOT-FIN-POST-001 کنترل‌های پیشنهادی ثبت مالی و تطب�
 | مهندسی | [آزمایش P-01 جداسازی Tenant](engineering/prototypes/p01-tenant-isolation.md) | LOT-PROT-P01-001؛ آزمایش محدود HTTP/PostgreSQL RLS و Jobهای Async؛ ۲۰ تست CI موفق شامل مقایسه هویت `session_user` مستقل برای هر Tenant؛ P-01 کامل همچنان نامعین است |
 | مهندسی | [نمونه دسترسی پشتیبانی در P-01](engineering/prototypes/p01-support-breakglass.md) | LOT-PROT-P01-SUPPORT-001؛ دسترسی پشتیبانی محدود، زمان‌دار و فقط‌خواندنی با Audit فقط‌افزودنی؛ ۲۶ تست CI موفق در PR شماره ۳۹، فقط آزمایش ساختگی و غیرProduction |
 | مهندسی | [جداسازی Data Planeهای ثانویه در P-01](engineering/prototypes/p01-data-plane-isolation.md) | LOT-PROT-P01-DATA-001؛ مرز Tenant در Cache/Object/Search/Reporting؛ ۳۰ تست CI موفق در PR شماره ۴۲؛ فقط Adapterهای ساختگی و رفتار Provider تأییدنشده |
-| مهندسی | [کارگزار اعتبارنامه و Pool اختصاصی Tenant در P-01](engineering/prototypes/p01-tenant-pool-broker.md) | LOT-PROT-P01-POOL-001؛ Resolve امن اعتبارنامه، Pool محدود، بررسی هویت دیتابیس، Eviction و تخلیه ایمن Lease هنگام لغو/Shutdown؛ Prototype ساختگی، CI در انتظار |
+| مهندسی | [کارگزار اعتبارنامه و Pool اختصاصی Tenant در P-01](engineering/prototypes/p01-tenant-pool-broker.md) | LOT-PROT-P01-POOL-001؛ Resolve امن اعتبارنامه، Pool محدود، بررسی هویت دیتابیس، Eviction و تخلیه ایمن Lease هنگام لغو/Shutdown؛ ۴۰ تست CI ساختگی موفق در PR شماره ۴۵ |
+| مهندسی | [Grant دانلود Export در P-01](engineering/prototypes/p01-export-download-grants.md) | LOT-PROT-P01-EXPORT-001؛ مجوز دانلود متصل به Subject، زمان‌دار و یک‌بارمصرف؛ ۳۸ تست CI موفق؛ بدون Provider ذخیره‌سازی یا Endpoint استریم |
+| مهندسی | [مطالعه طراحی تحویل امن Export در P-01](engineering/prototypes/p01-export-delivery-design.md) | LOT-PROT-P01-DELIVERY-001؛ مقایسه پژوهش‌محور Proxy Streaming و Presigned URL؛ صرفاً پیشنهاد، بدون تصویب Provider یا معماری تحویل |
 | مهندسی | [راهنمای عملیاتی ایجنت‌ها](engineering/agent-operating-manual.md) | مسیریابی کم‌هزینه و تحویل کار |
 | مهندسی | [دفتر ثبت تصمیم‌ها](engineering/decision-register.md) | دستور مالک، پیشنهاد و تصمیم باز |
 | مهندسی | [وضعیت پروژه](engineering/project-status.md) | وضعیت تأییدشده و نقطه ادامه |
