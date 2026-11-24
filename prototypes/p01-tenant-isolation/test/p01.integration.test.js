@@ -1001,7 +1001,7 @@ test("revoked tenant membership blocks new export grants and redemption of exist
   );
   try {
     assert.equal(await issueExportDownloadGrant({
-      pool, tenantId: TENANT_A, exportId: EXPORT_ID_SHARED, subjectId: "synthetic-user-a"
+      pool, tenantId: TENANT_A, exportId: EXPORT_ID_MEMBERSHIP, subjectId: "synthetic-user-a"
     }), null);
     assert.equal(await consumeExportDownloadGrant({
       pool, tenantId: TENANT_A, subjectId: "synthetic-user-a", token: grant.token
