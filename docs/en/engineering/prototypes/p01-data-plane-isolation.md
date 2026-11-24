@@ -1,6 +1,6 @@
 # P-01 Secondary Data-Plane Tenant Isolation
 
-**Document ID:** LOT-PROT-P01-DATA-001 | **Version:** 0.1.0 | **Status:** Synthetic prototype; CI verification pending
+**Document ID:** LOT-PROT-P01-DATA-001 | **Version:** 0.2.0 | **Status:** Synthetic prototype; 30 CI tests passed; provider behavior unverified
 
 ## Purpose
 
@@ -39,4 +39,4 @@ This experiment uses synthetic data and local in-memory adapters for cache, obje
 
 ## Evidence status
 
-The code and scenarios are implemented on a stacked Draft PR. CI, local execution, provider-specific behavior, performance and failure recovery remain unverified until observed evidence is recorded. No production readiness or provider selection is claimed.
+Run [45419828256](https://github.com/tecpey/lottorito-platform/actions/runs/45419828256) passed on head `02850c6374dd295ec0df6ba42addf266a2d8a977`: 30 tests passed, 0 failed, 0 skipped, using Node.js 26.13.0, PostgreSQL 18.7, npm ci and immutable action SHAs. Documentation Governance run [45419828218](https://github.com/tecpey/lottorito-platform/actions/runs/45419828218) passed. Local execution, provider-specific behavior, performance and failure recovery remain unverified. No production readiness or provider selection is claimed.
