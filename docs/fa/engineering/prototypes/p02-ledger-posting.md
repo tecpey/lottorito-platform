@@ -1,6 +1,6 @@
 # ثبت سند دوطرفه محدود به Tenant در P-02
 
-**شناسه سند:** LOT-PROT-P02-001 | **نسخه:** ۰.۲.۰ | **وضعیت:** Prototype ساختگی؛ ۲۰ تست CI موفق؛ سیاست حسابداری و کنترل‌های Production تصویب‌نشده
+**شناسه سند:** LOT-PROT-P02-001 | **نسخه:** ۰.۳.۰ | **وضعیت:** Prototype ساختگی؛ Deduplication اثر مالی اضافه شد؛ تأیید مجدد CI در انتظار
 
 ## هدف و اعتبار
 
@@ -15,7 +15,7 @@
 - **Journal:** یک Journal ثبت‌شده حداقل دو Line دارد. هر Line شامل حساب متعلق به Tenant، کد ارز، جهت و مبلغ مثبت صحیح در واحد خرد است.
 - **ناوردای توازن:** مجموع Debit و Credit باید برای هر ارز در همان Journal جداگانه برابر باشد. Debit دلاری نمی‌تواند با Credit ین جبران شود. Journal چندارزی فقط زمانی معتبر است که هر گروه ارزی مستقل توازن داشته باشد.
 - **مبلغ دقیق:** مبلغ از API به‌صورت رشته ده‌دهی منتقل و در PostgreSQL با NUMERIC(38,0) ذخیره می‌شود؛ عدد ممیز شناور JavaScript رد می‌شود. این Prototype توان یا Exponent ارزها و تبدیل واحد اصلی به خرد را تعریف نمی‌کند.
-- **Idempotency:** کلید ترکیبی tenant_id و idempotency_key یکتا است. Fingerprint استاندارد درخواست شامل Source Event ID و Lineهای نرمال‌شده است. Retry با همان Key و همان قصد، Journal اصلی را برمی‌گرداند؛ همان Key با قصد متفاوت رد می‌شود. درخواست‌های تکراری هم‌زمان به یک Journal همگرا می‌شوند.
+- **Idempotency در دو سطح:** `(tenant_id, idempotency_key)` شناسه Retry در سطح API/انتقال است، در حالی که `(tenant_id, effect_id)` اثر مالی منطقی را مشخص می‌کند. هرکدام از این دو هویت به همان Journal اصلی می‌رسد؛ استفاده مجدد با محتوای اقتصادی متفاوت رد می‌شود. Fingerprint شامل Effect ID، Source Event ID و Lineهای نرمال‌شده است. تحویل‌های هم‌زمان با Request Key متفاوت اما Effect ID یکسان به یک Journal همگرا می‌شوند. یک Source Event می‌تواند چند Effect مستقل با شناسه‌های مجزا داشته باشد.
 - **Outbox اتمیک:** Header، Lineها، رکورد Idempotency و رویداد ledger.journal.posted در یک Statement/Transaction دیتابیس ساخته می‌شوند. ثبت ناموفق نباید هیچ‌یک از آن‌ها را Commit کند.
 - **تغییرناپذیری:** Posting Request، Journal ثبت‌شده، Lineها و Outbox Event در برابر UPDATE و DELETE محافظت می‌شوند. اصلاحات باید در طراحی آینده به‌صورت Reversal/Compensating Entry انجام شوند؛ این آزمایش تاریخچه را تغییر نمی‌دهد.
 
@@ -37,6 +37,10 @@
 | P02-LEDGER-12 | UPDATE/DELETE روی رکورد ثبت‌شده | توسط Trigger تغییرناپذیری رد شود |
 | P02-LEDGER-13 | هویت Session دیتابیس بدون نگاشت Tenant | پیش از هر اثر مالی رد شود |
 | P02-LEDGER-14 | Float، مبلغ اعشاری، شماره Line تکراری یا فیلد اضافی | توسط اعتبارسنجی برنامه و دیتابیس رد شود |
+| P02-LEDGER-15 | تحویل همان اثر مالی با Request Key متفاوت | Journal اصلی برگردد؛ ثبت دوم انجام نشود |
+| P02-LEDGER-16 | درخواست‌های هم‌زمان با Key متفاوت و Effect ID یکسان | دقیقاً یک Journal و یک Outbox Event |
+| P02-LEDGER-17 | استفاده مجدد از Effect ID با محتوای اقتصادی متفاوت | تعارض قطعی؛ بدون Journal دوم |
+| P02-LEDGER-18 | یک Source Event با دو Effect ID مستقل | دو ثبت مستقل و معتبر |
 
 ## موارد خارج از محدوده و تصمیم‌های باز
 
@@ -46,6 +50,7 @@
 - Full Reversal، Partial Reversal، گردش اصلاح، تطبیق Source Event با صورت‌حساب بیرونی Provider، رسیدگی اختلاف و سیاست رویدادهای خارج از ترتیب، آزمایش‌های آینده‌اند.
 - Transactional Outbox با Journal اتمیک است، اما تحویل پیام در معماری توزیع‌شده باید At-least-once فرض شود؛ Consumer عملیاتی باید Idempotent و قابل Observability باشد. Queue، Relay، سیاست Retry/Dead-letter یا اثبات تحویل End-to-end در این Prototype وجود ندارد.
 - تابع SECURITY DEFINER و Identity Mapping ساختگی‌اند. Threat Model عملیاتی، چرخه Secret، ساخت Role، مدیریت کلید، Backup/Restore، Disaster Recovery، عملکرد، Lock Contention و بازبینی مستقل امنیت همچنان لازم‌اند.
+- `effect_id` مالی باید توسط یک مؤلفه بالادستی مورد اعتماد و بر اساس هویت پایدار عملیات کسب‌وکار تعیین شود. تولید UUID تصادفی جدید در هر بار تحویل، تضمین Deduplication را از بین می‌برد. چرخه عمر، Namespace، مدت نگهداری و انتقال این شناسه بین سرویس‌ها هنوز تعریف نشده است.
 - اعتبارنامه دیتابیسی مستقل برای هر Tenant به‌عنوان توپولوژی Production تصویب نشده است. این برش P-02 فقط برای Test Harness از آزمایش Process-local Credential/Pool در P-01 استفاده می‌کند.
 
 ## وضعیت شواهد
@@ -59,3 +64,5 @@
 - [node-postgres — Transactions](https://node-postgres.com/features/transactions): برای چند Statement در یک Transaction باید از یک Client Checkoutشده استفاده شود.
 - [AWS Builders' Library — Making retries safe with idempotent APIs](https://aws.amazon.com/builders-library/making-retries-safe-with-idempotent-APIs/): هویت درخواست، تعارض پارامترها و اثر Idempotent اتمیک.
 - [AWS Prescriptive Guidance — Transactional outbox](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html): ذخیره اتمیک وضعیت کسب‌وکار و Outbox؛ Consumer باید تحویل تکراری را تحمل کند.
+- [AWS Well-Architected — Make mutating operations idempotent](https://docs.aws.amazon.com/wellarchitected/latest/framework/rel04-bp04.html): شناسه پایدار Idempotency، ثبت اتمیک وضعیت، Retry و مدیریت رویدادهای تکراری.
+- [Microsoft Architecture Center — Idempotent consumer](https://learn.microsoft.com/azure/architecture/patterns/idempotent-consumer): استفاده از هویت پایدار عملیات کسب‌وکار، نه Correlation ID عمومی، برای Deduplicate کردن تحویل مجدد.
