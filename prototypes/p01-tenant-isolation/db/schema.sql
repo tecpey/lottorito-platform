@@ -25,6 +25,21 @@ ALTER ROLE job_dispatcher
   LOGIN PASSWORD 'p01-dispatcher-not-for-production'
   NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
 
+DO $support_role$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'support_authorizer') THEN
+    CREATE ROLE support_authorizer LOGIN PASSWORD 'p01-support-not-for-production'
+      NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
+  END IF;
+END;
+$support_role$;
+
+ALTER ROLE support_authorizer
+  LOGIN PASSWORD 'p01-support-not-for-production'
+  NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
+
+DROP TABLE IF EXISTS public.support_audit;
+DROP TABLE IF EXISTS public.support_grants;
 DROP TABLE IF EXISTS public.job_dispatch;
 DROP TABLE IF EXISTS public.tenant_jobs;
 DROP TABLE IF EXISTS public.tenant_records;
@@ -60,6 +75,49 @@ CREATE POLICY tenant_memberships_tenant_guard
   WITH CHECK (
     tenant_id = NULLIF(current_setting('app.tenant_id', true), '')::uuid
   );
+
+CREATE TABLE public.support_grants (
+  grant_id uuid PRIMARY KEY,
+  support_subject_id text NOT NULL,
+  tenant_id uuid NOT NULL,
+  resource_scope text NOT NULL CHECK (resource_scope = 'records:read'),
+  reason text NOT NULL CHECK (length(reason) BETWEEN 20 AND 500),
+  expires_at timestamptz NOT NULL,
+  revoked_at timestamptz,
+  lock_version bigint NOT NULL DEFAULT 0
+);
+
+ALTER TABLE public.support_grants ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.support_grants FORCE ROW LEVEL SECURITY;
+
+CREATE POLICY support_grants_authorizer_read
+  ON public.support_grants
+  AS PERMISSIVE
+  FOR SELECT
+  TO support_authorizer
+  USING (true);
+
+CREATE TABLE public.support_audit (
+  audit_id uuid PRIMARY KEY,
+  grant_id uuid,
+  support_subject_id text NOT NULL,
+  tenant_id uuid NOT NULL,
+  resource_id uuid NOT NULL,
+  action text NOT NULL CHECK (action = 'records:read'),
+  outcome text NOT NULL CHECK (outcome IN ('allowed', 'denied')),
+  reason text NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT clock_timestamp()
+);
+
+ALTER TABLE public.support_audit ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.support_audit FORCE ROW LEVEL SECURITY;
+
+CREATE POLICY support_audit_authorizer_insert
+  ON public.support_audit
+  AS PERMISSIVE
+  FOR INSERT
+  TO support_authorizer
+  WITH CHECK (true);
 
 CREATE TABLE public.tenant_jobs (
   tenant_id uuid NOT NULL,
@@ -185,6 +243,7 @@ CREATE POLICY tenant_records_tenant_guard
 
 GRANT USAGE ON SCHEMA public TO app_runtime;
 GRANT USAGE ON SCHEMA public TO job_dispatcher;
+GRANT USAGE ON SCHEMA public TO support_authorizer;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.tenant_records TO app_runtime;
 GRANT SELECT ON public.tenant_memberships TO app_runtime;
 -- PostgreSQL requires UPDATE on at least one column for SELECT ... FOR SHARE.
@@ -193,6 +252,9 @@ GRANT UPDATE (lock_version) ON public.tenant_memberships TO app_runtime;
 GRANT SELECT, INSERT, UPDATE (status, completed_at) ON public.tenant_jobs TO app_runtime;
 GRANT INSERT ON public.job_dispatch TO app_runtime;
 GRANT SELECT, UPDATE (status, attempts, claimed_at) ON public.job_dispatch TO job_dispatcher;
+GRANT SELECT ON public.support_grants TO support_authorizer;
+GRANT UPDATE (lock_version) ON public.support_grants TO support_authorizer;
+GRANT INSERT ON public.support_audit TO support_authorizer;
 
 -- Synthetic active memberships; production membership lifecycle is not implemented.
 INSERT INTO public.tenant_memberships (tenant_id, subject_id, active) VALUES
