@@ -735,6 +735,7 @@ test("support-authorizer role is non-privileged and has only the intended metada
       has_table_privilege('support_authorizer', 'public.support_audit', 'SELECT') AS can_read_audit,
       has_table_privilege('support_authorizer', 'public.tenant_records', 'SELECT') AS can_read_records,
       has_table_privilege('support_authorizer', 'public.tenant_jobs', 'SELECT') AS can_read_jobs,
+      has_column_privilege('support_authorizer', 'public.support_grants', 'lock_version', 'UPDATE') AS can_lock_grant,
       has_column_privilege('support_authorizer', 'public.support_grants', 'revoked_at', 'UPDATE') AS can_revoke_grants
   `);
   assert.deepEqual(grants.rows[0], {
@@ -743,6 +744,7 @@ test("support-authorizer role is non-privileged and has only the intended metada
     can_read_audit: false,
     can_read_records: false,
     can_read_jobs: false,
+    can_lock_grant: true,
     can_revoke_grants: false
   });
 });
