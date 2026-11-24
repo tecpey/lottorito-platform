@@ -98,6 +98,8 @@ test("a valid signed settled event is stored in the tenant inbox and accepted ou
     status: "received",
     outbox_type: "provider.event.accepted"
   }]);
+  const processed = await processProviderEvent(tenantAPool, received.inbox_id);
+  assert.equal(processed.processing_status, "processed");
 });
 
 test("the same signed provider event is deduplicated without a second inbox or outbox row", async () => {
@@ -115,6 +117,7 @@ test("the same signed provider event is deduplicated without a second inbox or o
     ["aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", first.inbox_id]
   );
   assert.equal(outbox.rows[0].count, 1);
+  await processProviderEvent(tenantAPool, first.inbox_id);
 });
 
 test("same provider event identity with changed payload hash is rejected", async () => {
@@ -125,6 +128,8 @@ test("same provider event identity with changed payload hash is rejected", async
     (error) => error.code === "22023" && error.message.includes("different payload content")
   );
   assert.equal(await inboxCount("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", payload.event_id), 1);
+  const inbox = await adminPool.query("SELECT inbox_id FROM public.provider_inbox WHERE tenant_id = $1 AND provider_event_id = $2", ["aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", payload.event_id]);
+  await processProviderEvent(tenantAPool, inbox.rows[0].inbox_id);
 });
 
 test("bad signatures are rejected before any inbox persistence", async () => {
@@ -232,6 +237,7 @@ test("tenant B cannot process tenant A inbox identifiers", async () => {
     processProviderEvent(tenantBPool, received.inbox_id),
     (error) => error.code === "P0002"
   );
+  await processProviderEvent(tenantAPool, received.inbox_id);
 });
 
 test("tenant B can process its own provider account event", async () => {
