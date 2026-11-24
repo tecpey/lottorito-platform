@@ -78,8 +78,8 @@ Dependency مستقیم pg در Prototype Pin شده است، اما هنوز np
 ## ثبت نتیجه
 
 - وضعیت پیاده‌سازی: فایل‌ها در شاخه spike/p01-tenant-isolation اضافه شده‌اند.
-- نتیجه CI: موفق — آخرین اجرای تأییدشده GitHub Actions با شناسه [45406526890](https://github.com/tecpey/lottorito-platform/actions/runs/45406526890)، روی Head با شناسه `67112b6e75b53389cadbf0d4b5527884ff453c45`. این اجرا از Node.js نسخه 26.13.0، PostgreSQL نسخه 18.7 و npm ci با Lockfile ثبت‌شده استفاده کرد؛ هر ۱۴ تست Node موفق شدند، صفر شکست و صفر تست Skip‌شده. GitHub Actions با SHAهای Commit تغییرناپذیر و تأییدشده Pin شده‌اند.
-- اجرای موفق شامل جلوگیری از UPDATE/DELETE بین Tenantها، رد کردن Write با WITH CHECK و Rollback/استفاده مجدد از Pool است؛ همچنین تست Red-Team عمدی نشان می‌دهد Role مشترک `app_runtime` می‌تواند GUC سفارشی را به Tenant دیگری تغییر دهد. این تست مرز اعتماد شناخته‌شده را مستند می‌کند و اثبات جداسازی در برابر نفوذگر نیست.
+- نتیجه CI: موفق — آخرین اجرای تأییدشده GitHub Actions با شناسه [45407321512](https://github.com/tecpey/lottorito-platform/actions/runs/45407321512)، روی Head با شناسه `127b739af9ab43b1fcd5e09d1aff79307b14ae93`. این اجرا از Node.js نسخه 26.13.0، PostgreSQL نسخه 18.7 و npm ci با Lockfile ثبت‌شده استفاده کرد؛ هر ۱۵ تست Node موفق شدند، صفر شکست و صفر تست Skip‌شده. GitHub Actions با SHAهای Commit تغییرناپذیر و تأییدشده Pin شده‌اند.
+- اجرای موفق شامل ابطال Active Membership در درخواست بعدی، جداسازی جدول Membership، مجوز محدود `UPDATE(lock_version)` برای `SELECT FOR SHARE` بدون مجوز تغییر `active`، جلوگیری از UPDATE/DELETE بین Tenantها، رد کردن Write با WITH CHECK و Rollback/استفاده مجدد از Pool است؛ همچنین تست Red-Team عمدی نشان می‌دهد Role مشترک `app_runtime` می‌تواند GUC سفارشی را به Tenant دیگری تغییر دهد. این تست مرز اعتماد شناخته‌شده را مستند می‌کند و اثبات جداسازی در برابر نفوذگر نیست.
 - اجرای محلی: در این محیط اجرا نشده است؛ اجرای تأییدشده در CI میزبانی‌شده GitHub انجام شده است.
 - وضعیت کلی P-01: نامعین / فقط بخشی از محدوده تا زمان آزمایش مرزهای Async، ابطال دسترسی، Support ممتاز و سایر مسیرهای ذخیره‌سازی.
 - تصمیم فناوری: همچنان Proposed است؛ هیچ تصویب نهایی Stack از این آزمایش استنباط نمی‌شود.
