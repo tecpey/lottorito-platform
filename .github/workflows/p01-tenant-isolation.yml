@@ -1,0 +1,56 @@
+name: P-01 Tenant Isolation
+
+on:
+  pull_request:
+    paths:
+      - "prototypes/p01-tenant-isolation/**"
+      - ".github/workflows/p01-tenant-isolation.yml"
+  push:
+    branches:
+      - "spike/p01-tenant-isolation"
+    paths:
+      - "prototypes/p01-tenant-isolation/**"
+      - ".github/workflows/p01-tenant-isolation.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: p01-tenant-isolation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  integration:
+    name: Node.js 26 + PostgreSQL 18.7 integration
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:18.7-bookworm
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: p01-admin-only-not-production
+          POSTGRES_DB: lottorito_p01
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d lottorito_p01"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      ADMIN_DATABASE_URL: postgres://postgres:p01-admin-only-not-production@127.0.0.1:5432/lottorito_p01
+      DATABASE_URL: postgres://app_runtime:p01-only-not-for-production@127.0.0.1:5432/lottorito_p01
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 26.13.0
+      - name: Install pinned prototype dependency
+        working-directory: prototypes/p01-tenant-isolation
+        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Run PostgreSQL integration tests
+        working-directory: prototypes/p01-tenant-isolation
+        run: npm test
