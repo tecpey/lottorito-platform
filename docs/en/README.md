@@ -43,6 +43,10 @@ LOT-FIN-POST-001 defines proposed financial posting and reconciliation controls;
 | Engineering | [Project status](engineering/project-status.md) | Verified state and continuation point |
 | Engineering | [Roadmap](engineering/roadmap.md) | Proposed delivery sequence and gates |
 
+## Automated documentation checks
+
+The structural validator at [scripts/check_docs.py](../../scripts/check_docs.py) checks paired Markdown paths, stable and unique document IDs, and relative local links. GitHub Actions runs it through the [Documentation Governance workflow](../../.github/workflows/docs-governance.yml). These checks do not establish semantic translation parity; human review remains mandatory. The workflow has been added on the working branch; consult its run result before treating it as passing.
+
 ## Evidence and status discipline
 
 The repository remains documentation-first. A document or design does not prove implementation. Unless repository and test evidence supports it, do not represent application code, database schema, provider connectivity, sandbox certification, financial processing, payout, automated CI or production deployment as complete.
