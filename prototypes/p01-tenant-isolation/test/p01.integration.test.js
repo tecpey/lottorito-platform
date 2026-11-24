@@ -4,6 +4,8 @@ import { once } from "node:events";
 import { Pool } from "pg";
 import { createTenantServer } from "../src/app.js";
 import { withTenantTransaction } from "../src/tenant-db.js";
+import { acknowledgeJob, claimNextJob } from "../src/job-dispatch.js";
+import { processTenantJob } from "../src/job-worker.js";
 import {
   authenticateSyntheticRequest,
   TENANT_A,
@@ -14,10 +16,15 @@ import {
 
 const databaseUrl = process.env.DATABASE_URL;
 const adminDatabaseUrl = process.env.ADMIN_DATABASE_URL;
+const dispatcherDatabaseUrl = process.env.DISPATCHER_DATABASE_URL;
+const jobEnvelopeSecret = process.env.JOB_ENVELOPE_SECRET;
 assert.ok(databaseUrl, "DATABASE_URL must point to the least-privilege app_runtime role");
 assert.ok(adminDatabaseUrl, "ADMIN_DATABASE_URL must point to the disposable fixture administrator");
+assert.ok(dispatcherDatabaseUrl, "DISPATCHER_DATABASE_URL must point to the metadata-only dispatcher role");
+assert.ok(jobEnvelopeSecret, "JOB_ENVELOPE_SECRET must be a synthetic test-only key");
 
 const adminPool = new Pool({ connectionString: adminDatabaseUrl, max: 1 });
+const dispatcherPool = new Pool({ connectionString: dispatcherDatabaseUrl, max: 1 });
 const pool = new Pool({
   connectionString: databaseUrl,
   max: 1,
@@ -48,6 +55,7 @@ after(async () => {
   await once(server, "close");
   await pool.end();
   await adminPool.end();
+  await dispatcherPool.end();
 });
 
 test("missing and invalid synthetic credentials cannot access tenant data", async () => {
