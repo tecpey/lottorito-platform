@@ -1,6 +1,6 @@
 # Lottorito Decision Register
 
-**Document ID:** LOT-ADR-REG-001 | **Version:** 1.7.0 | **Status:** Maintained register; entries retain their individual authority state
+**Document ID:** LOT-ADR-REG-001 | **Version:** 1.8.0 | **Status:** Maintained register; entries retain their individual authority state
 
 ## How to read this register
 This register prevents agents from turning discussion, examples or proposals into product rules. A record is not approved merely because it is listed here. The state and authority column govern. Evidence must be linked for every change.
@@ -52,6 +52,8 @@ This register prevents agents from turning discussion, examples or proposals int
 | LDR-036 | Unified multi-tenant B2B2C platform architecture | Owner direction / architecture proposed | The first-party B2C tenant must consume all approved modules through the same shared contracts; the platform also targets wallet/ledger, deposits/withdrawals, Iranian and international payment adapters, live chat/widget, and role-specific dashboards for Platform, Tenant/Operator, White-Label, Affiliate/Agent and Customer. LOT-PLATFORM-001 proposes the experience, tenant, identity, authorization, dashboard, finance, payment, chat, security and work-package model. | Product direction is owner-directed; architecture and implementation details remain Proposed. No runtime, gateway, provider, licence, custody, jurisdiction or real-money flow is approved. Owner and product, architecture, security, finance, legal/compliance and operations review is required before physical design or implementation. |
 
 | LDR-037 | Tenant, identity, membership and authorization contract | Proposed | LOT-IAM-TENANT-001 defines principal, tenant, legal entity, organization, brand, product instance, membership, RBAC/ABAC, dashboard scopes, lifecycle, isolation invariants and IAM acceptance tests. | Architecture proposal only. Owner, architecture, IAM/security, privacy, finance and legal/compliance review required. No identity, SSO, authorization engine or tenant isolation implementation is claimed. |
+
+| LDR-038 | Role-based dashboards and workspace product blueprint | Proposed | LOT-DASH-001 defines shared workspace shell, role-specific navigation, widgets, actions, prohibited data exposure, customer B2C experience, cross-workspace workflows, KPI governance, accessibility and 12 acceptance tests. | Product/UX proposal only. Requires owner, product, operations, security/IAM, finance, privacy and compliance review. No dashboard implementation or permission grant is claimed. |
 
 ## Decision-change protocol
 1. Propose a change with rationale, alternatives, impact and evidence.
