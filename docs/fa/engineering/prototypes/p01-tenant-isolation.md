@@ -28,7 +28,7 @@
 | P01-HTTP-05 | شناسه Tenant متعارض در بدنه Write | پاسخ 403؛ بدون اثر جانبی |
 | P01-HTTP-06 | Write بدون Tenant ID ارسالی کاربر | سرور Tenant احراز هویت‌شده را تخصیص می‌دهد |
 | P01-DB-01 | اجرای متناوب A/B/A با Pool تک‌اتصالی | نشت Context بین درخواست‌ها رخ نمی‌دهد |
-| P01-DB-02 | بررسی Role اجرایی و تنظیمات جدول | نه Superuser، نه مالک جدول و نه BYPASSRLS؛ RLS و FORCE RLS فعال |
+| P01-DB-02 | بررسی Role اجرایی، تنظیمات جدول و ترکیب Policyها | نه Superuser، نه مالک جدول و نه BYPASSRLS؛ RLS و FORCE RLS فعال؛ Tenant Guard از نوع RESTRICTIVE است تا Policyهای Permissive بعدی نتوانند دامنه دسترسی را گسترش دهند |
 | P01-DB-03 | Query/Insert بدون Tenant Context | Select هیچ سطری نمی‌بیند؛ Insert رد می‌شود |
 | P01-DB-04 | تلاش برای تغییر app.tenant_id با Role مشترک app_runtime | افشای مورد انتظار: Role می‌تواند Tenant دیگری را اظهار کند؛ اثبات می‌کند GUC/RLS در برابر Credential اجرایی تسخیرشده مرز امنیتی نیست |
 | P01-DB-05 | اجرای UPDATE/DELETE روی شیء اختصاصی Tenant B در Context مربوط به A | هیچ ردیفی تغییر یا حذف نمی‌شود؛ شیء B بدون تغییر باقی می‌ماند |
@@ -38,7 +38,7 @@
 
 RLS یک لایه دفاع در عمق است و جایگزین احراز هویت، مجوز عضویت یا طراحی Tenant-aware در برنامه نیست. یک تنظیم سفارشی PostgreSQL فقط به این دلیل قابل اعتماد است که برنامه اتصال دیتابیس را کنترل می‌کند و مقدار را پس از احراز هویت Principal تنظیم می‌کند. یک تست Red-Team صریح نشان می‌دهد خود Role به نام app_runtime می‌تواند GUC سفارشی را به Tenant دیگری تغییر دهد و سپس ردیف‌های همان Tenant را بخواند. این یک افشای مورد انتظار در طراحی Role مشترک است، نه یک کنترل جداسازی موفق. بنابراین این Prototype فقط در برابر فراموش‌شدن Predicateهای Tenant در Query و Hintهای غیرقابل‌اعتماد Tenant در HTTP دفاع را نشان می‌دهد؛ اما جداسازی در برابر اجرای SQL دلخواه، SQL Injection یا تسخیر Credential مشترک برنامه را اثبات نمی‌کند. Query پارامتری، مرزهای سخت‌گیرانه Query، حداقل مجوز و تست Injection همچنان الزامی‌اند. مدل تهدید Production باید مشخص کند آیا Process مشترک برنامه بخشی از Trusted Computing Base است یا به سازوکار قوی‌تری برای احراز هویت Tenant در خود دیتابیس نیاز داریم.
 
-جدول توسط Role مالک ساخته و مالکیت آن نگهداری می‌شود؛ برنامه فقط با Role به نام app_runtime متصل می‌شود. گزینه FORCE ROW LEVEL SECURITY فعال است. Superuserهای PostgreSQL و Roleهای دارای BYPASSRLS می‌توانند RLS را دور بزنند؛ مالک جدول نیز معمولاً از آن مستثناست، مگر آنکه FORCE RLS فعال شود. مرجع رسمی: [مستندات Row Security در PostgreSQL 18](https://www.postgresql.org/docs/18/ddl-rowsecurity.html).
+جدول توسط Role مالک ساخته و مالکیت آن نگهداری می‌شود؛ برنامه فقط با Role به نام app_runtime متصل می‌شود. گزینه FORCE ROW LEVEL SECURITY فعال است. یک Policy پایه از نوع Permissive با Tenant Guard از نوع Restrictive ترکیب شده است: PostgreSQL Policyهای Permissive را با OR ترکیب می‌کند؛ بنابراین Guard محدودکننده همچنان با AND اعمال می‌شود و مانع گسترش دسترسی Tenant بر اثر افزودن یک Policy گسترده Permissive در آینده خواهد شد. Superuserهای PostgreSQL و Roleهای دارای BYPASSRLS می‌توانند RLS را دور بزنند؛ مالک جدول نیز معمولاً از آن مستثناست، مگر آنکه FORCE RLS فعال شود. مرجع رسمی: [مستندات Row Security در PostgreSQL 18](https://www.postgresql.org/docs/18/ddl-rowsecurity.html).
 
 ## موارد خارج از محدوده / هنوز اثبات‌نشده
 
