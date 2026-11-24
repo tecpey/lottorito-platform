@@ -1,6 +1,6 @@
 # Lottorito — English Documentation
 
-**Document ID:** LOT-DOC-INDEX-EN-001 | **Version:** 2.4.0 | **Status:** Maintained index
+**Document ID:** LOT-DOC-INDEX-EN-001 | **Version:** 2.5.0 | **Status:** Maintained index
 
 This directory is the authoritative English documentation space for Lottorito. The Persian documentation under docs/fa/ is equally authoritative.
 
@@ -58,6 +58,7 @@ LOT-FIN-POST-001 defines proposed financial posting and reconciliation controls;
 | Architecture | [Growth content automation](architecture/growth-content-automation.md) | LOT-GROWTH-001; multilingual SEO/GEO/AEO and channel workflow |
 | Architecture | [Smart notifications](architecture/smart-notifications.md) | LOT-NOTIF-001; policy-gated inbox and delivery |
 | Engineering | [Architecture prototype and evidence plan](engineering/architecture-prototype-plan.md) | LOT-PROT-001; eight required experiments and acceptance evidence |
+| Engineering | [P-01 tenant isolation experiment](engineering/prototypes/p01-tenant-isolation.md) | LOT-PROT-P01-001; partial HTTP/PostgreSQL RLS and async-job experiment; 20 CI tests passed, including per-tenant `session_user` identity comparison; full P-01 remains inconclusive |
 | Engineering | [Agent operating manual](engineering/agent-operating-manual.md) | Low-context task routing and handoff |
 | Engineering | [Decision register](engineering/decision-register.md) | Owner directions, proposals and unresolved decisions |
 | Engineering | [Project status](engineering/project-status.md) | Verified state and continuation point |
