@@ -157,6 +157,16 @@ CREATE POLICY support_grants_authorizer_read
   TO support_authorizer
   USING (true);
 
+-- PostgreSQL applies UPDATE RLS policy checks to SELECT ... FOR SHARE.
+-- The role still has column-level UPDATE only on inert lock_version.
+CREATE POLICY support_grants_authorizer_lock
+  ON public.support_grants
+  AS PERMISSIVE
+  FOR UPDATE
+  TO support_authorizer
+  USING (true)
+  WITH CHECK (true);
+
 CREATE TABLE public.support_audit (
   audit_id uuid PRIMARY KEY,
   grant_id uuid,
