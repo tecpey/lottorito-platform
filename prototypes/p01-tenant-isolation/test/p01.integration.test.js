@@ -1013,3 +1013,45 @@ test("revoked tenant membership blocks new export grants and redemption of exist
     );
   }
 });
+
+
+test("membership revocation serializes against an in-flight export redemption", async () => {
+  const grant = await issueExportDownloadGrant({
+    pool, tenantId: TENANT_A, exportId: EXPORT_ID_MEMBERSHIP, subjectId: "synthetic-user-a"
+  });
+  assert.ok(grant);
+
+  const revoker = await adminPool.connect();
+  let transactionOpen = false;
+  try {
+    await revoker.query("BEGIN");
+    transactionOpen = true;
+    await revoker.query(
+      "SELECT active FROM public.tenant_memberships WHERE tenant_id = $1 AND subject_id = $2 FOR UPDATE",
+      [TENANT_A, "synthetic-user-a"]
+    );
+
+    let redemptionSettled = false;
+    const redemption = consumeExportDownloadGrant({
+      pool, tenantId: TENANT_A, subjectId: "synthetic-user-a", token: grant.token
+    }).finally(() => { redemptionSettled = true; });
+
+    await delay(10);
+    assert.equal(redemptionSettled, false);
+
+    await revoker.query(
+      "UPDATE public.tenant_memberships SET active = false WHERE tenant_id = $1 AND subject_id = $2",
+      [TENANT_A, "synthetic-user-a"]
+    );
+    await revoker.query("COMMIT");
+    transactionOpen = false;
+    assert.equal(await redemption, null);
+  } finally {
+    if (transactionOpen) await revoker.query("ROLLBACK");
+    revoker.release();
+    await adminPool.query(
+      "UPDATE public.tenant_memberships SET active = true WHERE tenant_id = $1 AND subject_id = $2",
+      [TENANT_A, "synthetic-user-a"]
+    );
+  }
+});
