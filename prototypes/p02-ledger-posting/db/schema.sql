@@ -403,11 +403,11 @@ BEGIN
 
   GET DIAGNOSTICS v_effect_inserted = ROW_COUNT;
   IF v_effect_inserted = 0 THEN
-    SELECT request_fingerprint, journal_id
+    SELECT f.request_fingerprint, f.journal_id
       INTO v_existing_fingerprint, v_existing_journal_id
-      FROM public.financial_effects
-     WHERE tenant_id = v_tenant_id
-       AND effect_id = p_effect_id;
+      FROM public.financial_effects AS f
+     WHERE f.tenant_id = v_tenant_id
+       AND f.effect_id = p_effect_id;
 
     IF NOT FOUND THEN
       RAISE EXCEPTION 'financial effect state is unavailable' USING ERRCODE = '40001';
