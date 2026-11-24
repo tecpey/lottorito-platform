@@ -25,6 +25,19 @@ ALTER ROLE job_dispatcher
   LOGIN PASSWORD 'p01-dispatcher-not-for-production'
   NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
 
+DO $support_role$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'support_authorizer') THEN
+    CREATE ROLE support_authorizer LOGIN PASSWORD 'p01-support-not-for-production'
+      NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
+  END IF;
+END;
+$support_role$;
+
+ALTER ROLE support_authorizer
+  LOGIN PASSWORD 'p01-support-not-for-production'
+  NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
+
 -- Alternative identity-bound isolation experiment: a database login identity
 -- maps to exactly one tenant. These are synthetic per-tenant credentials.
 DO $tenant_roles$
@@ -76,6 +89,59 @@ ALTER FUNCTION private.current_tenant_id() OWNER TO tenant_identity_owner;
 REVOKE ALL ON FUNCTION private.current_tenant_id() FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION private.current_tenant_id() TO tenant_a_runtime, tenant_b_runtime;
 
+-- Alternative identity-bound isolation experiment: a database login identity
+-- maps to exactly one tenant. These are synthetic per-tenant credentials.
+DO $tenant_roles$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'tenant_a_runtime') THEN
+    CREATE ROLE tenant_a_runtime LOGIN PASSWORD 'p01-tenant-a-not-for-production'
+      NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'tenant_b_runtime') THEN
+    CREATE ROLE tenant_b_runtime LOGIN PASSWORD 'p01-tenant-b-not-for-production'
+      NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'tenant_identity_owner') THEN
+    CREATE ROLE tenant_identity_owner NOLOGIN
+      NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
+  END IF;
+END;
+$tenant_roles$;
+
+ALTER ROLE tenant_a_runtime LOGIN PASSWORD 'p01-tenant-a-not-for-production'
+  NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
+ALTER ROLE tenant_b_runtime LOGIN PASSWORD 'p01-tenant-b-not-for-production'
+  NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
+ALTER ROLE tenant_identity_owner NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
+
+CREATE SCHEMA IF NOT EXISTS private AUTHORIZATION tenant_identity_owner;
+REVOKE ALL ON SCHEMA private FROM PUBLIC;
+GRANT USAGE ON SCHEMA private TO tenant_a_runtime, tenant_b_runtime;
+
+CREATE TABLE IF NOT EXISTS private.tenant_role_map (
+  database_role name PRIMARY KEY,
+  tenant_id uuid NOT NULL UNIQUE
+);
+ALTER TABLE private.tenant_role_map OWNER TO tenant_identity_owner;
+GRANT SELECT ON private.tenant_role_map TO tenant_identity_owner;
+
+CREATE OR REPLACE FUNCTION private.current_tenant_id()
+RETURNS uuid
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = pg_catalog, private, pg_temp
+AS $function$
+  SELECT tenant_id
+    FROM private.tenant_role_map
+   WHERE database_role = session_user::name
+$function$;
+ALTER FUNCTION private.current_tenant_id() OWNER TO tenant_identity_owner;
+REVOKE ALL ON FUNCTION private.current_tenant_id() FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION private.current_tenant_id() TO tenant_a_runtime, tenant_b_runtime;
+
+DROP TABLE IF EXISTS public.support_audit;
+DROP TABLE IF EXISTS public.support_grants;
 DROP TABLE IF EXISTS public.job_dispatch;
 DROP TABLE IF EXISTS public.tenant_jobs;
 DROP TABLE IF EXISTS public.tenant_records;
@@ -119,6 +185,67 @@ CREATE POLICY tenant_memberships_identity_guard
   TO tenant_a_runtime, tenant_b_runtime
   USING (tenant_id = private.current_tenant_id())
   WITH CHECK (tenant_id = private.current_tenant_id());
+
+CREATE TABLE public.support_grants (
+  grant_id uuid PRIMARY KEY,
+  support_subject_id text NOT NULL,
+  tenant_id uuid NOT NULL,
+  resource_scope text NOT NULL CHECK (resource_scope = 'records:read'),
+  reason text NOT NULL CHECK (length(reason) BETWEEN 20 AND 500),
+  expires_at timestamptz NOT NULL,
+  revoked_at timestamptz,
+  lock_version bigint NOT NULL DEFAULT 0
+);
+
+ALTER TABLE public.support_grants ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.support_grants FORCE ROW LEVEL SECURITY;
+
+CREATE POLICY support_grants_authorizer_read
+  ON public.support_grants
+  AS PERMISSIVE
+  FOR SELECT
+  TO support_authorizer
+  USING (
+    support_subject_id = NULLIF(current_setting('app.support_subject_id', true), '')
+  );
+
+-- SELECT ... FOR SHARE also requires an UPDATE RLS policy. The role has
+-- column-level UPDATE only on inert lock_version, never on revoked_at or scope.
+CREATE POLICY support_grants_authorizer_lock
+  ON public.support_grants
+  AS PERMISSIVE
+  FOR UPDATE
+  TO support_authorizer
+  USING (
+    support_subject_id = NULLIF(current_setting('app.support_subject_id', true), '')
+  )
+  WITH CHECK (
+    support_subject_id = NULLIF(current_setting('app.support_subject_id', true), '')
+  );
+
+CREATE TABLE public.support_audit (
+  audit_id uuid PRIMARY KEY,
+  grant_id uuid,
+  support_subject_id text NOT NULL,
+  tenant_id uuid NOT NULL,
+  resource_id uuid NOT NULL,
+  action text NOT NULL CHECK (action = 'records:read'),
+  outcome text NOT NULL CHECK (outcome IN ('allowed', 'denied')),
+  reason text NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT clock_timestamp()
+);
+
+ALTER TABLE public.support_audit ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.support_audit FORCE ROW LEVEL SECURITY;
+
+CREATE POLICY support_audit_authorizer_insert
+  ON public.support_audit
+  AS PERMISSIVE
+  FOR INSERT
+  TO support_authorizer
+  WITH CHECK (
+    support_subject_id = NULLIF(current_setting('app.support_subject_id', true), '')
+  );
 
 CREATE TABLE public.tenant_jobs (
   tenant_id uuid NOT NULL,
@@ -258,6 +385,10 @@ CREATE POLICY tenant_records_identity_guard
   USING (tenant_id = private.current_tenant_id())
   WITH CHECK (tenant_id = private.current_tenant_id());
 
+GRANT USAGE ON SCHEMA public TO support_authorizer;
+GRANT SELECT ON public.support_grants TO support_authorizer;
+GRANT UPDATE (lock_version) ON public.support_grants TO support_authorizer;
+GRANT INSERT ON public.support_audit TO support_authorizer;
 GRANT USAGE ON SCHEMA public TO app_runtime;
 GRANT USAGE ON SCHEMA public TO job_dispatcher;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.tenant_records TO app_runtime;
