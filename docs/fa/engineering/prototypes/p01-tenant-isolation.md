@@ -1,6 +1,6 @@
 # P-01 — نمونه جداسازی Tenant
 
-**شناسه سند:** LOT-PROT-P01-001 | **نسخه:** ۰.۵.۰ | **وضعیت:** Prototype پیاده‌سازی‌شده؛ CI مقایسه هویت مستقل موفق؛ P-01 کامل همچنان جزئی | **تاریخ بازبینی:** ۲۰۲۶-۱۱-۲۴
+**شناسه سند:** LOT-PROT-P01-001 | **نسخه:** ۰.۶.۰ | **وضعیت:** Prototype پیاده‌سازی‌شده؛ CI مقایسه هویت مستقل موفق؛ P-01 کامل همچنان جزئی | **تاریخ بازبینی:** ۲۰۲۶-۱۱-۲۴
 
 ## هدف و مرز تصمیم
 
@@ -42,6 +42,7 @@
 | P01-DB-06 | INSERT ردیف Tenant B در Context مربوط به A، با دور زدن HTTP | قاعده RLS از طریق WITH CHECK نوشتن را رد می‌کند؛ تراکنش ناموفق پیش از استفاده مجدد Pool Rollback می‌شود |
 | P01-DB-07 | خواندن ردیف‌های Membership در Contextهای A و B | RLS جدول Membership فقط ردیف‌های متعلق به Tenant فعال را نمایش می‌دهد |
 | P01-DB-08 | اتصال با LOGIN Role مستقل Tenant A/B؛ جعل GUC، تلاش تغییر Role/Session Authorization، Shadow کردن نام Identity Map در Temp Schema و Write جعلی | `session_user` دقیقاً به یک Tenant نگاشت می‌شود؛ Owner از نوع NOLOGIN و فاقد Privilege ممتاز است؛ SECURITY DEFINER با search_path ثابت در برابر Temp Shadowing مقاوم است؛ GUC قابل‌تغییر Tenant را عوض نمی‌کند و سوئیچ Role/خواندن Map/Write بین Tenantها رد می‌شود |
+| P01-DB-09 | نگه‌داشتن قفل Membership از نوع `FOR SHARE` در تراکنش Tenant در حال اجرا، هم‌زمان با لغو Membership از اتصال دیگر | UPDATE مربوط به لغو تا آزاد شدن Row Lock منتظر می‌ماند؛ Request در حال اجرا ابتدا Serialize و Commit می‌شود؛ درخواست‌های بعدی ابطال را مشاهده می‌کنند |
 | P01-ASYNC-01 | ساخت Job توسط A/B و تلاش برای جعل Tenant در Caller | Job و Metadata Dispatch اتمیک هستند؛ Tenant از Principal می‌آید و Tenant جعلی رد می‌شود |
 | P01-ASYNC-02 | بررسی Role مربوط به Dispatcher و تلاش برای خواندن Payload | Dispatcher فقط Metadata را می‌خواند/Claim می‌کند؛ SELECT روی Payload رد می‌شود و Role فاقد BYPASSRLS است |
 | P01-ASYNC-03 | تغییر Tenant ID در Envelope امضاشده صف | اعتبارسنجی امضای Ed25519 پیش از هر دسترسی به داده Tenant شکست می‌خورد |
@@ -58,7 +59,7 @@ RLS یک لایه دفاع در عمق است و جایگزین احراز هو�
 ## موارد خارج از محدوده / هنوز اثبات‌نشده
 
 - احراز هویت واقعی، ابطال Session، MFA، Workload Identity یا ذخیره‌سازی Production عضویت‌ها.
-- آزمون Race هم‌زمانی ابطال Membership با Request در حال اجرا؛ تراکنش Request/Job ردیف Membership را با FOR SHARE قفل می‌کند تا ابطال با آن Serialize شود، اما این Race هنوز تحت بار آزمایش نشده است. PostgreSQL برای SELECT FOR SHARE به مجوز UPDATE روی حداقل یک ستون نیاز دارد؛ Role اجرایی فقط روی ستون غیرحساس lock_version این مجوز را دارد، نه روی Flag مجوزدهی active.
+- یک تست Deterministic با دو اتصال مستقل اکنون اثبات می‌کند UPDATE ابطال Membership پشت قفل `FOR SHARE` درخواست در حال اجرا منتظر می‌ماند و پس از Commit برای درخواست‌های بعدی اعمال می‌شود. تست Race تحت بار و هم‌زمانی بالا، Cancellation، Lock Timeout و Failover هنوز انجام نشده است. PostgreSQL برای SELECT FOR SHARE به مجوز UPDATE روی حداقل یک ستون نیاز دارد؛ Role اجرایی فقط روی ستون غیرحساس lock_version این مجوز را دارد، نه روی Flag مجوزدهی active.
 - Message Broker واقعی، تحویل Queue خارجی، Job زمان‌بندی‌شده، Backoff نمایی، Dead-letter Queue، تست هم‌زمانی/بار Dispatcher و اتصال KMS/چرخش کلید Production. جدول Dispatch فعلی یک شبیه‌سازی Outbox/Claim مستقل از Provider است، نه انتخاب یک محصول Queue.
 - مجوزدهی Operator/Support/Break-glass و Audit.
 - Jobهای صف، Retry، Jobهای زمان‌بندی‌شده و Replay.
@@ -95,7 +96,7 @@ Dependency مستقیم pg در Prototype Pin شده است، اما هنوز np
 ## ثبت نتیجه
 
 - وضعیت پیاده‌سازی: فایل‌ها در شاخه spike/p01-tenant-isolation اضافه شده‌اند.
-- نتیجه CI: موفق — اجرای GitHub Actions با شناسه [45411879156](https://github.com/tecpey/lottorito-platform/actions/runs/45411879156)، روی Head کد `38475c0e47a8ffa485c6f9aeca58e4df8cd921fe`. Node.js نسخه 26.13.0 + PostgreSQL نسخه 18.7؛ نصب با `npm ci` و Lockfile ثبت‌شده؛ ۱۹ تست Node موفق، صفر شکست و صفر تست Skip‌شده. اجرای Documentation Governance با شناسه [45411879734](https://github.com/tecpey/lottorito-platform/actions/runs/45411879734) نیز موفق شد. GitHub Actions با SHAهای Commit تغییرناپذیر Pin شده‌اند.
+- نتیجه CI: موفق — اجرای GitHub Actions با شناسه [45412556456](https://github.com/tecpey/lottorito-platform/actions/runs/45412556456)، روی Head کد `f53caa4e801c9eeed94dfe706e03c6dfcf02a660`. Node.js نسخه 26.13.0 + PostgreSQL نسخه 18.7؛ نصب با `npm ci` و Lockfile ثبت‌شده؛ ۲۰ تست Node موفق، صفر شکست و صفر تست Skip‌شده. اجرای Documentation Governance با شناسه [45412556497](https://github.com/tecpey/lottorito-platform/actions/runs/45412556497) نیز موفق شد. GitHub Actions با SHAهای Commit تغییرناپذیر Pin شده‌اند.
 - اجرای موفق شامل تست‌های قبلی RLS در Request، Pool Reuse، بررسی مجدد Membership و مسیر Async Outbox/Dispatcher/Envelope امضاشده Ed25519 است؛ همچنین تست مقایسه‌ای LOGIN Roleهای مستقل Tenant را پوشش می‌دهد: هویت Session دقیقاً به یک Tenant نگاشت می‌شود؛ تغییر GUC قابل‌تغییر، Visibility را تغییر نمی‌دهد؛ `SET ROLE` به Tenant دیگر، خواندن Identity Map خصوصی و Insert بین Tenantها رد می‌شود.
 - تست Red-Team عمدی همچنان نشان می‌دهد Role مشترک `app_runtime` در صورت تسخیر می‌تواند GUC سفارشی را به Tenant دیگری تغییر دهد. این یک مرز اعتماد شناخته‌شده است، نه اثبات جداسازی در برابر نفوذگر. مدل LOGIN Role مستقل در برابر SQL Injection محدود به اتصال یک Tenant مقاوم‌تر است، اما به Credential Broker امن و Poolهای تفکیک‌شده وابسته است؛ این کنترل‌های عملیاتی و رفتار در مقیاس هنوز آزمایش نشده‌اند.
 - اجرای محلی: در این محیط اجرا نشده است؛ اجرای تأییدشده در CI میزبانی‌شده GitHub انجام شده است.
