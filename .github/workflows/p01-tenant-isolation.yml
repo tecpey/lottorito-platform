@@ -5,6 +5,8 @@ on:
   pull_request:
     paths:
       - "prototypes/p01-tenant-isolation/**"
+      - "docs/en/engineering/prototypes/p01-tenant-isolation.md"
+      - "docs/fa/engineering/prototypes/p01-tenant-isolation.md"
       - ".github/workflows/p01-tenant-isolation.yml"
   push:
     branches:
@@ -18,7 +20,7 @@ permissions:
 
 concurrency:
   group: p01-tenant-isolation-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   integration:
@@ -54,7 +56,16 @@ jobs:
           package-manager-cache: false
       - name: Install pinned prototype dependency
         working-directory: prototypes/p01-tenant-isolation
-        run: npm install --ignore-scripts --no-audit --no-fund
+        run: |
+          npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+          npm ci --ignore-scripts --no-audit --no-fund
+      - name: Upload generated dependency lockfile
+        uses: actions/upload-artifact@v6
+        with:
+          name: p01-npm-lockfile
+          path: prototypes/p01-tenant-isolation/package-lock.json
+          if-no-files-found: error
+          retention-days: 7
       - name: Run PostgreSQL integration tests
         working-directory: prototypes/p01-tenant-isolation
         run: npm test
