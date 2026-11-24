@@ -159,6 +159,17 @@ test("runtime role is not superuser, table owner or BYPASSRLS and FORCE RLS is e
   assert.equal(role.relrowsecurity, true);
   assert.equal(role.relforcerowsecurity, true);
   assert.notEqual(role.table_owner, role.runtime_role);
+
+  const policies = await pool.query(
+    "SELECT policyname, permissive FROM pg_policies WHERE schemaname = 'public' AND tablename = 'tenant_records' ORDER BY policyname"
+  );
+  assert.deepEqual(
+    policies.rows.map((policy) => [policy.policyname, policy.permissive]),
+    [
+      ["tenant_records_app_access", "PERMISSIVE"],
+      ["tenant_records_tenant_guard", "RESTRICTIVE"]
+    ]
+  );
 });
 
 test("RLS blocks cross-tenant UPDATE and DELETE even when the object ID is known", async () => {
