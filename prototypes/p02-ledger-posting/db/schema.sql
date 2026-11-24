@@ -133,6 +133,8 @@ CREATE INDEX ledger_outbox_tenant_created_idx
 
 REVOKE CREATE ON SCHEMA public FROM PUBLIC;
 
+GRANT USAGE, CREATE ON SCHEMA public TO ledger_owner, ledger_executor;
+
 ALTER TABLE public.ledger_accounts OWNER TO ledger_owner;
 ALTER TABLE public.posting_requests OWNER TO ledger_owner;
 ALTER TABLE public.ledger_journals OWNER TO ledger_owner;
@@ -405,6 +407,7 @@ ALTER FUNCTION public.post_journal(text, uuid, jsonb) OWNER TO ledger_executor;
 REVOKE ALL ON FUNCTION public.post_journal(text, uuid, jsonb) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.post_journal(text, uuid, jsonb)
   TO tenant_a_ledger_runtime, tenant_b_ledger_runtime;
+REVOKE CREATE ON SCHEMA public FROM ledger_owner, ledger_executor;
 
 INSERT INTO private.tenant_role_map (database_role, tenant_id) VALUES
   ('tenant_a_ledger_runtime', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'),
