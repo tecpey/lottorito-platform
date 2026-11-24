@@ -1,6 +1,6 @@
 # مستندات فارسی Lottorito
 
-**شناسه سند:** LOT-DOC-INDEX-FA-001 | **نسخه:** ۲.۳.۰ | **وضعیت:** فهرست مرجع و در حال نگهداری
+**شناسه سند:** LOT-DOC-INDEX-FA-001 | **نسخه:** ۲.۴.۰ | **وضعیت:** فهرست مرجع و در حال نگهداری
 
 این پوشه مرجع رسمی مستندات فارسی Lottorito است. مستندات انگلیسی در docs/en/ نیز به همان اندازه معتبرند.
 
@@ -38,6 +38,7 @@ LOT-FIN-POST-001 کنترل‌های پیشنهادی ثبت مالی و تطب�
 | مالی | [قرارداد Payout، برداشت و پرداخت خروجی](finance/payout-withdrawal-contract.md) | LOT-PAYOUT-001؛ برداشت مشتری، پرداخت کمیسیون/جایزه، Verification ذی‌نفع، تأییدها، Hold، اجرای Provider و تطبیق پیشنهادی؛ بدون مجوز پرداخت |
 | شرکا | [قرارداد یکپارچه‌سازی Affiliate](partners/integration-contract.md) | LOT-INT-001؛ مرز اولیه Event/Adapter شریک؛ API و Sandbox واقعی شریک راستی‌آزمایی نشده |
 | شرکا | [قرارداد قابلیت API دامنه Affiliate و Agent](partners/affiliate-agent-api-contract.md) | LOT-AFFILIATE-API-001؛ فهرست پیشنهادی API برای Program، Membership، سلسله‌مراتب، Campaign، Referral، Attribution، Event شریک، کمیسیون و گزارش |
+| شرکا | [برنامه پایلوت و تحویل مشتری اولیه](partners/initial-customer-pilot-and-delivery-plan.md) | LOT-CUSTOMER-PILOT-001؛ محدوده RaidenBet به دستور مالک، محدود به Advanced Affiliate & Agent و Live Chat Widget، همراه با بازبینی مشتری و دروازه اتصال کنترل‌شده API |
 | شرکا | [قرارداد ارائه‌دهنده Lottery](partners/lottery-provider-contract.md) | چرخه عمر پیشنهادی مستقل از Provider |
 | شرکا | [استاندارد ارزیابی Provider](partners/provider-evaluation-standard.md) | LOT-PROVIDER-EVAL-001؛ شواهد، RFI، دروازه‌های سخت و فرایند تصمیم بین‌محصولی پیشنهادی |
 | امنیت | [خط مبنای امنیت](security/security-baseline.md) | نیازمندی‌های اولیه امنیت |
