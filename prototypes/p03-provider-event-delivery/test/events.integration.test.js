@@ -367,17 +367,17 @@ test("outbound event and endpoint identity is idempotent and detects payload dri
   const eventId = "out-" + randomUUID();
   const payload = { specversion: "1.0", id: eventId, source: "urn:lottorito:test", type: "com.test.created.v1", data: { amount: "1.00" } };
   const first = await createOutboundDelivery(runtimePool, {
-    tenantId: TENANT_A, productId: PRODUCT_A, endpointId: "endpoint-a", eventId, payload
+    tenantId: TENANT_A, productId: PRODUCT_B, endpointId: "endpoint-a", eventId, payload
   });
   const duplicate = await createOutboundDelivery(runtimePool, {
-    tenantId: TENANT_A, productId: PRODUCT_A, endpointId: "endpoint-a", eventId, payload
+    tenantId: TENANT_A, productId: PRODUCT_B, endpointId: "endpoint-a", eventId, payload
   });
   assert.equal(first.status, "created");
   assert.equal(duplicate.status, "duplicate");
   assert.equal(duplicate.delivery_id, first.delivery_id);
   await assert.rejects(
     createOutboundDelivery(runtimePool, {
-      tenantId: TENANT_A, productId: PRODUCT_A, endpointId: "endpoint-a", eventId,
+      tenantId: TENANT_A, productId: PRODUCT_B, endpointId: "endpoint-a", eventId,
       payload: { ...payload, data: { amount: "2.00" } }
     }),
     (error) => error.code === "P03_OUTBOUND_IDEMPOTENCY_CONFLICT"
