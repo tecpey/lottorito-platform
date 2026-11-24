@@ -9,7 +9,7 @@
 ۵. **Technology & Platform ADRs:** انتخاب Stack و مدل استقرار با ADR مبتنی بر شواهد؛ تعریف پیکربندی امن، Logging، Health، قابلیت اطمینان و CI پایه.
 ۶. **Identity & Tenant Implementation:** هویت، نشست، RBAC، عضویت Tenant و تست جداسازی.
 ۷. **Affiliate & Attribution:** پروفایل، شبکه ارجاع، لینک رهگیری، رویداد و انتساب.
-۸. **Finance Core:** بازبینی LOT-FIN-001؛ تصویب مالکیت حساب، Chart of Accounts، ثبت تغییرناپذیر، معنای موجودی، صورت‌حساب، تطبیق و دروازه‌های پرداخت.
+۸. **Finance Core:** بازبینی LOT-FIN-POST-001؛ تصویب مالکیت حساب، Chart of Accounts، ثبت تغییرناپذیر، معنای موجودی، صورت‌حساب، تطبیق و دروازه‌های پرداخت.
 ۹. **Commission Engine:** قوانین نسخه‌بندی‌شده، CPA/Revenue Share/Hybrid و محاسبات بازتولیدپذیر.
 ۱۰. **Affiliate Partner Pilot:** دریافت مستندات و Sandbox واقعی شریک، ساخت Adapter افیلیت و Contract Test.
 ۱۱. **Lottery Provider Discovery & Certification:** بررسی حقوقی/ارائه‌دهنده، پروفایل قابلیت، شواهد Sandbox، Adapter چرخه عمر و تطبیق نتیجه/تسویه؛ فقط پس از تأیید مالک.
