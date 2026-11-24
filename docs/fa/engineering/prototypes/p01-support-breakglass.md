@@ -1,6 +1,6 @@
 # نمونه دسترسی پشتیبانی و Break-Glass در P-01
 
-**شناسه سند:** LOT-PROT-P01-SUPPORT-001 | **نسخه:** ۰.۲.۰ | **وضعیت:** Prototype ساختگی؛ ۲۶ تست CI موفق؛ آماده Production نیست  
+**شناسه سند:** LOT-PROT-P01-SUPPORT-001 | **نسخه:** ۰.۲.۱ | **وضعیت:** Prototype ساختگی؛ ۲۶ تست CI موفق؛ آماده Production نیست  
 **وضعیت:** برش پیاده‌سازی‌شده Prototype؛ تأیید CI در انتظار  
 **آزمایش مادر:** LOT-PROT-P01-001
 
@@ -49,4 +49,4 @@ Identity Provider، SSO/MFA، رابط اپراتوری، تأیید دوگان�
 
 ## اجرا و شواهد
 
-تست‌های Support در Workflow یکپارچه PostgreSQL مربوط به P-01 اجرا می‌شوند. متغیر محیطی ساختگی موردنیاز SUPPORT_DATABASE_URL است. اجرای [45416127663](https://github.com/tecpey/lottorito-platform/actions/runs/45416127663) روی Head با شناسه `00229676fd3867706e1959da9854dd03147a8767` موفق شد: ۲۶ تست موفق، صفر شکست و صفر تست Skip‌شده، با Node.js 26.13.0، PostgreSQL 18.7، npm ci و Actionهای Pin‌شده با SHA ثابت. اجرای Documentation Governance با شناسه [45416127746](https://github.com/tecpey/lottorito-platform/actions/runs/45416127746) نیز موفق شد. این نتایج فقط آزمایش ساختگی را اعتبارسنجی می‌کنند و آمادگی Production را ثابت نمی‌کنند.
+تست‌های Support در Workflow یکپارچه PostgreSQL مربوط به P-01 اجرا می‌شوند. متغیر محیطی ساختگی موردنیاز SUPPORT_DATABASE_URL است. اجرای [45416768795](https://github.com/tecpey/lottorito-platform/actions/runs/45416768795) روی Head با شناسه `4058e5f9a55e35780d5fe88d927fa651784b2236` موفق شد: ۲۶ تست موفق، صفر شکست و صفر تست Skip‌شده، با Node.js 26.13.0، PostgreSQL 18.7، npm ci و Actionهای Pin‌شده با SHA ثابت. اجرای Documentation Governance با شناسه [45416768461](https://github.com/tecpey/lottorito-platform/actions/runs/45416768461) نیز موفق شد. این نتایج فقط آزمایش ساختگی را اعتبارسنجی می‌کنند و آمادگی Production را ثابت نمی‌کنند.
