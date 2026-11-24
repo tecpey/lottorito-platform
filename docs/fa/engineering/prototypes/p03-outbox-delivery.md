@@ -38,7 +38,7 @@ Relay از الگوی At-least-once استفاده می‌کند، نه Exactly-
 
 Broker ساختگی In-memory فقط پنجره Crash را نمایش می‌دهد؛ دوام Broker، رفتار شبکه، ترتیب Partition یا تضمین Provider را اثبات نمی‌کند. Consumer واقعی باید Inbox Receipt و اثر تجاری خودش را در همان تراکنش Commit کند یا از Outbox/Saga مستقل استفاده کند. Deduplication، اثرات خارجی دلخواه را Exactly-once نمی‌کند.
 
-CDC/Debezium، Kafka/SQS، Broker بیرونی، اتصال Provider، اعتبارنامه Relay سراسری بین Tenantها، Retention/Replay در Production، تکامل Schema، Observability، SLO، مدیریت کلید یا بازیابی عملیاتی پیاده‌سازی یا تصویب نشده‌اند. از هویت Runtime مستقل برای هر Tenant استفاده شده و عمداً اختیار سراسری Relay ایجاد نشده است.
+این دیتابیس P-03 یک Fixture دورریختنی و مستقل است: در حال حاضر هیچ Migration یا Runtime Adapterای جدول ledger_outbox در P-02 را به Schema وضعیت تحویل این آزمایش متصل نمی‌کند. این اتصال مرحله‌ای بعدی و نیازمند بازبینی مستقل است. CDC/Debezium، Kafka/SQS، Broker بیرونی، اتصال Provider، اعتبارنامه Relay سراسری بین Tenantها، Retention/Replay در Production، تکامل Schema، Observability، SLO، مدیریت کلید یا بازیابی عملیاتی پیاده‌سازی یا تصویب نشده‌اند. از هویت Runtime مستقل برای هر Tenant استفاده شده و عمداً اختیار سراسری Relay ایجاد نشده است.
 
 ## اجرای مجدد
 
