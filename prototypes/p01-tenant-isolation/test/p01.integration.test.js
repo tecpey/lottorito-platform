@@ -84,10 +84,10 @@ before(async () => {
     `INSERT INTO public.tenant_exports
        (tenant_id, export_id, created_by, object_key, content_sha256, status)
      VALUES
-       ($1, $2, 'synthetic-user-a', 'tenants/' || $1::text || '/exports/shared.csv', repeat('a', 64), 'ready'),
-       ($3, $2, 'synthetic-user-b', 'tenants/' || $3::text || '/exports/shared.csv', repeat('b', 64), 'ready'),
-       ($1, $4, 'synthetic-user-a', 'tenants/' || $1::text || '/exports/revoked.csv', repeat('c', 64), 'ready'),
-       ($1, $5, 'synthetic-user-a', 'tenants/' || $1::text || '/exports/expired.csv', repeat('d', 64), 'ready')`,
+       ($1, $2, 'synthetic-user-a', 'tenants/11111111-1111-4111-8111-111111111111/exports/shared.csv', repeat('a', 64), 'ready'),
+       ($3, $2, 'synthetic-user-b', 'tenants/22222222-2222-4222-8222-222222222222/exports/shared.csv', repeat('b', 64), 'ready'),
+       ($1, $4, 'synthetic-user-a', 'tenants/11111111-1111-4111-8111-111111111111/exports/revoked.csv', repeat('c', 64), 'ready'),
+       ($1, $5, 'synthetic-user-a', 'tenants/11111111-1111-4111-8111-111111111111/exports/expired.csv', repeat('d', 64), 'ready')`,
     [TENANT_A, EXPORT_ID_SHARED, TENANT_B, EXPORT_ID_REVOKE, EXPORT_ID_EXPIRED]
   );
 });
