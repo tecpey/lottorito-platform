@@ -65,6 +65,8 @@ A prototype may be **Pass**, **Fail**, **Inconclusive** or **Not run**. “Pass�
 
 **P-01 export-download experiment (2026-11-24):** a follow-on prototype adds subject-bound, tenant-scoped, expiring one-time download grants. Tokens are 256-bit random values; only SHA-256 hashes are stored; PostgreSQL row locks serialize redemption and export-status checks. CI run 45427819046 passed 37 tests (0 failed, 0 skipped) on current code head 46d8e837ab1c3b5f54ad2b17d6119419020b52f8, including active-membership reauthorization and a deterministic two-connection proof that revocation serializes against redemption. A database CHECK also rejects export object-key traversal/encoded separators/foreign tenant prefixes; P-01 run 45429917398 passed 38 tests (0 failed, 0 skipped) on code head aa0bd586c4ebc0f8785d5981ef7867c13efe7b79, and Documentation Governance run 45429917650 passed on that head. HTTP streaming, provider-signed URLs, CDN behavior, content scanning and delivery retry semantics remain out of scope and unverified.
 
+**P-01 delivery design study (2026-11-24):** bilingual LOT-PROT-P01-DELIVERY-001 compares application-mediated streaming with provider-signed URLs. It recommends a provider-neutral proxy-streaming experiment first for sensitive exports, explicitly documents that S3 presigned URLs are reusable bearer capabilities until expiry, and defines session/retry/Range/backpressure/header/audit acceptance scenarios. This is a proposal only; no delivery architecture or storage provider is approved.
+
 ### P-02 — Financial transaction and reconciliation
 
 **Question:** Can a concurrent, retried business event produce exactly one valid economic effect and a balanced, immutable journal?
