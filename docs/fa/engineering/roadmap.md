@@ -8,14 +8,15 @@
 ۴. **API & Event Foundation:** بازبینی LOT-API-001 و LOT-EVENT-001؛ نهایی‌سازی قرارداد Resource/احراز هویت، سازگاری Schema، Inbox/Outbox، Idempotency، امضای Webhook و کنترل Replay.
 ۵. **Architecture Quality Baseline:** بازبینی LOT-QA-001؛ تعریف مسیرهای حیاتی، پروفایل بار، سناریوهای قابل‌اندازه‌گیری، ناورداها و روش تولید شواهد. آستانه‌های عددی تا تصویب مالک پاسخ‌گو تعیین‌نشده می‌مانند.
 ۶. **Technology & Platform ADRs:** بازبینی LOT-TECH-ADR-001 بر اساس LOT-QA-001 و LOT-PROT-001؛ تصویب مالکان و محدوده آزمایش و سپس اجرای P-01 تا P-08 در محیط ایزوله و با داده ساختگی و اخذ تأیید مالک/امنیت/مالی/حقوقی پیش از انتخاب Stack، Hosting، Region یا SLO/RPO/RTO عددی.
-۷. **Identity & Tenant Implementation:** هویت، نشست، RBAC، عضویت Tenant و تست جداسازی.
-۸. **Affiliate & Attribution:** پروفایل، شبکه ارجاع، لینک رهگیری، رویداد و انتساب.
-۹. **Finance Core:** بازبینی LOT-FIN-POST-001؛ تصویب مالکیت حساب، Chart of Accounts، ثبت تغییرناپذیر، معنای موجودی، صورت‌حساب، تطبیق و دروازه‌های پرداخت.
-۱۰. **Commission Engine:** قوانین نسخه‌بندی‌شده، CPA/Revenue Share/Hybrid و محاسبات بازتولیدپذیر.
-۱۱. **Affiliate Partner Pilot:** دریافت مستندات و Sandbox واقعی شریک، ساخت Adapter افیلیت و Contract Test.
-۱۲. **Lottery Provider Discovery & Certification:** بررسی حقوقی/ارائه‌دهنده، پروفایل قابلیت، شواهد Sandbox، Adapter چرخه عمر و تطبیق نتیجه/تسویه؛ فقط پس از تأیید مالک.
-۱۳. **Admin, Reporting & Operations:** تجربه اپراتور/ایجنت/مشتری، Audit، گزارش، پشتیبانی و گردش‌کار مالی کنترل‌شده.
-۱۴. **Hardening & Pilot:** تست بار/امنیت، بازیابی پشتیبان، UAT، آمادگی عملیات و تأیید حقوقی مختص حوزه قضایی.
+۷. **Global Experience Foundation:** بازبینی LOT-I18N-001، LOT-COMMS-001، LOT-GROWTH-001 و LOT-NOTIF-001؛ تثبیت برابری ۱۲ زبان، پشتیبانی Live Chat، گردش تأییدشده محتوا/کانال و اعلان هوشمند تحت Policy پیش از پیاده‌سازی.
+۸. **Identity & Tenant Implementation:** هویت، نشست، RBAC، عضویت Tenant و تست جداسازی.
+۹. **Affiliate & Attribution:** پروفایل، شبکه ارجاع، لینک رهگیری، رویداد و انتساب.
+۱۰. **Finance Core:** بازبینی LOT-FIN-POST-001؛ تصویب مالکیت حساب، Chart of Accounts، ثبت تغییرناپذیر، معنای موجودی، صورت‌حساب، تطبیق و دروازه‌های پرداخت.
+۱۱. **Commission Engine:** قوانین نسخه‌بندی‌شده، CPA/Revenue Share/Hybrid و محاسبات بازتولیدپذیر.
+۱۲. **Affiliate Partner Pilot:** دریافت مستندات و Sandbox واقعی شریک، ساخت Adapter افیلیت و Contract Test.
+۱۳. **Lottery Provider Discovery & Certification:** بررسی حقوقی/ارائه‌دهنده، پروفایل قابلیت، شواهد Sandbox، Adapter چرخه عمر و تطبیق نتیجه/تسویه؛ فقط پس از تأیید مالک.
+۱۴. **Admin, Reporting & Operations:** تجربه اپراتور/ایجنت/مشتری، Audit، گزارش، پشتیبانی و گردش‌کار مالی کنترل‌شده.
+۱۵. **Hardening & Pilot:** تست بار/امنیت، بازیابی پشتیبان، UAT، آمادگی عملیات و تأیید حقوقی مختص حوزه قضایی.
 
 ## دروازه عبور
 

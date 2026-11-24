@@ -22,5 +22,8 @@ Raw intake → source/signature validation → constrained storage → idempoten
 ## Reliability
 Atomic transactions for financial operations; outbox pattern; bounded retries with backoff; review queue for permanent failures; structured logs, metrics, tracing, and discrepancy alerts.
 
+## Global experience capabilities
+LOT-I18N-001, LOT-COMMS-001, LOT-GROWTH-001 and LOT-NOTIF-001 define proposed bounded capabilities and integration contracts. They must remain tenant- and product-aware; shared platform capability must not create hidden coupling between Affiliate and Lottery.
+
 ## Open decisions
 Scale, deployment regions, availability, backups, RPO/RTO, physical tenant isolation, and final technology choices must be decided before production.
