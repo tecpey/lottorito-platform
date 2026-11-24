@@ -1,6 +1,6 @@
 # نقشه راه اجرایی Lottorito
 
-**شناسه:** LOT-ROAD-001 | **نسخه:** ۰.۶.۰ | **وضعیت:** توالی پیشنهادی؛ دروازه‌های محصول نیازمند تأیید مالک
+**شناسه:** LOT-ROAD-001 | **نسخه:** ۰.۷.۰ | **وضعیت:** توالی پیشنهادی؛ دروازه‌های محصول نیازمند تأیید مالک
 
 ۱. **Foundation & Governance:** راهنمای دوزبانه ایجنت، Decision Register، شناسه پایدار اسناد، واژه‌نامه، قواعد مشارکت و کنترل خودکار مستندات؛ خط مبنای مالی، امنیت و API تا زمان بازبینی صریحاً پیشنهادی می‌ماند.
 ۲. **Cross-product Domain & Data Design:** بازبینی LOT-DOM-001؛ تصویب Bounded Context مستقل Affiliate و Lottery، مالکیت قابلیت مشترک، ERD منطقی، چرخه داده، مرز Tenant و راهبرد Migration.
@@ -11,7 +11,7 @@
 ۷. **Global Experience Foundation:** بازبینی LOT-I18N-001، LOT-COMMS-001، LOT-GROWTH-001 و LOT-NOTIF-001؛ تثبیت برابری ۱۲ زبان، پشتیبانی Live Chat، گردش تأییدشده محتوا/کانال و اعلان هوشمند تحت Policy پیش از پیاده‌سازی.
 ۸. **Identity & Tenant Implementation:** هویت، نشست، RBAC، عضویت Tenant و تست جداسازی.
 ۹. **Affiliate & Attribution:** پروفایل، شبکه ارجاع، لینک رهگیری، رویداد و انتساب.
-۱۰. **Finance Core:** بازبینی LOT-FIN-POST-001؛ تصویب مالکیت حساب، Chart of Accounts، ثبت تغییرناپذیر، معنای موجودی، صورت‌حساب، تطبیق و دروازه‌های پرداخت.
+۱۰. **Finance Core & Wallet Domain:** بازبینی هم‌زمان LOT-FIN-POST-001 و LOT-WALLET-001؛ تصویب مالکیت حقوقی/حساب، کلاس واحدها، Chart of Accounts، ثبت تغییرناپذیر، Projection موجودی، Hold، صورت‌حساب، تطبیق و صلاحیت هر کلاس Wallet. Custody، Stored Value یا مجوز برداشت استنباط نشود.
 ۱۱. **Commission Engine:** قوانین نسخه‌بندی‌شده، CPA/Revenue Share/Hybrid و محاسبات بازتولیدپذیر.
 ۱۲. **Provider Evaluation & RFI Governance:** استاندارد LOT-PROVIDER-EVAL-001 به‌عنوان فرایند مشترک شواهد و Due Diligence پیش از انتخاب فروشنده به‌کار گرفته شود؛ بازبینان پاسخ‌گو و واحد تصمیم دقیق تعیین شوند. این مرحله انتخاب Provider یا مجوز اتصال ایجاد نمی‌کند.
 ۱۳. **Affiliate Partner Pilot:** استاندارد برای اولین واحد تصمیم پایلوت Affiliate اعمال شود؛ مستندات واقعی شریک و Sandbox مجاز دریافت و فقط پس از تأییدها Adapter و Contract Test ساخته شوند.
