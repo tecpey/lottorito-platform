@@ -7,6 +7,11 @@ function digest(value) {
 function secretBuffer(secret) {
   if (Buffer.isBuffer(secret)) return secret;
   if (typeof secret !== "string" || secret.length === 0) throw new TypeError("webhook secret is required");
+  if (secret.startsWith("whsec_")) {
+    const decoded = Buffer.from(secret.slice(6), "base64");
+    if (decoded.length < 16) throw new TypeError("webhook signing secret must decode to at least 128 bits");
+    return decoded;
+  }
   return Buffer.from(secret, "utf8");
 }
 
