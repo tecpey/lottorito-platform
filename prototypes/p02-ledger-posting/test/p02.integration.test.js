@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { Pool } from "pg";
 import { normalizeJournalRequest, postJournal } from "../src/posting.js";
 
@@ -27,8 +28,16 @@ const tenantAPool = new Pool({ connectionString: tenantAUrl, max: 2 });
 const tenantASecondPool = new Pool({ connectionString: tenantAUrl, max: 1 });
 const tenantBPool = new Pool({ connectionString: tenantBUrl, max: 2 });
 
-function request(idempotencyKey, lines, sourceEventId = EVENT_1) {
-  return { idempotency_key: idempotencyKey, source_event_id: sourceEventId, lines };
+function effectIdFor(key) {
+  const chars = createHash("sha256").update(key).digest("hex").slice(0, 32).split("");
+  chars[12] = "4";
+  chars[16] = "8";
+  const hex = chars.join("");
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+}
+
+function request(idempotencyKey, lines, sourceEventId = EVENT_1, effectId = effectIdFor(idempotencyKey)) {
+  return { idempotency_key: idempotencyKey, effect_id: effectId, source_event_id: sourceEventId, lines };
 }
 
 function balancedUsd(amount = "12500", accountDebit = A_USD_CASH, accountCredit = A_USD_CLEARING) {
@@ -118,6 +127,28 @@ test("canonical line ordering makes equivalent retries return the same journal",
   assert.equal(first.journal_id, second.journal_id);
   assert.equal(first.duplicate, false);
   assert.equal(second.duplicate, true);
+});
+
+test("a repeated financial effect with a different request key returns the original journal", async () => {
+  const effectId = effectIdFor("p02-effect-original");
+  const first = await postJournal(tenantAPool, request("p02-effect-original", balancedUsd("808"), EVENT_1, effectId));
+  const retry = await postJournal(tenantAPool, request("p02-effect-new-transport-key", balancedUsd("808"), EVENT_1, effectId));
+  assert.equal(retry.journal_id, first.journal_id);
+  assert.equal(first.duplicate, false);
+  assert.equal(retry.duplicate, true);
+  assert.equal(await journalCount(TENANT_A, "p02-effect-original"), 1);
+  assert.equal(await journalCount(TENANT_A, "p02-effect-new-transport-key"), 0);
+});
+
+test("a financial effect identity cannot be reused for changed economic content", async () => {
+  const effectId = effectIdFor("p02-effect-mismatch");
+  await postJournal(tenantAPool, request("p02-effect-mismatch-a", balancedUsd("901"), EVENT_1, effectId));
+  await assert.rejects(
+    postJournal(tenantAPool, request("p02-effect-mismatch-b", balancedUsd("902"), EVENT_1, effectId)),
+    (error) => error.code === "22023" && error.message.includes("different request content")
+  );
+  assert.equal(await journalCount(TENANT_A, "p02-effect-mismatch-a"), 1);
+  assert.equal(await journalCount(TENANT_A, "p02-effect-mismatch-b"), 0);
 });
 
 test("the same idempotency key with different intent is rejected", async () => {
@@ -289,8 +320,8 @@ test("outbox insertion failure rolls back the idempotency row and journal atomic
 test("database identity must map to a tenant before posting", async () => {
   await assert.rejects(
     adminPool.query(
-      "SELECT * FROM public.post_journal($1, $2, $3::jsonb)",
-      ["p02-unmapped-001", EVENT_1, JSON.stringify(balancedUsd("10"))]
+      "SELECT * FROM public.post_journal($1, $2, $3, $4::jsonb)",
+      ["p02-unmapped-001", effectIdFor("p02-unmapped-001"), EVENT_1, JSON.stringify(balancedUsd("10"))]
     ),
     (error) => error.code === "42501" && error.message.includes("not mapped to a tenant")
   );
@@ -318,7 +349,7 @@ test("database-side validation rejects extra fields and fractional amount string
     { line_no: 2, account_id: A_USD_CLEARING, currency_code: "USD", direction: "credit", amount_minor: "10", tenant_id: TENANT_B }
   ];
   await assert.rejects(
-    tenantAPool.query("SELECT * FROM public.post_journal($1, $2, $3::jsonb)", ["p02-db-extra-001", EVENT_1, JSON.stringify(extra)]),
+    tenantAPool.query("SELECT * FROM public.post_journal($1, $2, $3, $4::jsonb)", ["p02-db-extra-001", effectIdFor("p02-db-extra-001"), EVENT_1, JSON.stringify(extra)]),
     (error) => error.code === "22023" && error.message.includes("fields are invalid")
   );
   const fractionalLineNumber = [
@@ -326,7 +357,7 @@ test("database-side validation rejects extra fields and fractional amount string
     { line_no: 2, account_id: A_USD_CLEARING, currency_code: "USD", direction: "credit", amount_minor: "10" }
   ];
   await assert.rejects(
-    tenantAPool.query("SELECT * FROM public.post_journal($1, $2, $3::jsonb)", ["p02-db-line-number-001", EVENT_1, JSON.stringify(fractionalLineNumber)]),
+    tenantAPool.query("SELECT * FROM public.post_journal($1, $2, $3::jsonb)", ["p02-db-line-number-001", effectIdFor("p02-db-line-number-001"), EVENT_1, JSON.stringify(fractionalLineNumber)]),
     (error) => error.code === "22023" && error.message.includes("line numbers must be positive integers")
   );
     const fractional = [
@@ -334,7 +365,7 @@ test("database-side validation rejects extra fields and fractional amount string
     { line_no: 2, account_id: A_USD_CLEARING, currency_code: "USD", direction: "credit", amount_minor: "10.5" }
   ];
   await assert.rejects(
-    tenantAPool.query("SELECT * FROM public.post_journal($1, $2, $3::jsonb)", ["p02-db-fraction-001", EVENT_1, JSON.stringify(fractional)]),
+    tenantAPool.query("SELECT * FROM public.post_journal($1, $2, $3::jsonb)", ["p02-db-fraction-001", effectIdFor("p02-db-fraction-001"), EVENT_1, JSON.stringify(fractional)]),
     (error) => error.code === "22023" && error.message.includes("values are invalid")
   );
 });
