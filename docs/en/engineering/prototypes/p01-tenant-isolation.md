@@ -27,6 +27,7 @@ It is not a production service, authentication implementation, complete P-01 pas
 | P01-HTTP-04 | Same object UUID in two tenants | Each tenant sees only its own row |
 | P01-HTTP-05 | Conflicting tenant ID in write body | 403; no write side effect |
 | P01-HTTP-06 | Write without caller tenant ID | Server assigns authenticated tenant |
+| P01-HTTP-07 | Revoke a tenant membership, then issue a new request | Revoked subject is denied; another tenant remains unaffected |
 | P01-DB-01 | Alternate A/B/A through pool size 1 | No cross-request context leakage |
 | P01-DB-02 | Inspect runtime role, table flags and policy composition | Not superuser, owner or BYPASSRLS; RLS and FORCE RLS enabled; tenant guard is RESTRICTIVE so future permissive policies cannot widen it |
 | P01-DB-03 | Query/insert without tenant context | Select sees zero rows; insert denied |
@@ -36,13 +37,14 @@ It is not a production service, authentication implementation, complete P-01 pas
 
 ## Important security interpretation
 
-RLS is defense in depth, not a substitute for authentication, membership authorization or tenant-aware application design. A custom PostgreSQL setting is trusted only because the application controls the database connection and binds the value after authenticating the principal. An explicit red-team test demonstrates that app_runtime itself can set the custom GUC to another tenant and then read that tenant's rows. This is an expected exposure of the shared-role design, not a passing isolation control. Therefore this prototype proves defense against accidental missing tenant predicates and untrusted HTTP tenant hints, but it does NOT prove isolation against arbitrary SQL execution, SQL injection or compromise of the shared application credential. Parameterized SQL, strict query boundaries, least privilege and injection testing remain mandatory. A production threat model must decide whether the shared application process is inside the trusted computing base or whether a stronger database-verifiable tenant identity mechanism is required.
+RLS is defense in depth, not a substitute for authentication, membership authorization or tenant-aware application design. This slice now checks active membership inside the same transaction as tenant data access and locks the membership row FOR SHARE; revocation affects subsequent requests, while a concurrent revocation must serialize with the in-flight transaction. A custom PostgreSQL setting is trusted only because the application controls the database connection and binds the value after authenticating the principal. An explicit red-team test demonstrates that app_runtime itself can set the custom GUC to another tenant and then read that tenant's rows. This is an expected exposure of the shared-role design, not a passing isolation control. Therefore this prototype proves defense against accidental missing tenant predicates and untrusted HTTP tenant hints, but it does NOT prove isolation against arbitrary SQL execution, SQL injection or compromise of the shared application credential. Parameterized SQL, strict query boundaries, least privilege and injection testing remain mandatory. A production threat model must decide whether the shared application process is inside the trusted computing base or whether a stronger database-verifiable tenant identity mechanism is required.
 
 The table owner creates the fixture and owns the table; the application connects only as app_runtime. FORCE ROW LEVEL SECURITY is enabled. A permissive baseline policy is paired with a RESTRICTIVE tenant guard: PostgreSQL combines permissive policies with OR, so the restrictive guard remains ANDed with them and prevents a later broad permissive policy from widening tenant access. PostgreSQL superusers and BYPASSRLS roles can bypass RLS, and table ownership ordinarily bypasses it unless FORCE RLS is enabled. See the official [PostgreSQL 18 row security documentation](https://www.postgresql.org/docs/18/ddl-rowsecurity.html).
 
 ## Explicitly out of scope / not yet proven
 
 - Real authentication, session revocation, MFA, workload identity or production membership storage.
+- Concurrent race testing for membership revocation against an already in-flight request; the request transaction takes a row-level share lock so revocation must serialize behind it, but this race has not been stress-tested.
 - Operator/support/break-glass authorization and audit.
 - Asynchronous queue jobs, retries, scheduled jobs and replay.
 - Cache, object storage, search, exports, analytics and reporting isolation.
