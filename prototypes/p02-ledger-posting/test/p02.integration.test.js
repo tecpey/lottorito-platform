@@ -140,6 +140,24 @@ test("a repeated financial effect with a different request key returns the origi
   assert.equal(await journalCount(TENANT_A, "p02-effect-new-transport-key"), 0);
 });
 
+test("concurrent delivery with different request keys but one financial effect creates one journal", async () => {
+  const effectId = effectIdFor("p02-effect-concurrent");
+  const [left, right] = await Promise.all([
+    postJournal(tenantAPool, request("p02-effect-concurrent-a", balancedUsd("606"), EVENT_1, effectId)),
+    postJournal(tenantASecondPool, request("p02-effect-concurrent-b", balancedUsd("606"), EVENT_1, effectId))
+  ]);
+  assert.equal(left.journal_id, right.journal_id);
+  assert.deepEqual([left.duplicate, right.duplicate].sort(), [false, true]);
+});
+
+test("one source event may produce distinct explicitly identified financial effects", async () => {
+  const first = await postJournal(tenantAPool, request("p02-one-event-effect-a", balancedUsd("41"), EVENT_2));
+  const second = await postJournal(tenantAPool, request("p02-one-event-effect-b", balancedUsd("42"), EVENT_2));
+  assert.notEqual(first.journal_id, second.journal_id);
+  assert.equal(first.duplicate, false);
+  assert.equal(second.duplicate, false);
+});
+
 test("a financial effect identity cannot be reused for changed economic content", async () => {
   const effectId = effectIdFor("p02-effect-mismatch");
   await postJournal(tenantAPool, request("p02-effect-mismatch-a", balancedUsd("901"), EVENT_1, effectId));
@@ -341,6 +359,7 @@ test("the API rejects unsafe amounts and malformed requests before database acce
     { line_no: 1, account_id: A_USD_CLEARING, currency_code: "USD", direction: "credit", amount_minor: "1" }
   ])), TypeError);
   assert.throws(() => normalizeJournalRequest({ ...request("p02-extra-field", balancedUsd()), tenant_id: TENANT_B }), TypeError);
+  assert.throws(() => normalizeJournalRequest({ idempotency_key: "p02-missing-effect", source_event_id: EVENT_1, lines: balancedUsd() }), TypeError);
 });
 
 test("database-side validation rejects extra fields and fractional amount strings", async () => {
