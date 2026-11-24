@@ -1,6 +1,6 @@
 # رجیستری Credential و Connection Pool برای هر Tenant در P-01
 
-**شناسه سند:** LOT-PROT-P01-POOL-001 | **نسخه:** ۰.۱.۰ | **وضعیت:** Prototype ساختگی؛ تأیید CI در انتظار
+**شناسه سند:** LOT-PROT-P01-POOL-001 | **نسخه:** ۰.۲.۰ | **وضعیت:** Prototype ساختگی؛ تأیید CI در انتظار
 
 ## هدف
 
@@ -13,10 +13,12 @@
 - هویت Tenant پیش از Credential Lookup اعتبارسنجی و Canonicalize می‌شود.
 - Resolve کردن Credential از طریق Provider تابعی سمت سرور انجام می‌شود؛ ورودی Caller هرگز Connection String یا Database Role را تعیین نمی‌کند.
 - Credential Lookup و Pool Creation برای درخواست‌های هم‌زمان یک Tenant، Coalesce می‌شوند.
+- پیش از انتشار یا اعطای Lease، Pool تازه‌ساخته‌شده یک Query ثابت هویت اجرا می‌کند و تطابق `private.current_tenant_id()` با Tenant درخواستی را بررسی می‌کند؛ Credential نامنطبق رد و Pool آن بسته می‌شود.
 - هر Pool حداکثر تعداد Connection مشخص دارد؛ خود Registry نیز حداکثر تعداد Poolهای Tenant را محدود می‌کند.
 - در زمان پرشدن ظرفیت، فقط Pool بیکار با کمترین زمان استفاده اخیر قابل Evict است. اگر همه Poolها فعال باشند، Acquisition با خطای ظرفیت نوع‌دار و به‌صورت Fail-closed رد می‌شود.
 - Poolهای بیکار پس از TTL از طریق Sweep قطعی قابل Evict هستند.
-- لغو Tenant فوراً Lease جدید را رد می‌کند و پیش از بستن Pool، اجازه می‌دهد Lease فعال پایان یابد.
+- لغو Tenant فوراً Lease جدید را رد می‌کند و پیش از بستن Pool، Leaseهای فعال و Leaseهای رزروشده را تخلیه می‌کند.
+- Shutdown رجیستری Idempotent است و تا پایان تمام Leaseهای فعال منتظر می‌ماند.
 - خطاهای Credential Resolution و Pool Creation پاک‌سازی می‌شوند؛ Connection String در پیام خطا برگردانده نمی‌شود.
 - تست یکپارچه‌سازی از Credentialهای واقعیِ ساختگی PostgreSQL برای LOGIN مستقل هر Tenant استفاده می‌کند و session_user و private.current_tenant_id() را بررسی می‌کند.
 
