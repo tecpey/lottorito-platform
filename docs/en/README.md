@@ -1,6 +1,6 @@
 # Lottorito — English Documentation
 
-**Document ID:** LOT-DOC-INDEX-EN-001 | **Version:** 2.5.0 | **Status:** Maintained index
+**Document ID:** LOT-DOC-INDEX-EN-001 | **Version:** 2.6.0 | **Status:** Maintained index
 
 This directory is the authoritative English documentation space for Lottorito. The Persian documentation under docs/fa/ is equally authoritative.
 
@@ -81,3 +81,8 @@ Every meaningful change under docs/en/ must be made in the same branch and pull 
 ## Governance
 
 Read repository-root [AGENTS.md](../../AGENTS.md). Use a working branch and pull request. Do not merge, deploy, change repository settings or perform destructive operations without explicit owner authorization.
+
+
+## Proposed prototype plans
+
+- [P-02 — Tenant Credential Broker and Connection-Pool Scaling](engineering/prototypes/p02-credential-broker-pooling.md) — LOT-PROT-P02-001; proposed research/experiment plan only; no implementation or provider selection.
