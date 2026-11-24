@@ -893,7 +893,11 @@ test("tenant pool registry coalesces concurrent creation and applies a bounded c
   let credentialCalls = 0;
   let poolCalls = 0;
   let createdOptions;
-  const fakePool = { async end() { this.ended = true; }, ended: false };
+  const fakePool = {
+    async query() { return { rowCount: 1, rows: [{ tenant_id: TENANT_A }] }; },
+    async end() { this.ended = true; },
+    ended: false
+  };
   const registry = new TenantPoolRegistry({
     maxTenantPools: 2,
     maxConnectionsPerPool: 3,
@@ -933,7 +937,13 @@ test("tenant pool registry evicts only least-recently-used idle pools and enforc
     now: () => now,
     resolveCredential: async (tenantId) => ({ connectionString: "synthetic-" + tenantId, version: "v1" }),
     createPool: async ({ connectionString }) => {
-      const pool = { connectionString, ended: false, async end() { this.ended = true; } };
+      const tenantId = connectionString.slice("synthetic-".length);
+      const pool = {
+        connectionString,
+        ended: false,
+        async query() { return { rowCount: 1, rows: [{ tenant_id: tenantId }] }; },
+        async end() { this.ended = true; }
+      };
       pools.set(connectionString, pool);
       return pool;
     }
@@ -972,7 +982,11 @@ test("tenant pool revocation blocks new leases and drains an active lease before
     maxTenantPools: 1,
     resolveCredential: async () => ({ connectionString: "synthetic-secret", version: "v1" }),
     createPool: async () => {
-      poolInstance = { ended: false, async end() { this.ended = true; } };
+      poolInstance = {
+        ended: false,
+        async query() { return { rowCount: 1, rows: [{ tenant_id: TENANT_A }] }; },
+        async end() { this.ended = true; }
+      };
       return poolInstance;
     }
   });
@@ -1014,7 +1028,11 @@ test("tenant pool registry sanitizes credential failures and evicts pools after 
     now: () => now,
     resolveCredential: async () => ({ connectionString: "synthetic-idle", version: "v1" }),
     createPool: async () => {
-      poolInstance = { ended: false, async end() { this.ended = true; } };
+      poolInstance = {
+        ended: false,
+        async query() { return { rowCount: 1, rows: [{ tenant_id: TENANT_A }] }; },
+        async end() { this.ended = true; }
+      };
       return poolInstance;
     }
   });
@@ -1035,7 +1053,11 @@ test("tenant pool registry shutdown waits for active leases before closing pools
     maxTenantPools: 1,
     resolveCredential: async () => ({ connectionString: "synthetic-shutdown", version: "v1" }),
     createPool: async () => {
-      poolInstance = { ended: false, async end() { this.ended = true; } };
+      poolInstance = {
+        ended: false,
+        async query() { return { rowCount: 1, rows: [{ tenant_id: TENANT_A }] }; },
+        async end() { this.ended = true; }
+      };
       return poolInstance;
     }
   });
@@ -1090,35 +1112,6 @@ test("tenant pool registry rejects invalid tenant input before credential lookup
   await assert.rejects(registry.withTenantPool("tenant-from-request", async () => null), TypeError);
   assert.equal(credentialCalls, 0);
   await registry.close();
-});
-
-test("registry shutdown blocks new leases and closes an active pool after it drains", async () => {
-  let poolInstance;
-  const registry = new TenantPoolRegistry({
-    resolveCredential: async () => ({ connectionString: "synthetic-shutdown" }),
-    createPool: async () => {
-      poolInstance = { ended: false, async end() { this.ended = true; } };
-      return poolInstance;
-    }
-  });
-
-  let release;
-  let ready;
-  const acquired = new Promise((resolve) => { ready = resolve; });
-  const gate = new Promise((resolve) => { release = resolve; });
-  const active = registry.withTenantPool(TENANT_A, async () => {
-    ready();
-    await gate;
-    return "drained";
-  });
-  await acquired;
-  await registry.close();
-  await assert.rejects(registry.withTenantPool(TENANT_A, async () => null), /unavailable/);
-  assert.equal(poolInstance.ended, false);
-  release();
-  assert.equal(await active, "drained");
-  assert.equal(poolInstance.ended, true);
-  assert.equal(registry.size, 0);
 });
 
 test("revocation during pending credential resolution prevents pool publication", async () => {
