@@ -245,12 +245,12 @@ export async function claimNextInboxEvent(pool, {
 }
 
 export async function completeInboxEvent(pool, {
-  tenantId, productId, providerId, eventId, workerId, attemptCount, now = new Date()
+  tenantId, productId, providerId, eventId, workerId, attemptCount, now = null
 }) {
   return withEventTransaction(pool, tenantId, productId, async (client) => {
     const result = await client.query(
       `UPDATE public.provider_event_inbox
-          SET status = 'processed', processed_at = $7,
+          SET status = 'processed', processed_at = COALESCE($7::timestamptz, clock_timestamp()),
               lease_until = NULL, claimed_by = NULL, last_error_code = NULL
         WHERE tenant_id = $1 AND product_id = $2
           AND provider_id = $3 AND provider_event_id = $4
@@ -326,14 +326,14 @@ export async function createOutboundDelivery(pool, {
 }
 
 export async function claimNextOutboundDelivery(pool, {
-  tenantId, productId, workerId, now = new Date(), leaseSeconds = 30
+  tenantId, productId, workerId, now = null, leaseSeconds = 30
 }) {
   return withEventTransaction(pool, tenantId, productId, async (client) => {
     const selected = await client.query(
       `SELECT delivery_id
          FROM public.outbound_webhook_deliveries
-        WHERE (status IN ('pending', 'retry') AND available_at <= $1)
-           OR (status = 'processing' AND lease_until <= $1)
+        WHERE (status IN ('pending', 'retry') AND available_at <= COALESCE($1::timestamptz, clock_timestamp()))
+           OR (status = 'processing' AND lease_until <= COALESCE($1::timestamptz, clock_timestamp()))
         ORDER BY created_at, delivery_id
         LIMIT 1
         FOR UPDATE SKIP LOCKED`,
@@ -345,7 +345,7 @@ export async function claimNextOutboundDelivery(pool, {
       `UPDATE public.outbound_webhook_deliveries
           SET status = 'processing', attempt_count = attempt_count + 1,
               claimed_by = $3,
-              lease_until = $4::timestamptz + ($5::int * interval '1 second')
+              lease_until = COALESCE($4::timestamptz, clock_timestamp()) + ($5::int * interval '1 second')
         WHERE tenant_id = $1 AND product_id = $2 AND delivery_id = $6
         RETURNING delivery_id, endpoint_id, event_id, payload,
                   attempt_count, lease_until`,
@@ -399,7 +399,7 @@ export async function recordOutboundResult(pool, {
       `UPDATE public.outbound_webhook_deliveries
           SET status = $4,
               available_at = CASE WHEN $4 = 'retry' OR $4 = 'dead_letter'
-                THEN $5::timestamptz + ($6::double precision * interval '1 second')
+                THEN COALESCE($5::timestamptz, clock_timestamp()) + ($6::double precision * interval '1 second')
                 ELSE available_at END,
               delivered_at = CASE WHEN $4 = 'delivered' THEN COALESCE($5::timestamptz, clock_timestamp()) ELSE delivered_at END,
               lease_until = NULL, claimed_by = NULL,
