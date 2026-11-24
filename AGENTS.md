@@ -17,7 +17,8 @@ Continue Lottorito from the repository's verified state. Do not restart planning
 - Update both language versions in the same commit or pull request.
 - Preserve semantic parity for amounts, formulas, constraints, statuses, examples, and acceptance criteria.
 - File existence alone does not prove synchronization.
-- Until automated parity CI is implemented and verified, reviewers must manually compare both versions.
+- A structural validator is available at scripts/check_docs.py and is run by .github/workflows/docs-governance.yml. It checks paired Markdown paths, stable/unique IDs and local links; it does not prove semantic translation parity.
+- Reviewers must continue manually comparing both versions for meaning, formulas, amounts, constraints and policy status.
 
 ## Engineering rules
 - Prefer small, reviewable, independently testable changes.
