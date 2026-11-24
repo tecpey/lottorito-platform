@@ -1,6 +1,6 @@
 # وضعیت واقعی پروژه و نقطه ادامه کار
 
-**شناسه:** LOT-OPS-001 | **نسخه:** ۱.۷.۰ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۴
+**شناسه:** LOT-OPS-001 | **نسخه:** ۱.۸.۰ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۴
 
 ## وضعیت تأییدشده مخزن
 - مخزن tecpey/lottorito-platform؛ شاخه پیش‌فرض main؛ سطح دسترسی Public طبق تصمیم مالک.
@@ -40,7 +40,15 @@
 - **LOT-PAYOUT-001:** قرارداد پیشنهادی پرداخت خروجی که برداشت مشتری، پرداخت کمیسیون Affiliate/Agent، پرداخت جایزه Lottery و حرکت خزانه را جدا می‌کند؛ Verification ذی‌نفع، Reservation، Maker-checker، اجرای Provider، نتیجه مبهم، Return و Reconciliation را پوشش می‌دهد؛ Custody، بانکداری، Runtime پرداخت خروجی یا پرداخت پول واقعی تصویب نشده است.
 - **LOT-B2C-PRD-001:** نیازمندی‌های محصول پیشنهادی برای Tenant اختصاصی First-Party B2C با مصرف ماژول‌های مشترک تأییدشده از طریق قراردادهای یکسان؛ شامل گردش مشتری، Gateهای Entitlement/حوزه قضایی، Wallet، Payment، Payout، Chat، پشتیبانی، اعلان، بومی‌سازی، حریم خصوصی، دسترس‌پذیری و ۲۰ سناریوی پذیرش. هیچ Launch یا Runtime اپ B2C ادعا نمی‌شود.
 - **LOT-API-PLATFORM-001:** قرارداد پیشنهادی API Platform و تجربه توسعه‌دهنده که LOT-API-001/LOT-EVENT-001 را با Control/Data Plane، ثبت App/Client، کاتالوگ Entitlement، چرخه Credential، Webhook Subscription، تولید SDK، Developer Portal، Sandbox ایزوله، Metering/Quota و حاکمیت چرخه عمر گسترش می‌دهد. هیچ Gateway، Portal، SDK، Sandbox یا دسترسی API Production ادعا نمی‌شود.
+- **LOT-CUSTOMER-PILOT-001:** محدوده مشتری اولیه RaidenBet به دستور مالک و برنامه پیشنهادی تحویل/پذیرش Advanced Affiliate & Agent به‌همراه Live Chat Widget؛ بازبینی مشتری پیش از اتصال کنترل‌شده API را تعریف می‌کند و قرارداد، API مشتری، Sandbox، پیاده‌سازی یا تأیید Production را اثبات نمی‌کند.
 - **LOT-AFFILIATE-API-001:** فهرست قابلیت API پیشنهادی و مستقل از Provider برای Program، Membership، سلسله‌مراتب، Campaign، Referral Link، Attribution، دریافت Event شریک، Statement کمیسیون و گزارش Affiliate/Agent. تغییرات مالی در دامنه Wallet/Ledger/Payment/Payout باقی می‌مانند؛ هیچ شریک، فرمول تجاری، Endpoint یا اتصالی تصویب نشده است.
+
+## محدوده مشتری اولیه به دستور مالک
+
+- **RaidenBet مشتری اولیه** دقیقاً برای دو ماژول Advanced Affiliate & Agent و Live Chat Widget است. این توضیح مالک، عبارت تاریخی LDR-014 را که RaidenBet را صرفاً شریک احتمالی Affiliate می‌دانست، جایگزین می‌کند؛ مرجع فعلی LDR-045 است.
+- مشتری فقط دو ماژول تأییدشده را دریافت می‌کند، نه کل پلتفرم Lottorito یا Lottery/Casino/Sportsbook/E-Gaming. اسکریپت موجود مشتری تحت کنترل خود او باقی می‌ماند و قرار است پس از بازبینی و تأیید صریح قرارداد تحویل توسط تیم فنی/پشتیبانی، از طریق API نسخه‌بندی‌شده و کنترل‌شده متصل شود.
+- LOT-CUSTOMER-PILOT-001 محدوده مشتری و برنامه پیشنهادی بازبینی، بسته تحویل API/Widget، Sandbox، پذیرش و دروازه Production را ثبت می‌کند. API مشتری، شخصیت حقوقی، حوزه قضایی، Sandbox، Credential، قرارداد تجاری و سازگاری فنی هنوز راستی‌آزمایی نشده‌اند. دسترسی به دیتابیس/کد منبع فرض نشده است.
+- این مورد دستور مالک و خط مبنای برنامه‌ریزی است؛ نه مدرک شرایط تجاری امضاشده، پیاده‌سازی، پذیرش مشتری یا مجوز Production.
 
 ## موارد تأییدنشده
 هیچ پیاده‌سازی برنامه، Schema/Migration فیزیکی، اتصال API Provider، Certification سندباکس، محاسبه/ثبت مالی، پرداخت، تست نفوذ یا Deploy عملیاتی تأیید نشده است. Documentation Governance CI وجود دارد و روی برخی Headهای PR کنترل ساختاری موفق داشته است؛ این کنترل هم‌ارزی معنایی فارسی/انگلیسی، رفتار Runtime، صلاحیت قانونی یا امنیت را اثبات نمی‌کند.
