@@ -6,7 +6,7 @@
 
 **One modular platform. Independent products. Partner-neutral foundations.**
 
-[فارسی](#فارسی) · [English](#english) · [Product vision](#product-vision) · [Architecture](#architecture) · [Project status](#verified-project-status)
+[فارسی](#فارسی) · [English](#english) · [Product vision](docs/en/product/vision-and-prd.md) · [Architecture](docs/en/architecture/system-architecture.md) · [Project status](docs/en/engineering/project-status.md)
 
 </div>
 
