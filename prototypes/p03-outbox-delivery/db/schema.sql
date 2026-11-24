@@ -29,7 +29,7 @@ CREATE TABLE public.outbox_delivery_state(
  attempts integer NOT NULL DEFAULT 0 CHECK(attempts>=0),max_attempts integer NOT NULL DEFAULT 3 CHECK(max_attempts BETWEEN 1 AND 20),
  available_at timestamptz NOT NULL DEFAULT clock_timestamp(),lease_owner text,lease_token uuid,lease_until timestamptz,published_at timestamptz,last_error text,
  PRIMARY KEY(tenant_id,event_id),FOREIGN KEY(tenant_id,event_id) REFERENCES public.outbox_events(tenant_id,event_id),
- CHECK((status='leased')=(lease_owner IS NOT NULL AND lease_token IS NOT NULL AND lease_until IS NOT NULL)),
+ CHECK((status='leased' AND lease_owner IS NOT NULL AND lease_token IS NOT NULL AND lease_until IS NOT NULL) OR (status<>'leased' AND lease_owner IS NULL AND lease_token IS NULL AND lease_until IS NULL)),
  CHECK((status='published')=(published_at IS NOT NULL))
 );
 CREATE INDEX outbox_delivery_claim_idx ON public.outbox_delivery_state(tenant_id,status,available_at,event_id);
