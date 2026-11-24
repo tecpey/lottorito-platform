@@ -1,6 +1,6 @@
 # Lottorito — English Documentation
 
-**Document ID:** LOT-DOC-INDEX-EN-001 | **Version:** 2.5.0 | **Status:** Maintained index
+**Document ID:** LOT-DOC-INDEX-EN-001 | **Version:** 2.6.0 | **Status:** Maintained index
 
 This directory is the authoritative English documentation space for Lottorito. The Persian documentation under docs/fa/ is equally authoritative.
 
@@ -61,7 +61,9 @@ LOT-FIN-POST-001 defines proposed financial posting and reconciliation controls;
 | Engineering | [P-01 tenant isolation experiment](engineering/prototypes/p01-tenant-isolation.md) | LOT-PROT-P01-001; partial HTTP/PostgreSQL RLS and async-job experiment; 20 CI tests passed on the parent PR head; full P-01 remains inconclusive |
 | Engineering | [P-01 support access prototype](engineering/prototypes/p01-support-breakglass.md) | LOT-PROT-P01-SUPPORT-001; scoped, time-bound, read-only support access with append-only audit; 26 CI tests passed on PR #39, synthetic-only and not production-ready |
 | Engineering | [P-01 secondary data-plane isolation](engineering/prototypes/p01-data-plane-isolation.md) | LOT-PROT-P01-DATA-001; cache/object/search/reporting tenant boundaries; 30 CI tests passed on PR #42; synthetic adapters only, provider behavior unverified |
-| Engineering | [P-01 tenant credential and pool broker](engineering/prototypes/p01-tenant-pool-broker.md) | LOT-PROT-P01-POOL-001; trusted tenant credential resolution, bounded pools, DB identity verification, lease-safe eviction/revocation/shutdown; synthetic prototype, CI pending |
+| Engineering | [P-01 tenant credential and pool broker](engineering/prototypes/p01-tenant-pool-broker.md) | LOT-PROT-P01-POOL-001; trusted tenant credentials, bounded pools, DB identity verification, lease-safe eviction/revocation/shutdown; 40 synthetic CI tests passed on PR #45 |
+| Engineering | [P-01 export download grants](engineering/prototypes/p01-export-download-grants.md) | LOT-PROT-P01-EXPORT-001; subject-bound, expiring, one-time download authorization; 38 synthetic CI tests passed; no storage provider or streaming endpoint |
+| Engineering | [P-01 secure export delivery design](engineering/prototypes/p01-export-delivery-design.md) | LOT-PROT-P01-DELIVERY-001; research-backed proxy-streaming vs presigned-URL study; proposal only, no provider or delivery decision approved |
 | Engineering | [Agent operating manual](engineering/agent-operating-manual.md) | Low-context task routing and handoff |
 | Engineering | [Decision register](engineering/decision-register.md) | Owner directions, proposals and unresolved decisions |
 | Engineering | [Project status](engineering/project-status.md) | Verified state and continuation point |
