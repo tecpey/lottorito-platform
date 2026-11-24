@@ -357,7 +357,7 @@ BEGIN
   ) VALUES (
     v_tenant_id, p_idempotency_key, p_effect_id, v_fingerprint, v_new_journal_id
   )
-  ON CONFLICT (tenant_id, idempotency_key) DO NOTHING;
+  ON CONFLICT DO NOTHING;
 
   GET DIAGNOSTICS v_inserted = ROW_COUNT;
   IF v_inserted = 0 THEN
