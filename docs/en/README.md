@@ -1,6 +1,6 @@
 # Lottorito — English Documentation
 
-**Document ID:** LOT-DOC-INDEX-EN-001 | **Version:** 2.3.0 | **Status:** Maintained index
+**Document ID:** LOT-DOC-INDEX-EN-001 | **Version:** 2.4.0 | **Status:** Maintained index
 
 This directory is the authoritative English documentation space for Lottorito. The Persian documentation under docs/fa/ is equally authoritative.
 
@@ -38,6 +38,7 @@ LOT-FIN-POST-001 defines proposed financial posting and reconciliation controls;
 | Finance | [Payout, withdrawal and disbursement contract](finance/payout-withdrawal-contract.md) | LOT-PAYOUT-001; proposed customer withdrawal, commission/prize disbursement, beneficiary verification, approvals, holds, provider execution and reconciliation; no payout authorization |
 | Partners | [Affiliate integration contract](partners/integration-contract.md) | LOT-INT-001; initial partner-event and adapter boundary; actual partner API and sandbox not verified |
 | Partners | [Affiliate & Agent API capability contract](partners/affiliate-agent-api-contract.md) | LOT-AFFILIATE-API-001; proposed program, membership, hierarchy, campaign, referral, attribution, partner-event, commission and reporting API inventory |
+| Partners | [Initial customer pilot & delivery plan](partners/initial-customer-pilot-and-delivery-plan.md) | LOT-CUSTOMER-PILOT-001; owner-directed RaidenBet scope limited to Advanced Affiliate & Agent and Live Chat Widget, with customer review and controlled API handoff gates |
 | Partners | [Lottery provider contract](partners/lottery-provider-contract.md) | Proposed provider-neutral Lottery lifecycle |
 | Partners | [Provider evaluation standard](partners/provider-evaluation-standard.md) | LOT-PROVIDER-EVAL-001; proposed cross-product evidence, RFI, hard gates and decision process |
 | Security | [Security baseline](security/security-baseline.md) | Initial security requirements |
