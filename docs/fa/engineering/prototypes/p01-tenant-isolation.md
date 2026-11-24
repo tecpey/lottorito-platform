@@ -29,7 +29,7 @@
 | P01-HTTP-06 | Write بدون Tenant ID ارسالی کاربر | سرور Tenant احراز هویت‌شده را تخصیص می‌دهد |
 | P01-HTTP-07 | ابطال Membership یک Tenant و ارسال Request جدید | Subject ابطال‌شده رد می‌شود و Tenant دیگر تحت تأثیر قرار نمی‌گیرد |
 | P01-DB-01 | اجرای متناوب A/B/A با Pool تک‌اتصالی | نشت Context بین درخواست‌ها رخ نمی‌دهد |
-| P01-DB-02 | بررسی Role اجرایی، تنظیمات جدول و ترکیب Policyها | نه Superuser، نه مالک جدول و نه BYPASSRLS؛ RLS و FORCE RLS فعال؛ Tenant Guard از نوع RESTRICTIVE است تا Policyهای Permissive بعدی نتوانند دامنه دسترسی را گسترش دهند |
+| P01-DB-02 | بررسی Role اجرایی، تنظیمات جدول، ترکیب Policyها و مجوز Membership | نه Superuser، نه مالک جدول و نه BYPASSRLS؛ RLS و FORCE RLS فعال؛ Tenant Guard از نوع RESTRICTIVE است؛ UPDATE فقط روی lock_version غیرحساس مجاز است و روی active مجاز نیست |
 | P01-DB-03 | Query/Insert بدون Tenant Context | Select هیچ سطری نمی‌بیند؛ Insert رد می‌شود |
 | P01-DB-04 | تلاش برای تغییر app.tenant_id با Role مشترک app_runtime | افشای مورد انتظار: Role می‌تواند Tenant دیگری را اظهار کند؛ اثبات می‌کند GUC/RLS در برابر Credential اجرایی تسخیرشده مرز امنیتی نیست |
 | P01-DB-05 | اجرای UPDATE/DELETE روی شیء اختصاصی Tenant B در Context مربوط به A | هیچ ردیفی تغییر یا حذف نمی‌شود؛ شیء B بدون تغییر باقی می‌ماند |
@@ -45,7 +45,7 @@ RLS یک لایه دفاع در عمق است و جایگزین احراز هو�
 ## موارد خارج از محدوده / هنوز اثبات‌نشده
 
 - احراز هویت واقعی، ابطال Session، MFA، Workload Identity یا ذخیره‌سازی Production عضویت‌ها.
-- آزمون Race هم‌زمانی ابطال Membership با Request در حال اجرا؛ تراکنش Request ردیف Membership را با FOR SHARE قفل می‌کند تا ابطال با آن Serialize شود، اما این Race هنوز تحت بار آزمایش نشده است.
+- آزمون Race هم‌زمانی ابطال Membership با Request در حال اجرا؛ تراکنش Request ردیف Membership را با FOR SHARE قفل می‌کند تا ابطال با آن Serialize شود، اما این Race هنوز تحت بار آزمایش نشده است. PostgreSQL برای SELECT FOR SHARE به مجوز UPDATE روی حداقل یک ستون نیاز دارد؛ Role اجرایی فقط روی ستون غیرحساس lock_version این مجوز را دارد، نه روی Flag مجوزدهی active.
 - مجوزدهی Operator/Support/Break-glass و Audit.
 - Jobهای صف، Retry، Jobهای زمان‌بندی‌شده و Replay.
 - جداسازی Cache، Object Storage، Search، Export، Analytics و Reporting.
@@ -88,7 +88,7 @@ Dependency مستقیم pg در Prototype Pin شده است، اما هنوز np
 
 - LOT-PROT-001 — برنامه Prototype و شواهد معماری.
 - LOT-TECH-ADR-001 — ADR فناوری، استقرار و قابلیت اطمینان.
-- PostgreSQL 18 — [سیاست‌های Row Security](https://www.postgresql.org/docs/18/ddl-rowsecurity.html).
+- PostgreSQL 18 — [سیاست‌های Row Security](https://www.postgresql.org/docs/18/ddl-rowsecurity.html) و [مجوزها](https://www.postgresql.org/docs/18/ddl-priv.html) (الزام مجوز SELECT FOR SHARE).
 - OWASP — [راهنمای امنیت چندمستاجری](https://cheatsheetseries.owasp.org/cheatsheets/Multi_Tenant_Security_Cheat_Sheet.html)، شامل منشأ Tenant Context، Context تراکنش‌محور و انتخاب راهبرد جداسازی.
 - AWS — [انتخاب الگوی دسترسی PostgreSQL مناسب برای SaaS](https://aws.amazon.com/blogs/database/choose-the-right-postgresql-data-access-pattern-for-your-saas-application/)، شامل Trade-off متغیرهای Runtime مشترک و Roleهای دیتابیس مستقل برای هر Tenant.
 - Node.js — [برنامه انتشار و پشتیبانی](https://github.com/nodejs/Release).
