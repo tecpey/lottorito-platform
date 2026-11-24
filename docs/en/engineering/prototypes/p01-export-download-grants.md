@@ -1,6 +1,6 @@
 # P-01 Tenant-Bound Export Download Grants
 
-**Document ID:** LOT-PROT-P01-EXPORT-001 | **Version:** 0.1.0 | **Status:** Synthetic prototype; CI verification pending
+**Document ID:** LOT-PROT-P01-EXPORT-001 | **Version:** 0.2.0 | **Status:** Synthetic prototype; CI verification pending
 
 ## Purpose
 
@@ -11,6 +11,7 @@ This experiment uses synthetic PostgreSQL 18.7 data and the existing Node.js 26 
 ## Implemented contract
 
 - Export identity is composite: `(tenant_id, export_id)`; the object key must begin with that tenant's storage prefix.
+- Grant issuance and redemption both reauthorize the authenticated subject's active tenant membership under a row-level `FOR SHARE` lock.
 - Grant issuance requires a server-resolved tenant, authenticated subject, an export created by that subject and export status `ready`.
 - Tokens contain 256 bits of cryptographically secure randomness and are returned once. PostgreSQL stores only a SHA-256 hash, never the raw token.
 - Grants are bound to tenant, subject and export; expiry is computed by PostgreSQL's clock.
@@ -33,11 +34,12 @@ This experiment uses synthetic PostgreSQL 18.7 data and the existing Node.js 26 
 | P01-EXPORT-08 | Export is revoked after grant issuance | Redemption is denied |
 | P01-EXPORT-09 | Two requests redeem the same token concurrently | Exactly one redemption succeeds |
 | P01-EXPORT-10 | TTL is outside 60–600 seconds or token is malformed | Request fails closed |
+| P01-EXPORT-11 | Subject membership is revoked after grant issuance | New grants and existing grant redemption are denied; membership lock serializes concurrent revocation |
 
 ## Security boundaries and limitations
 
 - This is a download-authorization primitive, not an end-to-end download service. No HTTP streaming endpoint, object-storage adapter, S3 pre-signed URL, CDN, malware/content scanning, range request, download audit trail, quota, rate limit or retention lifecycle is implemented.
-- The application must authenticate the subject independently; the token alone is not sufficient identity proof.
+- The application must authenticate the subject independently; the token alone is not sufficient identity proof. Current tenant membership is checked again at redemption, not only at issuance.
 - The object key must remain server-side. Do not redirect to a public bucket or expose storage credentials.
 - If the application later issues a provider-signed URL, its expiry, revocation semantics, replay window and cache headers need a separate threat model. A provider URL may remain usable after this database grant is consumed.
 - One-time redemption can create a retry dilemma if the client disconnects after consumption but before receiving the file. A production flow must explicitly choose server streaming, a short-lived delivery lease, or an idempotent download-session design.
@@ -46,6 +48,6 @@ This experiment uses synthetic PostgreSQL 18.7 data and the existing Node.js 26 
 
 ## Evidence status
 
-The P-01 Tenant Isolation run [45425122143](https://github.com/tecpey/lottorito-platform/actions/runs/45425122143) passed on code head `097ef0d0f00a5f36dc0d1f8fea33f1934a5a4d70`: 35 tests passed, 0 failed, 0 skipped. Documentation Governance run [45425122209](https://github.com/tecpey/lottorito-platform/actions/runs/45425122209) also passed. Local execution and provider-specific download delivery remain unverified.
+The earlier P-01 Tenant Isolation run [45425122143](https://github.com/tecpey/lottorito-platform/actions/runs/45425122143) passed 35 tests on code head `097ef0d0f00a5f36dc0d1f8fea33f1934a5a4d70`. A membership reauthorization check and regression test were then added; the new CI run is pending. Documentation Governance run [45425122209](https://github.com/tecpey/lottorito-platform/actions/runs/45425122209) passed on the earlier documentation head. Local execution and provider-specific download delivery remain unverified.
 
 Code, schema and synthetic integration scenarios are implemented on a stacked Draft PR. CI and local execution are pending. All fixtures and credentials are synthetic.
