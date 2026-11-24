@@ -260,8 +260,8 @@ BEGIN
 
   IF EXISTS (
     SELECT 1 FROM jsonb_array_elements(p_lines) AS item(value)
-    WHERE jsonb_object_length(value) <> 5
-       OR (value - ARRAY['line_no','account_id','currency_code','direction','amount_minor']::text[]) <> '{}'::jsonb
+    WHERE (value - ARRAY['line_no','account_id','currency_code','direction','amount_minor']::text[]) <> '{}'::jsonb
+       OR NOT (value ?& ARRAY['line_no','account_id','currency_code','direction','amount_minor']::text[])
   ) THEN
     RAISE EXCEPTION 'journal line fields are invalid' USING ERRCODE = '22023';
   END IF;
