@@ -1,6 +1,6 @@
 # رجیستری Credential و Connection Pool برای هر Tenant در P-01
 
-**شناسه سند:** LOT-PROT-P01-POOL-001 | **نسخه:** ۰.۳.۰ | **وضعیت:** Prototype ساختگی؛ ۴۰ تست CI موفق؛ کنترل‌های Production تأییدنشده
+**شناسه سند:** LOT-PROT-P01-POOL-001 | **نسخه:** ۰.۴.۰ | **وضعیت:** Prototype ساختگی؛ ۴۰ تست CI موفق؛ کنترل‌های Production تأییدنشده
 
 ## هدف
 
@@ -46,4 +46,4 @@
 
 ## وضعیت شواهد
 
-اجرای P-01 در PR شماره ۴۵ با شناسه [45424342187](https://github.com/tecpey/lottorito-platform/actions/runs/45424342187) روی Head کد `5a9b18a0a1cd121ff89223fe5829c8975acbfe87` با ۴۰ تست موفق، صفر شکست و صفر Skip همراه بود. اجرای Documentation Governance با شناسه [45424342166](https://github.com/tecpey/lottorito-platform/actions/runs/45424342166) نیز موفق شد. این نتیجه فقط Prototype ساختگی را اعتبارسنجی می‌کند؛ اجرای محلی، مدیریت Secret عملیاتی، چرخش Credential، Quota سراسری Fleet، PgBouncer، سیاست TLS، Failover و مقیاس هنوز تأییدنشده‌اند. هیچ توپولوژی PostgreSQL، Secret Manager، Pooler یا Deploy عملیاتی تصویب نشده است.
+اجرای P-01 در PR شماره ۴۵ با شناسه [45424792886](https://github.com/tecpey/lottorito-platform/actions/runs/45424792886) روی Head کد `153fc8974c9c620acd8d509afdea0341669e5c` با ۴۰ تست موفق، صفر شکست و صفر Skip همراه بود. اجرای Documentation Governance با شناسه [45424793114](https://github.com/tecpey/lottorito-platform/actions/runs/45424793114) نیز موفق شد. این نتیجه فقط Prototype ساختگی را اعتبارسنجی می‌کند؛ اجرای محلی، مدیریت Secret عملیاتی، چرخش Credential، Quota سراسری Fleet، PgBouncer، سیاست TLS، Failover و مقیاس هنوز تأییدنشده‌اند. هیچ توپولوژی PostgreSQL، Secret Manager، Pooler یا Deploy عملیاتی تصویب نشده است.
