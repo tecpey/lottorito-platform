@@ -64,12 +64,14 @@ RLS یک لایه دفاع در عمق است و جایگزین احراز هو�
 docker compose -f compose.yaml up -d --wait
 export ADMIN_DATABASE_URL='postgres://postgres:p01-admin-only-not-production@127.0.0.1:55432/lottorito_p01'
 export DATABASE_URL='postgres://app_runtime:p01-only-not-for-production@127.0.0.1:55432/lottorito_p01'
-npm install --ignore-scripts --no-audit --no-fund
+export DISPATCHER_DATABASE_URL='postgres://job_dispatcher:p01-dispatcher-not-for-production@127.0.0.1:55432/lottorito_p01'
+export JOB_ENVELOPE_SECRET='p01-only-synthetic-envelope-secret-not-production'
+npm ci --ignore-scripts --no-audit --no-fund
 npm test
 docker compose -f compose.yaml down
 ```
 
-Workflow یک سرویس موقت PostgreSQL 18.7 ایجاد می‌کند و فقط از Credentialهای ساختگی استفاده می‌کند. Workflow امکان اجرای دستی نیز دارد. اسکریپت SQL جدول Prototype را حذف و دوباره ایجاد می‌کند؛ هرگز آن را به دیتابیس مشترک، Staging یا Production متصل نکنید.
+Workflow یک سرویس موقت PostgreSQL 18.7 ایجاد می‌کند و فقط از Credentialهای ساختگی استفاده می‌کند. Workflow امکان اجرای دستی نیز دارد. اسکریپت SQL جدول‌های Fixture مربوط به Prototype را حذف و دوباره ایجاد می‌کند و Roleهای ساختگی را Reset می‌کند؛ هرگز آن را به دیتابیس مشترک، Staging یا Production متصل نکنید. Credential مربوط به Dispatcher و کلید Envelope بالا فقط مقادیر آزمایشی ساختگی هستند.
 
 ## محدودیت Dependency و CI
 
