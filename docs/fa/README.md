@@ -1,6 +1,6 @@
 # مستندات فارسی Lottorito
 
-**شناسه سند:** LOT-DOC-INDEX-FA-001 | **نسخه:** ۱.۳.۰ | **وضعیت:** فهرست مرجع و در حال نگهداری
+**شناسه سند:** LOT-DOC-INDEX-FA-001 | **نسخه:** ۱.۴.۰ | **وضعیت:** فهرست مرجع و در حال نگهداری
 
 این پوشه مرجع رسمی مستندات فارسی Lottorito است. مستندات انگلیسی در docs/en/ نیز به همان اندازه معتبرند.
 
@@ -41,7 +41,9 @@ LOT-FIN-POST-001 کنترل‌های پیشنهادی ثبت مالی و تطب�
 | مهندسی | [مشخصات منابع API](engineering/api-resource-specification.md) | LOT-API-001؛ قرارداد API، احراز هویت، خطا، صفحه‌بندی و Webhook |
 | مهندسی | [قرارداد رویداد canonical](engineering/canonical-event-contract.md) | پاکت و معنای تحویل رویداد پیشنهادی |
 | معماری | [استاندارد بومی‌سازی جهانی](architecture/global-localization-standard.md) | LOT-I18N-001؛ ۱۲ زبان عرضه و دروازه کیفیت برابر |
-| معماری | [Live Chat و ارتباط با مشتری](architecture/live-chat-and-communications.md) | LOT-COMMS-001؛ پشتیبانی چندزبانه و تحویل به انسان |\n| معماری | [ماژول چت قابل‌تعبیه](architecture/embeddable-chat-module.md) | LOT-CHAT-WIDGET-001؛ Widget مشترک داخلی و بیرونی، صدور امن Session و قرارداد API |
+| معماری | [Live Chat و ارتباط با مشتری](architecture/live-chat-and-communications.md) | LOT-COMMS-001؛ پشتیبانی چندزبانه و تحویل به انسان |
+| معماری | [ماژول چت قابل‌تعبیه](architecture/embeddable-chat-module.md) | LOT-CHAT-WIDGET-001؛ Widget مشترک داخلی و بیرونی، صدور امن Session و قرارداد API |
+| معماری | [افق دامنه‌های آینده بازی و راهبرد Provider](architecture/future-gaming-domains-and-provider-strategy.md) | LOT-GAMING-STRATEGY-001؛ طبقه‌بندی Sportsbook، Live Casino و E-Gaming، بررسی Provider و دروازه‌های قانونی |
 | معماری | [اتوماسیون رشد و محتوا](architecture/growth-content-automation.md) | LOT-GROWTH-001؛ SEO/GEO/AEO چندزبانه و گردش کانال |
 | معماری | [اعلان هوشمند](architecture/smart-notifications.md) | LOT-NOTIF-001؛ Inbox و تحویل تحت Policy |
 | مهندسی | [برنامه Prototype معماری و شواهد](engineering/architecture-prototype-plan.md) | LOT-PROT-001؛ هشت آزمایش الزامی و شواهد پذیرش |
