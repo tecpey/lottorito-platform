@@ -1,6 +1,6 @@
 # جداسازی Tenant در Data Planeهای ثانویه در P-01
 
-**شناسه سند:** LOT-PROT-P01-DATA-001 | **نسخه:** ۰.۱.۰ | **وضعیت:** Prototype ساختگی؛ تأیید CI در انتظار
+**شناسه سند:** LOT-PROT-P01-DATA-001 | **نسخه:** ۰.۲.۰ | **وضعیت:** Prototype ساختگی؛ ۳۰ تست CI موفق؛ رفتار Provider تأییدنشده
 
 ## هدف
 
@@ -39,4 +39,4 @@
 
 ## وضعیت شواهد
 
-کد و سناریوها در یک Draft PR پشته‌شده پیاده‌سازی شده‌اند. CI، اجرای محلی، رفتار Provider واقعی، عملکرد و بازیابی خطا تا زمان ثبت شواهد مشاهده‌شده تأییدنشده‌اند. هیچ آمادگی Production یا انتخاب Provider ادعا نمی‌شود.
+اجرای [45419828256](https://github.com/tecpey/lottorito-platform/actions/runs/45419828256) روی Head با شناسه `02850c6374dd295ec0df6ba42addf266a2d8a977` موفق شد: ۳۰ تست موفق، صفر شکست و صفر تست Skip‌شده، با Node.js 26.13.0، PostgreSQL 18.7، npm ci و Actionهای Pin‌شده با SHA ثابت. اجرای Documentation Governance با شناسه [45419828218](https://github.com/tecpey/lottorito-platform/actions/runs/45419828218) نیز موفق شد. اجرای محلی، رفتار Provider واقعی، عملکرد و بازیابی خطا هنوز تأییدنشده‌اند. هیچ آمادگی Production یا انتخاب Provider ادعا نمی‌شود.
