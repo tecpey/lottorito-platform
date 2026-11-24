@@ -1132,3 +1132,22 @@ test("revocation during pending credential resolution prevents pool publication"
   assert.equal(registry.size, 0);
   await registry.close();
 });
+
+
+test("tenant pool registry rejects a credential mapped to another tenant", async () => {
+  let closed = false;
+  const registry = new TenantPoolRegistry({
+    resolveCredential: async () => ({ connectionString: "synthetic-wrong-tenant", version: "v1" }),
+    createPool: async () => ({
+      async query() { return { rowCount: 1, rows: [{ tenant_id: TENANT_B }] }; },
+      async end() { closed = true; }
+    })
+  });
+  await assert.rejects(
+    registry.withTenantPool(TENANT_A, async () => "must not run"),
+    (error) => error.message === "tenant database pool identity verification failed"
+  );
+  assert.equal(closed, true);
+  assert.equal(registry.size, 0);
+  await registry.close();
+});
