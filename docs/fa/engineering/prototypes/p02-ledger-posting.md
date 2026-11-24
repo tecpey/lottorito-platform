@@ -1,6 +1,6 @@
 # ثبت سند دوطرفه محدود به Tenant در P-02
 
-**شناسه سند:** LOT-PROT-P02-001 | **نسخه:** ۰.۴.۰ | **وضعیت:** Prototype ساختگی؛ کنترل مالکیت/مجوز و Search Path تابع SECURITY DEFINER اضافه شد؛ CI نهایی در انتظار
+**شناسه سند:** LOT-PROT-P02-001 | **نسخه:** ۰.۵.۰ | **وضعیت:** Prototype ساختگی؛ ۲۵ تست CI موفق؛ سیاست حسابداری و کنترل‌های Production تصویب‌نشده
 
 ## هدف و اعتبار
 
@@ -56,7 +56,7 @@
 
 ## وضعیت شواهد
 
-تمام داده‌ها و Credentialها ساختگی‌اند. اجرای P-02 با شناسه [45428017700](https://github.com/tecpey/lottorito-platform/actions/runs/45428017700) روی Head کد `009ccb5e7066ab4e22fd070d679da4cb8e8f939f` با ۲۰ تست موفق، صفر شکست و صفر Skip همراه بود؛ اجرای Documentation Governance با شناسه [45428017847](https://github.com/tecpey/lottorito-platform/actions/runs/45428017847) نیز موفق شد. این نتیجه فقط ناورداهای دیتابیسی Prototype ساختگی را اثبات می‌کند، نه صحت حسابداری، صلاحیت قانونی، پذیرش مشتری یا آمادگی Production.
+تمام داده‌ها و Credentialها ساختگی‌اند. اجرای P-02 با شناسه [45463594552](https://github.com/tecpey/lottorito-platform/actions/runs/45463594552) روی Head کد `63a5ced2f3611e200a9c681e1a972d77c176c0e4` با ۲۵ تست موفق، صفر شکست و صفر Skip همراه بود؛ اجرای Documentation Governance با شناسه [45463594523](https://github.com/tecpey/lottorito-platform/actions/runs/45463594523) نیز موفق شد. این نتیجه فقط ناورداهای دیتابیسی Prototype ساختگی را اثبات می‌کند، نه صحت حسابداری، صلاحیت قانونی، پذیرش مشتری یا آمادگی Production.
 
 ## مراجع تحقیق
 
