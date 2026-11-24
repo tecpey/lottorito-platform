@@ -43,7 +43,9 @@ jobs:
       DATABASE_URL: postgres://app_runtime:p01-only-not-for-production@127.0.0.1:5432/lottorito_p01
     steps:
       - name: Check out source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - name: Set up Node.js
         uses: actions/setup-node@v7.1.0
         with:
