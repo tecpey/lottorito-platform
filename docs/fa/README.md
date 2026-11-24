@@ -62,7 +62,7 @@ LOT-FIN-POST-001 کنترل‌های پیشنهادی ثبت مالی و تطب�
 | مهندسی | [نمونه دسترسی پشتیبانی در P-01](engineering/prototypes/p01-support-breakglass.md) | LOT-PROT-P01-SUPPORT-001؛ دسترسی پشتیبانی محدود، زمان‌دار و فقط‌خواندنی با Audit فقط‌افزودنی؛ ۲۶ تست CI موفق در PR شماره ۳۹، فقط آزمایش ساختگی و غیرProduction |
 | مهندسی | [جداسازی Data Planeهای ثانویه در P-01](engineering/prototypes/p01-data-plane-isolation.md) | LOT-PROT-P01-DATA-001؛ مرز Tenant در Cache/Object/Search/Reporting؛ ۳۰ تست CI موفق در PR شماره ۴۲؛ فقط Adapterهای ساختگی و رفتار Provider تأییدنشده |
 | مهندسی | [کارگزار اعتبارنامه و Pool اختصاصی Tenant در P-01](engineering/prototypes/p01-tenant-pool-broker.md) | LOT-PROT-P01-POOL-001؛ Resolve امن اعتبارنامه، Pool محدود، بررسی هویت دیتابیس، Eviction و تخلیه ایمن Lease هنگام لغو/Shutdown؛ Prototype ساختگی، CI در انتظار |
-| مهندسی | [ثبت سند دوطرفه محدود به Tenant در P-02](engineering/prototypes/p02-ledger-posting.md) | LOT-PROT-P02-001؛ مبلغ صحیح دقیق، توازن مستقل هر ارز، Journal تغییرناپذیر، ثبت Idempotent و Transactional Outbox؛ Prototype ساختگی، CI در انتظار |
+| مهندسی | [ثبت سند دوطرفه محدود به Tenant در P-02](engineering/prototypes/p02-ledger-posting.md) | LOT-PROT-P02-001؛ مبلغ صحیح دقیق، توازن مستقل هر ارز، Journal تغییرناپذیر، ثبت Idempotent و Transactional Outbox؛ ۲۰ تست CI موفق در PR شماره ۴۶، فقط آزمایش ساختگی |
 | مهندسی | [راهنمای عملیاتی ایجنت‌ها](engineering/agent-operating-manual.md) | مسیریابی کم‌هزینه و تحویل کار |
 | مهندسی | [دفتر ثبت تصمیم‌ها](engineering/decision-register.md) | دستور مالک، پیشنهاد و تصمیم باز |
 | مهندسی | [وضعیت پروژه](engineering/project-status.md) | وضعیت تأییدشده و نقطه ادامه |
