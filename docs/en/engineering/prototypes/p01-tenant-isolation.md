@@ -64,12 +64,14 @@ From this directory, start the disposable local database:
 docker compose -f compose.yaml up -d --wait
 export ADMIN_DATABASE_URL='postgres://postgres:p01-admin-only-not-production@127.0.0.1:55432/lottorito_p01'
 export DATABASE_URL='postgres://app_runtime:p01-only-not-for-production@127.0.0.1:55432/lottorito_p01'
-npm install --ignore-scripts --no-audit --no-fund
+export DISPATCHER_DATABASE_URL='postgres://job_dispatcher:p01-dispatcher-not-for-production@127.0.0.1:55432/lottorito_p01'
+export JOB_ENVELOPE_SECRET='p01-only-synthetic-envelope-secret-not-production'
+npm ci --ignore-scripts --no-audit --no-fund
 npm test
 docker compose -f compose.yaml down
 ```
 
-The workflow provisions an ephemeral PostgreSQL 18.7 service and uses synthetic credentials only. The workflow also exposes a manual-dispatch trigger. The SQL setup drops and recreates the prototype table; never point it at a shared, staging or production database.
+The workflow provisions an ephemeral PostgreSQL 18.7 service and uses synthetic credentials only. The workflow also exposes a manual-dispatch trigger. The SQL setup drops and recreates the prototype fixture tables and resets synthetic roles; never point it at a shared, staging or production database. The dispatcher credential and envelope key above are synthetic test values only.
 
 ## Dependency and CI limitations
 
