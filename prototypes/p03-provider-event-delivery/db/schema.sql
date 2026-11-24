@@ -154,9 +154,15 @@ SELECT e.tenant_id, e.product_id, e.provider_id, e.provider_event_id,
     OR i.status NOT IN ('processed');
 
 GRANT USAGE ON SCHEMA public TO event_runtime;
-GRANT SELECT, INSERT, UPDATE ON public.provider_event_inbox TO event_runtime;
+GRANT SELECT, INSERT ON public.provider_event_inbox TO event_runtime;
+GRANT UPDATE (status, attempt_count, available_at, lease_until, claimed_by, last_error_code, processed_at)
+  ON public.provider_event_inbox TO event_runtime;
 GRANT SELECT, INSERT ON public.provider_event_conflicts TO event_runtime;
 GRANT SELECT ON public.provider_event_expectations TO event_runtime;
-GRANT SELECT, INSERT, UPDATE ON public.outbound_webhook_deliveries TO event_runtime;
-GRANT SELECT, INSERT, UPDATE ON public.webhook_delivery_attempts TO event_runtime;
+GRANT SELECT, INSERT ON public.outbound_webhook_deliveries TO event_runtime;
+GRANT UPDATE (status, attempt_count, available_at, lease_until, claimed_by, last_http_status, last_error_code, delivered_at)
+  ON public.outbound_webhook_deliveries TO event_runtime;
+GRANT SELECT, INSERT ON public.webhook_delivery_attempts TO event_runtime;
+GRANT UPDATE (finished_at, outcome, http_status, error_code)
+  ON public.webhook_delivery_attempts TO event_runtime;
 GRANT SELECT ON public.provider_event_reconciliation TO event_runtime;
