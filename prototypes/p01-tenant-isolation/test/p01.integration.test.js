@@ -35,7 +35,7 @@ const { privateKey: jobSigningPrivateKeyObject, publicKey: jobVerifyPublicKeyObj
 const jobSigningPrivateKey = jobSigningPrivateKeyObject.export({ type: "pkcs8", format: "pem" });
 const jobVerifyPublicKey = jobVerifyPublicKeyObject.export({ type: "spki", format: "pem" });
 
-const adminPool = new Pool({ connectionString: adminDatabaseUrl, max: 1 });
+const adminPool = new Pool({ connectionString: adminDatabaseUrl, max: 2 });
 const adminObserverPool = new Pool({ connectionString: adminDatabaseUrl, max: 1 });
 const dispatcherPool = new Pool({ connectionString: dispatcherDatabaseUrl, max: 1 });
 const dispatcherPool2 = new Pool({ connectionString: dispatcherDatabaseUrl, max: 1 });
