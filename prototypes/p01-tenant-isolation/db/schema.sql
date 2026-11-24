@@ -163,12 +163,8 @@ CREATE POLICY tenant_memberships_app_access
   AS PERMISSIVE
   FOR ALL
   TO app_runtime
-  USING (
-    support_subject_id = NULLIF(current_setting('app.support_subject_id', true), '')
-  )
-  WITH CHECK (
-    support_subject_id = NULLIF(current_setting('app.support_subject_id', true), '')
-  );
+  USING (true)
+  WITH CHECK (true);
 
 CREATE POLICY tenant_memberships_tenant_guard
   ON public.tenant_memberships
@@ -220,8 +216,12 @@ CREATE POLICY support_grants_authorizer_lock
   AS PERMISSIVE
   FOR UPDATE
   TO support_authorizer
-  USING (true)
-  WITH CHECK (true);
+  USING (
+    support_subject_id = NULLIF(current_setting('app.support_subject_id', true), '')
+  )
+  WITH CHECK (
+    support_subject_id = NULLIF(current_setting('app.support_subject_id', true), '')
+  );
 
 CREATE TABLE public.support_audit (
   audit_id uuid PRIMARY KEY,
@@ -243,7 +243,9 @@ CREATE POLICY support_audit_authorizer_insert
   AS PERMISSIVE
   FOR INSERT
   TO support_authorizer
-  WITH CHECK (true);
+  WITH CHECK (
+    support_subject_id = NULLIF(current_setting('app.support_subject_id', true), '')
+  );
 
 CREATE TABLE public.tenant_jobs (
   tenant_id uuid NOT NULL,
