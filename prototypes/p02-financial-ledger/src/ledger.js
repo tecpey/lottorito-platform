@@ -82,6 +82,19 @@ export async function postLedgerEffect(pool, input) {
     await client.query("SELECT set_config('app.tenant_id', $1, true)", [input.tenant_id]);
     await client.query("SELECT set_config('app.product_id', $1, true)", [input.product_id]);
 
+    const sourceEvent = await client.query(
+      `SELECT source_event_id
+         FROM public.source_events
+        WHERE tenant_id = $1 AND product_id = $2
+          AND source_event_id = $3 AND effect_key = $4`,
+      [input.tenant_id, input.product_id, input.source_event_id, input.effect_key]
+    );
+    if (sourceEvent.rowCount !== 1) {
+      throw Object.assign(new Error("source financial event was not found in this tenant/product scope"), {
+        code: "P02_SOURCE_EVENT_NOT_FOUND"
+      });
+    }
+
     await client.query(
       `INSERT INTO public.journal_transactions
         (tenant_id, product_id, journal_id, source_event_id, effect_type,
