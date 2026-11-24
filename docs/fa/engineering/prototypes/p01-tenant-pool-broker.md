@@ -1,6 +1,6 @@
 # رجیستری Credential و Connection Pool برای هر Tenant در P-01
 
-**شناسه سند:** LOT-PROT-P01-POOL-001 | **نسخه:** ۰.۲.۰ | **وضعیت:** Prototype ساختگی؛ تأیید CI در انتظار
+**شناسه سند:** LOT-PROT-P01-POOL-001 | **نسخه:** ۰.۳.۰ | **وضعیت:** Prototype ساختگی؛ ۴۰ تست CI موفق؛ کنترل‌های Production تأییدنشده
 
 ## هدف
 
@@ -46,4 +46,4 @@
 
 ## وضعیت شواهد
 
-پیاده‌سازی و تست‌های ساختگی در یک Draft PR پشته‌شده قرار دارند. CI و اجرای محلی تا زمان ثبت شواهد مشاهده‌شده تأییدنشده‌اند. این آزمایش هیچ توپولوژی PostgreSQL، Secret Manager، Pooler یا Deploy عملیاتی را تصویب نمی‌کند.
+اجرای P-01 در PR شماره ۴۵ با شناسه [45424342187](https://github.com/tecpey/lottorito-platform/actions/runs/45424342187) روی Head کد `5a9b18a0a1cd121ff89223fe5829c8975acbfe87` با ۴۰ تست موفق، صفر شکست و صفر Skip همراه بود. اجرای Documentation Governance با شناسه [45424342166](https://github.com/tecpey/lottorito-platform/actions/runs/45424342166) نیز موفق شد. این نتیجه فقط Prototype ساختگی را اعتبارسنجی می‌کند؛ اجرای محلی، مدیریت Secret عملیاتی، چرخش Credential، Quota سراسری Fleet، PgBouncer، سیاست TLS، Failover و مقیاس هنوز تأییدنشده‌اند. هیچ توپولوژی PostgreSQL، Secret Manager، Pooler یا Deploy عملیاتی تصویب نشده است.
