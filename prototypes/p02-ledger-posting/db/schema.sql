@@ -130,8 +130,9 @@ CREATE TABLE public.ledger_outbox (
 
 CREATE INDEX ledger_outbox_tenant_created_idx
 
-REVOKE CREATE ON SCHEMA public FROM PUBLIC;
   ON public.ledger_outbox (tenant_id, created_at);
+
+REVOKE CREATE ON SCHEMA public FROM PUBLIC;
 
 GRANT USAGE, CREATE ON SCHEMA public TO ledger_owner, ledger_executor;
 
