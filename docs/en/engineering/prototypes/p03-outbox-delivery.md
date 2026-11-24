@@ -56,7 +56,7 @@ The Compose database is disposable. Do not point these scripts at shared, stagin
 
 ## Result record
 
-CI is pending for PR #50. Do not mark any scenario as passed until the workflow logs are inspected. This prototype does not establish production readiness or financial/accounting correctness.
+P-03 run [45467906405](https://github.com/tecpey/lottorito-platform/actions/runs/45467906405) passed all 10 integration tests (0 failed, 0 skipped) on code head `aa8b8bb6d06547fdf177b0f637f325d8a31d29f5`; Documentation Governance run [45467914998](https://github.com/tecpey/lottorito-platform/actions/runs/45467914998) passed on the same head. The later six commits through the current documentation head change only bilingual reports, indexes and status records; no prototype source or test files changed. A new workflow run for the documentation head is queued. This prototype does not establish production readiness or financial/accounting correctness.
 
 ## References
 
