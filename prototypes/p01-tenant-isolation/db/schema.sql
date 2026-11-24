@@ -94,6 +94,8 @@ DROP TABLE IF EXISTS public.support_audit;
 DROP TABLE IF EXISTS public.support_grants;
 DROP TABLE IF EXISTS public.job_dispatch;
 DROP TABLE IF EXISTS public.tenant_jobs;
+DROP TABLE IF EXISTS public.export_download_grants;
+DROP TABLE IF EXISTS public.tenant_exports;
 DROP TABLE IF EXISTS public.tenant_reports;
 DROP TABLE IF EXISTS public.tenant_records;
 DROP TABLE IF EXISTS public.tenant_memberships;
@@ -332,6 +334,48 @@ CREATE POLICY tenant_records_identity_guard
 -- Reporting is a separate read boundary, not implicitly trusted because the
 -- source tables are tenant-scoped. Both shared-role and identity-bound models
 -- must enforce tenant ownership at the report table itself.
+-- Export metadata and one-time download grants are tenant-scoped independently.
+-- Raw bearer tokens are never stored; only SHA-256 token hashes are persisted.
+CREATE TABLE public.tenant_exports (
+  tenant_id uuid NOT NULL,
+  export_id uuid NOT NULL,
+  created_by text NOT NULL,
+  object_key text NOT NULL,
+  content_sha256 text NOT NULL CHECK (content_sha256 ~ '^[0-9a-f]{64}$'),
+  status text NOT NULL CHECK (status IN ('ready', 'revoked', 'deleted')),
+  lock_version bigint NOT NULL DEFAULT 0,
+  created_at timestamptz NOT NULL DEFAULT clock_timestamp(),
+  PRIMARY KEY (tenant_id, export_id),
+  CHECK (object_key ~ ('^tenants/' || tenant_id::text || '/exports/[A-Za-z0-9][A-Za-z0-9._-]{0,180}' || chr(36))),
+  CHECK (length(object_key) <= 512)
+);
+
+ALTER TABLE public.tenant_exports ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.tenant_exports FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_exports_app_access ON public.tenant_exports AS PERMISSIVE FOR ALL TO app_runtime USING (true) WITH CHECK (true);
+CREATE POLICY tenant_exports_app_tenant_guard ON public.tenant_exports AS RESTRICTIVE FOR ALL TO app_runtime USING (tenant_id = NULLIF(current_setting('app.tenant_id', true), '')::uuid) WITH CHECK (tenant_id = NULLIF(current_setting('app.tenant_id', true), '')::uuid);
+CREATE POLICY tenant_exports_identity_guard ON public.tenant_exports AS PERMISSIVE FOR SELECT TO tenant_a_runtime, tenant_b_runtime USING (tenant_id = private.current_tenant_id());
+
+CREATE TABLE public.export_download_grants (
+  grant_id uuid PRIMARY KEY,
+  tenant_id uuid NOT NULL,
+  export_id uuid NOT NULL,
+  subject_id text NOT NULL,
+  token_hash bytea NOT NULL CHECK (octet_length(token_hash) = 32),
+  expires_at timestamptz NOT NULL,
+  consumed_at timestamptz,
+  revoked_at timestamptz,
+  created_at timestamptz NOT NULL DEFAULT clock_timestamp(),
+  FOREIGN KEY (tenant_id, export_id) REFERENCES public.tenant_exports (tenant_id, export_id),
+  UNIQUE (tenant_id, token_hash)
+);
+
+ALTER TABLE public.export_download_grants ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.export_download_grants FORCE ROW LEVEL SECURITY;
+CREATE POLICY export_download_grants_app_access ON public.export_download_grants AS PERMISSIVE FOR ALL TO app_runtime USING (true) WITH CHECK (true);
+CREATE POLICY export_download_grants_app_tenant_guard ON public.export_download_grants AS RESTRICTIVE FOR ALL TO app_runtime USING (tenant_id = NULLIF(current_setting('app.tenant_id', true), '')::uuid) WITH CHECK (tenant_id = NULLIF(current_setting('app.tenant_id', true), '')::uuid);
+CREATE POLICY export_download_grants_identity_guard ON public.export_download_grants AS PERMISSIVE FOR SELECT TO tenant_a_runtime, tenant_b_runtime USING (tenant_id = private.current_tenant_id());
+
 CREATE TABLE public.tenant_reports (
   tenant_id uuid NOT NULL,
   report_id uuid NOT NULL,
@@ -342,7 +386,6 @@ CREATE TABLE public.tenant_reports (
   CHECK (length(report_key) BETWEEN 1 AND 80),
   CHECK (length(payload) <= 2000)
 );
-
 ALTER TABLE public.tenant_reports ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.tenant_reports FORCE ROW LEVEL SECURITY;
 
@@ -376,6 +419,10 @@ GRANT USAGE ON SCHEMA public TO app_runtime;
 GRANT USAGE ON SCHEMA public TO job_dispatcher;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.tenant_records TO app_runtime;
 GRANT SELECT ON public.tenant_reports TO app_runtime, tenant_a_runtime, tenant_b_runtime;
+GRANT SELECT ON public.tenant_exports TO app_runtime, tenant_a_runtime, tenant_b_runtime;
+GRANT UPDATE (lock_version) ON public.tenant_exports TO app_runtime;
+GRANT SELECT, INSERT ON public.export_download_grants TO app_runtime;
+GRANT UPDATE (consumed_at) ON public.export_download_grants TO app_runtime;
 GRANT SELECT ON public.tenant_memberships TO app_runtime;
 -- PostgreSQL requires UPDATE on at least one column for SELECT ... FOR SHARE.
 -- Grant only the inert lock_version column, never the active authorization flag.
@@ -424,3 +471,4 @@ INSERT INTO public.tenant_records (tenant_id, record_id, natural_key, payload) V
   ('11111111-1111-4111-8111-111111111111',
    'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
    'tenant-a-private', 'tenant A private fixture');
+
