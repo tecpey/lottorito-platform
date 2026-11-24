@@ -26,6 +26,7 @@ CREATE POLICY p04_lines_tenant ON public.ledger_lines USING(tenant_id=private.cu
 CREATE TABLE public.reporting_daily(tenant_id uuid NOT NULL,report_day date NOT NULL,event_count bigint NOT NULL);
 ALTER TABLE public.reporting_daily ENABLE ROW LEVEL SECURITY; ALTER TABLE public.reporting_daily FORCE ROW LEVEL SECURITY;
 CREATE POLICY p04_reporting_tenant ON public.reporting_daily USING(tenant_id=private.current_tenant_id());
+GRANT USAGE ON SCHEMA private TO p04_tenant_a_v1,p04_tenant_a_v2,p04_tenant_b_v1,p04_tenant_b_v2;
 GRANT USAGE ON SCHEMA public TO p04_tenant_a_v1,p04_tenant_a_v2,p04_tenant_b_v1,p04_tenant_b_v2;
 GRANT EXECUTE ON FUNCTION private.current_tenant_id() TO p04_tenant_a_v1,p04_tenant_a_v2,p04_tenant_b_v1,p04_tenant_b_v2;
 GRANT SELECT,INSERT,UPDATE ON public.partner_events TO p04_tenant_a_v1,p04_tenant_a_v2,p04_tenant_b_v1,p04_tenant_b_v2;
