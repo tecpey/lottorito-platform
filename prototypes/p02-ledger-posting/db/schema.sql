@@ -200,6 +200,8 @@ CREATE POLICY ledger_outbox_executor_tenant
 GRANT USAGE ON SCHEMA public TO ledger_executor, tenant_a_ledger_runtime, tenant_b_ledger_runtime;
 GRANT SELECT ON public.ledger_accounts TO ledger_executor;
 GRANT SELECT, INSERT ON public.posting_requests TO ledger_executor;
+-- Required for SELECT ... FOR UPDATE idempotency serialization; the immutability trigger still rejects UPDATE.
+GRANT UPDATE (journal_id) ON public.posting_requests TO ledger_executor;
 GRANT SELECT, INSERT ON public.ledger_journals TO ledger_executor;
 GRANT SELECT, INSERT ON public.ledger_lines TO ledger_executor;
 GRANT SELECT, INSERT ON public.ledger_outbox TO ledger_executor;
