@@ -29,6 +29,7 @@ const jobVerifyPublicKey = jobVerifyPublicKeyObject.export({ type: "spki", forma
 
 const adminPool = new Pool({ connectionString: adminDatabaseUrl, max: 1 });
 const dispatcherPool = new Pool({ connectionString: dispatcherDatabaseUrl, max: 1 });
+const dispatcherPool2 = new Pool({ connectionString: dispatcherDatabaseUrl, max: 1 });
 const pool = new Pool({
   connectionString: databaseUrl,
   max: 1,
@@ -60,6 +61,7 @@ after(async () => {
   await pool.end();
   await adminPool.end();
   await dispatcherPool.end();
+  await dispatcherPool2.end();
 });
 
 test("missing and invalid synthetic credentials cannot access tenant data", async () => {
@@ -109,9 +111,17 @@ test("async jobs preserve signed tenant context, retry safely and expose no payl
   assert.equal(dispatcherRole.rows[0].rolsuper, false);
   assert.equal(dispatcherRole.rows[0].rolbypassrls, false);
 
-  const firstAttempt = await claimNextJob(dispatcherPool, jobSigningPrivateKey, { leaseSeconds: 30 });
-  const retryAttempt = await claimNextJob(dispatcherPool, jobSigningPrivateKey, { leaseSeconds: 0 });
+  const [claimOne, claimTwo] = await Promise.all([
+    claimNextJob(dispatcherPool, jobSigningPrivateKey, { leaseSeconds: 30 }),
+    claimNextJob(dispatcherPool2, jobSigningPrivateKey, { leaseSeconds: 30 })
+  ]);
+  assert.notEqual(claimOne.job_id, claimTwo.job_id);
+  const firstAttempt = [claimOne, claimTwo].find((item) => item.tenant_id === TENANT_A);
+  const bAttempt = [claimOne, claimTwo].find((item) => item.tenant_id === TENANT_B);
   assert.equal(firstAttempt.job_id, jobA);
+  assert.equal(bAttempt.job_id, jobB);
+
+  const retryAttempt = await claimNextJob(dispatcherPool, jobSigningPrivateKey, { leaseSeconds: 0 });
   assert.equal(retryAttempt.job_id, jobA);
   assert.equal(retryAttempt.attempt, 2);
 
@@ -124,8 +134,6 @@ test("async jobs preserve signed tenant context, retry safely and expose no payl
   assert.equal(await acknowledgeJob(dispatcherPool, firstAttempt, jobVerifyPublicKey), false);
   assert.equal(await acknowledgeJob(dispatcherPool, retryAttempt, jobVerifyPublicKey), true);
 
-  const bAttempt = await claimNextJob(dispatcherPool, jobSigningPrivateKey);
-  assert.equal(bAttempt.job_id, jobB);
   assert.equal((await processTenantJob(pool, bAttempt, jobVerifyPublicKey)).status, "completed");
   assert.equal(await acknowledgeJob(dispatcherPool, bAttempt, jobVerifyPublicKey), true);
   assert.equal(await claimNextJob(dispatcherPool, jobSigningPrivateKey), null);
@@ -134,6 +142,28 @@ test("async jobs preserve signed tenant context, retry safely and expose no payl
     client.query("SELECT job_id FROM public.tenant_jobs WHERE job_id = $1", [jobB])
   );
   assert.equal(aCannotReadB.rowCount, 0);
+});
+
+test("job and dispatch outbox writes roll back atomically", async () => {
+  const orphanJobId = "dddddddd-dddd-4ddd-8ddd-dddddddddddd";
+  await assert.rejects(
+    withTenantTransaction(pool, TENANT_A, async (client) => {
+      await client.query(
+        "INSERT INTO public.tenant_jobs (tenant_id, job_id, subject_id, payload) VALUES ($1, $2, $3, $4)",
+        [TENANT_A, orphanJobId, "synthetic-user-a", "must roll back with dispatch"]
+      );
+      await client.query(
+        "INSERT INTO public.job_dispatch (tenant_id, job_id) VALUES ($1, $2)",
+        [TENANT_A, "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee"]
+      );
+    }),
+    (error) => error.code === "23503"
+  );
+
+  const orphan = await withTenantTransaction(pool, TENANT_A, (client) =>
+    client.query("SELECT job_id FROM public.tenant_jobs WHERE job_id = $1", [orphanJobId])
+  );
+  assert.equal(orphan.rowCount, 0);
 });
 
 test("an async job is rejected when its originating membership is revoked before execution", async () => {
