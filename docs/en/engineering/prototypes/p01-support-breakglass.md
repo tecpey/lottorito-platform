@@ -18,7 +18,7 @@ This is a disposable synthetic-data experiment. It is not a production support c
 - The caller may present a grant identifier and target tenant, but neither is authorization proof. The database must match both to the authenticated support subject and an active grant.
 - A dedicated support-authorizer DB role can read grant metadata and append audit events. It cannot read tenant records, jobs, wallet data or other payload tables.
 - The existing least-privilege tenant application role performs the actual tenant-scoped read inside the RLS transaction.
-- The grant row is locked for the duration of the data read so a concurrent revocation serializes with the access.
+- The grant row is locked for the duration of the data read so a concurrent revocation serializes with the access. PostgreSQL requires an UPDATE RLS policy for `SELECT ... FOR SHARE`; the support role therefore receives a narrowly scoped UPDATE policy plus column-level UPDATE on inert `lock_version` only. It cannot update `revoked_at`, scope, subject or tenant, so it cannot grant or revoke access.
 - Audit events are append-only to the support-authorizer role and include subject, grant, tenant, resource, action, reason, outcome and database timestamp. The role has INSERT but no SELECT/UPDATE/DELETE on the audit table. This is database-role-enforced append-only behavior, not cryptographic tamper-proof or independently immutable storage.
 - Support access is read-only. No write, financial, credential, payout, wallet or identity mutation is in scope.
 
