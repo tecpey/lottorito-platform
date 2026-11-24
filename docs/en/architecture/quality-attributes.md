@@ -95,6 +95,11 @@ LOT-TECH-ADR-001 prototypes must produce evidence against this catalogue:
 
 Prototype success does not automatically approve production targets or a technology choice. Record results, limitations, alternatives and decision authority.
 
+- Independent Affiliate-only and Lottery-only composition prototype → QA-01, QA-02, QA-13, QA-14, QA-15.
+- Deployment, health-gate and rollback prototype → QA-06, QA-08, QA-09, QA-12, QA-14.
+
+See LOT-PROT-001 for the complete eight-prototype experiment plan and acceptance evidence.
+
 ## 8. Release gate
 
 A product/domain release candidate cannot pass its quality gate until:
