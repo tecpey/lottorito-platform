@@ -1,6 +1,6 @@
 # P-01 — Tenant Isolation Prototype
 
-**Document ID:** LOT-PROT-P01-001 | **Version:** 0.6.0 | **Status:** Prototype implemented; identity-bound comparison CI passed; full P-01 remains partial | **Review date:** 2026-11-24
+**Document ID:** LOT-PROT-P01-001 | **Version:** 0.7.0 | **Status:** Prototype implemented; identity-bound comparison CI passed; full P-01 remains partial | **Review date:** 2026-11-24
 
 ## Purpose and decision boundary
 
@@ -100,7 +100,7 @@ The prototype pins the direct `pg` dependency and commits `package-lock.json`; C
 - The passing run includes the earlier request-time RLS, pool reuse, membership re-authorization and async outbox/dispatcher/Ed25519 job-envelope tests, plus the comparative per-tenant LOGIN-role test: session identity maps to exactly one tenant; changing the custom GUC cannot change visibility; `SET ROLE`/`SET SESSION AUTHORIZATION` to the other tenant, reading the private identity map and cross-tenant inserts are denied; membership and async-job rows are also tenant-scoped. The function owner, NOLOGIN/non-BYPASSRLS attributes, fixed `search_path` and temporary-schema shadowing attempt are verified. The test also confirms that the per-tenant roles cannot change `SESSION AUTHORIZATION` and that identity scoping applies to membership and job rows.
 - A deliberate red-team test still demonstrates that a compromised shared `app_runtime` role can set the custom GUC to another tenant. This is a known trust boundary, not evidence of adversarial isolation. The per-tenant LOGIN-role variant is stronger against SQL injection confined to one tenant connection, but depends on safely brokering credentials and partitioning connection pools; those operational controls and scale characteristics are not yet tested.
 - Local execution: Not run in this environment; the verified run is GitHub-hosted CI.
-- Overall P-01: Inconclusive / partial scope only. The comparison proves one database-level identity pattern in a synthetic fixture, not end-to-end tenant isolation across cache, object storage, search, exports, reporting, support access, production workload identity or deployment boundaries.
+- Overall P-01: Inconclusive / partial scope only. The comparison proves one database-level identity pattern in a synthetic fixture, not end-to-end tenant isolation across cache, object storage, search, exports, reporting, production workload identity or deployment boundaries. A separate synthetic support-authorizer extension is implemented on PR #37; its CI and operational controls remain unverified.
 - Technology decision: remains Proposed; no stack approval is implied.
 
 ## References
