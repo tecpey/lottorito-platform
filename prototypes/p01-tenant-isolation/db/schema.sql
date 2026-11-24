@@ -471,9 +471,6 @@ INSERT INTO public.tenant_records (tenant_id, record_id, natural_key, payload) V
   ('11111111-1111-4111-8111-111111111111',
    'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
    'tenant-a-private', 'tenant A private fixture');
-)),
-  CHECK (length(object_key) <= 512)
-);
 
 ALTER TABLE public.tenant_exports ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.tenant_exports FORCE ROW LEVEL SECURITY;
