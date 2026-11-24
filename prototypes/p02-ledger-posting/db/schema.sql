@@ -368,8 +368,7 @@ BEGIN
      AND f.effect_id = r.effect_id
      AND f.journal_id = r.journal_id
    WHERE r.tenant_id = v_tenant_id
-     AND r.idempotency_key = p_idempotency_key
-;
+     AND r.idempotency_key = p_idempotency_key;
 
   IF FOUND THEN
     IF v_existing_effect_id IS DISTINCT FROM p_effect_id
@@ -397,8 +396,7 @@ BEGIN
       INTO v_existing_fingerprint, v_existing_journal_id
       FROM public.financial_effects
      WHERE tenant_id = v_tenant_id
-       AND effect_id = p_effect_id
-;
+       AND effect_id = p_effect_id;
 
     IF NOT FOUND THEN
       RAISE EXCEPTION 'financial effect state is unavailable' USING ERRCODE = '40001';
@@ -790,8 +788,7 @@ BEGIN
       INTO v_existing_fingerprint, v_existing_journal_id
       FROM public.posting_requests
      WHERE tenant_id = v_tenant_id
-       AND (idempotency_key = p_idempotency_key OR effect_id = p_effect_id)
-;
+       AND (idempotency_key = p_idempotency_key OR effect_id = p_effect_id);
 
     IF NOT FOUND THEN
       RAISE EXCEPTION 'idempotency state is unavailable' USING ERRCODE = '40001';
