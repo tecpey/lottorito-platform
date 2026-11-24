@@ -13,6 +13,9 @@
 - Added LOT-ADR-REG-001, a bilingual register distinguishing owner directions, proposals and unresolved decisions.
 - Added LOT-LOTTERY-001, a proposed Lottery discovery PRD; it is not approved for implementation or launch.
 - Added LOT-LOTINT-001, a proposed provider-neutral Lottery lifecycle contract; no provider API or sandbox is verified.
+- Added LOT-DOM-001, a proposed cross-product bounded-context model and logical ERD; no physical schema is approved.
+- Added LOT-TEN-001, a proposed tenant isolation and context propagation model; no implementation or negative-test evidence exists.
+- Added LOT-EVENT-001, a proposed canonical event envelope and delivery contract; no event API/schema registry is implemented.
 - Updated both documentation indexes to route agents to these sources.
 - These changes are on docs/agent-ready-foundation-v1 and are not merged to main.
 
