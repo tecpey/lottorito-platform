@@ -1,6 +1,6 @@
 # P-01 Tenant-Bound Export Download Grants
 
-**Document ID:** LOT-PROT-P01-EXPORT-001 | **Version:** 0.6.0 | **Status:** Synthetic prototype; 36 CI tests passed; delivery service unverified
+**Document ID:** LOT-PROT-P01-EXPORT-001 | **Version:** 0.7.0 | **Status:** Synthetic prototype; 36 CI tests passed; delivery service unverified
 
 ## Purpose
 
