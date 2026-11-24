@@ -1,6 +1,6 @@
 # Lottorito Delivery Roadmap
 
-**Document ID:** LOT-ROAD-001 | **Version:** 1.1.0 | **Status:** Proposed sequence; owner approval required for product gates
+**Document ID:** LOT-ROAD-001 | **Version:** 1.2.0 | **Status:** Proposed sequence; owner approval required for product gates
 
 1. **Foundation & Governance:** bilingual agent handbook, decision register, stable document IDs, glossary, contribution rules and automated documentation checks; keep the finance, security and API baselines explicitly proposed until reviewed.
 2. **Cross-product Domain & Data Design:** review LOT-DOM-001; approve independent Affiliate and Lottery bounded contexts, shared capability ownership, logical ERD, data lifecycle, tenant boundaries and migration strategy.
@@ -20,7 +20,8 @@
 16. **Admin, Reporting & Operations:** operator/agent/customer surfaces, audit, reporting, support and controlled financial workflows.
 17. **First-party B2C application:** review LOT-B2C-PRD-001; implement the dedicated B2C tenant through shared contracts and release only modules passing entitlement, jurisdiction, provider, finance, security, privacy and operational gates.
 18. **API Platform & Developer Experience:** review LOT-API-PLATFORM-001; establish governed app/client onboarding, scopes, credential lifecycle, sandbox, webhook subscriptions, SDK generation, metering and support before exposing production APIs.
-19. **Hardening & Pilot:** load/security tests, backup recovery, UAT, operational readiness and jurisdiction-specific legal approval.
+19. **Affiliate API pilot contract:** review LOT-AFFILIATE-API-001 against actual partner evidence; approve the minimum resource/event surface, attribution and commission semantics, tenant isolation and reconciliation tests before adapter implementation.
+20. **Hardening & Pilot:** load/security tests, backup recovery, UAT, operational readiness and jurisdiction-specific legal approval.
 
 ## Exit gates
 
