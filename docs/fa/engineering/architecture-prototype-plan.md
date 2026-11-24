@@ -63,7 +63,7 @@
 
 **وضعیت آزمایش Data Plane ثانویه در P-01 (۲۰۲۶-۱۱-۲۴):** یک Prototype تکمیلی، Cache Key مشتق از Tenant، Object Key دارای Prefix Tenant، فیلتر Search تزریق‌شده از سمت سرور و جدول Reporting با RLS مستقل اضافه می‌کند. Cache/Object/Search فقط از Adapterهای In-memory استفاده می‌کنند؛ رفتار Provider واقعی Redis/S3/OpenSearch/Warehouse صریحاً تأییدنشده است. مجموعه تست Data Plane در اجرای CI با شناسه 45419828256 روی Head کد 02850c6374dd295ec0df6ba42addf266a2d8a977 تعداد ۳۰ تست موفق داشته است. رفتار Provider واقعی همچنان تأییدنشده است.
 
-**آزمایش Export Download در P-01 (۲۰۲۶-۱۱-۲۴):** یک Prototype تکمیلی، Grant دانلود یک‌بارمصرف، زمان‌دار و متصل به Subject و Tenant اضافه می‌کند. Tokenها ۲۵۶ بیت تصادفی‌اند؛ فقط Hash از نوع SHA-256 ذخیره می‌شود؛ قفل ردیف PostgreSQL، Redeem و بررسی وضعیت Export را Serialize می‌کند. اجرای CI با شناسه 45425122143 تعداد ۳۵ تست را روی Head کد 097ef0d0f00a5f36dc0d1f8fea33f1934a5a4d70 با موفقیت گذرانده است. HTTP Streaming، URL امضاشده Provider، رفتار CDN، اسکن محتوا و معنای Retry در تحویل، خارج از محدوده و تأییدنشده هستند.
+**آزمایش Export Download در P-01 (۲۰۲۶-۱۱-۲۴):** یک Prototype تکمیلی، Grant دانلود یک‌بارمصرف، زمان‌دار و متصل به Subject و Tenant اضافه می‌کند. Tokenها ۲۵۶ بیت تصادفی‌اند؛ فقط Hash از نوع SHA-256 ذخیره می‌شود؛ قفل ردیف PostgreSQL، Redeem و بررسی وضعیت Export را Serialize می‌کند. اجرای CI با شناسه 45426108704 تعداد ۳۶ تست را روی Head کد b88c83ad5f5160681ec0e132c1efe07d8b913da0 با موفقیت گذرانده است؛ شامل بازبینی مجدد Membership فعال هنگام صدور و Redeem کردن Grant. HTTP Streaming، URL امضاشده Provider، رفتار CDN، اسکن محتوا و معنای Retry در تحویل، خارج از محدوده و تأییدنشده هستند.
 
 ### P-02 — تراکنش مالی و تطبیق
 
