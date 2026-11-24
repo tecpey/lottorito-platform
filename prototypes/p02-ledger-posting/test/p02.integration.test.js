@@ -14,6 +14,7 @@ const TENANT_A = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
 const TENANT_B = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
 const EVENT_1 = "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee";
 const EVENT_2 = "ffffffff-ffff-4fff-8fff-ffffffffffff";
+const EVENT_FAIL = "33333333-3333-4333-8333-333333333333";
 const A_USD_CASH = "11111111-1111-4111-8111-111111111101";
 const A_USD_CLEARING = "11111111-1111-4111-8111-111111111102";
 const A_JPY_CASH = "11111111-1111-4111-8111-111111111103";
@@ -269,7 +270,7 @@ test("outbox insertion failure rolls back the idempotency row and journal atomic
   `);
   try {
     await assert.rejects(
-      postJournal(tenantAPool, request("p02-outbox-failure-001", balancedUsd("77"))),
+      postJournal(tenantAPool, request("p02-outbox-failure-001", balancedUsd("77"), EVENT_FAIL)),
       (error) => error.code === "P0001" && error.message.includes("synthetic outbox failure")
     );
   } finally {
@@ -279,7 +280,7 @@ test("outbox insertion failure rolls back the idempotency row and journal atomic
   assert.equal(await journalCount(TENANT_A, "p02-outbox-failure-001"), 0);
   const leftovers = await adminPool.query(
     "SELECT (SELECT count(*)::int FROM public.ledger_journals j JOIN public.posting_requests p USING (tenant_id, journal_id) WHERE p.tenant_id = $1 AND p.idempotency_key = $2) AS journals, (SELECT count(*)::int FROM public.ledger_outbox o WHERE o.tenant_id = $1 AND o.event_type = 'ledger.journal.posted' AND o.payload->>'source_event_id' = $3) AS outbox_events",
-    [TENANT_A, "p02-outbox-failure-001", EVENT_1]
+    [TENANT_A, "p02-outbox-failure-001", EVENT_FAIL]
   );
   assert.equal(leftovers.rows[0].journals, 0);
   assert.equal(leftovers.rows[0].outbox_events, 0);
