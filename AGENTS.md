@@ -33,9 +33,9 @@ Continue Lottorito from the repository's verified state. Do not restart planning
 ## Verified baseline at 2026-11-24
 - Repository: tecpey/lottorito-platform; default branch: main; visibility: public by owner decision.
 - The repository contains paired Persian/English product, architecture, commission, finance, partner, security, glossary, roadmap and status documents.
-- Agent operating manual (LOT-AGENT-001), decision register (LOT-ADR-REG-001), Lottery discovery PRD (LOT-LOTTERY-001), and Lottery provider contract baseline (LOT-LOTINT-001) are maintained in a separate documentation work branch pending review.
+- Agent operating manual (LOT-AGENT-001), decision register (LOT-ADR-REG-001), Lottery discovery PRD (LOT-LOTTERY-001), Lottery provider contract (LOT-LOTINT-001), finance posting (LOT-FIN-POST-001), threat model (LOT-SEC-TM-001), API resource specification (LOT-API-001), and technology/deployment ADRs (LOT-TECH-ADR-001) are maintained in a documentation work branch pending review.
 - The README refinement remains in open Draft PR #19; it has not been merged.
-- No application code, database schema, partner API integration, sandbox, CI workflow, automated bilingual parity check, or production deployment has been verified.
+- No application code, physical database schema, partner API integration, sandbox, or production deployment has been verified. A structural documentation CI workflow exists and has passed; it checks paired paths, stable IDs and local links, not semantic translation parity.
 
 ## Definition of done
 A task is done only when implementation exists, relevant tests pass, documentation is synchronized in both languages, security and tenant implications are reviewed, and commit/PR/CI evidence is linked.
