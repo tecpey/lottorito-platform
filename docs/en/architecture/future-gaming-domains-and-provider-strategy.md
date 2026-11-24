@@ -1,6 +1,6 @@
 # Future Regulated Gaming Domains and Provider Strategy
 
-**Document ID:** LOT-GAMING-STRATEGY-001 | **Version:** 1.0.0 | **Status:** Owner-directed future product horizon and research baseline; no product, provider, licence, API or launch approved
+**Document ID:** LOT-GAMING-STRATEGY-001 | **Version:** 1.1.0 | **Status:** Owner-directed future product horizon and research baseline; no product, provider, licence, API or launch approved
 
 ## 1. Purpose and authority
 
@@ -75,21 +75,11 @@ The following names are research candidates based on public first-party material
 
 Provider websites are primary evidence of what a company claims to offer, not independent proof of performance, licensing scope, API quality or suitability. Public marketing pages are not a substitute for current technical documentation, sandbox tests, regulator-register checks, contract review and references from operators in the same jurisdiction and delivery model.
 
-## 6. Provider due-diligence scorecard
+## 6. Provider evaluation governance
 
-No provider advances based on catalogue size, sales presentation or an introductory demo alone. Require evidence in each category:
+Use LOT-PROVIDER-EVAL-001 as the canonical cross-product process for supplier-role classification, decision-unit scoping, evidence provenance, RFI, non-compensable legal/security/financial/technical gates, controlled sandbox tests, approval states and reassessment. The proposed scorecard and evidence classes are maintained in that standard to avoid divergent scoring systems across domains.
 
-1. **Legal entity and authorization:** exact contracting/supplying entities; current licences, registrations and permitted activities; jurisdictions and product types; ownership/control; sanctions/adverse regulatory history; subcontractors and studio chain.
-2. **Technical documentation:** current API/OpenAPI or protocol docs, schema versions, sandbox, test accounts, sample callbacks, SDK maintenance, changelog, deprecation policy and named technical support.
-3. **Wallet and transaction model:** seamless versus transfer wallet; balance ownership; debit/credit/rollback semantics; round/bet identifiers; idempotency; callback signature; ordering; retries; late results; partial failures; negative balances; reconciliation statements; fee and tax records.
-4. **Data and integrity:** source and rights for sports data; timestamp/latency guarantees; odds/market suspension; result authority; game RNG/RTP certification; game build/version hashes; tamper-evident round history; correction and dispute process.
-5. **Security and privacy:** credential rotation/revocation; mTLS or signed requests; key custody; network controls; vulnerability disclosure; penetration-test summaries; incident notification; data residency, retention, deletion and subprocessor inventory.
-6. **Regulatory fit:** market-by-market game/event allowlists; certificate scope and version; geolocation dependencies; age/identity verification responsibility; self-exclusion and limits propagation; audit exports; advertising/affiliate restrictions.
-7. **Reliability and operations:** independently evidenced uptime and incident history; peak-event capacity; latency percentiles; regional failover; status page; RTO/RPO; support coverage; escalation and disaster-recovery tests.
-8. **Commercial and exit:** minimum guarantees, rev share, fixed fees, currency/FX, taxes, settlement cycle, reserves, chargebacks, audit rights, liability caps, exclusivity, data portability, termination assistance and continuity plan.
-9. **References and proof:** at least two comparable operator references where available; observed sandbox contract tests; reconciliation samples; regulator/certification evidence; signed capability matrix.
-
-Use a weighted scorecard only after hard legal/security gates. A high aggregate score must never compensate for an unlicensed product, unverifiable game integrity, unsafe wallet semantics or missing jurisdictional approval.
+This document supplies the gaming-specific supplement: the Sportsbook, Live Casino and RNG/E-Gaming requirements in Section 8 must be added to the common RFI and test dossier. Do not compare suppliers with different roles as interchangeable candidates. No weighted score can override a failed licence, jurisdiction, security, game-integrity or financial gate. The standard and this gaming supplement remain Proposed; no provider is selected or approved.
 
 ## 7. Canonical integration invariants
 

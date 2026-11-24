@@ -1,6 +1,6 @@
 # Lottery Provider Integration Contract
 
-**Document ID:** LOT-LOTINT-001 | **Version:** 0.1.0 | **Status:** Proposed canonical contract; no provider API verified
+**Document ID:** LOT-LOTINT-001 | **Version:** 0.2.0 | **Status:** Proposed canonical contract; no provider API verified
 
 ## 1. Purpose and boundary
 Define the boundary between the Lottery domain and an external provider. This is provider-neutral; it does not claim compatibility with a named vendor. Provider-specific endpoints, authentication, schemas, states, SLAs, limits and certification must live in an adapter profile backed by vendor documentation and sandbox evidence.
@@ -43,8 +43,8 @@ A provider lacking adequate authenticity, provenance, replay protection or recon
 ## 8. Reliability and reconciliation
 Bounded exponential backoff with jitter and provider-specific rate limits; distinguish transient, permanent and ambiguous failures; quarantine poison messages and controlled replay with original identity; periodically reconcile catalog, orders, tickets, draws, results, claims and statements; alert on stale feeds, unmatched records, duplicate IDs, unexplained state regressions and financial gaps; use durable inbox/outbox patterns across transaction boundaries.
 
-## 9. Provider certification profile
-Record legal entity/role/jurisdiction evidence/contract scope; API documentation version/date; sandbox and test-account ownership; authentication/signature; supported and unsupported capabilities; state mapping/idempotency/retry/rate limits; source-of-truth and result correction policy; availability/support/incident escalation; data location/privacy/security/retention; settlement/fees/liability/reconciliation/disputes; contract and negative tests; evidence, approver and review date.
+## 9. Provider evaluation and certification profile
+Apply LOT-PROVIDER-EVAL-001 as the common evidence, RFI, hard-gate, test and approval process. This Lottery contract supplies the domain-specific capability and lifecycle requirements; the central standard governs evidence classes, legal/security/financial gates, scorecard discipline, dossier fields and reassessment. The Lottery decision unit must identify the exact provider role (data feed, ticketing/transaction system, platform or licensed operator), legal entity, jurisdiction, operating model and fund-flow model. Never infer one role or permission from another. Record all supported/unsupported Lottery capabilities, draw/result authority, ticket acceptance, ambiguous submission, corrections, claims, settlement, reconciliation and exit evidence.
 
 ## 10. Current status
 No Lottery provider, API, sandbox, credentials, endpoint, callback schema or certification is verified in the repository. The previously mentioned new-lotto.net/api.php is a research lead, not a validated integration specification. RaidenBet is a proposed Affiliate pilot partner, not a Lottery provider absent separate evidence and approval.
