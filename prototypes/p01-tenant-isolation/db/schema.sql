@@ -28,8 +28,20 @@ CREATE TABLE public.tenant_records (
 ALTER TABLE public.tenant_records ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.tenant_records FORCE ROW LEVEL SECURITY;
 
-CREATE POLICY tenant_records_isolation
+-- At least one permissive policy is required for access. Keep it broad,
+-- then make tenant ownership a RESTRICTIVE guard so future permissive policies
+-- cannot widen access by OR-composition.
+CREATE POLICY tenant_records_app_access
   ON public.tenant_records
+  AS PERMISSIVE
+  FOR ALL
+  TO app_runtime
+  USING (true)
+  WITH CHECK (true);
+
+CREATE POLICY tenant_records_tenant_guard
+  ON public.tenant_records
+  AS RESTRICTIVE
   FOR ALL
   TO app_runtime
   USING (
