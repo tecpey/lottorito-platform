@@ -1,6 +1,7 @@
 import test, { before, after } from "node:test";
 import assert from "node:assert/strict";
 import { once } from "node:events";
+import { generateKeyPairSync } from "node:crypto";
 import { Pool } from "pg";
 import { createTenantServer } from "../src/app.js";
 import { withTenantTransaction } from "../src/tenant-db.js";
@@ -17,11 +18,14 @@ import {
 const databaseUrl = process.env.DATABASE_URL;
 const adminDatabaseUrl = process.env.ADMIN_DATABASE_URL;
 const dispatcherDatabaseUrl = process.env.DISPATCHER_DATABASE_URL;
-const jobEnvelopeSecret = process.env.JOB_ENVELOPE_SECRET;
 assert.ok(databaseUrl, "DATABASE_URL must point to the least-privilege app_runtime role");
 assert.ok(adminDatabaseUrl, "ADMIN_DATABASE_URL must point to the disposable fixture administrator");
 assert.ok(dispatcherDatabaseUrl, "DISPATCHER_DATABASE_URL must point to the metadata-only dispatcher role");
-assert.ok(jobEnvelopeSecret, "JOB_ENVELOPE_SECRET must be a synthetic test-only key");
+
+const { privateKey: jobSigningPrivateKeyObject, publicKey: jobVerifyPublicKeyObject } =
+  generateKeyPairSync("ed25519");
+const jobSigningPrivateKey = jobSigningPrivateKeyObject.export({ type: "pkcs8", format: "pem" });
+const jobVerifyPublicKey = jobVerifyPublicKeyObject.export({ type: "spki", format: "pem" });
 
 const adminPool = new Pool({ connectionString: adminDatabaseUrl, max: 1 });
 const dispatcherPool = new Pool({ connectionString: dispatcherDatabaseUrl, max: 1 });
@@ -105,26 +109,26 @@ test("async jobs preserve signed tenant context, retry safely and expose no payl
   assert.equal(dispatcherRole.rows[0].rolsuper, false);
   assert.equal(dispatcherRole.rows[0].rolbypassrls, false);
 
-  const firstAttempt = await claimNextJob(dispatcherPool, jobEnvelopeSecret, { leaseSeconds: 30 });
-  const retryAttempt = await claimNextJob(dispatcherPool, jobEnvelopeSecret, { leaseSeconds: 0 });
+  const firstAttempt = await claimNextJob(dispatcherPool, jobSigningPrivateKey, { leaseSeconds: 30 });
+  const retryAttempt = await claimNextJob(dispatcherPool, jobSigningPrivateKey, { leaseSeconds: 0 });
   assert.equal(firstAttempt.job_id, jobA);
   assert.equal(retryAttempt.job_id, jobA);
   assert.equal(retryAttempt.attempt, 2);
 
   const tampered = { ...retryAttempt, tenant_id: TENANT_B };
-  assert.equal((await processTenantJob(pool, tampered, jobEnvelopeSecret)).status, "invalid_envelope");
+  assert.equal((await processTenantJob(pool, tampered, jobVerifyPublicKey)).status, "invalid_envelope");
 
-  const completed = await processTenantJob(pool, firstAttempt, jobEnvelopeSecret);
+  const completed = await processTenantJob(pool, firstAttempt, jobVerifyPublicKey);
   assert.deepEqual(completed, { status: "completed", payload: "tenant A background task" });
-  assert.equal((await processTenantJob(pool, retryAttempt, jobEnvelopeSecret)).status, "already_processed");
-  assert.equal(await acknowledgeJob(dispatcherPool, firstAttempt, jobEnvelopeSecret), false);
-  assert.equal(await acknowledgeJob(dispatcherPool, retryAttempt, jobEnvelopeSecret), true);
+  assert.equal((await processTenantJob(pool, retryAttempt, jobVerifyPublicKey)).status, "already_processed");
+  assert.equal(await acknowledgeJob(dispatcherPool, firstAttempt, jobVerifyPublicKey), false);
+  assert.equal(await acknowledgeJob(dispatcherPool, retryAttempt, jobVerifyPublicKey), true);
 
-  const bAttempt = await claimNextJob(dispatcherPool, jobEnvelopeSecret);
+  const bAttempt = await claimNextJob(dispatcherPool, jobSigningPrivateKey);
   assert.equal(bAttempt.job_id, jobB);
-  assert.equal((await processTenantJob(pool, bAttempt, jobEnvelopeSecret)).status, "completed");
-  assert.equal(await acknowledgeJob(dispatcherPool, bAttempt, jobEnvelopeSecret), true);
-  assert.equal(await claimNextJob(dispatcherPool, jobEnvelopeSecret), null);
+  assert.equal((await processTenantJob(pool, bAttempt, jobVerifyPublicKey)).status, "completed");
+  assert.equal(await acknowledgeJob(dispatcherPool, bAttempt, jobVerifyPublicKey), true);
+  assert.equal(await claimNextJob(dispatcherPool, jobSigningPrivateKey), null);
 
   const aCannotReadB = await withTenantTransaction(pool, TENANT_A, (client) =>
     client.query("SELECT job_id FROM public.tenant_jobs WHERE job_id = $1", [jobB])
@@ -146,16 +150,16 @@ test("an async job is rejected when its originating membership is revoked before
     [TENANT_A, "synthetic-user-a"]
   );
   try {
-    const envelope = await claimNextJob(dispatcherPool, jobEnvelopeSecret);
+    const envelope = await claimNextJob(dispatcherPool, jobSigningPrivateKey);
     assert.equal(envelope.job_id, created.body.data.job_id);
-    const result = await processTenantJob(pool, envelope, jobEnvelopeSecret);
+    const result = await processTenantJob(pool, envelope, jobVerifyPublicKey);
     assert.equal(result.status, "membership_revoked");
 
     const stored = await withTenantTransaction(pool, TENANT_A, (client) =>
       client.query("SELECT status FROM public.tenant_jobs WHERE job_id = $1", [envelope.job_id])
     );
     assert.equal(stored.rows[0].status, "rejected");
-    assert.equal(await acknowledgeJob(dispatcherPool, envelope, jobEnvelopeSecret), true);
+    assert.equal(await acknowledgeJob(dispatcherPool, envelope, jobVerifyPublicKey), true);
   } finally {
     await adminPool.query(
       "UPDATE public.tenant_memberships SET active = true WHERE tenant_id = $1 AND subject_id = $2",
