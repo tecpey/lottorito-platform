@@ -42,7 +42,8 @@ It is not a production service, authentication implementation, complete P-01 pas
 | P01-ASYNC-01 | Enqueue a job as A/B and attempt caller tenant override | Job and dispatch metadata are atomic; tenant comes from principal; forged tenant is denied |
 | P01-ASYNC-02 | Inspect dispatcher role and query job payloads | Dispatcher can read/claim metadata only; payload SELECT is denied; role has no BYPASSRLS |
 | P01-ASYNC-03 | Change tenant ID in a signed queue envelope | HMAC verification fails before any tenant-scoped data access |
-| P01-ASYNC-04 | Reclaim an expired lease, replay delivery and acknowledge attempts | Only current attempt can acknowledge; job effect completes once; replay is idempotent |
+| P01-ASYNC-04 | Two dispatcher connections claim concurrently; reclaim a lease and replay delivery | `SKIP LOCKED` yields distinct jobs; only current attempt can acknowledge; job effect completes once; replay is idempotent |
+| P01-ASYNC-06 | Force dispatch foreign-key failure after job insert | Whole transaction rolls back; no orphan tenant job remains |
 | P01-ASYNC-05 | Revoke actor membership after enqueue but before execution | Worker marks the job rejected and does not execute its payload |
 
 ## Important security interpretation
