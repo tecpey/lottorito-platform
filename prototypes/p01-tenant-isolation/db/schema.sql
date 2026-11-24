@@ -5,7 +5,7 @@ BEGIN
     CREATE ROLE app_runtime LOGIN PASSWORD 'p01-only-not-for-production'
       NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
   END IF;
-END
+END;
 $role$;
 
 ALTER ROLE app_runtime
