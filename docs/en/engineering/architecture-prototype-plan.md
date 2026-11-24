@@ -59,6 +59,8 @@ A prototype may be **Pass**, **Fail**, **Inconclusive** or **Not run**. “Pass�
 
 **Evidence:** test matrix by boundary, request/job traces, authorization outcomes, database policy evidence where applicable, negative-test output and an explicit list of untested paths.
 
+**Current P-01 experiment note (2026-11-24):** PR #36 passed 20 synthetic integration tests. Follow-on PR #39 adds scoped, time-bound, read-only support grants and append-only audit; its observed CI run 45416127663 passed 26 tests. This is partial evidence only: support metadata minimization, production identity/MFA, endpoint race/failure stress, credential brokering, cache/storage/search/reporting, load and recovery remain open. No technology or production architecture is approved.
+
 ### P-02 — Financial transaction and reconciliation
 
 **Question:** Can a concurrent, retried business event produce exactly one valid economic effect and a balanced, immutable journal?
