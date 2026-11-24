@@ -22,6 +22,10 @@ The branch docs/agent-ready-foundation-v1 contains proposed bilingual references
 - LOT-TECH-ADR-001: proposed technology, deployment, reliability, observability and data-lifecycle decision framework; no stack/provider approved.
 - LOT-QA-001: proposed measurable quality scenarios, cross-cutting invariants, evidence strategy and release gates; numeric thresholds remain TBD.
 - LOT-PROT-001: proposed eight-prototype experiment plan with pass/fail criteria and evidence templates; no prototype execution is verified.
+- LOT-I18N-001: owner-directed 12-language launch target (ten-language shortlist proposed) with equal product/content/support quality gates; no locale implementation is verified.
+- LOT-COMMS-001: proposed multilingual live-chat and customer-communications architecture; no provider/runtime is verified.
+- LOT-GROWTH-001: proposed multilingual content, SEO/GEO/AEO and channel-automation workflow; no publishing integration is verified.
+- LOT-NOTIF-001: proposed policy-gated smart-notification architecture; no notification runtime/provider is verified.
 
 The finance, security, API and technology/deployment references are proposals, not approved policies or implemented controls. LOT-TECH-ADR-001 compares architecture, database, queues/workflows, hosting, observability, recovery, security and data-residency decision criteria. No technology vendor or stack is approved by that document.
 
@@ -42,9 +46,11 @@ No application implementation, physical database schema/migrations, CI workflow,
 2. Review the proposed finance, threat and API baselines with the owner and domain reviewers.
 3. Review LOT-TECH-ADR-001 and LOT-PROT-001; approve experiment scope and accountable owners, then run P-01 through P-08 in isolated synthetic environments before accepting technology choices.
 4. Extend documentation governance with metadata validation and reviewer-owned semantic parity checks; current CI covers paired paths, IDs and local links only.
-5. Complete cross-product architecture and product-specific release gates.
-6. Decide jurisdiction, operating model, provider due diligence and commercial/financial policies.
-7. Only after decisions, scaffold the platform and implement isolated vertical slices with tests.
+5. Review and approve the 12-language portfolio/locale variants, then define native-review coverage and quality gates.
+6. Review live-chat, content/channel automation and smart-notification policies; evaluate providers and integration contracts without enabling campaigns.
+7. Complete cross-product architecture and product-specific release gates.
+8. Decide jurisdiction, operating model, provider due diligence and commercial/financial policies.
+9. Only after decisions, scaffold the platform and implement isolated vertical slices with tests.
 
 ## Owner decisions still required
 Legal entity and operating model; initial jurisdiction; provider and source-of-truth rules; USD 100 illustrative agent credit; commission/NGR and network progression; account mapping and funding/custody; payout permissions; technology and deployment choices; data residency and retention; official logo source asset.
