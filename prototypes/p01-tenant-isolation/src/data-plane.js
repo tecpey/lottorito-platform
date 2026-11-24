@@ -4,6 +4,7 @@ const SAFE_SEGMENT = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
 
 function requireTenant(tenantId) {
   if (!isUuid(tenantId)) throw new TypeError("A server-resolved tenant UUID is required");
+  return tenantId.toLowerCase();
 }
 
 function requireSegment(value, label) {
@@ -20,14 +21,14 @@ function requireSegment(value, label) {
 }
 
 export function tenantCacheKey(tenantId, namespace, logicalKey) {
-  requireTenant(tenantId);
+  tenantId = requireTenant(tenantId);
   requireSegment(namespace, "namespace");
   requireSegment(logicalKey, "logical key");
   return "lottorito:v1:tenant:" + tenantId + ":cache:" + namespace + ":" + logicalKey;
 }
 
 export function tenantObjectKey(tenantId, namespace, objectId) {
-  requireTenant(tenantId);
+  tenantId = requireTenant(tenantId);
   requireSegment(namespace, "namespace");
   requireSegment(objectId, "object ID");
   return "tenants/" + tenantId + "/" + namespace + "/" + objectId;
@@ -84,9 +85,14 @@ export class TenantScopedSearch {
   }
 
   search(tenantId, query) {
-    requireTenant(tenantId);
-    if (typeof query !== "string" || query.length > 256) {
-      throw new TypeError("search query must be a string of at most 256 characters");
+    tenantId = requireTenant(tenantId);
+    if (
+      typeof query !== "string" ||
+      query.trim().length < 1 ||
+      query.length > 256 ||
+      /[\u0000-\u001f\u007f]/.test(query)
+    ) {
+      throw new TypeError("search query must contain 1 to 256 safe characters");
     }
     // Tenant filter is injected from trusted context, never from caller query data.
     return this.client.search({
