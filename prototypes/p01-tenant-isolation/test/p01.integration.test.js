@@ -88,6 +88,15 @@ test("RLS returns only rows for the authenticated tenant", async () => {
   assert.equal(a.body.data[0].payload, "synthetic tenant A fixture");
   assert.ok(b.body.data.some((row) => row.payload === "synthetic tenant B fixture"));
   assert.ok(b.body.data.some((row) => row.payload === "tenant B private fixture"));
+
+  const membershipsA = await withTenantTransaction(pool, TENANT_A, (client) =>
+    client.query("SELECT subject_id FROM public.tenant_memberships ORDER BY subject_id")
+  );
+  const membershipsB = await withTenantTransaction(pool, TENANT_B, (client) =>
+    client.query("SELECT subject_id FROM public.tenant_memberships ORDER BY subject_id")
+  );
+  assert.deepEqual(membershipsA.rows.map((row) => row.subject_id), ["synthetic-user-a"]);
+  assert.deepEqual(membershipsB.rows.map((row) => row.subject_id), ["synthetic-user-b"]);
 });
 
 test("a forged tenant header cannot switch the authenticated tenant", async () => {
