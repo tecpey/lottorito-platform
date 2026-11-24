@@ -1,6 +1,6 @@
 # P-01 Tenant-Bound Export Download Grants
 
-**Document ID:** LOT-PROT-P01-EXPORT-001 | **Version:** 0.2.0 | **Status:** Synthetic prototype; CI verification pending
+**Document ID:** LOT-PROT-P01-EXPORT-001 | **Version:** 0.3.0 | **Status:** Synthetic prototype; 36 CI tests passed; delivery service unverified
 
 ## Purpose
 
@@ -50,6 +50,6 @@ This experiment uses synthetic PostgreSQL 18.7 data and the existing Node.js 26 
 
 ## Evidence status
 
-The P-01 Tenant Isolation run [45426108704](https://github.com/tecpey/lottorito-platform/actions/runs/45426108704) passed on code head `b88c83ad5f5160681ec0e132c1efe07d8b913da0`: 36 tests passed, 0 failed, 0 skipped. Documentation Governance run [45426108688](https://github.com/tecpey/lottorito-platform/actions/runs/45426108688) also passed. Local execution and provider-specific download delivery remain unverified.
+The latest P-01 Tenant Isolation run [45426841612](https://github.com/tecpey/lottorito-platform/actions/runs/45426841612) passed on current PR head `cd4247b5e42bc68194ed3d9f1a7f9a14489ed32a`: 36 tests passed, 0 failed, 0 skipped. Documentation Governance run [45426841734](https://github.com/tecpey/lottorito-platform/actions/runs/45426841734) also passed on that head. Local execution and provider-specific download delivery remain unverified.
 
 Code, schema and synthetic integration scenarios are implemented on a stacked Draft PR. All fixtures and credentials are synthetic.
