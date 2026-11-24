@@ -94,6 +94,7 @@ DROP TABLE IF EXISTS public.support_audit;
 DROP TABLE IF EXISTS public.support_grants;
 DROP TABLE IF EXISTS public.job_dispatch;
 DROP TABLE IF EXISTS public.tenant_jobs;
+DROP TABLE IF EXISTS public.tenant_reports;
 DROP TABLE IF EXISTS public.tenant_records;
 DROP TABLE IF EXISTS public.tenant_memberships;
 
@@ -328,6 +329,45 @@ CREATE POLICY tenant_records_identity_guard
   USING (tenant_id = private.current_tenant_id())
   WITH CHECK (tenant_id = private.current_tenant_id());
 
+-- Reporting is a separate read boundary, not implicitly trusted because the
+-- source tables are tenant-scoped. Both shared-role and identity-bound models
+-- must enforce tenant ownership at the report table itself.
+CREATE TABLE public.tenant_reports (
+  tenant_id uuid NOT NULL,
+  report_id uuid NOT NULL,
+  report_key text NOT NULL,
+  payload text NOT NULL,
+  PRIMARY KEY (tenant_id, report_id),
+  UNIQUE (tenant_id, report_key),
+  CHECK (length(report_key) BETWEEN 1 AND 80),
+  CHECK (length(payload) <= 2000)
+);
+
+ALTER TABLE public.tenant_reports ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.tenant_reports FORCE ROW LEVEL SECURITY;
+
+CREATE POLICY tenant_reports_app_access
+  ON public.tenant_reports
+  AS PERMISSIVE
+  FOR SELECT
+  TO app_runtime
+  USING (true);
+
+CREATE POLICY tenant_reports_app_tenant_guard
+  ON public.tenant_reports
+  AS RESTRICTIVE
+  FOR SELECT
+  TO app_runtime
+  USING (tenant_id = NULLIF(current_setting('app.tenant_id', true), '')::uuid);
+
+CREATE POLICY tenant_reports_identity_guard
+  ON public.tenant_reports
+  AS PERMISSIVE
+  FOR SELECT
+  TO tenant_a_runtime, tenant_b_runtime
+  USING (tenant_id = private.current_tenant_id());
+
+
 GRANT USAGE ON SCHEMA public TO support_authorizer;
 GRANT SELECT ON public.support_grants TO support_authorizer;
 GRANT UPDATE (lock_version) ON public.support_grants TO support_authorizer;
@@ -335,6 +375,7 @@ GRANT INSERT ON public.support_audit TO support_authorizer;
 GRANT USAGE ON SCHEMA public TO app_runtime;
 GRANT USAGE ON SCHEMA public TO job_dispatcher;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.tenant_records TO app_runtime;
+GRANT SELECT ON public.tenant_reports TO app_runtime, tenant_a_runtime, tenant_b_runtime;
 GRANT SELECT ON public.tenant_memberships TO app_runtime;
 -- PostgreSQL requires UPDATE on at least one column for SELECT ... FOR SHARE.
 -- Grant only the inert lock_version column, never the active authorization flag.
@@ -359,6 +400,15 @@ ON CONFLICT (database_role) DO UPDATE SET tenant_id = EXCLUDED.tenant_id;
 INSERT INTO public.tenant_memberships (tenant_id, subject_id, active) VALUES
   ('11111111-1111-4111-8111-111111111111', 'synthetic-user-a', true),
   ('22222222-2222-4222-8222-222222222222', 'synthetic-user-b', true);
+
+-- Synthetic report rows deliberately collide on report_id and report_key.
+INSERT INTO public.tenant_reports (tenant_id, report_id, report_key, payload) VALUES
+  ('11111111-1111-4111-8111-111111111111',
+   '99999999-9999-4999-8999-999999999999',
+   'monthly-summary', 'tenant A private report'),
+  ('22222222-2222-4222-8222-222222222222',
+   '99999999-9999-4999-8999-999999999999',
+   'monthly-summary', 'tenant B private report');
 
 -- Synthetic tenants and deliberately colliding record IDs/natural keys.
 INSERT INTO public.tenant_records (tenant_id, record_id, natural_key, payload) VALUES
