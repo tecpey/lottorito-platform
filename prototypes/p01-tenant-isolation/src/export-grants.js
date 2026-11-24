@@ -17,6 +17,14 @@ function hashToken(token) {
   return createHash("sha256").update(decoded).digest();
 }
 
+async function hasActiveTenantMembership(client, subjectId) {
+  const membership = await client.query(
+    "SELECT active FROM public.tenant_memberships WHERE subject_id = $1 FOR SHARE",
+    [subjectId]
+  );
+  return membership.rows[0]?.active === true;
+}
+
 export async function issueExportDownloadGrant({
   pool,
   tenantId,
@@ -36,6 +44,8 @@ export async function issueExportDownloadGrant({
   const grantId = randomUUID();
 
   return withTenantTransaction(pool, tenantId, async (client) => {
+    if (!(await hasActiveTenantMembership(client, subjectId))) return null;
+
     const ownedExport = await client.query(
       `SELECT export_id
          FROM public.tenant_exports
@@ -76,6 +86,8 @@ export async function consumeExportDownloadGrant({
   if (!tokenHash) return null;
 
   return withTenantTransaction(pool, tenantId, async (client) => {
+    if (!(await hasActiveTenantMembership(client, subjectId))) return null;
+
     const selected = await client.query(
       `SELECT g.grant_id, g.export_id, g.expires_at, g.consumed_at,
               g.revoked_at, e.object_key, e.content_sha256, e.status AS export_status
