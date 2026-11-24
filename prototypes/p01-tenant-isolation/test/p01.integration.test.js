@@ -30,6 +30,8 @@ const jobVerifyPublicKey = jobVerifyPublicKeyObject.export({ type: "spki", forma
 const adminPool = new Pool({ connectionString: adminDatabaseUrl, max: 1 });
 const dispatcherPool = new Pool({ connectionString: dispatcherDatabaseUrl, max: 1 });
 const dispatcherPool2 = new Pool({ connectionString: dispatcherDatabaseUrl, max: 1 });
+const tenantAPool = new Pool({ connectionString: process.env.TENANT_A_DATABASE_URL, max: 1 });
+const tenantBPool = new Pool({ connectionString: process.env.TENANT_B_DATABASE_URL, max: 1 });
 const pool = new Pool({
   connectionString: databaseUrl,
   max: 1,
@@ -62,6 +64,8 @@ after(async () => {
   await adminPool.end();
   await dispatcherPool.end();
   await dispatcherPool2.end();
+  await tenantAPool.end();
+  await tenantBPool.end();
 });
 
 test("missing and invalid synthetic credentials cannot access tenant data", async () => {
@@ -348,6 +352,7 @@ test("runtime role is not superuser, table owner or BYPASSRLS and FORCE RLS is e
     policies.rows.map((policy) => [policy.policyname, policy.permissive]),
     [
       ["tenant_records_app_access", "PERMISSIVE"],
+      ["tenant_records_identity_guard", "PERMISSIVE"],
       ["tenant_records_tenant_guard", "RESTRICTIVE"]
     ]
   );
@@ -411,6 +416,67 @@ test("red-team boundary: a compromised shared runtime role can assert another te
   } finally {
     await client.query("ROLLBACK");
     client.release();
+  }
+});
+
+
+test("identity-bound per-tenant database roles resist GUC spoofing and role switching", async () => {
+  for (const [poolForTenant, ownTenant, otherTenant, ownPayload, otherRecordId] of [
+    [tenantAPool, TENANT_A, TENANT_B, "synthetic tenant A fixture", TENANT_B_ONLY_RECORD_ID],
+    [tenantBPool, TENANT_B, TENANT_A, "synthetic tenant B fixture", TENANT_B_ONLY_RECORD_ID]
+  ]) {
+    const identity = await poolForTenant.query(
+      "SELECT session_user::text AS session_user, current_user::text AS current_user, private.current_tenant_id()::text AS tenant_id"
+    );
+    const expectedRole = ownTenant === TENANT_A ? "tenant_a_runtime" : "tenant_b_runtime";
+    assert.equal(identity.rows[0].session_user, expectedRole);
+    assert.equal(identity.rows[0].current_user, expectedRole);
+    assert.equal(identity.rows[0].tenant_id, ownTenant);
+
+    const roleState = await poolForTenant.query(
+      "SELECT r.rolsuper, r.rolbypassrls, pg_has_role(session_user, $1, 'SET') AS can_set_other_role FROM pg_roles r WHERE r.rolname = session_user",
+      [ownTenant === TENANT_A ? "tenant_b_runtime" : "tenant_a_runtime"]
+    );
+    assert.equal(roleState.rows[0].rolsuper, false);
+    assert.equal(roleState.rows[0].rolbypassrls, false);
+    assert.equal(roleState.rows[0].can_set_other_role, false);
+
+    const ownRow = await poolForTenant.query(
+      "SELECT payload FROM public.tenant_records WHERE record_id = $1",
+      [SHARED_RECORD_ID]
+    );
+    assert.equal(ownRow.rowCount, 1);
+    assert.equal(ownRow.rows[0].payload, ownPayload);
+
+    const otherRow = await poolForTenant.query(
+      "SELECT payload FROM public.tenant_records WHERE record_id = $1",
+      [otherRecordId]
+    );
+    assert.equal(otherRow.rowCount, 0);
+
+    // This role can set arbitrary custom GUCs, but the identity policy never reads them.
+    await poolForTenant.query("SELECT set_config('app.tenant_id', $1, false)", [otherTenant]);
+    const stillIsolated = await poolForTenant.query(
+      "SELECT payload FROM public.tenant_records WHERE record_id = $1",
+      [otherRecordId]
+    );
+    assert.equal(stillIsolated.rowCount, 0);
+
+    await assert.rejects(
+      poolForTenant.query("SET ROLE " + (ownTenant === TENANT_A ? "tenant_b_runtime" : "tenant_a_runtime")),
+      (error) => error.code === "42501"
+    );
+    await assert.rejects(
+      poolForTenant.query("SELECT * FROM private.tenant_role_map"),
+      (error) => error.code === "42501"
+    );
+    await assert.rejects(
+      poolForTenant.query(
+        "INSERT INTO public.tenant_records (tenant_id, record_id, natural_key, payload) VALUES ($1, $2, $3, $4)",
+        [otherTenant, "cccccccc-cccc-4ccc-8ccc-cccccccccccc", "identity-forged", "must be rejected"]
+      ),
+      (error) => error.code === "42501"
+    );
   }
 });
 
