@@ -75,6 +75,7 @@ CREATE TABLE public.journal_transactions (
   request_fingerprint text NOT NULL,
   status text NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'posted')),
   reversal_of_journal_id uuid,
+  CHECK ((status = 'draft' AND posted_at IS NULL) OR (status = 'posted' AND posted_at IS NOT NULL)),
   created_at timestamptz NOT NULL DEFAULT clock_timestamp(),
   posted_at timestamptz,
   PRIMARY KEY (tenant_id, product_id, journal_id),
@@ -342,6 +343,36 @@ $function$;
 CREATE TRIGGER economic_effect_immutable
 BEFORE UPDATE OR DELETE ON public.economic_effects
 FOR EACH ROW EXECUTE FUNCTION public.guard_economic_effect();
+
+CREATE OR REPLACE FUNCTION public.require_posted_journal_reference()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $function$
+DECLARE
+  referenced_status text;
+BEGIN
+  SELECT status INTO referenced_status
+    FROM public.journal_transactions
+   WHERE tenant_id = NEW.tenant_id
+     AND product_id = NEW.product_id
+     AND journal_id = NEW.journal_id;
+  IF referenced_status IS DISTINCT FROM 'posted' THEN
+    RAISE EXCEPTION 'financial effects and outbox events must reference a posted journal'
+      USING ERRCODE = '23514';
+  END IF;
+  RETURN NEW;
+END;
+$function$;
+
+CREATE CONSTRAINT TRIGGER economic_effect_requires_posted_journal
+AFTER INSERT ON public.economic_effects
+DEFERRABLE INITIALLY DEFERRED
+FOR EACH ROW EXECUTE FUNCTION public.require_posted_journal_reference();
+
+CREATE CONSTRAINT TRIGGER outbox_requires_posted_journal
+AFTER INSERT ON public.outbox_events
+DEFERRABLE INITIALLY DEFERRED
+FOR EACH ROW EXECUTE FUNCTION public.require_posted_journal_reference();
 
 -- All tenant-owned tables use both tenant and product context. The shared GUC
 -- remains a trusted-application boundary, as proven in P-01.
