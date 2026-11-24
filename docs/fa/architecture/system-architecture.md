@@ -11,7 +11,7 @@ Identity & Access؛ Tenant & Partner؛ Affiliate & Agent Network؛ Tracking & At
 هر دامنه مالک منطق و داده خود است. دسترسی مستقیم به جداول داخلی دامنه دیگر ممنوع و ارتباط از قراردادهای مشخص انجام می‌شود.
 
 ## فناوری‌های پیشنهادی
-TypeScript، PostgreSQL، Redis در صورت نیاز، REST/JSON و OpenAPI، Worker برای پردازش غیرهمزمان، Docker و GitHub Actions. فریم‌ورک وب، ORM، صف و میزبانی باید با ADR و نمونه‌سازی انتخاب شوند؛ پیشنهاد قبلی Next.js تصمیم قطعی نیست.
+هیچ Stack نهایی تصویب نشده است. LOT-TECH-ADR-001 چارچوب تصمیم فعلی است. PostgreSQL گزینه مخزن حقیقت اولیه و Modular Monolith همراه Transactional Outbox و Worker فرضیه شروع است. انتخاب Broker صف، Workflow Engine، Framework، ORM، Hosting، Cloud Region و Kubernetes به ADR مبتنی بر شواهد و Prototype نیاز دارد. پیشنهاد قبلی Next.js تصمیم نهایی نیست.
 
 ## چندمستاجری
 هر رکورد باید tenant scope داشته باشد؛ tenant از نشست/عضویت معتبر استخراج شود، نه ورودی قابل جعل. تست منفی دسترسی بین Tenant اجباری است. RLS می‌تواند دفاع تکمیلی باشد، نه جایگزین مجوزدهی برنامه.
