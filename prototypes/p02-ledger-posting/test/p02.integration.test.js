@@ -257,11 +257,11 @@ test("posted journals lines requests and outbox are immutable even to the fixtur
 test("outbox insertion failure rolls back the idempotency row and journal atomically", async () => {
   await adminPool.query(`
     CREATE OR REPLACE FUNCTION public.p02_test_fail_outbox_insert()
-    RETURNS trigger LANGUAGE plpgsql AS $
+    RETURNS trigger LANGUAGE plpgsql AS $p02$
     BEGIN
       RAISE EXCEPTION 'synthetic outbox failure' USING ERRCODE = 'P0001';
     END
-    $;
+    $p02$;
   `);
   await adminPool.query(`
     CREATE TRIGGER p02_test_fail_outbox
