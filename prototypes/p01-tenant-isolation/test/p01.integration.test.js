@@ -643,8 +643,9 @@ test("database access without transaction-local tenant context is default-deny",
 
 
 test("support principal can read only a tenant record covered by its active grant and emits an audit event", async () => {
-  const adminGrant = await adminPool.query("SELECT grant_id FROM public.support_grants WHERE grant_id = $1", [SUPPORT_GRANT_ACTIVE]);
+  const adminGrant = await adminPool.query("SELECT grant_id::text, support_subject_id, tenant_id::text, resource_scope, expires_at > clock_timestamp() AS unexpired, revoked_at IS NULL AS unrevoked, expires_at, revoked_at FROM public.support_grants WHERE grant_id = $1", [SUPPORT_GRANT_ACTIVE]);
   assert.equal(adminGrant.rowCount, 1, "synthetic active support grant must be seeded");
+  assert.deepEqual({ subject: adminGrant.rows[0].support_subject_id, tenant: adminGrant.rows[0].tenant_id, scope: adminGrant.rows[0].resource_scope, unexpired: adminGrant.rows[0].unexpired, unrevoked: adminGrant.rows[0].unrevoked }, { subject: "synthetic-support-a", tenant: TENANT_A, scope: "records:read", unexpired: true, unrevoked: true });
   const visibleGrant = await supportPool.query("SELECT grant_id FROM public.support_grants WHERE grant_id = $1", [SUPPORT_GRANT_ACTIVE]);
   assert.equal(visibleGrant.rowCount, 1, "support-authorizer RLS must expose the seeded grant");
   const exactMatch = await supportPool.query("SELECT grant_id FROM public.support_grants WHERE grant_id = $1 AND support_subject_id = $2 AND tenant_id = $3 AND resource_scope = 'records:read' AND revoked_at IS NULL AND expires_at > clock_timestamp() FOR SHARE", [SUPPORT_GRANT_ACTIVE, "synthetic-support-a", TENANT_A]);
