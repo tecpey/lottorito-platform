@@ -1,0 +1,10 @@
+{
+  "name": "lottorito-p01-tenant-isolation",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Disposable, synthetic-data experiment for HTTP tenant context and PostgreSQL RLS.",
+  "engines": { "node": "26.13.x" },
+  "scripts": { "test": "node scripts/setup-db.js && node --test" },
+  "dependencies": { "pg": "8.23.1" }
+}
