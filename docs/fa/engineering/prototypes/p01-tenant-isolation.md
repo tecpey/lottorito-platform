@@ -34,6 +34,7 @@
 | P01-DB-04 | تلاش برای تغییر app.tenant_id با Role مشترک app_runtime | افشای مورد انتظار: Role می‌تواند Tenant دیگری را اظهار کند؛ اثبات می‌کند GUC/RLS در برابر Credential اجرایی تسخیرشده مرز امنیتی نیست |
 | P01-DB-05 | اجرای UPDATE/DELETE روی شیء اختصاصی Tenant B در Context مربوط به A | هیچ ردیفی تغییر یا حذف نمی‌شود؛ شیء B بدون تغییر باقی می‌ماند |
 | P01-DB-06 | INSERT ردیف Tenant B در Context مربوط به A، با دور زدن HTTP | قاعده RLS از طریق WITH CHECK نوشتن را رد می‌کند؛ تراکنش ناموفق پیش از استفاده مجدد Pool Rollback می‌شود |
+| P01-DB-07 | خواندن ردیف‌های Membership در Contextهای A و B | RLS جدول Membership فقط ردیف‌های متعلق به Tenant فعال را نمایش می‌دهد |
 
 ## تفسیر امنیتی مهم
 
