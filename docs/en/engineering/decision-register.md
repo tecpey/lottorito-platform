@@ -1,6 +1,6 @@
 # Lottorito Decision Register
 
-**Document ID:** LOT-ADR-REG-001 | **Version:** 2.1.0 | **Status:** Maintained register; entries retain their individual authority state
+**Document ID:** LOT-ADR-REG-001 | **Version:** 2.2.0 | **Status:** Maintained register; entries retain their individual authority state
 
 ## How to read this register
 This register prevents agents from turning discussion, examples or proposals into product rules. A record is not approved merely because it is listed here. The state and authority column govern. Evidence must be linked for every change.
@@ -60,6 +60,8 @@ This register prevents agents from turning discussion, examples or proposals int
 | LDR-040 | Payment orchestration and provider adapter contract | Proposed | LOT-PAYMENT-001 defines provider-neutral payment intents/attempts, adapter capabilities, tenant/legal-entity merchant context, callback verification, idempotency, routing, refunds, settlement evidence and reconciliation. It records the owner-directed Iranian and international payment target without selecting a provider or approving a market. | Apply LOT-PROVIDER-EVAL-001 to each exact provider/entity/jurisdiction/funds-flow decision unit. Owner, legal/compliance, finance, security, product and operations approval required. No payment runtime, licence, merchant account or real-money processing is authorized. |
 
 | LDR-041 | Payout, withdrawal and disbursement contract | Proposed | LOT-PAYOUT-001 defines distinct customer withdrawal, Affiliate/Agent commission payout, Lottery prize disbursement and treasury boundaries; beneficiary verification, holds, maker-checker, provider execution, idempotency, settlement evidence, returns and reconciliation. | This decomposes the owner-directed withdrawal target but does not approve custody, banking, money transmission, payout execution or any market. Owner, legal/compliance, finance/treasury, security, provider and operations approval required for each exact purpose/entity/jurisdiction/funds-flow unit. |
+
+| LDR-042 | First-party B2C application product requirements | Owner direction / product requirements proposed | LOT-B2C-PRD-001 specifies a dedicated first-party B2C tenant using the same shared module contracts as B2B, with entitlement/jurisdiction gating and customer journeys for identity, wallet, payment, withdrawal, chat, support, notifications and localization. Only approved and eligible modules may be exposed. | The dedicated B2C tenant is owner-directed; detailed PRD, launch markets, module order, legal entity, identity model, pricing and operating policies remain Proposed/Open. Owner, product, legal, finance, security, privacy, accessibility and operations review required. No app launch or real-money feature is authorized. |
 
 ## Decision-change protocol
 1. Propose a change with rationale, alternatives, impact and evidence.
