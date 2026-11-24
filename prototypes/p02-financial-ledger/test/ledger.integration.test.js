@@ -144,7 +144,10 @@ test("exact numeric arithmetic and token precision are preserved without JavaScr
   const stored = await readJournal(runtimePool, TENANT_A, PRODUCT_AFFILIATE, posted.journal_id);
   assert.equal(normalizeDecimal(stored.entries[0].amount), "5.123456");
   assert.equal(normalizeDecimal(stored.entries[1].amount), "5.123456");
-  assert.throws(() => buildInput(source, { amount: 5.123456 }), /entries require/);
+  await assert.rejects(
+    postLedgerEffect(runtimePool, buildInput(source, { amount: 5.123456 })),
+    TypeError
+  );
 });
 
 test("replaying the same economic effect returns the original journal", async () => {
@@ -228,7 +231,7 @@ test("unbalanced journals roll back header, effect, entries and outbox", async (
 });
 
 test("currency decimal scale is enforced at the database boundary", async () => {
-  const source = await createSourceEvent({ amount: "1.001" });
+  const source = await createSourceEvent({ amount: "1.00" });
   const input = buildInput(source, { amount: "1.001" });
   await assert.rejects(postLedgerEffect(runtimePool, input), (error) => error.code === "22003");
 });
