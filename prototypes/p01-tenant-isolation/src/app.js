@@ -178,6 +178,8 @@ export function createTenantServer({ pool, supportPool, authenticate, objectStor
       const isJobsCollection = url.pathname === "/jobs";
       const recordMatch = url.pathname.match(/^\/records\/([0-9a-f-]+)$/i);
       const supportMatch = url.pathname.match(/^\/support\/tenants\/([0-9a-f-]+)\/records\/([0-9a-f-]+)$/i);
+      const exportGrantMatch = url.pathname.match(/^\/exports\/([0-9a-f-]+)\/download-grants$/i);
+      const isExportDownload = url.pathname === "/exports/download";
 
       if (!isCollection && !isJobsCollection && !recordMatch && !supportMatch && !exportGrantMatch && !isExportDownload) {
         respond(res, 404, { error: "not_found" });
