@@ -6,7 +6,9 @@ export const TENANT_B_ONLY_RECORD_ID = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
 
 const principalsByToken = new Map([
   ["p01-synthetic-token-a", { subjectId: "synthetic-user-a", tenantId: TENANT_A }],
-  ["p01-synthetic-token-b", { subjectId: "synthetic-user-b", tenantId: TENANT_B }]
+  ["p01-synthetic-token-b", { subjectId: "synthetic-user-b", tenantId: TENANT_B }],
+  ["p01-synthetic-support-token", { subjectId: "synthetic-support-a", kind: "support" }],
+  ["p01-synthetic-support-other-token", { subjectId: "synthetic-support-b", kind: "support" }]
 ]);
 
 export async function authenticateSyntheticRequest(req) {
