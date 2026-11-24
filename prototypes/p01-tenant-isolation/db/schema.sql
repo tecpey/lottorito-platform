@@ -12,6 +12,21 @@ ALTER ROLE app_runtime
   LOGIN PASSWORD 'p01-only-not-for-production'
   NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
 
+DO $dispatcher_role$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'job_dispatcher') THEN
+    CREATE ROLE job_dispatcher LOGIN PASSWORD 'p01-dispatcher-not-for-production'
+      NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
+  END IF;
+END;
+$dispatcher_role$;
+
+ALTER ROLE job_dispatcher
+  LOGIN PASSWORD 'p01-dispatcher-not-for-production'
+  NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
+
+DROP TABLE IF EXISTS public.job_dispatch;
+DROP TABLE IF EXISTS public.tenant_jobs;
 DROP TABLE IF EXISTS public.tenant_records;
 DROP TABLE IF EXISTS public.tenant_memberships;
 
@@ -45,6 +60,91 @@ CREATE POLICY tenant_memberships_tenant_guard
   WITH CHECK (
     tenant_id = NULLIF(current_setting('app.tenant_id', true), '')::uuid
   );
+
+CREATE TABLE public.tenant_jobs (
+  tenant_id uuid NOT NULL,
+  job_id uuid NOT NULL,
+  subject_id text NOT NULL,
+  payload text NOT NULL,
+  status text NOT NULL DEFAULT 'queued'
+    CHECK (status IN ('queued', 'completed', 'rejected')),
+  created_at timestamptz NOT NULL DEFAULT clock_timestamp(),
+  completed_at timestamptz,
+  PRIMARY KEY (tenant_id, job_id),
+  CHECK (length(payload) <= 1000)
+);
+
+ALTER TABLE public.tenant_jobs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.tenant_jobs FORCE ROW LEVEL SECURITY;
+
+CREATE POLICY tenant_jobs_app_access
+  ON public.tenant_jobs
+  AS PERMISSIVE
+  FOR ALL
+  TO app_runtime
+  USING (true)
+  WITH CHECK (true);
+
+CREATE POLICY tenant_jobs_tenant_guard
+  ON public.tenant_jobs
+  AS RESTRICTIVE
+  FOR ALL
+  TO app_runtime
+  USING (
+    tenant_id = NULLIF(current_setting('app.tenant_id', true), '')::uuid
+  )
+  WITH CHECK (
+    tenant_id = NULLIF(current_setting('app.tenant_id', true), '')::uuid
+  );
+
+-- Cross-tenant dispatch metadata contains no job payload. Only the dispatcher
+-- can scan/claim it; the application can insert only within its current tenant.
+CREATE TABLE public.job_dispatch (
+  tenant_id uuid NOT NULL,
+  job_id uuid NOT NULL,
+  status text NOT NULL DEFAULT 'pending'
+    CHECK (status IN ('pending', 'claimed', 'completed')),
+  attempts integer NOT NULL DEFAULT 0 CHECK (attempts >= 0),
+  created_at timestamptz NOT NULL DEFAULT clock_timestamp(),
+  claimed_at timestamptz,
+  PRIMARY KEY (tenant_id, job_id),
+  FOREIGN KEY (tenant_id, job_id)
+    REFERENCES public.tenant_jobs (tenant_id, job_id)
+);
+
+ALTER TABLE public.job_dispatch ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.job_dispatch FORCE ROW LEVEL SECURITY;
+
+CREATE POLICY job_dispatch_app_insert
+  ON public.job_dispatch
+  AS PERMISSIVE
+  FOR INSERT
+  TO app_runtime
+  WITH CHECK (true);
+
+CREATE POLICY job_dispatch_app_tenant_guard
+  ON public.job_dispatch
+  AS RESTRICTIVE
+  FOR INSERT
+  TO app_runtime
+  WITH CHECK (
+    tenant_id = NULLIF(current_setting('app.tenant_id', true), '')::uuid
+  );
+
+CREATE POLICY job_dispatcher_read
+  ON public.job_dispatch
+  AS PERMISSIVE
+  FOR SELECT
+  TO job_dispatcher
+  USING (true);
+
+CREATE POLICY job_dispatcher_update
+  ON public.job_dispatch
+  AS PERMISSIVE
+  FOR UPDATE
+  TO job_dispatcher
+  USING (true)
+  WITH CHECK (true);
 
 CREATE TABLE public.tenant_records (
   tenant_id uuid NOT NULL,
@@ -84,11 +184,15 @@ CREATE POLICY tenant_records_tenant_guard
   );
 
 GRANT USAGE ON SCHEMA public TO app_runtime;
+GRANT USAGE ON SCHEMA public TO job_dispatcher;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.tenant_records TO app_runtime;
 GRANT SELECT ON public.tenant_memberships TO app_runtime;
 -- PostgreSQL requires UPDATE on at least one column for SELECT ... FOR SHARE.
 -- Grant only the inert lock_version column, never the active authorization flag.
 GRANT UPDATE (lock_version) ON public.tenant_memberships TO app_runtime;
+GRANT SELECT, INSERT, UPDATE (status, completed_at) ON public.tenant_jobs TO app_runtime;
+GRANT INSERT ON public.job_dispatch TO app_runtime;
+GRANT SELECT, UPDATE (status, attempts, claimed_at) ON public.job_dispatch TO job_dispatcher;
 
 -- Synthetic active memberships; production membership lifecycle is not implemented.
 INSERT INTO public.tenant_memberships (tenant_id, subject_id, active) VALUES
