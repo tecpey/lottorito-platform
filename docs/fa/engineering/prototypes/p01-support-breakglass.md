@@ -1,8 +1,8 @@
 # نمونه دسترسی پشتیبانی و Break-Glass در P-01
 
 **شناسه سند:** LOT-PROT-P01-SUPPORT-001  
-**نسخه:** ۰.۲.۰  
-**وضعیت:** برش آزمایشی با داده ساختگی پیاده‌سازی شده؛ CI موفق؛ کنترل‌های Production تأیید نشده  
+**نسخه:** ۰.۳.۰  
+**وضعیت:** برش آزمایشی با داده ساختگی پیاده‌سازی شده؛ ۲۷ تست CI موفق؛ کنترل‌های Production تأیید نشده  
 **آزمایش مادر:** LOT-PROT-P01-001 / PR شماره ۳۶
 
 ## هدف
@@ -32,7 +32,7 @@
 | P01-SUPPORT-04 | Grant متعلق به Subject پشتیبان یا Tenant دیگری است | دسترسی رد و هیچ Payload مربوط به Tenant افشا نشود |
 | P01-SUPPORT-05 | Scope وجود ندارد یا records:read نیست | دسترسی رد شود |
 | P01-SUPPORT-06 | شناسه Grant مفقود یا ناشناخته است | دسترسی رد و بدون اعتماد به دلیل ارسالی Caller ثبت شود |
-| P01-SUPPORT-07 | Principal پشتیبانی مسیر عادی Tenant یا Mutation را امتحان می‌کند | دسترسی رد شود |
+| P01-SUPPORT-07 | Principal پشتیبانی مسیر عادی Tenant یا Mutation را امتحان می‌کند | دسترسی رد و رویداد Audit از نوع `tenant-route:denied` با Tenant/Resource تهی ثبت شود |
 | P01-SUPPORT-08 | Support Authorizer تلاش می‌کند Payloadهای Tenant را بخواند | دیتابیس به‌دلیل نبود مجوز دسترسی را رد کند |
 | P01-SUPPORT-09 | Grant هنگام خواندن داده لغو می‌شود | لغو پشت قفل ردیف منتظر بماند؛ آزمون Race الزامی است |
 | P01-SUPPORT-10 | Role مربوط به Support Authorizer تغییر یا حذف Audit را امتحان می‌کند | UPDATE/DELETE رد شود |
@@ -57,7 +57,7 @@
 
 ## اجرا و شواهد
 
-پیاده‌سازی و Fixtureهای ساختگی در شاخه پشته‌شده Support قرار دارند. مجموعه تست یکپارچگی، Grant فعال/منقضی/لغوشده/نامنطبق، جداسازی مسیر Support از Tenant، منع خواندن Payload، محدودیت جدول Audit و قفل‌گذاری هنگام لغو Grant را آزمایش می‌کند. نتیجه CI: موفق — [اجرای P-01 با شناسه 45414502363](https://github.com/tecpey/lottorito-platform/actions/runs/45414502363) روی Head با شناسه `39fda51d98a65957906d670556aae7c6969cd9df`؛ هر ۲۷ تست Node موفق، صفر شکست و صفر Skip‌شده، با Node.js 26.13.0 و PostgreSQL 18.7. [اجرای Documentation Governance با شناسه 45414502359](https://github.com/tecpey/lottorito-platform/actions/runs/45414502359) نیز موفق شد. سناریوهای اختصاصی Support شامل RLS مبتنی بر Subject، خواندن Grant فعال و ثبت Audit، رد انقضا/لغو/عدم تطابق، جداسازی Roleها، حداقل مجوز و قفل‌گذاری هنگام لغو Grant هستند. این شواهد فقط به برش آزمایشی ساختگی مربوط‌اند و آمادگی Support در Production را اثبات نمی‌کنند.
+پیاده‌سازی و Fixtureهای ساختگی در شاخه پشته‌شده Support قرار دارند. مجموعه تست یکپارچگی، Grant فعال/منقضی/لغوشده/نامنطبق، جداسازی مسیر Support از Tenant، منع خواندن Payload، محدودیت جدول Audit و قفل‌گذاری هنگام لغو Grant را آزمایش می‌کند. نتیجه CI: موفق — [اجرای P-01 با شناسه 45415291914](https://github.com/tecpey/lottorito-platform/actions/runs/45415291914) روی Head با شناسه `f564e6a05780da67f962d7415bb792402775b12f`؛ هر ۲۷ تست Node موفق، صفر شکست و صفر Skip‌شده، با Node.js 26.13.0 و PostgreSQL 18.7. این مجموعه، ثبت Audit برای تلاش ردشده جهت ورود Support به مسیرهای عادی Tenant را نیز پوشش می‌دهد. [اجرای Documentation Governance با شناسه 45415291755](https://github.com/tecpey/lottorito-platform/actions/runs/45415291755) نیز موفق شد. سناریوهای اختصاصی Support شامل RLS مبتنی بر Subject، خواندن Grant فعال و ثبت Audit، رد انقضا/لغو/عدم تطابق، جداسازی Roleها، حداقل مجوز و قفل‌گذاری هنگام لغو Grant هستند. این شواهد فقط به برش آزمایشی ساختگی مربوط‌اند و آمادگی Support در Production را اثبات نمی‌کنند.
 
 برای اجرای محلی، سرویس PostgreSQL دورریختنی را از مسیر `prototypes/p01-tenant-isolation` اجرا و متغیرهای `ADMIN_DATABASE_URL`، `DATABASE_URL`، `DISPATCHER_DATABASE_URL` و `SUPPORT_DATABASE_URL` را با مقادیر ساختگی موجود در راهنمای والد P-01 تنظیم کنید. سپس `npm ci --ignore-scripts --no-audit --no-fund` و `npm test` را اجرا کنید. این مقادیر را هرگز به دیتابیس مشترک، Staging یا Production متصل نکنید.
 
