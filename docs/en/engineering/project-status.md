@@ -1,6 +1,6 @@
 # Verified Project Status and Continuation Point
 
-**Document ID:** LOT-OPS-001 | **Version:** 0.5.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-24
+**Document ID:** LOT-OPS-001 | **Version:** 0.6.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-24
 
 ## Verified repository state
 - Repository: tecpey/lottorito-platform; default branch main; public visibility by owner decision.
@@ -21,6 +21,7 @@ The branch docs/agent-ready-foundation-v1 contains proposed bilingual references
 - LOT-API-001: proposed resource, authorization, error, pagination, idempotency and webhook conventions.
 - LOT-TECH-ADR-001: proposed technology, deployment, reliability, observability and data-lifecycle decision framework; no stack/provider approved.
 - LOT-QA-001: proposed measurable quality scenarios, cross-cutting invariants, evidence strategy and release gates; numeric thresholds remain TBD.
+- LOT-PROT-001: proposed eight-prototype experiment plan with pass/fail criteria and evidence templates; no prototype execution is verified.
 
 The finance, security, API and technology/deployment references are proposals, not approved policies or implemented controls. LOT-TECH-ADR-001 compares architecture, database, queues/workflows, hosting, observability, recovery, security and data-residency decision criteria. No technology vendor or stack is approved by that document.
 
@@ -39,7 +40,7 @@ No application implementation, physical database schema/migrations, CI workflow,
 ## Next sequence
 1. Review LOT-QA-001 with product, engineering/SRE, security, finance, legal/privacy and owner stakeholders; define workload profiles and approve thresholds only with accountable owners.
 2. Review the proposed finance, threat and API baselines with the owner and domain reviewers.
-3. Review LOT-TECH-ADR-001 and map each prototype to LOT-QA-001; run tenant, financial transaction, provider failure, migration, recovery and observability prototypes before accepting technology choices.
+3. Review LOT-TECH-ADR-001 and LOT-PROT-001; approve experiment scope and accountable owners, then run P-01 through P-08 in isolated synthetic environments before accepting technology choices.
 4. Extend documentation governance with metadata validation and reviewer-owned semantic parity checks; current CI covers paired paths, IDs and local links only.
 5. Complete cross-product architecture and product-specific release gates.
 6. Decide jurisdiction, operating model, provider due diligence and commercial/financial policies.
