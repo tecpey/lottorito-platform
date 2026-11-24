@@ -1,6 +1,6 @@
 # P-01 — Tenant Isolation Prototype
 
-**Document ID:** LOT-PROT-P01-001 | **Version:** 0.3.0 | **Status:** Prototype implemented; identity-bound comparison CI passed; full P-01 remains partial | **Review date:** 2026-11-24
+**Document ID:** LOT-PROT-P01-001 | **Version:** 0.4.0 | **Status:** Prototype implemented; identity-bound comparison CI passed; full P-01 remains partial | **Review date:** 2026-11-24
 
 ## Purpose and decision boundary
 
@@ -20,8 +20,8 @@ It is not a production service, authentication implementation, complete P-01 pas
 - A separate non-superuser/non-BYPASSRLS dispatcher role can claim global dispatch metadata with `FOR UPDATE SKIP LOCKED`, but has no grant on job payloads. Its UPDATE grant is limited to dispatch status/attempt/lease columns.
 - Dispatch envelopes bind key ID, version, tenant ID, job ID, attempt and issue time with Ed25519 signatures. The dispatcher holds the private signing key; the worker receives only the public verification key and verifies before setting tenant context and reloading the job under RLS. Tests generate a fresh ephemeral key pair for each run.
 - The worker re-checks the originating subject's active membership in the job transaction, uses row locks and an idempotent status transition, and rejects jobs whose membership was revoked before execution.
-- A second, explicitly comparative database identity model uses separate synthetic LOGIN roles for Tenant A and B. A private role-to-tenant map is readable only by a NOLOGIN owner role; a narrowly defined SECURITY DEFINER function maps immutable `session_user` to tenant ID, with a fixed `search_path`. RLS policies use that database-authenticated identity instead of the mutable application GUC.
-- The per-tenant role tests attempt to spoof `app.tenant_id`, switch to the other tenant role, read the private role map and insert another tenant's row. These attempts must not cross the boundary.
+- A second, explicitly comparative database identity model uses separate synthetic LOGIN roles for Tenant A and B. A private role-to-tenant map is readable only by a dedicated NOLOGIN, non-superuser, non-BYPASSRLS owner role; a narrowly defined SECURITY DEFINER function maps immutable `session_user` to tenant ID, with a fixed `search_path` (`pg_catalog, private, pg_temp`). RLS policies use that database-authenticated identity instead of the mutable application GUC. Tests inspect function ownership/configuration and attempt temporary-schema shadowing.
+- The per-tenant role tests attempt to spoof `app.tenant_id`, switch to the other tenant role, change `SESSION AUTHORIZATION`, read the private role map and insert another tenant's row. They also verify that tenant membership rows and async job payloads are scoped to the authenticated database role.
 
 ## Acceptance scenarios
 
@@ -41,7 +41,7 @@ It is not a production service, authentication implementation, complete P-01 pas
 | P01-DB-05 | UPDATE/DELETE tenant-B-only object while scoped to A | Zero rows affected; B's object remains unchanged |
 | P01-DB-06 | INSERT a tenant-B row while scoped to A, bypassing HTTP | RLS WITH CHECK rejects the write; failed transaction is rolled back before pool reuse |
 | P01-DB-07 | Read tenant membership rows under A and B contexts | Membership table RLS exposes only the active tenant's membership rows |
-| P01-DB-08 | Connect as separate Tenant A/B database login roles; spoof GUC, attempt SET ROLE, read identity map and forge writes | `session_user` maps to exactly one tenant; mutable GUC cannot switch tenant; cross-role switch/map access/write are denied |
+| P01-DB-08 | Connect as separate Tenant A/B database login roles; spoof GUC, attempt role/session authorization switch, shadow identity-map name in temp schema and forge writes | `session_user` maps to exactly one tenant; owner is NOLOGIN/non-privileged; fixed SECURITY DEFINER search_path resists temp shadowing; GUC cannot switch tenant; cross-role switch/map access/write are denied |
 | P01-ASYNC-01 | Enqueue a job as A/B and attempt caller tenant override | Job and dispatch metadata are atomic; tenant comes from principal; forged tenant is denied |
 | P01-ASYNC-02 | Inspect dispatcher role and query job payloads | Dispatcher can read/claim metadata only; payload SELECT is denied; role has no BYPASSRLS |
 | P01-ASYNC-03 | Change tenant ID in a signed queue envelope | Ed25519 signature verification fails before any tenant-scoped data access |
@@ -96,8 +96,8 @@ The prototype pins the direct `pg` dependency and commits `package-lock.json`; C
 ## Result record
 
 - Implementation state: files added on spike/p01-tenant-isolation.
-- CI result: PASS — GitHub Actions run [45410971589](https://github.com/tecpey/lottorito-platform/actions/runs/45410971589), on head `318e1329e2e8c723401580ec396ebed6269e5e6d`. Node.js v26.13.0 + PostgreSQL 18.7; `npm ci` with the committed lockfile; 19 Node tests passed, 0 failed, 0 skipped. Documentation Governance run [45410971541](https://github.com/tecpey/lottorito-platform/actions/runs/45410971541) also passed. GitHub Actions are pinned to verified immutable commit SHAs.
-- The passing run includes the earlier request-time RLS, pool reuse, membership re-authorization and async outbox/dispatcher/Ed25519 job-envelope tests, plus the comparative per-tenant LOGIN-role test: session identity maps to exactly one tenant; changing the custom GUC cannot change visibility; `SET ROLE` to the other tenant, reading the private identity map and cross-tenant inserts are denied.
+- CI result: PASS — GitHub Actions run [45411486646](https://github.com/tecpey/lottorito-platform/actions/runs/45411486646), on head `278ac96a161cd545ca60d4f9d43be220c9eabf16`. Node.js v26.13.0 + PostgreSQL 18.7; `npm ci` with the committed lockfile; 19 Node tests passed, 0 failed, 0 skipped. Documentation Governance run [45411486650](https://github.com/tecpey/lottorito-platform/actions/runs/45411486650) also passed. GitHub Actions are pinned to verified immutable commit SHAs.
+- The passing run includes the earlier request-time RLS, pool reuse, membership re-authorization and async outbox/dispatcher/Ed25519 job-envelope tests, plus the comparative per-tenant LOGIN-role test: session identity maps to exactly one tenant; changing the custom GUC cannot change visibility; `SET ROLE`/`SET SESSION AUTHORIZATION` to the other tenant, reading the private identity map and cross-tenant inserts are denied; membership and async-job rows are also tenant-scoped. The function owner, NOLOGIN/non-BYPASSRLS attributes, fixed `search_path` and temporary-schema shadowing attempt are verified.
 - A deliberate red-team test still demonstrates that a compromised shared `app_runtime` role can set the custom GUC to another tenant. This is a known trust boundary, not evidence of adversarial isolation. The per-tenant LOGIN-role variant is stronger against SQL injection confined to one tenant connection, but depends on safely brokering credentials and partitioning connection pools; those operational controls and scale characteristics are not yet tested.
 - Local execution: Not run in this environment; the verified run is GitHub-hosted CI.
 - Overall P-01: Inconclusive / partial scope only. The comparison proves one database-level identity pattern in a synthetic fixture, not end-to-end tenant isolation across cache, object storage, search, exports, reporting, support access, production workload identity or deployment boundaries.
