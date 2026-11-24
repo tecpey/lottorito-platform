@@ -15,16 +15,20 @@ Shared foundations may include identity and access, tenant management, API contr
 
 This is a strategic product direction, not a statement that all listed capabilities have been implemented or approved for release.
 
+## Documentation coverage note
+
+The current `LOT-PROD-001` and `LOT-ARCH-001` files are early, Affiliate-led drafts. They are not yet a complete Lottery PRD or an approved cross-product architecture. Lottery-specific product requirements, provider lifecycle contracts, and the full cross-product architecture still require dedicated documentation and review. The index must not be read as evidence that these deliverables are complete.
+
 ## Documentation map
 
 | Area | Document | Purpose |
 |---|---|---|
-| Product | [Vision & PRD](product/vision-and-prd.md) | Product principles, proposed scope, roles, acceptance criteria, and open questions |
+| Product | [Vision & PRD](product/vision-and-prd.md) | Initial Affiliate-led requirements draft; not a complete Lottery PRD |
 | Product | [Glossary](product/glossary.md) | Shared domain terminology |
-| Architecture | [System architecture](architecture/system-architecture.md) | Proposed modular and multi-tenant architecture |
+| Architecture | [System architecture](architecture/system-architecture.md) | Initial architecture proposal; Lottery domain expansion remains pending |
 | Commission | [Commission engine](commission/commission-engine.md) | Versioned commission concepts and unresolved policy choices |
-| Finance | [Wallet & ledger](finance/wallet-and-ledger.md) | Financial integrity and ledger principles |
-| Partners | [Integration contract](partners/integration-contract.md) | Partner event and delivery boundaries |
+| Finance | [Wallet & ledger](finance/wallet-and-ledger.md) | Draft financial integrity and ledger principles; product-specific mappings remain open |
+| Partners | [Integration contract](partners/integration-contract.md) | Initial Affiliate partner-event contract; Lottery provider contracts remain pending |
 | Security | [Security baseline](security/security-baseline.md) | Initial security requirements and controls |
 | Engineering | [Project status](engineering/project-status.md) | Verified state and continuation point |
 | Engineering | [Roadmap](engineering/roadmap.md) | Proposed delivery sequence and gates |
