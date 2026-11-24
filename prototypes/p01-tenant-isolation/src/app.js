@@ -1,0 +1,137 @@
+import { createServer } from "node:http";
+import { randomUUID } from "node:crypto";
+import { isUuid, withTenantTransaction } from "./tenant-db.js";
+
+const MAX_BODY_BYTES = 4096;
+
+function respond(res, status, body) {
+  res.writeHead(status, {
+    "content-type": "application/json; charset=utf-8",
+    "cache-control": "no-store",
+    "x-content-type-options": "nosniff"
+  });
+  res.end(JSON.stringify(body));
+}
+
+function httpError(status, message) {
+  const error = new Error(message);
+  error.statusCode = status;
+  return error;
+}
+
+async function readJson(req) {
+  const contentType = String(req.headers["content-type"] ?? "").split(";")[0].trim().toLowerCase();
+  if (contentType !== "application/json") throw httpError(415, "application/json is required");
+
+  const chunks = [];
+  let size = 0;
+  for await (const chunk of req) {
+    size += chunk.length;
+    if (size > MAX_BODY_BYTES) throw httpError(413, "request body too large");
+    chunks.push(chunk);
+  }
+
+  try {
+    return JSON.parse(Buffer.concat(chunks).toString("utf8"));
+  } catch {
+    throw httpError(400, "invalid JSON body");
+  }
+}
+
+/**
+ * authenticate(req) must validate credentials and resolve active membership
+ * server-side. It must not trust tenant IDs from caller-controlled input.
+ */
+export function createTenantServer({ pool, authenticate }) {
+  if (!pool || typeof authenticate !== "function") {
+    throw new TypeError("pool and authenticate are required");
+  }
+
+  return createServer(async (req, res) => {
+    try {
+      const url = new URL(req.url ?? "/", "http://localhost");
+      const isCollection = url.pathname === "/records";
+      const recordMatch = url.pathname.match(/^\/records\/([0-9a-f-]+)$/i);
+
+      if (!isCollection && !recordMatch) {
+        respond(res, 404, { error: "not_found" });
+        return;
+      }
+
+      const principal = await authenticate(req);
+      if (!principal || typeof principal.subjectId !== "string" || !isUuid(principal.tenantId)) {
+        respond(res, 401, { error: "unauthorized" });
+        return;
+      }
+
+      // Caller-supplied tenant hints are deliberately ignored.
+      if (req.method === "GET" && isCollection) {
+        const rows = await withTenantTransaction(pool, principal.tenantId, async (client) => {
+          const result = await client.query(
+            "SELECT record_id, natural_key, payload FROM public.tenant_records ORDER BY natural_key, record_id"
+          );
+          return result.rows;
+        });
+        respond(res, 200, { data: rows });
+        return;
+      }
+
+      if (req.method === "GET" && recordMatch) {
+        const recordId = recordMatch[1];
+        if (!isUuid(recordId)) {
+          respond(res, 404, { error: "not_found" });
+          return;
+        }
+        const row = await withTenantTransaction(pool, principal.tenantId, async (client) => {
+          const result = await client.query(
+            "SELECT record_id, natural_key, payload FROM public.tenant_records WHERE record_id = $1",
+            [recordId]
+          );
+          return result.rows[0] ?? null;
+        });
+        if (!row) {
+          respond(res, 404, { error: "not_found" });
+          return;
+        }
+        respond(res, 200, { data: row });
+        return;
+      }
+
+      if (req.method === "POST" && isCollection) {
+        const body = await readJson(req);
+        if (body === null || typeof body !== "object" || Array.isArray(body)) {
+          throw httpError(400, "a JSON object is required");
+        }
+        if (body.tenant_id !== undefined && body.tenant_id !== principal.tenantId) {
+          respond(res, 403, { error: "tenant_scope_mismatch" });
+          return;
+        }
+        if (typeof body.natural_key !== "string" || body.natural_key.length < 1 || body.natural_key.length > 80) {
+          throw httpError(400, "natural_key must contain 1 to 80 characters");
+        }
+        if (typeof body.payload !== "string" || body.payload.length > 1000) {
+          throw httpError(400, "payload must be a string of at most 1000 characters");
+        }
+
+        const recordId = isUuid(body.record_id) ? body.record_id : randomUUID();
+        const row = await withTenantTransaction(pool, principal.tenantId, async (client) => {
+          const result = await client.query(
+            "INSERT INTO public.tenant_records (tenant_id, record_id, natural_key, payload) VALUES ($1, $2, $3, $4) RETURNING record_id, natural_key, payload",
+            [principal.tenantId, recordId, body.natural_key, body.payload]
+          );
+          return result.rows[0];
+        });
+        respond(res, 201, { data: row });
+        return;
+      }
+
+      respond(res, 405, { error: "method_not_allowed" });
+    } catch (error) {
+      const status = Number.isInteger(error.statusCode) ? error.statusCode : 500;
+      respond(res, status, {
+        error: status === 500 ? "internal_error" : "bad_request",
+        message: status === 500 ? "request failed" : error.message
+      });
+    }
+  });
+}
