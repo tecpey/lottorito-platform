@@ -1,6 +1,6 @@
 # تحویل Outbox تراکنشی محدود به Tenant در P-03
 
-**شناسه سند:** LOT-PROT-P03-001 | **نسخه:** ۰.۱.۰ | **وضعیت:** Prototype ساختگی؛ CI در انتظار؛ بدون تأیید Transport یا عملیات Production
+**شناسه سند:** LOT-PROT-P03-001 | **نسخه:** ۰.۲.۰ | **وضعیت:** Prototype ساختگی؛ ۱۰ تست Integration موفق، صفر شکست و صفر Skip؛ بدون تأیید Transport یا عملیات Production
 
 ## هدف و اعتبار
 
