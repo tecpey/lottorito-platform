@@ -110,6 +110,15 @@ test("concurrent duplicate requests serialize to one journal and one outbox even
   assert.equal(outbox.rows[0].count, 1);
 });
 
+test("canonical line ordering makes equivalent retries return the same journal", async () => {
+  const lines = balancedUsd("333");
+  const first = await postJournal(tenantAPool, request("p02-canonical-001", lines));
+  const second = await postJournal(tenantAPool, request("p02-canonical-001", [...lines].reverse()));
+  assert.equal(first.journal_id, second.journal_id);
+  assert.equal(first.duplicate, false);
+  assert.equal(second.duplicate, true);
+});
+
 test("the same idempotency key with different intent is rejected", async () => {
   await postJournal(tenantAPool, request("p02-mismatch-001", balancedUsd("1000")));
   await assert.rejects(
@@ -117,6 +126,15 @@ test("the same idempotency key with different intent is rejected", async () => {
     (error) => error.code === "22023" && error.message.includes("different request content")
   );
   assert.equal(await journalCount(TENANT_A, "p02-mismatch-001"), 1);
+});
+
+test("source event identity is part of the idempotency fingerprint", async () => {
+  await postJournal(tenantAPool, request("p02-source-event-mismatch-001", balancedUsd("44"), EVENT_1));
+  await assert.rejects(
+    postJournal(tenantAPool, request("p02-source-event-mismatch-001", balancedUsd("44"), EVENT_2)),
+    (error) => error.code === "22023" && error.message.includes("different request content")
+  );
+  assert.equal(await journalCount(TENANT_A, "p02-source-event-mismatch-001"), 1);
 });
 
 test("unbalanced postings are rejected without leaving request journal line or outbox rows", async () => {
@@ -235,6 +253,38 @@ test("posted journals lines requests and outbox are immutable even to the fixtur
   );
 });
 
+test("outbox insertion failure rolls back the idempotency row and journal atomically", async () => {
+  await adminPool.query(`
+    CREATE OR REPLACE FUNCTION public.p02_test_fail_outbox_insert()
+    RETURNS trigger LANGUAGE plpgsql AS $
+    BEGIN
+      RAISE EXCEPTION 'synthetic outbox failure' USING ERRCODE = 'P0001';
+    END
+    $;
+  `);
+  await adminPool.query(`
+    CREATE TRIGGER p02_test_fail_outbox
+    BEFORE INSERT ON public.ledger_outbox
+    FOR EACH ROW EXECUTE FUNCTION public.p02_test_fail_outbox_insert()
+  `);
+  try {
+    await assert.rejects(
+      postJournal(tenantAPool, request("p02-outbox-failure-001", balancedUsd("77"))),
+      (error) => error.code === "P0001" && error.message.includes("synthetic outbox failure")
+    );
+  } finally {
+    await adminPool.query("DROP TRIGGER IF EXISTS p02_test_fail_outbox ON public.ledger_outbox");
+    await adminPool.query("DROP FUNCTION IF EXISTS public.p02_test_fail_outbox_insert()");
+  }
+  assert.equal(await journalCount(TENANT_A, "p02-outbox-failure-001"), 0);
+  const leftovers = await adminPool.query(
+    "SELECT (SELECT count(*)::int FROM public.ledger_journals j JOIN public.posting_requests p USING (tenant_id, journal_id) WHERE p.tenant_id = $1 AND p.idempotency_key = $2) AS journals, (SELECT count(*)::int FROM public.ledger_outbox o WHERE o.tenant_id = $1 AND o.event_type = 'ledger.journal.posted' AND o.payload->>'source_event_id' = $3) AS outbox_events",
+    [TENANT_A, "p02-outbox-failure-001", EVENT_1]
+  );
+  assert.equal(leftovers.rows[0].journals, 0);
+  assert.equal(leftovers.rows[0].outbox_events, 0);
+});
+
 test("database identity must map to a tenant before posting", async () => {
   await assert.rejects(
     adminPool.query(
@@ -278,6 +328,13 @@ test("database-side validation rejects extra fields and fractional amount string
     tenantAPool.query("SELECT * FROM public.post_journal($1, $2, $3::jsonb)", ["p02-db-fraction-001", EVENT_1, JSON.stringify(fractional)]),
     (error) => error.code === "22023" && error.message.includes("values are invalid")
   );
+});
+
+test("tenant runtime roles cannot create objects in the public schema", async () => {
+  const result = await tenantAPool.query(
+    "SELECT has_schema_privilege(current_user, 'public', 'CREATE') AS can_create"
+  );
+  assert.equal(result.rows[0].can_create, false);
 });
 
 test("RLS policies bind the privileged posting function to the database session tenant", async () => {
