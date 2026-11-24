@@ -138,6 +138,16 @@ test("a repeated financial effect with a different request key returns the origi
   assert.equal(retry.duplicate, true);
   assert.equal(await journalCount(TENANT_A, "p02-effect-original"), 1);
   assert.equal(await journalCount(TENANT_A, "p02-effect-new-transport-key"), 1);
+  const effects = await adminPool.query(
+    "SELECT count(*)::int AS count FROM public.financial_effects WHERE tenant_id = $1 AND effect_id = $2",
+    [TENANT_A, effectId]
+  );
+  assert.equal(effects.rows[0].count, 1);
+  const events = await adminPool.query(
+    "SELECT count(*)::int AS count FROM public.ledger_outbox WHERE tenant_id = $1 AND journal_id = $2",
+    [TENANT_A, first.journal_id]
+  );
+  assert.equal(events.rows[0].count, 1);
   await assert.rejects(
     postJournal(tenantAPool, request("p02-effect-new-transport-key", balancedUsd("809"), EVENT_1, effectIdFor("p02-different-effect"))),
     (error) => error.code === "22023" && error.message.includes("idempotency key was reused")
