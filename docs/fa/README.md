@@ -60,6 +60,7 @@ LOT-FIN-POST-001 کنترل‌های پیشنهادی ثبت مالی و تطب�
 | مهندسی | [برنامه Prototype معماری و شواهد](engineering/architecture-prototype-plan.md) | LOT-PROT-001؛ هشت آزمایش الزامی و شواهد پذیرش |
 | مهندسی | [آزمایش P-01 جداسازی Tenant](engineering/prototypes/p01-tenant-isolation.md) | LOT-PROT-P01-001؛ آزمایش محدود HTTP/PostgreSQL RLS و Jobهای Async؛ ۲۰ تست CI موفق؛ P-01 کامل همچنان نامعین است |
 | مهندسی | [Prototype دفترکل مالی P-02](engineering/prototypes/p02-financial-ledger.md) | LOT-PROT-P02-001؛ آزمایش ساختگی Double-entry، Idempotency، Reversal و Reconciliation؛ ۱۹ تست CI موفق؛ زیرساخت مالی Production نیست |
+| مهندسی | [Prototype تحویل رویداد Provider در P-03](engineering/prototypes/p03-provider-event-delivery.md) | LOT-PROT-P03-001؛ آزمایش ساختگی Webhook ورودی/خروجی امضاشده، Retry در Inbox/Outbox و Reconciliation؛ ۲۲ تست CI موفق؛ بدون اتصال واقعی به Provider |
 | مهندسی | [راهنمای عملیاتی ایجنت‌ها](engineering/agent-operating-manual.md) | مسیریابی کم‌هزینه و تحویل کار |
 | مهندسی | [دفتر ثبت تصمیم‌ها](engineering/decision-register.md) | دستور مالک، پیشنهاد و تصمیم باز |
 | مهندسی | [وضعیت پروژه](engineering/project-status.md) | وضعیت تأییدشده و نقطه ادامه |
