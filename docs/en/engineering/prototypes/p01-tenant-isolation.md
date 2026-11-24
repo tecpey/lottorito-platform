@@ -1,6 +1,6 @@
 # P-01 — Tenant Isolation Prototype
 
-**Document ID:** LOT-PROT-P01-001 | **Version:** 0.5.0 | **Status:** Prototype implemented; identity-bound comparison CI passed; full P-01 remains partial | **Review date:** 2026-11-24
+**Document ID:** LOT-PROT-P01-001 | **Version:** 0.6.0 | **Status:** Prototype implemented; identity-bound comparison CI passed; full P-01 remains partial | **Review date:** 2026-11-24
 
 ## Purpose and decision boundary
 
@@ -42,6 +42,7 @@ It is not a production service, authentication implementation, complete P-01 pas
 | P01-DB-06 | INSERT a tenant-B row while scoped to A, bypassing HTTP | RLS WITH CHECK rejects the write; failed transaction is rolled back before pool reuse |
 | P01-DB-07 | Read tenant membership rows under A and B contexts | Membership table RLS exposes only the active tenant's membership rows |
 | P01-DB-08 | Connect as separate Tenant A/B database login roles; spoof GUC, attempt role/session authorization switch, shadow identity-map name in temp schema and forge writes | `session_user` maps to exactly one tenant; owner is NOLOGIN/non-privileged; fixed SECURITY DEFINER search_path resists temp shadowing; GUC cannot switch tenant; cross-role switch/map access/write are denied |
+| P01-DB-09 | Hold a membership `FOR SHARE` lock in an in-flight tenant transaction while another connection revokes membership | Revocation waits on the row lock; the in-flight request serializes first; after commit, subsequent requests observe revocation |
 | P01-ASYNC-01 | Enqueue a job as A/B and attempt caller tenant override | Job and dispatch metadata are atomic; tenant comes from principal; forged tenant is denied |
 | P01-ASYNC-02 | Inspect dispatcher role and query job payloads | Dispatcher can read/claim metadata only; payload SELECT is denied; role has no BYPASSRLS |
 | P01-ASYNC-03 | Change tenant ID in a signed queue envelope | Ed25519 signature verification fails before any tenant-scoped data access |
@@ -58,7 +59,7 @@ The table owner creates the fixture and owns the table; the application connects
 ## Explicitly out of scope / not yet proven
 
 - Real authentication, session revocation, MFA, workload identity or production membership storage.
-- Concurrent race testing for membership revocation against an already in-flight request; the request/job transaction takes a row-level share lock so revocation must serialize behind it, but this race has not been stress-tested. PostgreSQL requires UPDATE privilege on at least one column for SELECT FOR SHARE; the runtime role receives this only on inert lock_version, not on the active authorization flag.
+- A deterministic two-connection membership-revocation serialization test now proves the revocation UPDATE waits behind an in-flight `FOR SHARE` lock and takes effect for subsequent requests. High-contention race stress, cancellation, lock timeout and failover behavior remain untested. PostgreSQL requires UPDATE privilege on at least one column for SELECT FOR SHARE; the runtime role receives this only on inert lock_version, not on the active authorization flag.
 - A real message broker, external queue delivery, scheduled jobs, exponential backoff, dead-letter queue, dispatcher concurrency/load testing, and production key rotation/KMS integration. The current dispatch table is a provider-neutral outbox/claim simulation, not a selected queue product.
 - Operator/support/break-glass authorization and audit.
 - Asynchronous queue jobs, retries, scheduled jobs and replay.
@@ -95,7 +96,7 @@ The prototype pins the direct `pg` dependency and commits `package-lock.json`; C
 ## Result record
 
 - Implementation state: files added on spike/p01-tenant-isolation.
-- CI result: PASS — GitHub Actions run [45411879156](https://github.com/tecpey/lottorito-platform/actions/runs/45411879156), on code head `38475c0e47a8ffa485c6f9aeca58e4df8cd921fe`. Node.js v26.13.0 + PostgreSQL 18.7; `npm ci` with the committed lockfile; 19 Node tests passed, 0 failed, 0 skipped. Documentation Governance run [45411879734](https://github.com/tecpey/lottorito-platform/actions/runs/45411879734) also passed. GitHub Actions are pinned to verified immutable commit SHAs.
+- CI result: PASS — GitHub Actions run [45412556456](https://github.com/tecpey/lottorito-platform/actions/runs/45412556456), on code head `f53caa4e801c9eeed94dfe706e03c6dfcf02a660`. Node.js v26.13.0 + PostgreSQL 18.7; `npm ci` with the committed lockfile; 20 Node tests passed, 0 failed, 0 skipped. Documentation Governance run [45412556497](https://github.com/tecpey/lottorito-platform/actions/runs/45412556497) also passed. GitHub Actions are pinned to verified immutable commit SHAs.
 - The passing run includes the earlier request-time RLS, pool reuse, membership re-authorization and async outbox/dispatcher/Ed25519 job-envelope tests, plus the comparative per-tenant LOGIN-role test: session identity maps to exactly one tenant; changing the custom GUC cannot change visibility; `SET ROLE`/`SET SESSION AUTHORIZATION` to the other tenant, reading the private identity map and cross-tenant inserts are denied; membership and async-job rows are also tenant-scoped. The function owner, NOLOGIN/non-BYPASSRLS attributes, fixed `search_path` and temporary-schema shadowing attempt are verified. The test also confirms that the per-tenant roles cannot change `SESSION AUTHORIZATION` and that identity scoping applies to membership and job rows.
 - A deliberate red-team test still demonstrates that a compromised shared `app_runtime` role can set the custom GUC to another tenant. This is a known trust boundary, not evidence of adversarial isolation. The per-tenant LOGIN-role variant is stronger against SQL injection confined to one tenant connection, but depends on safely brokering credentials and partitioning connection pools; those operational controls and scale characteristics are not yet tested.
 - Local execution: Not run in this environment; the verified run is GitHub-hosted CI.
