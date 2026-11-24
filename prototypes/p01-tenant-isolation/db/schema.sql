@@ -341,7 +341,42 @@ CREATE TABLE public.tenant_exports (
   export_id uuid NOT NULL,
   created_by text NOT NULL,
   object_key text NOT NULL,
-  content_sha256 text NOT NULL CHECK (content_sha256 ~ '^[0-9a-f]{64}
+  content_sha256 text NOT NULL CHECK (content_sha256 ~ '^[0-9a-f]{64}$'),
+  status text NOT NULL CHECK (status IN ('ready', 'revoked', 'deleted')),
+  lock_version bigint NOT NULL DEFAULT 0,
+  created_at timestamptz NOT NULL DEFAULT clock_timestamp(),
+  PRIMARY KEY (tenant_id, export_id),
+  CHECK (object_key LIKE 'tenants/' || tenant_id::text || '/exports/%'),
+  CHECK (length(object_key) <= 512)
+);
+
+ALTER TABLE public.tenant_exports ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.tenant_exports FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_exports_app_access ON public.tenant_exports AS PERMISSIVE FOR ALL TO app_runtime USING (true) WITH CHECK (true);
+CREATE POLICY tenant_exports_app_tenant_guard ON public.tenant_exports AS RESTRICTIVE FOR ALL TO app_runtime USING (tenant_id = NULLIF(current_setting('app.tenant_id', true), '')::uuid) WITH CHECK (tenant_id = NULLIF(current_setting('app.tenant_id', true), '')::uuid);
+CREATE POLICY tenant_exports_identity_guard ON public.tenant_exports AS PERMISSIVE FOR SELECT TO tenant_a_runtime, tenant_b_runtime USING (tenant_id = private.current_tenant_id());
+
+CREATE TABLE public.export_download_grants (
+  grant_id uuid PRIMARY KEY,
+  tenant_id uuid NOT NULL,
+  export_id uuid NOT NULL,
+  subject_id text NOT NULL,
+  token_hash bytea NOT NULL CHECK (octet_length(token_hash) = 32),
+  expires_at timestamptz NOT NULL,
+  consumed_at timestamptz,
+  revoked_at timestamptz,
+  created_at timestamptz NOT NULL DEFAULT clock_timestamp(),
+  FOREIGN KEY (tenant_id, export_id) REFERENCES public.tenant_exports (tenant_id, export_id),
+  UNIQUE (tenant_id, token_hash)
+);
+
+ALTER TABLE public.export_download_grants ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.export_download_grants FORCE ROW LEVEL SECURITY;
+CREATE POLICY export_download_grants_app_access ON public.export_download_grants AS PERMISSIVE FOR ALL TO app_runtime USING (true) WITH CHECK (true);
+CREATE POLICY export_download_grants_app_tenant_guard ON public.export_download_grants AS RESTRICTIVE FOR ALL TO app_runtime USING (tenant_id = NULLIF(current_setting('app.tenant_id', true), '')::uuid) WITH CHECK (tenant_id = NULLIF(current_setting('app.tenant_id', true), '')::uuid);
+CREATE POLICY export_download_grants_identity_guard ON public.export_download_grants AS PERMISSIVE FOR SELECT TO tenant_a_runtime, tenant_b_runtime USING (tenant_id = private.current_tenant_id());
+
+CREATE TABLE public.tenant_reports (
   tenant_id uuid NOT NULL,
   report_id uuid NOT NULL,
   report_key text NOT NULL,
@@ -351,7 +386,6 @@ CREATE TABLE public.tenant_exports (
   CHECK (length(report_key) BETWEEN 1 AND 80),
   CHECK (length(payload) <= 2000)
 );
-
 ALTER TABLE public.tenant_reports ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.tenant_reports FORCE ROW LEVEL SECURITY;
 
