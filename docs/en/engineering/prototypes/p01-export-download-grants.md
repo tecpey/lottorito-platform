@@ -16,6 +16,7 @@ This experiment uses synthetic PostgreSQL 18.7 data and the existing Node.js 26 
 - Tokens contain 256 bits of cryptographically secure randomness and are returned once. PostgreSQL stores only a SHA-256 hash, never the raw token.
 - Grants are bound to tenant, subject and export; expiry is computed by PostgreSQL's clock.
 - TTL is constrained to 60–600 seconds (default 300 seconds).
+- Grant issuance and redemption re-check active tenant membership inside the same tenant-scoped transaction and hold a `FOR SHARE` membership lock, serializing with membership revocation.
 - Redemption locks the grant row and the export row, checks tenant/subject/hash/expiry/revocation/export status and atomically sets `consumed_at`.
 - A successful redemption returns an internal object key and checksum to the trusted server layer. It does not return a public URL or storage credential.
 - Tenant-scoped RLS and a composite foreign key protect export and grant rows independently.
@@ -34,6 +35,7 @@ This experiment uses synthetic PostgreSQL 18.7 data and the existing Node.js 26 
 | P01-EXPORT-08 | Export is revoked after grant issuance | Redemption is denied |
 | P01-EXPORT-09 | Two requests redeem the same token concurrently | Exactly one redemption succeeds |
 | P01-EXPORT-10 | TTL is outside 60–600 seconds or token is malformed | Request fails closed |
+| P01-EXPORT-11 | Tenant membership is revoked after grant issuance | New grants and existing grant redemption are denied |
 | P01-EXPORT-11 | Subject membership is revoked after grant issuance | New grants and existing grant redemption are denied; membership lock serializes concurrent revocation |
 
 ## Security boundaries and limitations
@@ -48,6 +50,6 @@ This experiment uses synthetic PostgreSQL 18.7 data and the existing Node.js 26 
 
 ## Evidence status
 
-The earlier P-01 Tenant Isolation run [45425122143](https://github.com/tecpey/lottorito-platform/actions/runs/45425122143) passed 35 tests on code head `097ef0d0f00a5f36dc0d1f8fea33f1934a5a4d70`. A membership reauthorization check and regression test were then added; the new CI run is pending. Documentation Governance run [45425122209](https://github.com/tecpey/lottorito-platform/actions/runs/45425122209) passed on the earlier documentation head. Local execution and provider-specific download delivery remain unverified.
+The P-01 Tenant Isolation run [45426108704](https://github.com/tecpey/lottorito-platform/actions/runs/45426108704) passed on code head `b88c83ad5f5160681ec0e132c1efe07d8b913da0`: 36 tests passed, 0 failed, 0 skipped. Documentation Governance run [45426108688](https://github.com/tecpey/lottorito-platform/actions/runs/45426108688) also passed. Local execution and provider-specific download delivery remain unverified.
 
-Code, schema and synthetic integration scenarios are implemented on a stacked Draft PR. CI and local execution are pending. All fixtures and credentials are synthetic.
+Code, schema and synthetic integration scenarios are implemented on a stacked Draft PR. All fixtures and credentials are synthetic.
