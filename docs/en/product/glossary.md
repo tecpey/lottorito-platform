@@ -1,6 +1,6 @@
 # Lottorito Glossary
 
-**Document ID:** LOT-GOV-001 | **Version:** 0.1.0
+**Document ID:** LOT-GOV-001 | **Version:** 0.1.0 | **Status:** Maintained glossary; definitions may require domain-owner review
 
 | Term | Definition |
 |---|---|
