@@ -1,6 +1,6 @@
 # Lottorito Delivery Roadmap
 
-**Document ID:** LOT-ROAD-001 | **Version:** 0.5.0 | **Status:** Proposed sequence; owner approval required for product gates
+**Document ID:** LOT-ROAD-001 | **Version:** 0.6.0 | **Status:** Proposed sequence; owner approval required for product gates
 
 1. **Foundation & Governance:** bilingual agent handbook, decision register, stable document IDs, glossary, contribution rules and automated documentation checks; keep the finance, security and API baselines explicitly proposed until reviewed.
 2. **Cross-product Domain & Data Design:** review LOT-DOM-001; approve independent Affiliate and Lottery bounded contexts, shared capability ownership, logical ERD, data lifecycle, tenant boundaries and migration strategy.
@@ -13,11 +13,12 @@
 9. **Affiliate & Attribution:** profiles, referral network, tracking links, events and attribution.
 10. **Finance Core:** review LOT-FIN-POST-001; approve account ownership, chart of accounts, immutable posting, balance semantics, statements, reconciliation and payout gates.
 11. **Commission Engine:** versioned rules, CPA/Revenue Share/Hybrid and reproducible calculations.
-12. **Affiliate Partner Pilot:** obtain actual partner documentation and sandbox, build the Affiliate adapter and contract tests.
-13. **Lottery Provider Discovery & Certification:** legal/provider due diligence, capability profile, sandbox evidence, lifecycle adapter and result/settlement reconciliation; only after owner approval.
-14. **Future regulated gaming discovery (not an MVP delivery commitment):** maintain separate Sportsbook, Live Casino and RNG/E-Gaming discovery tracks; complete provider RFIs, jurisdiction matrices, domain state machines, wallet/ledger semantics, certification and risk proofs only after Affiliate and Lottery priorities and their gates. See LOT-GAMING-STRATEGY-001.
-15. **Admin, Reporting & Operations:** operator/agent/customer surfaces, audit, reporting, support and controlled financial workflows.
-16. **Hardening & Pilot:** load/security tests, backup recovery, UAT, operational readiness and jurisdiction-specific legal approval.
+12. **Provider Evaluation & RFI Governance:** adopt LOT-PROVIDER-EVAL-001 as the common evidence and due-diligence process before supplier selection; confirm accountable reviewers and the exact decision unit. This creates no provider selection or integration authorization.
+13. **Affiliate Partner Pilot:** apply the standard to the first Affiliate pilot decision unit; obtain actual partner documentation and an authorized sandbox, then build the Affiliate adapter and contract tests only after approvals.
+14. **Lottery Provider Discovery & Certification:** apply the same standard to a separately scoped Lottery decision unit; legal/provider due diligence, capability profile, sandbox evidence, lifecycle adapter and result/settlement reconciliation only after owner approval.
+15. **Future regulated gaming discovery (not an MVP delivery commitment):** maintain separate Sportsbook, Live Casino and RNG/E-Gaming discovery tracks; apply the standard for provider RFIs, jurisdiction matrices, domain state machines, wallet/ledger semantics, certification and risk proofs only after Affiliate and Lottery priorities and their gates. See LOT-GAMING-STRATEGY-001.
+16. **Admin, Reporting & Operations:** operator/agent/customer surfaces, audit, reporting, support and controlled financial workflows.
+17. **Hardening & Pilot:** load/security tests, backup recovery, UAT, operational readiness and jurisdiction-specific legal approval.
 
 ## Exit gates
 
