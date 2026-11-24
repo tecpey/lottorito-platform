@@ -86,7 +86,7 @@ before(async () => {
      VALUES
        ($1, $2, 'synthetic-user-a', 'tenants/11111111-1111-4111-8111-111111111111/exports/shared.csv', repeat('a', 64), 'ready'),
        ($3, $2, 'synthetic-user-b', 'tenants/22222222-2222-4222-8222-222222222222/exports/shared.csv', repeat('b', 64), 'ready'),
-       ($1, $4, 'synthetic-user-a', 'tenants/11111111-1111-4111-8111-111111111111/exports/revoked.csv', repeat('c', 64), 'ready'),
+       ($1, $4, 'synthetic-user-a', 'tenants/11111111-1111-4111-8111-111111111111/exports/revoked.csv', repeat('c', 64), 'revoked'),
        ($1, $5, 'synthetic-user-a', 'tenants/11111111-1111-4111-8111-111111111111/exports/expired.csv', repeat('d', 64), 'ready')`,
     [TENANT_A, EXPORT_ID_SHARED, TENANT_B, EXPORT_ID_REVOKE, EXPORT_ID_EXPIRED]
   );
