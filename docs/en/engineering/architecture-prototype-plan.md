@@ -71,6 +71,9 @@ A prototype may be **Pass**, **Fail**, **Inconclusive** or **Not run**. â€œPassâ
 
 **Minimum fixture:** Synthetic accounts across two tenants and at least two currencies; versioned sample commission inputs; controlled test clock; duplicate source-event deliveries and concurrent workers. No real money or withdrawable balance.
 
+**Current P-02 first vertical slice (2026-11-24):** a separate synthetic prototype implements a tenant-bound SECURITY DEFINER posting boundary, immutable journal/line/request/outbox records, exact NUMERIC(38,0) minor-unit amounts, per-currency balance checks, tenant-scoped idempotency with concurrent duplicate handling and one-statement transactional outbox. Its acceptance suite covers rollback on outbox failure, 38-digit precision, multi-currency balance and tenant account isolation. CI is pending. Commission calculation, economic-effect identity beyond the request token, reversals, holds/balances and external reconciliation remain unimplemented.
+
+
 **Experiments:**
 1. Post balanced debit/credit entries with exact currency precision; reject invalid scale, currency mismatch and unbalanced journals.
 2. Submit the same source event concurrently through multiple workers; vary transaction timing and process termination.
