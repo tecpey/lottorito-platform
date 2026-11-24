@@ -63,6 +63,7 @@ CREATE TABLE public.provider_inbox (
   PRIMARY KEY (tenant_id, inbox_id),
   UNIQUE (tenant_id, provider_id, provider_account_id, provider_event_id),
   UNIQUE (tenant_id, effect_id),
+  UNIQUE (tenant_id, idempotency_key),
   CHECK (length(provider_id) BETWEEN 1 AND 64),
   CHECK (length(provider_account_id) BETWEEN 1 AND 128),
   CHECK (length(provider_event_id) BETWEEN 1 AND 128),
