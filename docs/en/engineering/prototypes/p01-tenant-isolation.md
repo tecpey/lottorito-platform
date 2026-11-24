@@ -29,7 +29,7 @@ It is not a production service, authentication implementation, complete P-01 pas
 | P01-HTTP-06 | Write without caller tenant ID | Server assigns authenticated tenant |
 | P01-HTTP-07 | Revoke a tenant membership, then issue a new request | Revoked subject is denied; another tenant remains unaffected |
 | P01-DB-01 | Alternate A/B/A through pool size 1 | No cross-request context leakage |
-| P01-DB-02 | Inspect runtime role, table flags and policy composition | Not superuser, owner or BYPASSRLS; RLS and FORCE RLS enabled; tenant guard is RESTRICTIVE so future permissive policies cannot widen it |
+| P01-DB-02 | Inspect runtime role, table flags, policy composition and membership grants | Not superuser, owner or BYPASSRLS; RLS and FORCE RLS enabled; tenant guard is RESTRICTIVE; UPDATE is granted only on inert lock_version, not active |
 | P01-DB-03 | Query/insert without tenant context | Select sees zero rows; insert denied |
 | P01-DB-04 | Attempt to set app.tenant_id using shared app_runtime role | Expected exposure: role can assert another tenant; proves GUC RLS is not a boundary against compromised runtime credentials |
 | P01-DB-05 | UPDATE/DELETE tenant-B-only object while scoped to A | Zero rows affected; B's object remains unchanged |
@@ -45,7 +45,7 @@ The table owner creates the fixture and owns the table; the application connects
 ## Explicitly out of scope / not yet proven
 
 - Real authentication, session revocation, MFA, workload identity or production membership storage.
-- Concurrent race testing for membership revocation against an already in-flight request; the request transaction takes a row-level share lock so revocation must serialize behind it, but this race has not been stress-tested.
+- Concurrent race testing for membership revocation against an already in-flight request; the request transaction takes a row-level share lock so revocation must serialize behind it, but this race has not been stress-tested. PostgreSQL requires UPDATE privilege on at least one column for SELECT FOR SHARE; the runtime role receives this only on inert lock_version, not on the active authorization flag.
 - Operator/support/break-glass authorization and audit.
 - Asynchronous queue jobs, retries, scheduled jobs and replay.
 - Cache, object storage, search, exports, analytics and reporting isolation.
@@ -88,7 +88,7 @@ The prototype pins the direct pg dependency but does not yet commit an npm lockf
 
 - LOT-PROT-001 — architecture prototype and evidence plan.
 - LOT-TECH-ADR-001 — technology, deployment and reliability ADRs.
-- PostgreSQL 18 — [Row Security Policies](https://www.postgresql.org/docs/18/ddl-rowsecurity.html).
+- PostgreSQL 18 — [Row Security Policies](https://www.postgresql.org/docs/18/ddl-rowsecurity.html) and [Privileges](https://www.postgresql.org/docs/18/ddl-priv.html) (SELECT FOR SHARE privilege requirement).
 - OWASP — [Multi-Tenant Security Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Multi_Tenant_Security_Cheat_Sheet.html), including tenant-context provenance, transaction-local context and isolation-strategy selection.
 - AWS — [Choose the right PostgreSQL data access pattern for your SaaS application](https://aws.amazon.com/blogs/database/choose-the-right-postgresql-data-access-pattern-for-your-saas-application/), including the trade-off between shared runtime variables and per-tenant database roles.
 - Node.js — [release schedule](https://github.com/nodejs/Release).
