@@ -40,6 +40,7 @@ const SUPPORT_GRANT_OTHER_TENANT = "66666666-6666-4666-8666-666666666666";
 const EXPORT_ID_SHARED = "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee";
 const EXPORT_ID_REVOKE = "ffffffff-ffff-4fff-8fff-ffffffffffff";
 const EXPORT_ID_EXPIRED = "abababab-abab-4bab-8bab-abababababab";
+const EXPORT_ID_MEMBERSHIP = "cdcdcdcd-cdcd-4dcd-8dcd-cdcdcdcdcdcd";
 
 const { privateKey: jobSigningPrivateKeyObject, publicKey: jobVerifyPublicKeyObject } =
   generateKeyPairSync("ed25519");
@@ -87,8 +88,9 @@ before(async () => {
        ($1, $2, 'synthetic-user-a', 'tenants/11111111-1111-4111-8111-111111111111/exports/shared.csv', repeat('a', 64), 'ready'),
        ($3, $2, 'synthetic-user-b', 'tenants/22222222-2222-4222-8222-222222222222/exports/shared.csv', repeat('b', 64), 'ready'),
        ($1, $4, 'synthetic-user-a', 'tenants/11111111-1111-4111-8111-111111111111/exports/revoked.csv', repeat('c', 64), 'revoked'),
-       ($1, $5, 'synthetic-user-a', 'tenants/11111111-1111-4111-8111-111111111111/exports/expired.csv', repeat('d', 64), 'ready')`,
-    [TENANT_A, EXPORT_ID_SHARED, TENANT_B, EXPORT_ID_REVOKE, EXPORT_ID_EXPIRED]
+       ($1, $5, 'synthetic-user-a', 'tenants/11111111-1111-4111-8111-111111111111/exports/expired.csv', repeat('d', 64), 'ready'),
+       ($1, $6, 'synthetic-user-a', 'tenants/11111111-1111-4111-8111-111111111111/exports/membership.csv', repeat('e', 64), 'ready')`,
+    [TENANT_A, EXPORT_ID_SHARED, TENANT_B, EXPORT_ID_REVOKE, EXPORT_ID_EXPIRED, EXPORT_ID_MEMBERSHIP]
   );
 });
 
@@ -989,7 +991,7 @@ test("malformed download tokens and invalid tenant context fail closed", async (
 
 test("revoked tenant membership blocks new export grants and redemption of existing grants", async () => {
   const grant = await issueExportDownloadGrant({
-    pool, tenantId: TENANT_A, exportId: EXPORT_ID_SHARED, subjectId: "synthetic-user-a"
+    pool, tenantId: TENANT_A, exportId: EXPORT_ID_MEMBERSHIP, subjectId: "synthetic-user-a"
   });
   assert.ok(grant);
 
