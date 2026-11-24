@@ -17,19 +17,23 @@ This is a strategic product direction, not a statement that all listed capabilit
 
 ## Documentation coverage note
 
-The current `LOT-PROD-001` and `LOT-ARCH-001` files are early, Affiliate-led drafts. They are not yet a complete Lottery PRD or an approved cross-product architecture. Lottery-specific product requirements, provider lifecycle contracts, and the full cross-product architecture still require dedicated documentation and review. The index must not be read as evidence that these deliverables are complete.
+The current `LOT-PROD-001` and `LOT-ARCH-001` files remain early, Affiliate-led drafts; they are not a complete cross-product PRD or approved architecture. A separate Lottery discovery PRD (`LOT-LOTTERY-001`) and provider-neutral lifecycle contract baseline (`LOT-LOTINT-001`) now exist as proposals. They do not establish provider compatibility, legal approval, implementation authorization, or a complete cross-product architecture. Provider-specific profiles and cross-product architecture still require evidence and review.
 
 ## Documentation map
 
 | Area | Document | Purpose |
 |---|---|---|
 | Product | [Vision & PRD](product/vision-and-prd.md) | Initial Affiliate-led requirements draft; not a complete Lottery PRD |
+| Product | [Lottery PRD](product/lottery-prd.md) | Proposed Lottery discovery baseline; not approved for implementation or launch |
 | Product | [Glossary](product/glossary.md) | Shared domain terminology |
 | Architecture | [System architecture](architecture/system-architecture.md) | Initial architecture proposal; Lottery domain expansion remains pending |
 | Commission | [Commission engine](commission/commission-engine.md) | Versioned commission concepts and unresolved policy choices |
 | Finance | [Wallet & ledger](finance/wallet-and-ledger.md) | Draft financial integrity and ledger principles; product-specific mappings remain open |
-| Partners | [Integration contract](partners/integration-contract.md) | Initial Affiliate partner-event contract; Lottery provider contracts remain pending |
+| Partners | [Integration contract](partners/integration-contract.md) | Initial Affiliate partner-event contract |
+| Partners | [Lottery provider contract](partners/lottery-provider-contract.md) | Proposed provider-neutral lifecycle contract; no provider API verified |
 | Security | [Security baseline](security/security-baseline.md) | Initial security requirements and controls |
+| Engineering | [Agent operating manual](engineering/agent-operating-manual.md) | Low-context task routing, evidence rules and handoff standard |
+| Engineering | [Decision register](engineering/decision-register.md) | Owner directions, proposals and unresolved decisions |
 | Engineering | [Project status](engineering/project-status.md) | Verified state and continuation point |
 | Engineering | [Roadmap](engineering/roadmap.md) | Proposed delivery sequence and gates |
 
