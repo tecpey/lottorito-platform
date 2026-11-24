@@ -1,6 +1,6 @@
 # Verified Project Status and Continuation Point
 
-**Document ID:** LOT-OPS-001 | **Version:** 1.10.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-24
+**Document ID:** LOT-OPS-001 | **Version:** 1.11.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-24
 
 ## Verified repository state
 - Repository: tecpey/lottorito-platform; default branch main; public visibility by owner decision.
@@ -54,11 +54,11 @@ The finance, security, API and technology/deployment references are proposals, n
 - PR #36, [P-01 Tenant Isolation](https://github.com/tecpey/lottorito-platform/pull/36), is an open Draft stacked directly on PR #35. Branch: spike/p01-tenant-isolation. Re-fetch the live PR head before relying on a SHA.
 - A disposable Node.js HTTP + PostgreSQL RLS slice exists with synthetic tenants, server-resolved test principals, transaction-local tenant context, a least-privilege runtime role, and integration tests for spoofing, cross-tenant object access and pooled-connection reuse.
 - Candidate versions are Node.js 26.13.0, PostgreSQL 18.7 and node-postgres 8.23.1. They remain experiment inputs, not accepted technology decisions.
-- Local tests have not been run in this environment. No CI run or status was observable at this update; do not claim test success.
+- GitHub Actions run [45405602237](https://github.com/tecpey/lottorito-platform/actions/runs/45405602237) passed on Node.js 26.13.0 + PostgreSQL 18.7: 12 tests passed, 0 failed, 0 skipped. Local execution has not been performed in this environment. The red-team test explicitly confirms the shared-role GUC trust limitation.
 - Overall P-01 remains partial/inconclusive until asynchronous jobs, membership revocation, support/break-glass, other storage boundaries, load and recovery are exercised.
 
 ## Not verified
-No production application, production physical schema/migrations, provider API connection, sandbox certification, financial calculation/posting, payout, penetration test or production deployment has been verified. The disposable P-01 prototype is not production software and has not yet been verified. Documentation Governance CI exists and has passed structural checks on selected PR heads; it does not prove semantic bilingual parity, runtime behavior, legal eligibility or security.
+No production application, production physical schema/migrations, provider API connection, sandbox certification, financial calculation/posting, payout, penetration test or production deployment has been verified. The disposable P-01 slice has a passing CI result for its 12 defined tests, but is not production software; full P-01 remains partial/inconclusive. Documentation Governance CI exists and has passed structural checks on selected PR heads; it does not prove semantic bilingual parity, runtime behavior, legal eligibility or security.
 
 ## Continuation rules
 1. Read AGENTS.md and this status record.
