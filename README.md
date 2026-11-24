@@ -2,170 +2,340 @@
 
 # Lottorito
 
-### Global Lottery & Affiliate Infrastructure
+### Global infrastructure for independent Lottery & Affiliate products
 
-**One modular platform. Independent products. Partner-neutral foundations.**
+**One platform foundation. Two independent product domains. A connected ecosystem when needed.**
 
-[فارسی](#فارسی) · [English](#english) · [Product vision](docs/en/product/vision-and-prd.md) · [Architecture](docs/en/architecture/system-architecture.md) · [Project status](docs/en/engineering/project-status.md)
+[English](#english) · [فارسی](#فارسی) · [Product documentation](docs/en/README.md) · [Project status](docs/en/engineering/project-status.md)
 
 </div>
 
 ---
 
-<a id="فارسی"></a>
-## فارسی
-
-### لوتوریتو چیست؟
-
-**Lottorito زیرساختی جهانی، ماژولار، API-first و چندمستاجری برای ساخت، اتصال و اداره محصولات Lottery و Affiliate است.** هدف، فراهم‌کردن یک هسته قابل‌اعتماد و مستقل از ارائه‌دهنده است تا کسب‌وکارها بتوانند هر محصول را به‌صورت مستقل یا در قالب یک اکوسیستم یکپارچه به کار بگیرند.
-
-لوتوریتو قرار نیست به یک اپراتور، کشور، ارائه‌دهنده قرعه‌کشی یا مدل تجاری خاص محدود شود. بازارهای شرق آسیا می‌توانند نقطه ورود تجاری باشند؛ نه مرز جغرافیایی محصول.
-
-### خانواده محصولات
-
-| محصول | مأموریت | وضعیت |
-|---|---|---|
-| **Affiliate & Agent Infrastructure** | مدیریت برنامه‌های همکاری در فروش، شبکه‌های چندسطحی Agent، ناشران و اینفلوئنسرها، کمپین‌ها، رهگیری، انتساب و کمیسیون | دامنه محصول در اسناد موجود تعریف اولیه شده؛ جزئیات تجاری و قواعد کلیدی همچنان نیازمند تصمیم مالک و شریک است |
-| **Lottery Infrastructure** | اتصال مستقل به چند ارائه‌دهنده، کاتالوگ بازی‌ها، چرخه بلیت، نتایج، اعتبارسنجی، جوایز، تسویه و گزارش | بخشی از چشم‌انداز راهبردی؛ نیازمندی تفصیلی، انتخاب ارائه‌دهنده، بررسی حقوقی و پیاده‌سازی هنوز تأیید نشده است |
-| **Shared Platform Foundation** | هویت و دسترسی، Tenantها، قراردادهای API، اتصال شریک، رویدادها، دفترکل، اعلان‌ها، گزارش، ممیزی و عملیات | در مرحله طراحی و مستندسازی؛ تصمیم‌های معماری و فنی نهایی نشده‌اند |
-
-این خانواده‌ها باید بتوانند مستقل عرضه شوند یا در صورت تأیید تجاری و فنی با یکدیگر ترکیب شوند. حالت‌های احتمالی شامل Affiliate-only، Lottery-only، Combined، API-only، White-label و Embedded است. این موارد جهت‌گیری محصول‌اند و به‌معنای وجود قابلیت اجرایی یا قرارداد تجاری فعال نیستند.
-
-### اصول بنیادین
-
-- **هسته مستقل از شریک:** منطق اختصاصی هر اپراتور یا ارائه‌دهنده فقط در Adapter و مرزهای یکپارچه‌سازی قرار می‌گیرد.
-- **چندمستاجری امن:** داده، هویت سازمانی، مجوزها، شبکه‌ها، تنظیمات، رویدادها و گزارش‌ها باید در تمام لایه‌ها به‌درستی محدوده‌بندی شوند.
-- **مالی قابل‌ردیابی:** دفترکل دوطرفه و تغییرناپذیر، مبالغ دقیق، ثبت اتمیک، idempotency، اصلاح با سند معکوس و تطبیق‌پذیری.
-- **API-first و قراردادهای نسخه‌بندی‌شده:** ارتباط با شرکا و محصولات از قراردادهای مستند و قابل‌آزمون انجام می‌شود.
-- **ماژولار و قابل‌گسترش:** قابلیت‌ها مستقل طراحی می‌شوند؛ جداسازی سرویس‌ها فقط با شواهد مقیاس و نیاز عملیاتی توجیه خواهد شد.
-- **امنیت و انطباق از ابتدا:** فعال‌سازی هر قابلیت حساس تابع ارزیابی حقوقی، امنیتی و مقرراتی بازار هدف است.
-- **شفافیت در وضعیت:** ایده، پیشنهاد، پیاده‌سازی، تست و تأیید عملیاتی هرگز با یکدیگر اشتباه گرفته نمی‌شوند.
-
-### معماری در یک نگاه
-
-```mermaid
-flowchart TB
-    U[Operator / B2B] --> P[ Lottorito Platform ]
-    A[Agent / Affiliate] --> P
-    C[Customer / End User] --> P
-
-    P --> I[Identity, Tenant & Access]
-    P --> G[API & Integration Gateway]
-    P --> F[Shared Finance, Ledger & Audit]
-    P --> N[Notifications, Jobs & Reporting]
-
-    G --> AF[Affiliate & Agent Product]
-    G --> LO[Lottery Product]
-
-    AF --> PA[Partner Adapters]
-    LO --> PL[Lottery Provider Adapters]
-```
-
-این نمودار نمای مفهومی هدف است؛ معماری اجرایی نهایی و مرزهای سرویس‌ها هنوز از طریق ADR تصویب نشده‌اند.
-
-### وضعیت واقعی پروژه
-
-مخزن فعلی در مرحله **تعریف محصول، طراحی دامنه و ایجاد پایه مستندات** است. شاخه `main` در زمان این بازبینی شامل مستندات است؛ وجود کد اجرایی محصول، Schema دیتابیس، اتصال عملیاتی به ارائه‌دهنده، Sandbox تأییدشده، پردازش مالی واقعی، پرداخت یا استقرار Production تأیید نشده است.
-
-بنابراین این README معرفی چشم‌انداز و وضعیت مستند پروژه است؛ نه ادعای آماده‌بودن محصول یا امکان فروش و بهره‌برداری عملیاتی.
-
-### شروع مطالعه
-
-- [مستندات فارسی](docs/fa/README.md)
-- [مستندات انگلیسی](docs/en/README.md)
-- [راهنمای ایجنت‌ها و قواعد مشارکت](AGENTS.md)
-- [چشم‌انداز و نیازمندی‌های محصول](docs/fa/product/vision-and-prd.md)
-- [معماری کلان پیشنهادی](docs/fa/architecture/system-architecture.md)
-- [وضعیت واقعی پروژه](docs/fa/engineering/project-status.md)
-- [نقشه راه پیشنهادی](docs/fa/engineering/roadmap.md)
-- [مدل کیف پول و دفترکل](docs/fa/finance/wallet-and-ledger.md)
-- [قرارداد یکپارچه‌سازی شریک](docs/fa/partners/integration-contract.md)
-- [خط مبنای امنیت](docs/fa/security/security-baseline.md)
-
-### حاکمیت و مشارکت
-
-هر تغییر معنادار در مستندات باید هم‌زمان در فارسی و انگلیسی انجام شود. تصمیم‌های باز باید با وضعیت مشخص ثبت شوند و تا زمان تأیید مالک، پیشنهاد باقی بمانند. تغییرات از طریق شاخه کاری و Pull Request قابل‌بازبینی ارائه می‌شوند؛ Merge، انتشار و استقرار عملیاتی تابع مجوز صریح مالک است.
-
----
-
 <a id="english"></a>
+
 ## English
 
-### What is Lottorito?
+### The platform vision
 
-**Lottorito is a global, modular, API-first, multi-tenant infrastructure platform for building, connecting, and operating Lottery and Affiliate products.** It aims to provide dependable, provider-neutral foundations so businesses can adopt either product independently or combine them into a governed ecosystem.
+Lottorito is being shaped as a **global, modular, API-first, multi-tenant infrastructure platform** for organizations that need to build, integrate, and operate Lottery and Affiliate products.
 
-Lottorito is not intended to be constrained to one operator, country, lottery provider, or commercial model. East Asia may represent an initial commercial entry opportunity, not a geographic boundary.
+The two product families are designed to be **adopted and commercialized independently** or combined through explicitly governed integrations. Neither product should depend on the other's business rules, release cycle, or commercial availability.
 
-### Product families
+Lottorito is partner-neutral by design. It is not intended to be limited to one operator, provider, country, or distribution model. An initial regional market may inform commercial sequencing; it does not define the platform's geographic boundary.
 
-| Product | Mission | Current status |
+### Product architecture
+
+| Product domain | Intended capabilities | Current maturity |
 |---|---|---|
-| **Affiliate & Agent Infrastructure** | Operate affiliate programs, multi-level agent networks, publishers and creators, campaigns, tracking, attribution, and commissions | Initial product scope exists in documentation; commercial rules and key business decisions remain open |
-| **Lottery Infrastructure** | Integrate multiple providers independently; manage game catalogs, ticket lifecycle, results, validation, prizes, settlement, and reporting | Part of the strategic vision; detailed requirements, provider selection, regulatory review, and implementation are not yet approved |
-| **Shared Platform Foundation** | Identity and access, tenants, API contracts, partner connectivity, events, ledger, notifications, reporting, audit, and operations | In design and documentation; final architecture and technology decisions remain open |
+| **Affiliate & Agent** | Partner programs; affiliate, publisher, creator and multi-level agent networks; campaign links and codes; tracking and attribution; configurable CPA, Revenue Share and Hybrid commission policies; approvals, statements, reconciliation and reporting | Initial domain and requirements are documented as proposals. Commercial rules and owner/partner decisions remain open. No executable product implementation is verified. |
+| **Lottery** | Provider-neutral catalog and game configuration; schedules and draw lifecycle; ticket/order lifecycle; result ingestion and verification; ticket validation; winner and prize workflows; claims, settlement, reconciliation and reporting | Strategic product scope only. Detailed requirements, provider evaluation, jurisdiction review and implementation approval remain outstanding. |
+| **Shared platform foundations** | Identity and memberships; tenant and organization boundaries; authorization; API and integration contracts; event processing; isolated financial books and controls; audit; notifications; reporting; localization; operations and observability | Architecture concepts are documented as proposals. Final ADRs and runtime implementation are not verified. |
 
-The product families are intended to be independently deployable or combinable when commercial and technical requirements are approved. Potential delivery modes include Affiliate-only, Lottery-only, Combined, API-only, White-label, and Embedded. These are product directions, not claims of existing implementation or active commercial agreements.
+These are **product domains, not a claim of shipped features**. The exact first commercial release, module entitlements, supported markets and acceptance criteria require separate approval.
 
-### Foundational principles
+### Who the platform is designed to serve
 
-- **Partner-neutral core:** operator- and provider-specific behavior belongs in adapters and integration boundaries.
-- **Secure multi-tenancy:** data, organizational identity, permissions, networks, configuration, events, and reporting must be correctly scoped at every layer.
-- **Traceable finance:** immutable double-entry ledger, exact amounts, atomic posting, idempotency, linked reversals, and reconciliation.
-- **API-first, versioned contracts:** partner and product communication is based on documented, testable contracts.
-- **Modular and extensible:** capabilities have explicit boundaries; service extraction must be justified by measured scale or operational needs.
-- **Security and compliance by design:** sensitive capabilities are gated by jurisdiction-specific legal, security, and regulatory assessment.
-- **Status integrity:** ideas, proposals, implementation, tests, and operational approval are never conflated.
+- **Operators and B2B partners** — configure programs, products, integrations, policies, access and operational reporting.
+- **Affiliates, agents, publishers and creators** — manage participation, referrals, campaigns, performance and eligible earnings.
+- **Customers and end users** — access the customer-facing experiences offered by an enabled operator or tenant.
 
-### Architecture at a glance
+The intended experience model includes distinct operator, agent/affiliate and customer surfaces. Their final journeys, permissions and release scope remain subject to product design and approval.
+
+### Product and delivery models
+
+The strategic direction supports several possible adoption models:
+
+- Affiliate-only
+- Lottery-only
+- Combined Affiliate + Lottery
+- API-only
+- White-label
+- Embedded experiences and SSO
+
+These are target commercial and delivery models—not a statement that each mode is currently implemented, available, or contractually offered.
+
+### Platform principles
+
+1. **Independent product domains** — Affiliate and Lottery retain separate domain logic, lifecycle rules and release gates. Integration between them is explicit; shared infrastructure does not imply shared business rules.
+2. **Partner-neutral integration** — provider-specific behavior belongs in versioned adapters and contracts, not in the product core. No single provider or pilot partner is assumed to be exclusive.
+3. **Tenant isolation by design** — tenant context must be derived from authenticated membership or an authenticated machine connection, never trusted from an untrusted payload. Isolation must cover APIs, background jobs, data access, caches, files, reports and operational tooling.
+4. **Financial integrity** — financial records are designed around exact amounts and currencies, immutable double-entry postings, atomicity, idempotency, linked reversals and reconciliation. Balances are derived from authoritative records, not edited as the source of truth. Product or tenant balances must not be implicitly pooled.
+5. **API-first interoperability** — versioned, documented and testable contracts define how products and external systems communicate.
+6. **Modularity without premature distribution** — clear domain boundaries come first. Separate services are introduced only when measured scale, isolation, reliability or operational needs justify them.
+7. **Security, privacy and compliance by design** — each regulated capability and market requires its own legal, risk, privacy and operational assessment before activation.
+8. **Global readiness** — localization, currencies, time zones, regional deployment and market-specific configuration are architectural concerns, not last-minute translations.
+9. **Evidence over claims** — proposed, implemented, tested, verified and production-approved are distinct states. Documentation alone does not prove working software.
+
+### Conceptual platform map
 
 ```mermaid
 flowchart TB
-    U[Operator / B2B] --> P[Lottorito Platform]
-    A[Agent / Affiliate] --> P
-    C[Customer / End User] --> P
+    OP[Operator / B2B Partner] --> SURF
+    AG[Affiliate / Agent / Publisher] --> SURF
+    CU[Customer / End User] --> SURF
 
-    P --> I[Identity, Tenant & Access]
-    P --> G[API & Integration Gateway]
-    P --> F[Shared Finance, Ledger & Audit]
-    P --> N[Notifications, Jobs & Reporting]
+    subgraph SURF[Experience and access layer]
+      OUI[Operator Console]
+      AUI[Affiliate and Agent Portal]
+      CUI[Customer Experience]
+      API[Public APIs / Embedded / SSO]
+    end
 
-    G --> AF[Affiliate & Agent Product]
-    G --> LO[Lottery Product]
+    SURF --> CORE
 
-    AF --> PA[Partner Adapters]
-    LO --> PL[Lottery Provider Adapters]
+    subgraph CORE[Independent product domains]
+      AFF[Affiliate and Agent Domain]
+      LOT[Lottery Domain]
+    end
+
+    AFF --> AAD[Affiliate Partner Adapters]
+    LOT --> LAD[Lottery Provider Adapters]
+
+    CORE -. governed integration only .-> SHARED
+
+    subgraph SHARED[Cross-cutting platform capabilities]
+      IAM[Identity, Tenant and Authorization]
+      FIN[Financial Controls and Isolated Ledgers]
+      EVT[Event Processing and Contracts]
+      OPS[Audit, Reporting, Notifications and Observability]
+      LOC[Localization and Configuration]
+    end
+
+    AAD --> EXT1[External Affiliate Partners]
+    LAD --> EXT2[External Lottery Providers]
 ```
 
-This is a conceptual target view. The final implementation architecture and service boundaries have not yet been approved through ADRs.
+This is a **target conceptual model**, not an approved deployment diagram or final service decomposition. The shared capabilities are platform services; they do not merge the two product domains or create automatic shared balances.
+
+### Architecture and engineering direction
+
+The current architecture proposal favors explicit domain boundaries and a modular starting point. Technology selection, database topology, deployment model, service boundaries, event infrastructure, availability targets and recovery objectives must be settled through reviewed Architecture Decision Records (ADRs).
+
+The engineering baseline is intended to include:
+
+- Authenticated tenant context and enforceable isolation at every execution boundary.
+- Versioned API and event contracts, with provider-specific adapters.
+- Durable event intake, idempotent processing and controlled replay.
+- Immutable financial history with traceable adjustments and reversals.
+- Automated tests for authorization, tenant isolation, concurrency, duplicate delivery, financial invariants and recovery.
+- Structured logs, metrics, traces, audit trails, backup and disaster-recovery procedures.
+- Reproducible delivery with security review and bilingual documentation parity.
+
+### Trust, regulation and product boundaries
+
+Lottery, gaming, payments, custody, financial services, marketing and personal-data requirements vary by jurisdiction and business model. No capability should be enabled in a market solely because it appears in the product vision. Legal classification, licensing, age and identity controls, responsible-play requirements where applicable, AML/KYC obligations, privacy, tax, payment and partner responsibilities must be assessed for the specific operating model.
+
+The platform vision does not itself assert that Lottorito holds customer funds, operates a lottery, executes payouts, possesses a provider license, or is authorized to launch in any jurisdiction.
 
 ### Verified project status
 
-The repository is currently in the **product-definition, domain-design, and documentation-foundation stage**. At the time of this review, the `main` branch contains documentation. No executable product implementation, database schema, operational provider connection, verified sandbox, real financial processing, payout, or production deployment has been verified.
+**As of 24 November 2026, the repository is in the product-definition, domain-design and documentation-foundation stage.**
 
-This README describes the product vision and the verified documentation stage; it does not claim that the platform is production-ready, commercially available, or operational.
+The default branch contains project documentation. The following have **not** been verified as implemented or operational:
 
-### Explore the documentation
+- An executable application or production runtime.
+- A finalized database schema or applied migrations.
+- A working provider or partner API integration.
+- An authorized and verified provider sandbox.
+- Live commission calculation, financial posting, wallet balances or payouts.
+- Automated CI workflows or bilingual-parity enforcement.
+- A production deployment or operational service-level commitment.
 
-- [English documentation](docs/en/README.md)
-- [Persian documentation](docs/fa/README.md)
-- [Agent operating guide and contribution rules](AGENTS.md)
+Open or draft pull requests are review candidates; they are not merged baseline capabilities. This README describes the intended platform and the evidence-backed project stage—it does not claim production readiness or commercial availability.
+
+### Documentation map
+
+- [English documentation index](docs/en/README.md)
+- [Persian documentation index](docs/fa/README.md)
+- [Agent operating guide](AGENTS.md)
 - [Product vision and requirements](docs/en/product/vision-and-prd.md)
 - [Proposed system architecture](docs/en/architecture/system-architecture.md)
-- [Verified project status](docs/en/engineering/project-status.md)
-- [Proposed delivery roadmap](docs/en/engineering/roadmap.md)
-- [Wallet and ledger model](docs/en/finance/wallet-and-ledger.md)
+- [Project status and continuation point](docs/en/engineering/project-status.md)
+- [Proposed roadmap](docs/en/engineering/roadmap.md)
+- [Wallet and ledger principles](docs/en/finance/wallet-and-ledger.md)
 - [Partner integration contract](docs/en/partners/integration-contract.md)
 - [Security baseline](docs/en/security/security-baseline.md)
 
 ### Governance and contribution
 
-Every meaningful documentation change must be delivered in Persian and English in the same change. Open decisions must retain explicit statuses and remain proposals until approved by the owner. Changes are submitted through reviewable working branches and pull requests; merge, release, and production deployment require explicit owner authorization.
+- Read [AGENTS.md](AGENTS.md) and the relevant Persian and English domain documents before making changes.
+- Work on a dedicated branch and submit a reviewable pull request.
+- Update Persian and English counterparts in the same change; verify semantic parity, not just file existence.
+- Record assumptions, unresolved decisions, acceptance criteria and evidence.
+- Never commit credentials, secrets, personal data or production exports.
+- Do not merge, deploy, change repository settings or perform destructive operations without explicit owner authorization.
+
+---
+
+<a id="فارسی"></a>
+
+## فارسی
+
+### چشم‌انداز پلتفرم
+
+Lottorito با هدف ایجاد یک **زیرساخت جهانی، ماژولار، API-first و چندمستاجری** برای سازمان‌هایی تعریف می‌شود که به ساخت، اتصال و اداره محصولات Lottery و Affiliate نیاز دارند.
+
+این دو خانواده محصول باید بتوانند **به‌صورت مستقل مورد استفاده و عرضه تجاری قرار بگیرند** یا در صورت نیاز، از طریق یکپارچه‌سازی‌های صریح و تحت حاکمیت مشخص به یک اکوسیستم متصل شوند. هیچ‌یک نباید از قواعد تجاری، چرخه انتشار یا امکان عرضه دیگری وابستگی اجباری داشته باشد.
+
+لوتوریتو از ابتدا مستقل از ارائه‌دهنده طراحی می‌شود و قرار نیست به یک اپراتور، تأمین‌کننده، کشور یا مدل توزیع خاص محدود باشد. یک بازار منطقه‌ای اولیه می‌تواند بر ترتیب ورود تجاری اثر بگذارد، اما مرز جغرافیایی پلتفرم را تعیین نمی‌کند.
+
+### معماری خانواده محصولات
+
+| دامنه محصول | قابلیت‌های موردنظر | بلوغ فعلی |
+|---|---|---|
+| **Affiliate و Agent** | برنامه‌های همکاری با شرکا؛ شبکه‌های چندسطحی افیلیت، ناشر، تولیدکننده محتوا و ایجنت؛ لینک و کد کمپین؛ رهگیری و انتساب؛ سیاست‌های کمیسیون CPA، Revenue Share و Hybrid؛ تأییدها، صورت‌حساب، تطبیق و گزارش | دامنه اولیه و نیازمندی‌ها به‌صورت پیشنهاد مستند شده‌اند. قواعد تجاری و تصمیم‌های مالک و شریک باز هستند. پیاده‌سازی اجرایی محصول تأیید نشده است. |
+| **Lottery** | کاتالوگ و پیکربندی بازی مستقل از ارائه‌دهنده؛ زمان‌بندی و چرخه قرعه‌کشی؛ چرخه بلیت و سفارش؛ دریافت و راستی‌آزمایی نتایج؛ اعتبارسنجی بلیت؛ فرایند تعیین برنده و جایزه؛ مطالبه جایزه، تسویه، تطبیق و گزارش | فعلاً در سطح چشم‌انداز راهبردی است. نیازمندی تفصیلی، ارزیابی ارائه‌دهندگان، بررسی مقررات بازارها و مجوز پیاده‌سازی همچنان باقی است. |
+| **زیرساخت‌های مشترک پلتفرم** | هویت و عضویت؛ مرز Tenant و سازمان؛ مجوزدهی؛ قراردادهای API و یکپارچه‌سازی؛ پردازش رویداد؛ دفترکل‌ها و کنترل‌های مالی تفکیک‌شده؛ ممیزی؛ اعلان؛ گزارش؛ بومی‌سازی؛ عملیات و مشاهده‌پذیری | مفاهیم معماری به‌صورت پیشنهاد مستند شده‌اند. ADRهای نهایی و پیاده‌سازی اجرایی هنوز تأیید نشده‌اند. |
+
+این موارد **دامنه‌های هدف محصول هستند، نه ادعای قابلیت‌های منتشرشده**. اولین نسخه تجاری، امکانات فعال هر ماژول، بازارهای پشتیبانی‌شده و معیارهای پذیرش باید جداگانه تصویب شوند.
+
+### پلتفرم برای چه کسانی طراحی می‌شود؟
+
+- **اپراتورها و شرکای B2B** — پیکربندی برنامه‌ها، محصولات، اتصال‌ها، سیاست‌ها، دسترسی‌ها و گزارش عملیاتی.
+- **افیلیت‌ها، ایجنت‌ها، ناشران و تولیدکنندگان محتوا** — مدیریت مشارکت، معرفی، کمپین، عملکرد و درآمدهای واجد شرایط.
+- **مشتریان و کاربران نهایی** — استفاده از تجربه‌های مشتری‌محوری که اپراتور یا Tenant فعال کرده است.
+
+مدل تجربه موردنظر شامل سطوح مستقل اپراتور، ایجنت/افیلیت و مشتری است. مسیرهای کاربری، مجوزها و محدوده انتشار نهایی آن‌ها همچنان نیازمند طراحی و تصویب محصول هستند.
+
+### مدل‌های عرضه و استفاده
+
+جهت‌گیری راهبردی، مدل‌های زیر را پشتیبانی می‌کند:
+
+- فقط Affiliate
+- فقط Lottery
+- ترکیب Affiliate و Lottery
+- عرضه صرفاً API
+- White-label
+- تجربه Embedded و ورود یکپارچه SSO
+
+این موارد مدل‌های هدف عرضه و تجاری‌سازی هستند؛ نه ادعای پیاده‌سازی، دسترس‌پذیری فعلی یا تعهد قراردادی برای هرکدام.
+
+### اصول بنیادین پلتفرم
+
+۱. **استقلال دامنه‌های محصول** — Affiliate و Lottery منطق دامنه، قواعد چرخه عمر و دروازه انتشار مستقل دارند. ارتباط آن‌ها صریح است؛ زیرساخت مشترک به‌معنای قواعد تجاری مشترک نیست.
+
+۲. **یکپارچه‌سازی مستقل از شریک** — رفتار اختصاصی هر ارائه‌دهنده در Adapter و قرارداد نسخه‌بندی‌شده قرار می‌گیرد، نه در هسته محصول. هیچ ارائه‌دهنده یا شریک پایلوتی به‌عنوان شریک انحصاری فرض نمی‌شود.
+
+۳. **جداسازی Tenant از ابتدا** — زمینه Tenant باید از عضویت احرازشده یا اتصال ماشینی معتبر استخراج شود، نه از داده ورودی غیرقابل‌اعتماد. این جداسازی باید APIها، پردازش‌های پس‌زمینه، دسترسی داده، Cache، فایل‌ها، گزارش‌ها و ابزارهای عملیاتی را پوشش دهد.
+
+۴. **سلامت و تمامیت مالی** — سوابق مالی بر مبنای مبالغ و ارزهای دقیق، ثبت دوطرفه تغییرناپذیر، اتمیک بودن، idempotency، اسناد معکوس مرتبط و تطبیق طراحی می‌شوند. موجودی باید از سوابق معتبر به دست آید، نه اینکه منبع حقیقت با ویرایش مستقیم باشد. موجودی Tenantها یا محصولات نباید به‌طور ضمنی با یکدیگر ادغام شود.
+
+۵. **یکپارچه‌پذیری API-first** — قراردادهای نسخه‌بندی‌شده، مستند و قابل‌آزمون، نحوه ارتباط محصولات و سامانه‌های بیرونی را مشخص می‌کنند.
+
+۶. **ماژولار بودن بدون توزیع زودهنگام** — ابتدا مرزهای روشن دامنه؛ سرویس‌های مستقل فقط زمانی ایجاد می‌شوند که مقیاس اندازه‌گیری‌شده، جداسازی، قابلیت اطمینان یا نیاز عملیاتی آن را توجیه کند.
+
+۷. **امنیت، حریم خصوصی و انطباق از ابتدا** — هر قابلیت قانون‌گذاری‌شده و هر بازار به ارزیابی حقوقی، ریسک، حریم خصوصی و عملیات مخصوص خود نیاز دارد.
+
+۸. **آمادگی جهانی** — بومی‌سازی، ارزها، منطقه زمانی، استقرار منطقه‌ای و پیکربندی متناسب با هر بازار، ملاحظات معماری هستند؛ نه ترجمه‌ای که در پایان اضافه شود.
+
+۹. **شواهد مهم‌تر از ادعاها** — وضعیت‌های پیشنهادی، پیاده‌سازی‌شده، تست‌شده، راستی‌آزمایی‌شده و تأییدشده برای Production از یکدیگر جدا هستند. وجود مستند به‌تنهایی نرم‌افزار عملیاتی را اثبات نمی‌کند.
+
+### نقشه مفهومی پلتفرم
+
+```mermaid
+flowchart TB
+    OP[اپراتور / شریک B2B] --> SURF
+    AG[افیلیت / ایجنت / ناشر] --> SURF
+    CU[مشتری / کاربر نهایی] --> SURF
+
+    subgraph SURF[لایه تجربه و دسترسی]
+      OUI[پنل اپراتور]
+      AUI[پنل افیلیت و ایجنت]
+      CUI[تجربه مشتری]
+      API[API عمومی / Embedded / SSO]
+    end
+
+    SURF --> CORE
+
+    subgraph CORE[دامنه‌های مستقل محصول]
+      AFF[دامنه Affiliate و Agent]
+      LOT[دامنه Lottery]
+    end
+
+    AFF --> AAD[Adapterهای شرکای Affiliate]
+    LOT --> LAD[Adapterهای ارائه‌دهندگان Lottery]
+
+    CORE -. یکپارچه‌سازی تحت حاکمیت مشخص .-> SHARED
+
+    subgraph SHARED[قابلیت‌های مشترک و سراسری]
+      IAM[هویت، Tenant و مجوزدهی]
+      FIN[کنترل‌های مالی و دفترکل‌های تفکیک‌شده]
+      EVT[پردازش رویداد و قراردادها]
+      OPS[ممیزی، گزارش، اعلان و مشاهده‌پذیری]
+      LOC[بومی‌سازی و پیکربندی]
+    end
+
+    AAD --> EXT1[شرکای بیرونی Affiliate]
+    LAD --> EXT2[ارائه‌دهندگان بیرونی Lottery]
+```
+
+این نمودار یک **مدل مفهومی هدف** است؛ نه نمودار استقرار تأییدشده یا تفکیک نهایی سرویس‌ها. قابلیت‌های مشترک، خدمات پلتفرم هستند و دو دامنه محصول را ادغام نمی‌کنند یا موجودی مشترک خودکار ایجاد نمی‌کنند.
+
+### جهت‌گیری معماری و مهندسی
+
+پیشنهاد فعلی معماری بر مرزهای صریح دامنه و شروع ماژولار تأکید دارد. انتخاب فناوری، توپولوژی پایگاه داده، مدل استقرار، مرز سرویس‌ها، زیرساخت رویداد، اهداف دسترس‌پذیری و اهداف بازیابی باید از طریق Architecture Decision Record (ADR) بازبینی و تصویب شوند.
+
+خط مبنای مهندسی موردنظر شامل این موارد است:
+
+- زمینه Tenant احرازشده و جداسازی قابل‌اعمال در تمام مرزهای اجرایی.
+- قراردادهای نسخه‌بندی‌شده API و رویداد، همراه با Adapterهای اختصاصی ارائه‌دهندگان.
+- دریافت پایدار رویداد، پردازش idempotent و بازپخش کنترل‌شده.
+- تاریخچه مالی تغییرناپذیر با اصلاحات و اسناد معکوس قابل‌ردیابی.
+- تست خودکار برای مجوزدهی، جداسازی Tenant، هم‌زمانی، دریافت تکراری، قواعد مالی و بازیابی خطا.
+- لاگ ساختاریافته، metrics، tracing، ردپای ممیزی، پشتیبان‌گیری و رویه بازیابی بحران.
+- تحویل تکرارپذیر همراه با بازبینی امنیتی و همگامی مستندات فارسی و انگلیسی.
+
+### اعتماد، مقررات و مرزهای محصول
+
+الزامات Lottery، بازی، پرداخت، نگهداری دارایی، خدمات مالی، بازاریابی و داده‌های شخصی با توجه به حوزه قضایی و مدل کسب‌وکار متفاوت‌اند. فعال‌سازی یک قابلیت در یک بازار صرفاً به دلیل حضور آن در چشم‌انداز محصول مجاز نمی‌شود. طبقه‌بندی حقوقی، مجوزها، کنترل سن و هویت، الزامات بازی مسئولانه در صورت کاربرد، AML/KYC، حریم خصوصی، مالیات، پرداخت و مسئولیت شرکا باید برای مدل عملیاتی مشخص بررسی شوند.
+
+چشم‌انداز پلتفرم به‌خودی‌خود به‌معنای نگهداری وجوه مشتریان، اداره قرعه‌کشی، اجرای پرداخت، داشتن مجوز ارائه‌دهنده یا مجاز بودن عرضه در هیچ حوزه قضایی نیست.
+
+### وضعیت تأییدشده پروژه
+
+**تا تاریخ ۲۴ نوامبر ۲۰۲۶، مخزن در مرحله تعریف محصول، طراحی دامنه و ایجاد پایه مستندات قرار دارد.**
+
+شاخه پیش‌فرض شامل مستندات پروژه است. موارد زیر هنوز به‌عنوان قابلیت پیاده‌سازی‌شده یا عملیاتی راستی‌آزمایی نشده‌اند:
+
+- برنامه اجرایی یا Runtime عملیاتی.
+- Schema نهایی پایگاه داده یا Migrationهای اعمال‌شده.
+- اتصال عملیاتی API شریک یا ارائه‌دهنده.
+- Sandbox مجاز و راستی‌آزمایی‌شده ارائه‌دهنده.
+- محاسبه زنده کمیسیون، ثبت مالی، موجودی کیف پول یا پرداخت.
+- گردش‌کار خودکار CI یا کنترل خودکار همگامی زبان‌ها.
+- استقرار Production یا تعهد سطح خدمت عملیاتی.
+
+Pull Requestهای باز یا Draft صرفاً گزینه‌های در حال بازبینی هستند و قابلیت‌های موجود در شاخه اصلی محسوب نمی‌شوند. این README چشم‌انداز هدف و مرحله پروژه مبتنی بر شواهد را توضیح می‌دهد؛ نه آمادگی Production یا عرضه تجاری را.
+
+### نقشه مستندات
+
+- [فهرست مستندات فارسی](docs/fa/README.md)
+- [فهرست مستندات انگلیسی](docs/en/README.md)
+- [راهنمای فعالیت ایجنت‌ها](AGENTS.md)
+- [چشم‌انداز و نیازمندی‌های محصول](docs/fa/product/vision-and-prd.md)
+- [معماری کلان پیشنهادی](docs/fa/architecture/system-architecture.md)
+- [وضعیت پروژه و نقطه ادامه کار](docs/fa/engineering/project-status.md)
+- [نقشه راه پیشنهادی](docs/fa/engineering/roadmap.md)
+- [اصول کیف پول و دفترکل](docs/fa/finance/wallet-and-ledger.md)
+- [قرارداد یکپارچه‌سازی شرکا](docs/fa/partners/integration-contract.md)
+- [خط مبنای امنیت](docs/fa/security/security-baseline.md)
+
+### حاکمیت و مشارکت
+
+- پیش از هر تغییر، [AGENTS.md](AGENTS.md) و اسناد مرتبط دامنه را به هر دو زبان مطالعه کنید.
+- روی شاخه مستقل کار کنید و تغییرات را در Pull Request قابل‌بازبینی ارائه دهید.
+- نسخه‌های فارسی و انگلیسی را در همان تغییر به‌روزرسانی کنید و هم‌ارزی معنایی را بررسی کنید؛ وجود دو فایل کافی نیست.
+- فرض‌ها، تصمیم‌های باز، معیارهای پذیرش و شواهد را ثبت کنید.
+- اعتبارنامه، Secret، داده شخصی یا خروجی Production را در مخزن Commit نکنید.
+- بدون مجوز صریح مالک، Merge، Deploy، تغییر تنظیمات مخزن یا عملیات مخرب انجام ندهید.
 
 ---
 
 <div align="center">
 
-**Lottorito — Infrastructure for independent products and connected ecosystems.**
+**Lottorito — Independent products. Shared foundations. Global by design.**
+
+**لوتوریتو — محصولات مستقل، زیرساخت مشترک، طراحی‌شده برای جهان.**
 
 </div>
