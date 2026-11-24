@@ -421,9 +421,9 @@ test("red-team boundary: a compromised shared runtime role can assert another te
 
 
 test("identity-bound per-tenant database roles resist GUC spoofing and role switching", async () => {
-  for (const [poolForTenant, ownTenant, otherTenant, ownPayload, otherRecordId] of [
-    [tenantAPool, TENANT_A, TENANT_B, "synthetic tenant A fixture", TENANT_B_ONLY_RECORD_ID],
-    [tenantBPool, TENANT_B, TENANT_A, "synthetic tenant B fixture", TENANT_B_ONLY_RECORD_ID]
+  for (const [poolForTenant, ownTenant, otherTenant, ownRecordId, ownPayload, otherRecordId] of [
+    [tenantAPool, TENANT_A, TENANT_B, SHARED_RECORD_ID, "synthetic tenant A fixture", TENANT_B_ONLY_RECORD_ID],
+    [tenantBPool, TENANT_B, TENANT_A, TENANT_B_ONLY_RECORD_ID, "tenant B private fixture", "dddddddd-dddd-4ddd-8ddd-dddddddddddd"]
   ]) {
     const identity = await poolForTenant.query(
       "SELECT session_user::text AS session_user, current_user::text AS current_user, private.current_tenant_id()::text AS tenant_id"
@@ -443,7 +443,7 @@ test("identity-bound per-tenant database roles resist GUC spoofing and role swit
 
     const ownRow = await poolForTenant.query(
       "SELECT payload FROM public.tenant_records WHERE record_id = $1",
-      [SHARED_RECORD_ID]
+      [ownRecordId]
     );
     assert.equal(ownRow.rowCount, 1);
     assert.equal(ownRow.rows[0].payload, ownPayload);
