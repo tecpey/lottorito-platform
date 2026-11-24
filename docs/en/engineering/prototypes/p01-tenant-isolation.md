@@ -78,8 +78,8 @@ The prototype pins the direct pg dependency but does not yet commit an npm lockf
 ## Result record
 
 - Implementation state: files added on spike/p01-tenant-isolation.
-- CI result: PASS — latest verified GitHub Actions run [45406526890](https://github.com/tecpey/lottorito-platform/actions/runs/45406526890), on head `67112b6e75b53389cadbf0d4b5527884ff453c45`. It used Node.js v26.13.0, PostgreSQL 18.7 and npm ci with the committed lockfile; all 14 Node test cases passed, 0 failed, 0 skipped. GitHub Actions are pinned to verified immutable commit SHAs.
-- The passing run includes cross-tenant UPDATE/DELETE denial, WITH CHECK rejection and rollback/pool reuse, plus the intentional red-team demonstration that shared `app_runtime` can set the custom GUC to another tenant. That test documents a known trust boundary and is not evidence of adversarial isolation.
+- CI result: PASS — latest verified GitHub Actions run [45407321512](https://github.com/tecpey/lottorito-platform/actions/runs/45407321512), on head `127b739af9ab43b1fcd5e09d1aff79307b14ae93`. It used Node.js v26.13.0, PostgreSQL 18.7 and npm ci with the committed lockfile; all 15 Node test cases passed, 0 failed, 0 skipped. GitHub Actions are pinned to verified immutable commit SHAs.
+- The passing run includes active-membership revocation on subsequent requests, tenant isolation for the membership table, narrow `UPDATE(lock_version)` privilege for `SELECT FOR SHARE` without permission to change `active`, cross-tenant UPDATE/DELETE denial, WITH CHECK rejection and rollback/pool reuse, plus the intentional red-team demonstration that shared `app_runtime` can set the custom GUC to another tenant. That test documents a known trust boundary and is not evidence of adversarial isolation.
 - Local execution: Not run in this environment; the verified run is GitHub-hosted CI.
 - Overall P-01: Inconclusive / partial scope only until the remaining asynchronous, revocation, privileged-support and other storage boundaries are tested.
 - Technology decision: remains Proposed; no stack approval is implied.
