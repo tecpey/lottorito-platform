@@ -1,6 +1,6 @@
 # P-02 Tenant-Bound Double-Entry Ledger Posting
 
-**Document ID:** LOT-PROT-P02-001 | **Version:** 0.5.0 | **Status:** Synthetic prototype; 25 CI tests passed; accounting policy and production controls unapproved
+**Document ID:** LOT-PROT-P02-001 | **Version:** 0.6.0 | **Status:** Synthetic prototype; stable effect identity propagated in outbox; latest CI pending
 
 ## Purpose and authority
 
@@ -16,7 +16,7 @@ This is an engineering experiment, not an accounting policy, commission/NGR spec
 - **Balance invariant:** debit and credit totals must match independently for every currency in the journal. A USD debit cannot be offset by a JPY credit. A multi-currency journal must balance each currency group independently.
 - **Exact amounts:** amounts travel through the API as decimal strings and are stored as PostgreSQL NUMERIC(38,0); JavaScript floating-point numbers are rejected. The prototype does not define currency exponents or perform major-to-minor conversion.
 - **Idempotency at two levels:** `(tenant_id, idempotency_key)` identifies a transport/API retry, while `(tenant_id, effect_id)` identifies the logical financial effect. Either identity resolves to the same original journal; reuse with changed economic content is rejected. The fingerprint includes effect ID, source event ID and normalized lines. Concurrent deliveries with different request keys but the same effect ID converge on one journal. One source event may legitimately produce multiple separately identified effects.
-- **Atomic outbox:** journal header, lines, idempotency record and ledger.journal.posted outbox event are created in one database statement/transaction. A failed posting leaves none of them committed.
+- **Atomic outbox:** journal header, lines, idempotency record and ledger.journal.posted outbox event (including journal ID, stable effect ID and source event ID) are created in one database statement/transaction. A failed posting leaves none of them committed.
 - **Immutability:** posting requests, posted journals, lines and outbox events reject UPDATE and DELETE. Corrections require a future compensating/reversal design; this experiment does not mutate history.
 
 ## Acceptance scenarios
