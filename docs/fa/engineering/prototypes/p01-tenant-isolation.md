@@ -16,6 +16,10 @@
 - هر عملیات دیتابیس یک اتصال از Pool می‌گیرد، Transaction باز می‌کند، مقدار set_config('app.tenant_id', ..., true) را در همان Transaction اعمال می‌کند، Queryهای پارامتری را اجرا و روی همان اتصال Commit/Rollback می‌کند.
 - RLS روی جدول آزمایش فعال و اجباری است. Role اجرایی به‌صورت صریح NOSUPERUSER و NOBYPASSRLS است، مالک جدول نیست و مجوز ساخت Database یا Role ندارد.
 - Pool تک‌اتصالی، درخواست‌های متناوب Tenantها را عمداً روی یک اتصال فیزیکی مشترک اجرا می‌کند.
+- ایجاد Job، ردیف Job مختص Tenant و ردیف Dispatch فاقد Payload را در یک تراکنش دیتابیس می‌نویسد؛ Tenant ID از Principal احراز‌شده گرفته می‌شود.
+- Role جداگانه Dispatcher که Superuser و BYPASSRLS نیست، می‌تواند Metadata سراسری Dispatch را با `FOR UPDATE SKIP LOCKED` Claim کند، اما هیچ مجوزی برای Payloadهای Job ندارد. مجوز UPDATE آن فقط به ستون‌های وضعیت/تلاش/Lease محدود است.
+- Envelope مربوط به Dispatch، نسخه، Tenant ID، Job ID، شماره تلاش و زمان صدور را با HMAC-SHA-256 امضا می‌کند؛ Worker پیش از ایجاد Tenant Context امضا را بررسی و سپس Job را تحت RLS دوباره بارگذاری می‌کند.
+- Worker عضویت فعال Actor مبدأ را در تراکنش Job دوباره بررسی می‌کند، از Row Lock و تغییر وضعیت Idempotent استفاده می‌کند و Jobهایی را که عضویتشان پیش از اجرا لغو شده رد می‌کند.
 
 ## سناریوهای پذیرش
 
@@ -35,6 +39,11 @@
 | P01-DB-05 | اجرای UPDATE/DELETE روی شیء اختصاصی Tenant B در Context مربوط به A | هیچ ردیفی تغییر یا حذف نمی‌شود؛ شیء B بدون تغییر باقی می‌ماند |
 | P01-DB-06 | INSERT ردیف Tenant B در Context مربوط به A، با دور زدن HTTP | قاعده RLS از طریق WITH CHECK نوشتن را رد می‌کند؛ تراکنش ناموفق پیش از استفاده مجدد Pool Rollback می‌شود |
 | P01-DB-07 | خواندن ردیف‌های Membership در Contextهای A و B | RLS جدول Membership فقط ردیف‌های متعلق به Tenant فعال را نمایش می‌دهد |
+| P01-ASYNC-01 | ساخت Job توسط A/B و تلاش برای جعل Tenant در Caller | Job و Metadata Dispatch اتمیک هستند؛ Tenant از Principal می‌آید و Tenant جعلی رد می‌شود |
+| P01-ASYNC-02 | بررسی Role مربوط به Dispatcher و تلاش برای خواندن Payload | Dispatcher فقط Metadata را می‌خواند/Claim می‌کند؛ SELECT روی Payload رد می‌شود و Role فاقد BYPASSRLS است |
+| P01-ASYNC-03 | تغییر Tenant ID در Envelope امضاشده صف | اعتبارسنجی HMAC پیش از هر دسترسی به داده Tenant شکست می‌خورد |
+| P01-ASYNC-04 | Claim مجدد Lease منقضی، Replay تحویل و تأیید تلاش‌ها | فقط آخرین Attempt می‌تواند Ack کند؛ اثر Job یک بار تکمیل می‌شود و Replay بی‌اثر است |
+| P01-ASYNC-05 | لغو Membership کاربر پس از Enqueue و پیش از اجرا | Worker وضعیت Job را Rejected می‌کند و Payload را اجرا نمی‌کند |
 
 ## تفسیر امنیتی مهم
 
@@ -45,7 +54,8 @@ RLS یک لایه دفاع در عمق است و جایگزین احراز هو�
 ## موارد خارج از محدوده / هنوز اثبات‌نشده
 
 - احراز هویت واقعی، ابطال Session، MFA، Workload Identity یا ذخیره‌سازی Production عضویت‌ها.
-- آزمون Race هم‌زمانی ابطال Membership با Request در حال اجرا؛ تراکنش Request ردیف Membership را با FOR SHARE قفل می‌کند تا ابطال با آن Serialize شود، اما این Race هنوز تحت بار آزمایش نشده است. PostgreSQL برای SELECT FOR SHARE به مجوز UPDATE روی حداقل یک ستون نیاز دارد؛ Role اجرایی فقط روی ستون غیرحساس lock_version این مجوز را دارد، نه روی Flag مجوزدهی active.
+- آزمون Race هم‌زمانی ابطال Membership با Request در حال اجرا؛ تراکنش Request/Job ردیف Membership را با FOR SHARE قفل می‌کند تا ابطال با آن Serialize شود، اما این Race هنوز تحت بار آزمایش نشده است. PostgreSQL برای SELECT FOR SHARE به مجوز UPDATE روی حداقل یک ستون نیاز دارد؛ Role اجرایی فقط روی ستون غیرحساس lock_version این مجوز را دارد، نه روی Flag مجوزدهی active.
+- Message Broker واقعی، تحویل Queue خارجی، Job زمان‌بندی‌شده، Backoff نمایی، Dead-letter Queue، تست هم‌زمانی/بار Dispatcher و اتصال KMS/چرخش کلید Production. جدول Dispatch فعلی یک شبیه‌سازی Outbox/Claim مستقل از Provider است، نه انتخاب یک محصول Queue.
 - مجوزدهی Operator/Support/Break-glass و Audit.
 - Jobهای صف، Retry، Jobهای زمان‌بندی‌شده و Replay.
 - جداسازی Cache، Object Storage، Search، Export، Analytics و Reporting.
@@ -93,4 +103,6 @@ Dependency مستقیم pg در Prototype Pin شده است، اما هنوز np
 - PostgreSQL 18 — [سیاست‌های Row Security](https://www.postgresql.org/docs/18/ddl-rowsecurity.html) و [مجوزها](https://www.postgresql.org/docs/18/ddl-priv.html) (الزام مجوز SELECT FOR SHARE).
 - OWASP — [راهنمای امنیت چندمستاجری](https://cheatsheetseries.owasp.org/cheatsheets/Multi_Tenant_Security_Cheat_Sheet.html)، شامل منشأ Tenant Context، Context تراکنش‌محور و انتخاب راهبرد جداسازی.
 - AWS — [انتخاب الگوی دسترسی PostgreSQL مناسب برای SaaS](https://aws.amazon.com/blogs/database/choose-the-right-postgresql-data-access-pattern-for-your-saas-application/)، شامل Trade-off متغیرهای Runtime مشترک و Roleهای دیتابیس مستقل برای هر Tenant.
+- AWS Prescriptive Guidance — [الگوی Transactional Outbox](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html)، شامل نوشتن اتمیک Outbox و Consumerهای Idempotent با تحویل At-least-once.
+- PostgreSQL 18 — [قفل‌گذاری در SELECT](https://www.postgresql.org/docs/current/sql-select.html)، شامل `SKIP LOCKED` برای Claim چندمصرف‌کننده‌ای شبیه Queue.
 - Node.js — [برنامه انتشار و پشتیبانی](https://github.com/nodejs/Release).
