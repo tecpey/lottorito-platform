@@ -1,6 +1,6 @@
 # Verified Project Status and Continuation Point
 
-**Document ID:** LOT-OPS-001 | **Version:** 1.7.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-24
+**Document ID:** LOT-OPS-001 | **Version:** 1.8.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-24
 
 ## Verified repository state
 - Repository: tecpey/lottorito-platform; default branch main; public visibility by owner decision.
@@ -40,7 +40,15 @@ The finance, security, API and technology/deployment references are proposals, n
 - **LOT-PAYOUT-001:** proposed disbursement contract separating customer withdrawals, Affiliate/Agent commission payouts, Lottery prize disbursements and treasury movements; covers beneficiary verification, reservations, maker-checker, provider execution, ambiguous outcomes, returns and reconciliation; no custody, banking, payout runtime or real-money disbursement is approved.
 - **LOT-B2C-PRD-001:** proposed product requirements for the dedicated first-party B2C tenant, consuming approved shared modules through common contracts; covers customer journeys, entitlement/jurisdiction gates, wallet, payment, payout, chat, support, notifications, localization, privacy, accessibility and 20 acceptance scenarios. No B2C app launch or runtime is claimed.
 - **LOT-API-PLATFORM-001:** proposed API platform and developer-experience contract extending LOT-API-001/LOT-EVENT-001 with control/data planes, app/client registration, entitlement catalog, credential lifecycle, webhook subscriptions, SDK generation, Developer Portal, isolated sandbox, metering/quotas and lifecycle governance. No API gateway, portal, SDK, sandbox or production API access is claimed.
+- **LOT-CUSTOMER-PILOT-001:** owner-directed RaidenBet initial-customer scope and proposed delivery/acceptance plan for Advanced Affiliate & Agent plus Live Chat Widget; it defines customer review before controlled API connection and does not verify a contract, customer API, sandbox, implementation or production approval.
 - **LOT-AFFILIATE-API-001:** proposed provider-neutral Affiliate & Agent API capability inventory for programs, memberships, hierarchy, campaigns, referral links, attribution, partner event intake, commission statements and reporting. Financial mutations remain in wallet/ledger/payment/payout domains; no partner, commercial formula, endpoint or integration is approved.
+
+## Owner-directed initial customer scope
+
+- **RaidenBet is the initial customer** for exactly two modules: Advanced Affiliate & Agent and Live Chat Widget. This owner clarification supersedes the historical LDR-014 wording that described RaidenBet only as a possible Affiliate partner; current authority is LDR-045.
+- The customer receives only the two approved modules, not the whole Lottorito platform or Lottery/Casino/Sportsbook/E-Gaming. The customer's existing script remains customer-controlled and is intended to connect through a controlled, versioned API after its support/technical team reviews and explicitly approves the handoff contract.
+- LOT-CUSTOMER-PILOT-001 records the proposed customer review, API/widget handoff, sandbox, acceptance and production gates. The customer API, legal entity, jurisdiction, sandbox, credentials, commercial contract and technical compatibility are not yet verified. No database/source-code access is assumed.
+- This is an owner-directed scope and planning baseline, not evidence of signed commercial terms, implementation, customer acceptance or production authorization.
 
 ## Not verified
 No application implementation, physical database schema/migrations, provider API connection, sandbox certification, financial calculation/posting, payout, penetration test or production deployment has been verified. Documentation Governance CI exists and has passed structural checks on selected PR heads; it does not prove semantic bilingual parity, runtime behavior, legal eligibility or security.
