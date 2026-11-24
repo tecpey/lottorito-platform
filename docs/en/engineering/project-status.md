@@ -5,10 +5,10 @@
 ## Verified repository state
 - Repository: tecpey/lottorito-platform; default branch main; public visibility by owner decision.
 - PR #19 is open and Draft, based on main. PR #20 is open and Draft, based on PR #19's head branch. Neither is merged.
-- The current PR #20 head previously reported as 895901b44ca04caf8f99a498fab8db5d1ec79e23 before the latest document commits; refresh the PR metadata for the current head.
+- PR #20's current head must be read from live PR metadata; historical SHAs in this document are not authoritative.
 - The repository work remains documentation-first. No runtime application, physical schema, provider integration, sandbox, financial posting, payout or production deployment is verified.
 - Added scripts/check_docs.py and .github/workflows/docs-governance.yml for bilingual path/ID and local-link structure checks. The first run correctly exposed that the two language indexes use EN/FA-qualified IDs; normalization was added. The Documentation Governance workflow then passed on PR head 78e47168e67b14ccc2be9df7ceae79fbf56eb59e (run 45345429559). This validates structure and local links only, not semantic translation parity.
-- CI status for the previously inspected PR #20 head was empty; no passing CI claim is made.
+- The structural Documentation Governance workflow has passed on an earlier head (20 bilingual Markdown pairs; 44 local links). Re-run it after the latest changes; no result for the current head is claimed yet.
 
 ## Documentation baseline
 The branch docs/agent-ready-foundation-v1 contains proposed bilingual references:
@@ -19,6 +19,7 @@ The branch docs/agent-ready-foundation-v1 contains proposed bilingual references
 - LOT-FIN-POST-001: proposed financial posting, account ownership, balance semantics and reconciliation.
 - LOT-SEC-TM-001: proposed system threat model and minimum security verification matrix.
 - LOT-API-001: proposed resource, authorization, error, pagination, idempotency and webhook conventions.
+- LOT-TECH-ADR-001: proposed technology, deployment, reliability, observability and data-lifecycle decision framework; no stack/provider approved.
 
 The finance, security, API and technology/deployment references are proposals, not approved policies or implemented controls. LOT-TECH-ADR-001 compares architecture, database, queues/workflows, hosting, observability, recovery, security and data-residency decision criteria. No technology vendor or stack is approved by that document.
 
