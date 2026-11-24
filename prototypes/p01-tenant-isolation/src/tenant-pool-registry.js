@@ -145,6 +145,9 @@ export class TenantPoolRegistry {
       } catch {
         throw new Error("tenant database pool creation failed");
       }
+      if (!pool || typeof pool.end !== "function") {
+        throw new Error("tenant database pool creation failed");
+      }
 
       if (this.closed || this.revokedTenants.has(tenantId)) {
         await pool.end();
