@@ -7,7 +7,7 @@
 - PR #19 is open and Draft, based on main. PR #20 is open and Draft, based on PR #19's head branch. Neither is merged.
 - The current PR #20 head previously reported as 895901b44ca04caf8f99a498fab8db5d1ec79e23 before the latest document commits; refresh the PR metadata for the current head.
 - The repository work remains documentation-first. No runtime application, physical schema, provider integration, sandbox, financial posting, payout or production deployment is verified.
-- Added scripts/check_docs.py and .github/workflows/docs-governance.yml for bilingual path/ID and local-link structure checks. The first run exposed a legitimate EN/FA index-ID suffix difference; the validator was corrected to normalize those language suffixes, and the new run is pending. No passing CI claim yet.
+- Added scripts/check_docs.py and .github/workflows/docs-governance.yml for bilingual path/ID and local-link structure checks. The first run correctly exposed that the two language indexes use EN/FA-qualified IDs; normalization was added. The Documentation Governance workflow then passed on PR head 78e47168e67b14ccc2be9df7ceae79fbf56eb59e (run 45345429559). This validates structure and local links only, not semantic translation parity.
 - CI status for the previously inspected PR #20 head was empty; no passing CI claim is made.
 
 ## Documentation baseline
