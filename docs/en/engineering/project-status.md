@@ -1,6 +1,6 @@
 # Verified Project Status and Continuation Point
 
-**Document ID:** LOT-OPS-001 | **Version:** 1.12.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-24
+**Document ID:** LOT-OPS-001 | **Version:** 1.13.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-24
 
 ## Verified repository state
 - Repository: tecpey/lottorito-platform; default branch main; public visibility by owner decision.
@@ -54,7 +54,7 @@ The finance, security, API and technology/deployment references are proposals, n
 - PR #36, [P-01 Tenant Isolation](https://github.com/tecpey/lottorito-platform/pull/36), is an open Draft stacked directly on PR #35. Branch: spike/p01-tenant-isolation. Re-fetch the live PR head before relying on a SHA.
 - A disposable Node.js HTTP + PostgreSQL RLS slice exists with synthetic tenants, server-resolved test principals, transaction-local tenant context, a least-privilege runtime role, and integration tests for spoofing, cross-tenant object access and pooled-connection reuse.
 - Candidate versions are Node.js 26.13.0, PostgreSQL 18.7 and node-postgres 8.23.1. They remain experiment inputs, not accepted technology decisions.
-- GitHub Actions run [45406526890](https://github.com/tecpey/lottorito-platform/actions/runs/45406526890) passed on Node.js 26.13.0 + PostgreSQL 18.7 with committed npm lockfile and SHA-pinned Actions: 14 tests passed, 0 failed, 0 skipped. Local execution has not been performed in this environment. The red-team test explicitly confirms the shared-role GUC trust limitation.
+- GitHub Actions run [45407321512](https://github.com/tecpey/lottorito-platform/actions/runs/45407321512) passed on Node.js 26.13.0 + PostgreSQL 18.7 with committed npm lockfile and SHA-pinned Actions: 15 tests passed, 0 failed, 0 skipped. The slice now verifies active-membership revocation on subsequent requests and tenant isolation for membership rows. Local execution has not been performed in this environment. The red-team test explicitly confirms the shared-role GUC trust limitation.
 - Overall P-01 remains partial/inconclusive until asynchronous jobs, membership revocation, support/break-glass, other storage boundaries, load and recovery are exercised.
 
 ## Not verified
