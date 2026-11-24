@@ -1,6 +1,6 @@
 # مستندات فارسی Lottorito
 
-**شناسه سند:** LOT-DOC-INDEX-FA-001 | **نسخه:** ۱.۸.۰ | **وضعیت:** فهرست مرجع و در حال نگهداری
+**شناسه سند:** LOT-DOC-INDEX-FA-001 | **نسخه:** ۱.۹.۰ | **وضعیت:** فهرست مرجع و در حال نگهداری
 
 این پوشه مرجع رسمی مستندات فارسی Lottorito است. مستندات انگلیسی در docs/en/ نیز به همان اندازه معتبرند.
 
@@ -45,6 +45,7 @@ LOT-FIN-POST-001 کنترل‌های پیشنهادی ثبت مالی و تطب�
 | معماری | [استاندارد بومی‌سازی جهانی](architecture/global-localization-standard.md) | LOT-I18N-001؛ ۱۲ زبان عرضه و دروازه کیفیت برابر |
 | معماری | [Live Chat و ارتباط با مشتری](architecture/live-chat-and-communications.md) | LOT-COMMS-001؛ پشتیبانی چندزبانه و تحویل به انسان |
 | معماری | [معماری یکپارچه پلتفرم B2B2C چندمستاجری](architecture/unified-b2b2c-platform-architecture.md) | LOT-PLATFORM-001؛ تجربه‌های B2B/B2C/White-Label، Tenant، هویت، داشبورد، Wallet، پرداخت، Chat، امنیت و نقشه راه پیشنهادی |
+| معماری | [قرارداد ارکستراسیون پرداخت و Adapter Provider](architecture/payment-orchestration-contract.md) | LOT-PAYMENT-001؛ Intent/Attempt مستقل از Provider، Adapter، Callback، Routing، Refund، Settlement و Reconciliation پیشنهادی؛ بدون انتخاب Provider |
 | محصول | [طرح داشبوردها و محیط‌های کاری مبتنی بر نقش](product/role-based-dashboards-blueprint.md) | LOT-DASH-001؛ جزئیات Workspaceهای Platform، Tenant، White-Label، Affiliate/Agent، پشتیبانی، مالی، انطباق و B2C همراه گردش‌ها، KPI و تست پذیرش |
 | معماری | [مدل Tenant، هویت، عضویت و مجوزدهی](architecture/tenant-identity-authorization-model.md) | LOT-IAM-TENANT-001؛ چرخه عمر Tenant، مدل Principal/Membership، RBAC/ABAC، ماتریس دسترسی داشبورد، جداسازی و تست‌های پذیرش امنیتی |
 | معماری | [ماژول چت قابل‌تعبیه](architecture/embeddable-chat-module.md) | LOT-CHAT-WIDGET-001؛ Widget مشترک داخلی و بیرونی، صدور امن Session و قرارداد API |
