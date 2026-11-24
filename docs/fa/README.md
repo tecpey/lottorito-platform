@@ -27,12 +27,15 @@
 | محصول | [چشم‌انداز و PRD](product/vision-and-prd.md) | پیش‌نویس اولیه نیازمندی‌های Affiliate؛ نه PRD کامل Lottery |
 | محصول | [PRD محصول Lottery](product/lottery-prd.md) | خط مبنای پیشنهادی کشف Lottery؛ نه مصوب پیاده‌سازی یا راه‌اندازی |
 | محصول | [واژه‌نامه](product/glossary.md) | اصطلاحات مشترک دامنه |
-| معماری | [معماری کلان](architecture/system-architecture.md) | پیشنهاد اولیه معماری؛ تکمیل دامنه Lottery باقی مانده است |
+| معماری | [معماری کلان](architecture/system-architecture.md) | پیشنهاد اولیه معماری؛ توپولوژی کامل بین‌محصولی باقی مانده است |
+| معماری | [مدل دامنه و ERD منطقی](architecture/domain-model-and-erd.md) | مالکیت و روابط منطقی پیشنهادی؛ نه Schema فیزیکی |
+| معماری | [مدل جداسازی Tenant](architecture/tenant-isolation-model.md) | مدل پیشنهادی هویت، انتشار Context و کنترل جداسازی |
 | کمیسیون | [موتور کمیسیون](commission/commission-engine.md) | مفاهیم کمیسیون نسخه‌بندی‌شده و تصمیم‌های باز سیاستی |
 | مالی | [کیف پول و دفترکل](finance/wallet-and-ledger.md) | پیش‌نویس اصول صحت مالی و دفترکل؛ نگاشت اختصاصی هر محصول باز است |
 | شرکا | [قرارداد یکپارچه‌سازی](partners/integration-contract.md) | قرارداد اولیه رویداد شریک Affiliate |
 | شرکا | [قرارداد ارائه‌دهنده Lottery](partners/lottery-provider-contract.md) | قرارداد چرخه عمر مستقل از Provider؛ بدون API تأییدشده |
 | امنیت | [خط مبنای امنیت](security/security-baseline.md) | نیازمندی‌ها و کنترل‌های اولیه امنیتی |
+| مهندسی | [قرارداد رویداد canonical](engineering/canonical-event-contract.md) | پاکت رویداد، تفکیک شناسه‌ها، زمان و معنای تحویل |
 | مهندسی | [راهنمای عملیاتی ایجنت‌ها](engineering/agent-operating-manual.md) | مسیریابی کم‌هزینه وظایف، شواهد و تحویل |
 | مهندسی | [دفتر ثبت تصمیم‌ها](engineering/decision-register.md) | دستورهای مالک، پیشنهادها و تصمیم‌های باز |
 | مهندسی | [وضعیت پروژه](engineering/project-status.md) | وضعیت تأییدشده و نقطه ادامه کار |
