@@ -1,6 +1,6 @@
 # Grant دانلود Export متصل به Tenant در P-01
 
-**شناسه سند:** LOT-PROT-P01-EXPORT-001 | **نسخه:** ۰.۲.۰ | **وضعیت:** Prototype ساختگی؛ تأیید CI در انتظار
+**شناسه سند:** LOT-PROT-P01-EXPORT-001 | **نسخه:** ۰.۳.۰ | **وضعیت:** Prototype ساختگی؛ ۳۶ تست CI موفق؛ سرویس تحویل تأییدنشده
 
 ## هدف
 
@@ -50,6 +50,6 @@
 
 ## وضعیت شواهد
 
-اجرای P-01 Tenant Isolation با شناسه [45426108704](https://github.com/tecpey/lottorito-platform/actions/runs/45426108704) روی Head کد `b88c83ad5f5160681ec0e132c1efe07d8b913da0` موفق شد: ۳۶ تست موفق، صفر شکست و صفر تست Skip‌شده. اجرای Documentation Governance با شناسه [45426108688](https://github.com/tecpey/lottorito-platform/actions/runs/45426108688) نیز موفق بود. اجرای محلی و تحویل دانلود با Provider واقعی هنوز تأیید نشده‌اند.
+آخرین اجرای P-01 Tenant Isolation با شناسه [45426841612](https://github.com/tecpey/lottorito-platform/actions/runs/45426841612) روی Head فعلی PR با شناسه `cd4247b5e42bc68194ed3d9f1a7f9a14489ed32a` موفق شد: ۳۶ تست موفق، صفر شکست و صفر تست Skip‌شده. اجرای Documentation Governance با شناسه [45426841734](https://github.com/tecpey/lottorito-platform/actions/runs/45426841734) نیز روی همین Head موفق بود. اجرای محلی و تحویل دانلود با Provider واقعی هنوز تأیید نشده‌اند.
 
 کد، Schema و سناریوهای یکپارچه‌سازی ساختگی در یک Draft PR پشته‌شده پیاده‌سازی شده‌اند. تمام Fixtureها و Credentialها ساختگی‌اند.
