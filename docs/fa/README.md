@@ -1,6 +1,6 @@
 # مستندات فارسی Lottorito
 
-**شناسه سند:** LOT-DOC-INDEX-FA-001 | **نسخه:** ۲.۵.۰ | **وضعیت:** فهرست مرجع و در حال نگهداری
+**شناسه سند:** LOT-DOC-INDEX-FA-001 | **نسخه:** ۲.۶.۰ | **وضعیت:** فهرست مرجع و در حال نگهداری
 
 این پوشه مرجع رسمی مستندات فارسی Lottorito است. مستندات انگلیسی در docs/en/ نیز به همان اندازه معتبرند.
 
@@ -81,3 +81,8 @@ Validator ساختاری در [scripts/check_docs.py](../../scripts/check_docs.p
 ## حاکمیت مشارکت
 
 پیش از مشارکت، [AGENTS.md](../../AGENTS.md) را بخوانید. از شاخه کاری و Pull Request استفاده کنید. بدون مجوز صریح مالک، Merge، Deploy، تغییر تنظیمات مخزن یا عملیات مخرب انجام ندهید.
+
+
+## برنامه‌های پیشنهادی Prototype
+
+- [P-02 — آزمایش Broker اعتبارنامه Tenant و مقیاس‌پذیری Connection Pool](engineering/prototypes/p02-credential-broker-pooling.md) — LOT-PROT-P02-001؛ فقط برنامه تحقیق و آزمایش پیشنهادی؛ بدون پیاده‌سازی یا انتخاب Provider.

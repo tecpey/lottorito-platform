@@ -40,3 +40,7 @@ Continue Lottorito from the repository's verified state. Do not restart planning
 
 ## Definition of done
 A task is done only when implementation exists, relevant tests pass, documentation is synchronized in both languages, security and tenant implications are reviewed, and commit/PR/CI evidence is linked.
+
+## Proposed P-02 experiment
+
+The bilingual plan `LOT-PROT-P02-001` is in `docs/en/engineering/prototypes/p02-credential-broker-pooling.md` and its Persian pair. It compares tenant LOGIN identity, credential lifecycle, PgBouncer pool topology and rotation/revocation under synthetic load. The current branch is documentation-only; no credential broker, pooler, provider or production architecture is approved.

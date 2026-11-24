@@ -1,6 +1,6 @@
 # Lottorito Architecture Prototype and Evidence Plan
 
-**Document ID:** LOT-PROT-001 | **Version:** 1.4.0 | **Status:** Proposed experiment plan; execution and technology choices not approved
+**Document ID:** LOT-PROT-001 | **Version:** 1.5.0 | **Status:** Proposed experiment plan; execution and technology choices not approved
 
 ## 1. Purpose and authority
 
@@ -288,3 +288,8 @@ The prototype phase is complete only when all eight experiments have reproducibl
 - LOT-OPS-001 — verified project status.
 
 **Status reminder:** the plan remains proposed. The partial P-01 HTTP/PostgreSQL RLS slice on PR #36 passed 20 defined CI tests in run [45412556456](https://github.com/tecpey/lottorito-platform/actions/runs/45412556456) on code head `f53caa4e801c9eeed94dfe706e03c6dfcf02a660`, using the committed npm lockfile and SHA-pinned GitHub Actions. It covers tenant-scoped async jobs, atomic outbox/dispatch writes, concurrent dispatcher claims, Ed25519 envelopes, worker-side membership re-authorization and a comparative per-tenant LOGIN-role/session_user RLS model across records, membership and jobs, including SECURITY DEFINER owner/search_path and temporary-schema shadowing checks, plus deterministic two-connection proof that membership revocation waits behind an in-flight `FOR SHARE` transaction. This does not pass the full P-01 experiment: secure credential brokering, pool scaling, cache/object storage/search/reporting, support/break-glass, load and recovery remain untested. The shared-role custom-GUC trust limitation is explicitly demonstrated. No technology approval is claimed.
+
+
+## Next proposed experiment
+
+P-02 is documented in [LOT-PROT-P02-001](prototypes/p02-credential-broker-pooling.md). It compares per-tenant LOGIN identity, credential broker/lifecycle candidates and PgBouncer pool scaling at synthetic 10/100/1,000-tenant populations. It is a plan only; no provider, pooler or credential broker is approved.
