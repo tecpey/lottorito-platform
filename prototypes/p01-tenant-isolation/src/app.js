@@ -113,7 +113,10 @@ export function createTenantServer({ pool, authenticate }) {
           throw httpError(400, "payload must be a string of at most 1000 characters");
         }
 
-        const recordId = isUuid(body.record_id) ? body.record_id : randomUUID();
+        if (body.record_id !== undefined && !isUuid(body.record_id)) {
+          throw httpError(400, "record_id must be a valid UUID when supplied");
+        }
+        const recordId = body.record_id ?? randomUUID();
         const row = await withTenantTransaction(pool, principal.tenantId, async (client) => {
           const result = await client.query(
             "INSERT INTO public.tenant_records (tenant_id, record_id, natural_key, payload) VALUES ($1, $2, $3, $4) RETURNING record_id, natural_key, payload",
