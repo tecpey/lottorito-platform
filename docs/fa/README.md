@@ -30,6 +30,7 @@ LOT-FIN-POST-001 کنترل‌های پیشنهادی ثبت مالی و تطب�
 | معماری | [مدل دامنه و ERD منطقی](architecture/domain-model-and-erd.md) | مالکیت و روابط منطقی پیشنهادی؛ نه Schema فیزیکی |
 | معماری | [مدل جداسازی Tenant](architecture/tenant-isolation-model.md) | هویت، انتشار Context و کنترل جداسازی پیشنهادی |
 | معماری | [ADR فناوری، استقرار و قابلیت اطمینان](architecture/technology-deployment-adrs.md) | LOT-TECH-ADR-001؛ چارچوب تصمیم پیشنهادی، بدون تصویب Stack یا Provider |
+| معماری | [ADR فناوری، استقرار و قابلیت اطمینان](architecture/technology-deployment-adrs.md) | LOT-TECH-ADR-001؛ چارچوب تصمیم پیشنهادی، بدون تصویب Stack یا Provider |
 | کمیسیون | [موتور کمیسیون](commission/commission-engine.md) | مفاهیم کمیسیون و سیاست‌های باز |
 | مالی | [کیف پول و دفترکل](finance/wallet-and-ledger.md) | اصول اولیه دفترکل و نگاشت‌های باز |
 | مالی | [مدل ثبت مالی و تطبیق](finance/financial-posting-and-reconciliation.md) | LOT-FIN-POST-001؛ کنترل ثبت، وضعیت‌ها و تطبیق پیشنهادی |
