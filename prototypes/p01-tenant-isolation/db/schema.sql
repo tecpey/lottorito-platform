@@ -346,7 +346,7 @@ CREATE TABLE public.tenant_exports (
   lock_version bigint NOT NULL DEFAULT 0,
   created_at timestamptz NOT NULL DEFAULT clock_timestamp(),
   PRIMARY KEY (tenant_id, export_id),
-  CHECK (object_key ~ ('^tenants/' || tenant_id::text || '/exports/[A-Za-z0-9][A-Za-z0-9._-]{0,180}
+  CHECK (object_key ~ ('^tenants/' || tenant_id::text || '/exports/[A-Za-z0-9][A-Za-z0-9._-]{0,180}' || chr(36))),
   CHECK (length(object_key) <= 512)
 );
 
