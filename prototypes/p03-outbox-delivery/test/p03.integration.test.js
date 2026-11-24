@@ -118,6 +118,9 @@ test("consumer inbox deduplicates concurrent deliveries atomically with the effe
     [TENANT_A, event.eventId]
   );
   assert.deepEqual(rows.rows[0], { inbox_count: 1, effect_count: 1 });
+  const [claim] = await claimOutboxEvents(tenantAPool, { workerId: "consumer-test-cleanup", batchSize: 1, leaseSeconds: 30 });
+  assert.equal(claim.event_id, event.eventId);
+  assert.equal(await acknowledgeOutboxEvent(tenantAPool, event.eventId, claim.lease_token), true);
 });
 
 test("publish-before-ack crash window produces safe at-least-once redelivery", async () => {
