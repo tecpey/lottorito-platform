@@ -160,6 +160,25 @@ test("runtime role is not superuser, table owner or BYPASSRLS and FORCE RLS is e
   assert.notEqual(role.table_owner, role.runtime_role);
 });
 
+test("red-team boundary: a compromised shared runtime role can assert another tenant GUC", async () => {
+  // This is an intentional threat-boundary demonstration, not a security pass.
+  // The shared DB role is trusted application infrastructure. RLS GUC context
+  // prevents accidental query omissions; it does not authenticate the app to DB.
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    await client.query("SELECT set_config('app.tenant_id', $1, true)", [TENANT_B]);
+    const result = await client.query(
+      "SELECT payload FROM public.tenant_records ORDER BY payload"
+    );
+    assert.ok(result.rows.some((row) => row.payload === "synthetic tenant B fixture"));
+    assert.ok(result.rows.some((row) => row.payload === "tenant B private fixture"));
+  } finally {
+    await client.query("ROLLBACK");
+    client.release();
+  }
+});
+
 test("database access without transaction-local tenant context is default-deny", async () => {
   const visible = await pool.query("SELECT count(*)::int AS count FROM public.tenant_records");
   assert.equal(visible.rows[0].count, 0);
