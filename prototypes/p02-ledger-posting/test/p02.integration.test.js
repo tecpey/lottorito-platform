@@ -449,6 +449,12 @@ test("SECURITY DEFINER ownership, search_path and execute grants are hardened", 
     { rolname: "ledger_owner", rolcanlogin: false, rolsuper: false, rolbypassrls: false },
     { rolname: "tenant_identity_owner", rolcanlogin: false, rolsuper: false, rolbypassrls: false }
   ]);
+  const table = await adminPool.query(
+    "SELECT pg_get_userbyid(relowner) AS owner_name, relrowsecurity, relforcerowsecurity FROM pg_class WHERE oid = 'public.financial_effects'::regclass"
+  );
+  assert.deepEqual(table.rows, [
+    { owner_name: "ledger_owner", relrowsecurity: true, relforcerowsecurity: true }
+  ]);
 });
 
 test("RLS policies bind the privileged posting function to the database session tenant", async () => {
