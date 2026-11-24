@@ -1,8 +1,8 @@
 # P-01 Support Access and Break-Glass Prototype
 
 **Document ID:** LOT-PROT-P01-SUPPORT-001  
-**Version:** 0.1.0  
-**Status:** Implemented synthetic experiment slice; CI verification pending  
+**Version:** 0.2.0  
+**Status:** Synthetic experiment slice implemented; CI passed; production controls not verified  
 **Parent experiment:** LOT-PROT-P01-001 / PR #36
 
 ## Purpose
@@ -57,7 +57,7 @@ This is a disposable synthetic-data experiment. It is not a production support c
 
 ## Reproduction and evidence
 
-Implementation and synthetic fixtures are present on the stacked support branch. The integration suite exercises active/expired/revoked/mismatched grants, support-vs-tenant route separation, payload-table denial, audit-table restrictions and grant-revocation locking. CI verification is pending; do not mark any scenario passed until the workflow result is observed.
+Implementation and synthetic fixtures are present on the stacked support branch. The integration suite exercises active/expired/revoked/mismatched grants, support-vs-tenant route separation, payload-table denial, audit-table restrictions and grant-revocation locking. CI result: PASS — [P-01 Tenant Isolation run 45414502363](https://github.com/tecpey/lottorito-platform/actions/runs/45414502363) on head `39fda51d98a65957906d670556aae7c6969cd9df`; 27 Node tests passed, 0 failed, 0 skipped, on Node.js 26.13.0 + PostgreSQL 18.7. [Documentation Governance run 45414502359](https://github.com/tecpey/lottorito-platform/actions/runs/45414502359) also passed. The support-specific cases cover subject-scoped grant RLS, active grant read/audit, expiry/revocation/mismatch denials, role separation, least privilege and grant-revocation locking. This is CI evidence for the synthetic slice only, not production support readiness.
 
 For local reproduction, start the disposable PostgreSQL service from `prototypes/p01-tenant-isolation`, then export `ADMIN_DATABASE_URL`, `DATABASE_URL`, `DISPATCHER_DATABASE_URL` and `SUPPORT_DATABASE_URL` using the synthetic values documented in the parent P-01 runbook. Run `npm ci --ignore-scripts --no-audit --no-fund` and `npm test`. Never use these values against shared, staging or production databases.
 
