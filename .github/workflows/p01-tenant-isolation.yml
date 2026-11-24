@@ -7,6 +7,8 @@ on:
       - "prototypes/p01-tenant-isolation/**"
       - "docs/en/engineering/prototypes/p01-tenant-isolation.md"
       - "docs/fa/engineering/prototypes/p01-tenant-isolation.md"
+      - "docs/en/engineering/prototypes/p01-support-breakglass.md"
+      - "docs/fa/engineering/prototypes/p01-support-breakglass.md"
       - ".github/workflows/p01-tenant-isolation.yml"
   push:
     branches:
@@ -47,6 +49,7 @@ jobs:
       DISPATCHER_DATABASE_URL: postgres://job_dispatcher:p01-dispatcher-not-for-production@127.0.0.1:5432/lottorito_p01
       TENANT_A_DATABASE_URL: postgres://tenant_a_runtime:p01-tenant-a-not-for-production@127.0.0.1:5432/lottorito_p01
       TENANT_B_DATABASE_URL: postgres://tenant_b_runtime:p01-tenant-b-not-for-production@127.0.0.1:5432/lottorito_p01
+      SUPPORT_DATABASE_URL: postgres://support_authorizer:p01-support-not-for-production@127.0.0.1:5432/lottorito_p01
     steps:
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
