@@ -1,6 +1,6 @@
 # برنامه Prototype معماری و تولید شواهد Lottorito
 
-**شناسه سند:** LOT-PROT-001 | **نسخه:** ۱.۵.۰ | **وضعیت:** برنامه آزمایش پیشنهادی؛ اجرا و انتخاب فناوری تصویب نشده است
+**شناسه سند:** LOT-PROT-001 | **نسخه:** ۱.۷.۰ | **وضعیت:** برنامه آزمایش پیشنهادی؛ اجرا و انتخاب فناوری تصویب نشده است
 
 ## ۱. هدف و اعتبار
 
@@ -63,7 +63,11 @@
 
 **وضعیت آزمایش Data Plane ثانویه در P-01 (۲۰۲۶-۱۱-۲۴):** یک Prototype تکمیلی، Cache Key مشتق از Tenant، Object Key دارای Prefix Tenant، فیلتر Search تزریق‌شده از سمت سرور و جدول Reporting با RLS مستقل اضافه می‌کند. Cache/Object/Search فقط از Adapterهای In-memory استفاده می‌کنند؛ رفتار Provider واقعی Redis/S3/OpenSearch/Warehouse صریحاً تأییدنشده است. مجموعه تست Data Plane در اجرای CI با شناسه 45419828256 روی Head کد 02850c6374dd295ec0df6ba42addf266a2d8a977 تعداد ۳۰ تست موفق داشته است. رفتار Provider واقعی همچنان تأییدنشده است.
 
-**وضعیت آزمایش Credential/Pool برای Tenant در P-01 (۲۰۲۶-۱۱-۲۴):** یک Prototype تکمیلی، Resolve اعتبارنامه سمت سرور، ادغام ساخت Poolهای هم‌زمان، سقف سراسری Pool و سقف Connection هر Pool، رزرو Lease، Eviction فقط از Poolهای Idle با LRU/TTL، تخلیه هنگام لغو، Shutdown تکرارپذیر و بررسی ثابت هویت دیتابیس پیش از انتشار Pool را اضافه می‌کند. Roleهای ساختگی PostgreSQL از نوع LOGIN مسیر هویت‌محور را در CI با [۴۰ تست موفق، صفر شکست و صفر Skip](https://github.com/tecpey/lottorito-platform/actions/runs/45424792886) روی Head `153fc8974c9c620acd8d509afdea0341669e5c` اعتبارسنجی کردند؛ Documentation Governance نیز با شناسه [45424793114](https://github.com/tecpey/lottorito-platform/actions/runs/45424793114) موفق شد. Vault/KMS، چرخش Credential، Quota سراسری Fleet، PgBouncer، سیاست TLS، Failover و مقیاس همچنان تأییدنشده‌اند. هیچ توپولوژی تصویب نشده است.
+**آزمایش Credential/Pool اختصاصی Tenant در P-01 (۲۰۲۶-۱۱-۲۴):** یک Prototype تکمیلی، Resolve اعتبارنامه سمت سرور، ادغام ساخت Poolهای هم‌زمان، سقف سراسری Pool و سقف Connection هر Pool، رزرو Lease، Eviction فقط از Poolهای Idle با LRU/TTL، تخلیه هنگام لغو، Shutdown تکرارپذیر و بررسی ثابت هویت دیتابیس پیش از انتشار Pool را اضافه می‌کند. Roleهای ساختگی PostgreSQL از نوع LOGIN مسیر هویت‌محور را در CI با [۴۰ تست موفق، صفر شکست و صفر Skip](https://github.com/tecpey/lottorito-platform/actions/runs/45424792886) روی Head کد `153fc8974c9c620acd34935f6fdbff9f2bd2d719` اعتبارسنجی کردند؛ Documentation Governance نیز با شناسه [45424793114](https://github.com/tecpey/lottorito-platform/actions/runs/45424793114) موفق شد. Vault/KMS، چرخش Credential، Quota سراسری Fleet، PgBouncer، سیاست TLS، Failover و مقیاس همچنان تأییدنشده‌اند. هیچ توپولوژی تصویب نشده است.
+
+**آزمایش Export Download در P-01 (۲۰۲۶-۱۱-۲۴):** یک Prototype تکمیلی، Grant دانلود یک‌بارمصرف، زمان‌دار و متصل به Subject و Tenant اضافه می‌کند. Tokenها ۲۵۶ بیت تصادفی‌اند؛ فقط Hash از نوع SHA-256 ذخیره می‌شود؛ قفل ردیف PostgreSQL، Redeem و بررسی وضعیت Export را Serialize می‌کند. اجرای CI با شناسه 45429917398 روی Head کد aa0bd586c4ebc0f8785d5981ef7867c13efe7b79 تعداد ۳۸ تست موفق، صفر شکست و صفر Skip داشته است؛ شامل بازبینی مجدد Membership فعال، اثبات قطعی دو اتصالی برای Serialization لغو Membership در برابر Redeem و رد کردن Traversal/Separator کدگذاری‌شده/Prefix Tenant دیگر در سطح دیتابیس. اجرای Documentation Governance با شناسه 45429917650 نیز روی همین Head موفق شده است. HTTP Streaming، URL امضاشده Provider، رفتار CDN، اسکن محتوا و معنای Retry در تحویل، خارج از محدوده و تأییدنشده هستند.
+
+**مطالعه طراحی تحویل در P-01 (۲۰۲۶-۱۱-۲۴):** سند دوزبانه LOT-PROT-P01-DELIVERY-001، Streaming Proxy از طریق برنامه را با URL امضاشده Provider مقایسه می‌کند. برای Exportهای حساس، آزمایش ابتدا با Proxy مستقل از Provider پیشنهاد شده است؛ سند صریحاً توضیح می‌دهد Presigned URL در S3 تا زمان انقضا Bearer Capability قابل Replay است و سناریوهای Session/Retry/Range/Backpressure/Header/Audit را تعریف می‌کند. این صرفاً پیشنهاد است؛ هیچ معماری تحویل یا Provider ذخیره‌سازی تصویب نشده است.
 
 ### P-02 — تراکنش مالی و تطبیق
 
