@@ -30,7 +30,7 @@ The branch docs/agent-ready-foundation-v1 contains proposed bilingual references
 
 The finance, security, API and technology/deployment references are proposals, not approved policies or implemented controls. LOT-TECH-ADR-001 compares architecture, database, queues/workflows, hosting, observability, recovery, security and data-residency decision criteria. No technology vendor or stack is approved by that document.
 
-## Not verified
+- **LOT-PLATFORM-001:** proposed unified B2B2C architecture covering the first-party B2C tenant, operator, white-label, affiliate/agent, role dashboards, wallet/ledger, deposits/withdrawals, payment adapters, chat/widget, security and work packages; none is verified as implemented runtime.\n\n## Not verified
 No application implementation, physical database schema/migrations, provider API connection, sandbox certification, financial calculation/posting, payout, penetration test or production deployment has been verified. Documentation Governance CI exists and has passed structural checks on selected PR heads; it does not prove semantic bilingual parity, runtime behavior, legal eligibility or security.
 
 ## Continuation rules
