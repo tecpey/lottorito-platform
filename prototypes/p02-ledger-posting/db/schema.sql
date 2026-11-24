@@ -138,6 +138,7 @@ REVOKE CREATE ON SCHEMA public FROM PUBLIC;
 GRANT USAGE, CREATE ON SCHEMA public TO ledger_owner, ledger_executor;
 
 ALTER TABLE public.ledger_accounts OWNER TO ledger_owner;
+ALTER TABLE public.financial_effects OWNER TO ledger_owner;
 ALTER TABLE public.posting_requests OWNER TO ledger_owner;
 ALTER TABLE public.ledger_journals OWNER TO ledger_owner;
 ALTER TABLE public.ledger_lines OWNER TO ledger_owner;
