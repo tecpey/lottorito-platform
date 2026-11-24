@@ -1,6 +1,6 @@
 # Lottorito Architecture Prototype and Evidence Plan
 
-**Document ID:** LOT-PROT-001 | **Version:** 1.5.0 | **Status:** Proposed experiment plan; execution and technology choices not approved
+**Document ID:** LOT-PROT-001 | **Version:** 1.6.0 | **Status:** Proposed experiment plan; execution and technology choices not approved
 
 ## 1. Purpose and authority
 
@@ -62,6 +62,8 @@ A prototype may be **Pass**, **Fail**, **Inconclusive** or **Not run**. “Pass�
 **Current P-01 experiment note (2026-11-24):** PR #36 passed 20 synthetic integration tests. Follow-on PR #39 adds scoped, time-bound, read-only support grants and append-only audit; its latest observed CI run 45418177150 passed 26 tests on head d2e9fc81a17036e5d6e63c07ee1e64fa055a24eb. This is partial evidence only: support metadata minimization, production identity/MFA, endpoint race/failure stress, credential brokering, cache/storage/search/reporting, load and recovery remain open. No technology or production architecture is approved.
 
 **Current P-01 secondary data-plane experiment (2026-11-24):** a stacked follow-on prototype adds tenant-derived cache keys, tenant-prefixed object keys, server-injected search filters and a separately RLS-protected reporting table. Cache/object/search use in-memory adapters only; provider-specific Redis/S3/OpenSearch/warehouse behavior remains explicitly unverified. The data-plane test suite passed 30 tests in run 45419828256 on code head 02850c6374dd295ec0df6ba42addf266a2d8a977. Provider-specific behavior remains unverified.
+
+**P-01 export-download experiment (2026-11-24):** a follow-on prototype adds subject-bound, tenant-scoped, expiring one-time download grants. Tokens are 256-bit random values; only SHA-256 hashes are stored; PostgreSQL row locks serialize redemption and export-status checks. HTTP streaming, provider-signed URLs, CDN behavior, content scanning and delivery retry semantics remain out of scope and unverified.
 
 ### P-02 — Financial transaction and reconciliation
 
