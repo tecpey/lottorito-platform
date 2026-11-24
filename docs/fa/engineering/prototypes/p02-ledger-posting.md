@@ -1,6 +1,6 @@
 # ثبت سند دوطرفه محدود به Tenant در P-02
 
-**شناسه سند:** LOT-PROT-P02-001 | **نسخه:** ۰.۵.۰ | **وضعیت:** Prototype ساختگی؛ ۲۵ تست CI موفق؛ سیاست حسابداری و کنترل‌های Production تصویب‌نشده
+**شناسه سند:** LOT-PROT-P02-001 | **نسخه:** ۰.۶.۰ | **وضعیت:** Prototype ساختگی؛ Effect ID پایدار در Outbox منتشر می‌شود؛ CI نهایی در انتظار
 
 ## هدف و اعتبار
 
@@ -16,7 +16,7 @@
 - **ناوردای توازن:** مجموع Debit و Credit باید برای هر ارز در همان Journal جداگانه برابر باشد. Debit دلاری نمی‌تواند با Credit ین جبران شود. Journal چندارزی فقط زمانی معتبر است که هر گروه ارزی مستقل توازن داشته باشد.
 - **مبلغ دقیق:** مبلغ از API به‌صورت رشته ده‌دهی منتقل و در PostgreSQL با NUMERIC(38,0) ذخیره می‌شود؛ عدد ممیز شناور JavaScript رد می‌شود. این Prototype توان یا Exponent ارزها و تبدیل واحد اصلی به خرد را تعریف نمی‌کند.
 - **Idempotency در دو سطح:** `(tenant_id, idempotency_key)` شناسه Retry در سطح API/انتقال است، در حالی که `(tenant_id, effect_id)` اثر مالی منطقی را مشخص می‌کند. هرکدام از این دو هویت به همان Journal اصلی می‌رسد؛ استفاده مجدد با محتوای اقتصادی متفاوت رد می‌شود. Fingerprint شامل Effect ID، Source Event ID و Lineهای نرمال‌شده است. تحویل‌های هم‌زمان با Request Key متفاوت اما Effect ID یکسان به یک Journal همگرا می‌شوند. یک Source Event می‌تواند چند Effect مستقل با شناسه‌های مجزا داشته باشد.
-- **Outbox اتمیک:** Header، Lineها، رکورد Idempotency و رویداد ledger.journal.posted در یک Statement/Transaction دیتابیس ساخته می‌شوند. ثبت ناموفق نباید هیچ‌یک از آن‌ها را Commit کند.
+- **Outbox اتمیک:** Header، Lineها، رکورد Idempotency و رویداد ledger.journal.posted (شامل Journal ID، شناسه پایدار Effect و Source Event ID) در یک Statement/Transaction دیتابیس ساخته می‌شوند. ثبت ناموفق نباید هیچ‌یک از آن‌ها را Commit کند.
 - **تغییرناپذیری:** Posting Request، Journal ثبت‌شده، Lineها و Outbox Event در برابر UPDATE و DELETE محافظت می‌شوند. اصلاحات باید در طراحی آینده به‌صورت Reversal/Compensating Entry انجام شوند؛ این آزمایش تاریخچه را تغییر نمی‌دهد.
 
 ## سناریوهای پذیرش
