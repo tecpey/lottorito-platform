@@ -22,7 +22,7 @@ Lottorito is being shaped as a **global, modular, API-first, multi-tenant infras
 
 The two product families are designed to be **adopted and commercialized independently** or combined through explicitly governed integrations. Neither product should depend on the other's business rules, release cycle, or commercial availability.
 
-Lottorito is partner-neutral by design. It is not intended to be limited to one operator, provider, country, or distribution model. An initial regional market may inform commercial sequencing; it does not define the platform's geographic boundary.
+Lottorito is partner-neutral by design. It is not intended to be limited to one operator, provider, country, or distribution model. East Asia may be an initial commercial entry market; it does not define or constrain the platform's global geographic scope.
 
 ### Product architecture
 
@@ -32,7 +32,7 @@ Lottorito is partner-neutral by design. It is not intended to be limited to one 
 | **Lottery** | Provider-neutral catalog and game configuration; schedules and draw lifecycle; ticket/order lifecycle; result ingestion and verification; ticket validation; winner and prize workflows; claims, settlement, reconciliation and reporting | Strategic product scope only. Detailed requirements, provider evaluation, jurisdiction review and implementation approval remain outstanding. |
 | **Shared platform foundations** | Identity and memberships; tenant and organization boundaries; authorization; API and integration contracts; event processing; isolated financial books and controls; audit; notifications; reporting; localization; operations and observability | Architecture concepts are documented as proposals. Final ADRs and runtime implementation are not verified. |
 
-These are **product domains, not a claim of shipped features**. The exact first commercial release, module entitlements, supported markets and acceptance criteria require separate approval.
+Optional loyalty and reward capabilities may be considered as separate extensions. Their funding source, eligibility, liability, expiry, reversal and accounting rules must be defined before they enter an approved release scope.\n\nThese are **product domains, not a claim of shipped features**. The exact first commercial release, module entitlements, supported markets and acceptance criteria require separate approval.
 
 ### Who the platform is designed to serve
 
@@ -53,7 +53,7 @@ The strategic direction supports several possible adoption models:
 - White-label
 - Embedded experiences and SSO
 
-These are target commercial and delivery models—not a statement that each mode is currently implemented, available, or contractually offered.
+White-label configuration may adapt tenant-facing branding, domains and product presentation, while Lottorito's platform identity, ownership and technical traceability remain governed.\n\nThese are target commercial and delivery models—not a statement that each mode is currently implemented, available, or contractually offered.
 
 ### Platform principles
 
@@ -178,7 +178,7 @@ Lottorito با هدف ایجاد یک **زیرساخت جهانی، ماژولا
 
 این دو خانواده محصول باید بتوانند **به‌صورت مستقل مورد استفاده و عرضه تجاری قرار بگیرند** یا در صورت نیاز، از طریق یکپارچه‌سازی‌های صریح و تحت حاکمیت مشخص به یک اکوسیستم متصل شوند. هیچ‌یک نباید از قواعد تجاری، چرخه انتشار یا امکان عرضه دیگری وابستگی اجباری داشته باشد.
 
-لوتوریتو از ابتدا مستقل از ارائه‌دهنده طراحی می‌شود و قرار نیست به یک اپراتور، تأمین‌کننده، کشور یا مدل توزیع خاص محدود باشد. یک بازار منطقه‌ای اولیه می‌تواند بر ترتیب ورود تجاری اثر بگذارد، اما مرز جغرافیایی پلتفرم را تعیین نمی‌کند.
+لوتوریتو از ابتدا مستقل از ارائه‌دهنده طراحی می‌شود و قرار نیست به یک اپراتور، تأمین‌کننده، کشور یا مدل توزیع خاص محدود باشد. شرق آسیا می‌تواند بازار اولیه ورود تجاری باشد؛ اما محدوده جغرافیایی جهانی پلتفرم را تعریف یا محدود نمی‌کند.
 
 ### معماری خانواده محصولات
 
@@ -188,7 +188,7 @@ Lottorito با هدف ایجاد یک **زیرساخت جهانی، ماژولا
 | **Lottery** | کاتالوگ و پیکربندی بازی مستقل از ارائه‌دهنده؛ زمان‌بندی و چرخه قرعه‌کشی؛ چرخه بلیت و سفارش؛ دریافت و راستی‌آزمایی نتایج؛ اعتبارسنجی بلیت؛ فرایند تعیین برنده و جایزه؛ مطالبه جایزه، تسویه، تطبیق و گزارش | فعلاً در سطح چشم‌انداز راهبردی است. نیازمندی تفصیلی، ارزیابی ارائه‌دهندگان، بررسی مقررات بازارها و مجوز پیاده‌سازی همچنان باقی است. |
 | **زیرساخت‌های مشترک پلتفرم** | هویت و عضویت؛ مرز Tenant و سازمان؛ مجوزدهی؛ قراردادهای API و یکپارچه‌سازی؛ پردازش رویداد؛ دفترکل‌ها و کنترل‌های مالی تفکیک‌شده؛ ممیزی؛ اعلان؛ گزارش؛ بومی‌سازی؛ عملیات و مشاهده‌پذیری | مفاهیم معماری به‌صورت پیشنهاد مستند شده‌اند. ADRهای نهایی و پیاده‌سازی اجرایی هنوز تأیید نشده‌اند. |
 
-این موارد **دامنه‌های هدف محصول هستند، نه ادعای قابلیت‌های منتشرشده**. اولین نسخه تجاری، امکانات فعال هر ماژول، بازارهای پشتیبانی‌شده و معیارهای پذیرش باید جداگانه تصویب شوند.
+قابلیت‌های وفاداری و پاداش می‌توانند به‌عنوان توسعه‌های اختیاری و مستقل بررسی شوند. منبع تأمین اعتبار، شرایط احراز، مسئولیت مالی، انقضا، برگشت و قواعد حسابداری آن‌ها باید پیش از ورود به محدوده یک انتشار مصوب مشخص شود.\n\nاین موارد **دامنه‌های هدف محصول هستند، نه ادعای قابلیت‌های منتشرشده**. اولین نسخه تجاری، امکانات فعال هر ماژول، بازارهای پشتیبانی‌شده و معیارهای پذیرش باید جداگانه تصویب شوند.
 
 ### پلتفرم برای چه کسانی طراحی می‌شود؟
 
@@ -209,7 +209,7 @@ Lottorito با هدف ایجاد یک **زیرساخت جهانی، ماژولا
 - White-label
 - تجربه Embedded و ورود یکپارچه SSO
 
-این موارد مدل‌های هدف عرضه و تجاری‌سازی هستند؛ نه ادعای پیاده‌سازی، دسترس‌پذیری فعلی یا تعهد قراردادی برای هرکدام.
+پیکربندی White-label می‌تواند برند، دامنه و نحوه نمایش محصول برای هر Tenant را متناسب کند؛ در عین حال هویت پلتفرمی، مالکیت و قابلیت ردیابی فنی Lottorito باید تحت حاکمیت مشخص باقی بماند.\n\nاین موارد مدل‌های هدف عرضه و تجاری‌سازی هستند؛ نه ادعای پیاده‌سازی، دسترس‌پذیری فعلی یا تعهد قراردادی برای هرکدام.
 
 ### اصول بنیادین پلتفرم
 
