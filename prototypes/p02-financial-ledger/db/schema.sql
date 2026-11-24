@@ -45,6 +45,7 @@ CREATE TABLE public.ledger_accounts (
   normal_side text NOT NULL CHECK (normal_side IN ('debit', 'credit')),
   created_at timestamptz NOT NULL DEFAULT clock_timestamp(),
   PRIMARY KEY (tenant_id, product_id, account_id),
+  UNIQUE (tenant_id, product_id, account_id, currency_code),
   UNIQUE (tenant_id, product_id, account_code, currency_code)
 );
 ALTER TABLE public.ledger_accounts OWNER TO ledger_owner;
@@ -113,8 +114,8 @@ CREATE TABLE public.ledger_entries (
   PRIMARY KEY (tenant_id, product_id, journal_id, line_no),
   FOREIGN KEY (tenant_id, product_id, journal_id)
     REFERENCES public.journal_transactions (tenant_id, product_id, journal_id),
-  FOREIGN KEY (tenant_id, product_id, account_id)
-    REFERENCES public.ledger_accounts (tenant_id, product_id, account_id)
+  FOREIGN KEY (tenant_id, product_id, account_id, currency_code)
+    REFERENCES public.ledger_accounts (tenant_id, product_id, account_id, currency_code)
 );
 ALTER TABLE public.ledger_entries OWNER TO ledger_owner;
 
