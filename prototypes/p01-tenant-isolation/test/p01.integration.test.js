@@ -32,8 +32,6 @@ assert.ok(databaseUrl, "DATABASE_URL must point to the least-privilege app_runti
 assert.ok(adminDatabaseUrl, "ADMIN_DATABASE_URL must point to the disposable fixture administrator");
 assert.ok(dispatcherDatabaseUrl, "DISPATCHER_DATABASE_URL must point to the metadata-only dispatcher role");
 assert.ok(supportDatabaseUrl, "SUPPORT_DATABASE_URL must point to the support-authorizer role");
-assert.ok(process.env.TENANT_A_DATABASE_URL, "TENANT_A_DATABASE_URL must point to the tenant_a_runtime role");
-assert.ok(process.env.TENANT_B_DATABASE_URL, "TENANT_B_DATABASE_URL must point to the tenant_b_runtime role");
 assert.ok(process.env.TENANT_A_DATABASE_URL, "TENANT_A_DATABASE_URL must point to the synthetic Tenant A LOGIN role");
 assert.ok(process.env.TENANT_B_DATABASE_URL, "TENANT_B_DATABASE_URL must point to the synthetic Tenant B LOGIN role");
 
