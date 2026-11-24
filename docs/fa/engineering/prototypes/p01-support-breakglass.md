@@ -1,8 +1,8 @@
 # نمونه دسترسی پشتیبانی و Break-Glass در P-01
 
 **شناسه سند:** LOT-PROT-P01-SUPPORT-001  
-**نسخه:** ۰.۱.۰  
-**وضعیت:** برش آزمایشی با داده ساختگی پیاده‌سازی شده؛ تأیید CI در انتظار  
+**نسخه:** ۰.۲.۰  
+**وضعیت:** برش آزمایشی با داده ساختگی پیاده‌سازی شده؛ CI موفق؛ کنترل‌های Production تأیید نشده  
 **آزمایش مادر:** LOT-PROT-P01-001 / PR شماره ۳۶
 
 ## هدف
@@ -57,7 +57,7 @@
 
 ## اجرا و شواهد
 
-پیاده‌سازی و Fixtureهای ساختگی در شاخه پشته‌شده Support قرار دارند. مجموعه تست یکپارچگی، Grant فعال/منقضی/لغوشده/نامنطبق، جداسازی مسیر Support از Tenant، منع خواندن Payload، محدودیت جدول Audit و قفل‌گذاری هنگام لغو Grant را آزمایش می‌کند. تأیید CI هنوز در انتظار است؛ تا مشاهده نتیجه موفق Workflow هیچ سناریویی را **تأییدشده** اعلام نمی‌کنیم.
+پیاده‌سازی و Fixtureهای ساختگی در شاخه پشته‌شده Support قرار دارند. مجموعه تست یکپارچگی، Grant فعال/منقضی/لغوشده/نامنطبق، جداسازی مسیر Support از Tenant، منع خواندن Payload، محدودیت جدول Audit و قفل‌گذاری هنگام لغو Grant را آزمایش می‌کند. نتیجه CI: موفق — [اجرای P-01 با شناسه 45414502363](https://github.com/tecpey/lottorito-platform/actions/runs/45414502363) روی Head با شناسه `39fda51d98a65957906d670556aae7c6969cd9df`؛ هر ۲۷ تست Node موفق، صفر شکست و صفر Skip‌شده، با Node.js 26.13.0 و PostgreSQL 18.7. [اجرای Documentation Governance با شناسه 45414502359](https://github.com/tecpey/lottorito-platform/actions/runs/45414502359) نیز موفق شد. سناریوهای اختصاصی Support شامل RLS مبتنی بر Subject، خواندن Grant فعال و ثبت Audit، رد انقضا/لغو/عدم تطابق، جداسازی Roleها، حداقل مجوز و قفل‌گذاری هنگام لغو Grant هستند. این شواهد فقط به برش آزمایشی ساختگی مربوط‌اند و آمادگی Support در Production را اثبات نمی‌کنند.
 
 برای اجرای محلی، سرویس PostgreSQL دورریختنی را از مسیر `prototypes/p01-tenant-isolation` اجرا و متغیرهای `ADMIN_DATABASE_URL`، `DATABASE_URL`، `DISPATCHER_DATABASE_URL` و `SUPPORT_DATABASE_URL` را با مقادیر ساختگی موجود در راهنمای والد P-01 تنظیم کنید. سپس `npm ci --ignore-scripts --no-audit --no-fund` و `npm test` را اجرا کنید. این مقادیر را هرگز به دیتابیس مشترک، Staging یا Production متصل نکنید.
 
