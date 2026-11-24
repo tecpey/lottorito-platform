@@ -27,6 +27,7 @@
 | P01-HTTP-04 | UUID یکسان شیء در دو Tenant | هر Tenant فقط سطر خودش را می‌بیند |
 | P01-HTTP-05 | شناسه Tenant متعارض در بدنه Write | پاسخ 403؛ بدون اثر جانبی |
 | P01-HTTP-06 | Write بدون Tenant ID ارسالی کاربر | سرور Tenant احراز هویت‌شده را تخصیص می‌دهد |
+| P01-HTTP-07 | ابطال Membership یک Tenant و ارسال Request جدید | Subject ابطال‌شده رد می‌شود و Tenant دیگر تحت تأثیر قرار نمی‌گیرد |
 | P01-DB-01 | اجرای متناوب A/B/A با Pool تک‌اتصالی | نشت Context بین درخواست‌ها رخ نمی‌دهد |
 | P01-DB-02 | بررسی Role اجرایی، تنظیمات جدول و ترکیب Policyها | نه Superuser، نه مالک جدول و نه BYPASSRLS؛ RLS و FORCE RLS فعال؛ Tenant Guard از نوع RESTRICTIVE است تا Policyهای Permissive بعدی نتوانند دامنه دسترسی را گسترش دهند |
 | P01-DB-03 | Query/Insert بدون Tenant Context | Select هیچ سطری نمی‌بیند؛ Insert رد می‌شود |
@@ -36,13 +37,14 @@
 
 ## تفسیر امنیتی مهم
 
-RLS یک لایه دفاع در عمق است و جایگزین احراز هویت، مجوز عضویت یا طراحی Tenant-aware در برنامه نیست. یک تنظیم سفارشی PostgreSQL فقط به این دلیل قابل اعتماد است که برنامه اتصال دیتابیس را کنترل می‌کند و مقدار را پس از احراز هویت Principal تنظیم می‌کند. یک تست Red-Team صریح نشان می‌دهد خود Role به نام app_runtime می‌تواند GUC سفارشی را به Tenant دیگری تغییر دهد و سپس ردیف‌های همان Tenant را بخواند. این یک افشای مورد انتظار در طراحی Role مشترک است، نه یک کنترل جداسازی موفق. بنابراین این Prototype فقط در برابر فراموش‌شدن Predicateهای Tenant در Query و Hintهای غیرقابل‌اعتماد Tenant در HTTP دفاع را نشان می‌دهد؛ اما جداسازی در برابر اجرای SQL دلخواه، SQL Injection یا تسخیر Credential مشترک برنامه را اثبات نمی‌کند. Query پارامتری، مرزهای سخت‌گیرانه Query، حداقل مجوز و تست Injection همچنان الزامی‌اند. مدل تهدید Production باید مشخص کند آیا Process مشترک برنامه بخشی از Trusted Computing Base است یا به سازوکار قوی‌تری برای احراز هویت Tenant در خود دیتابیس نیاز داریم.
+RLS یک لایه دفاع در عمق است و جایگزین احراز هویت، مجوز عضویت یا طراحی Tenant-aware در برنامه نیست. این برش اکنون Active Membership را در همان تراکنش دسترسی به داده Tenant بررسی و ردیف Membership را با FOR SHARE قفل می‌کند؛ ابطال بر درخواست‌های بعدی اثر می‌گذارد و ابطال هم‌زمان باید با تراکنش در حال اجرا Serialize شود. یک تنظیم سفارشی PostgreSQL فقط به این دلیل قابل اعتماد است که برنامه اتصال دیتابیس را کنترل می‌کند و مقدار را پس از احراز هویت Principal تنظیم می‌کند. یک تست Red-Team صریح نشان می‌دهد خود Role به نام app_runtime می‌تواند GUC سفارشی را به Tenant دیگری تغییر دهد و سپس ردیف‌های همان Tenant را بخواند. این یک افشای مورد انتظار در طراحی Role مشترک است، نه یک کنترل جداسازی موفق. بنابراین این Prototype فقط در برابر فراموش‌شدن Predicateهای Tenant در Query و Hintهای غیرقابل‌اعتماد Tenant در HTTP دفاع را نشان می‌دهد؛ اما جداسازی در برابر اجرای SQL دلخواه، SQL Injection یا تسخیر Credential مشترک برنامه را اثبات نمی‌کند. Query پارامتری، مرزهای سخت‌گیرانه Query، حداقل مجوز و تست Injection همچنان الزامی‌اند. مدل تهدید Production باید مشخص کند آیا Process مشترک برنامه بخشی از Trusted Computing Base است یا به سازوکار قوی‌تری برای احراز هویت Tenant در خود دیتابیس نیاز داریم.
 
 جدول توسط Role مالک ساخته و مالکیت آن نگهداری می‌شود؛ برنامه فقط با Role به نام app_runtime متصل می‌شود. گزینه FORCE ROW LEVEL SECURITY فعال است. یک Policy پایه از نوع Permissive با Tenant Guard از نوع Restrictive ترکیب شده است: PostgreSQL Policyهای Permissive را با OR ترکیب می‌کند؛ بنابراین Guard محدودکننده همچنان با AND اعمال می‌شود و مانع گسترش دسترسی Tenant بر اثر افزودن یک Policy گسترده Permissive در آینده خواهد شد. Superuserهای PostgreSQL و Roleهای دارای BYPASSRLS می‌توانند RLS را دور بزنند؛ مالک جدول نیز معمولاً از آن مستثناست، مگر آنکه FORCE RLS فعال شود. مرجع رسمی: [مستندات Row Security در PostgreSQL 18](https://www.postgresql.org/docs/18/ddl-rowsecurity.html).
 
 ## موارد خارج از محدوده / هنوز اثبات‌نشده
 
 - احراز هویت واقعی، ابطال Session، MFA، Workload Identity یا ذخیره‌سازی Production عضویت‌ها.
+- آزمون Race هم‌زمانی ابطال Membership با Request در حال اجرا؛ تراکنش Request ردیف Membership را با FOR SHARE قفل می‌کند تا ابطال با آن Serialize شود، اما این Race هنوز تحت بار آزمایش نشده است.
 - مجوزدهی Operator/Support/Break-glass و Audit.
 - Jobهای صف، Retry، Jobهای زمان‌بندی‌شده و Replay.
 - جداسازی Cache، Object Storage، Search، Export، Analytics و Reporting.
