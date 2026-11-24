@@ -1,6 +1,6 @@
 # Embeddable Chat Module Architecture
 
-**Document ID:** LOT-CHAT-WIDGET-001 | **Version:** 1.0.0 | **Status:** Proposed product and architecture contract; no widget runtime, SDK, API or provider verified
+**Document ID:** LOT-CHAT-WIDGET-001 | **Version:** 1.1.0 | **Status:** Proposed product and architecture contract; no widget runtime, SDK, API or provider verified
 
 ## 1. Purpose and product boundary
 
@@ -102,3 +102,46 @@ Open decisions: authentication mechanism, iframe domain topology, regional hosti
 LOT-COMMS-001; LOT-API-001; LOT-TEN-001; LOT-SEC-TM-001; LOT-I18N-001; LOT-NOTIF-001; LOT-QA-001; LOT-TECH-ADR-001.
 
 **Status reminder:** proposed architecture and acceptance contract only. No widget, SDK, API, credential flow, provider, security certification or production service is verified.
+
+
+## 14. Browser security profile and embed-specific acceptance gates
+
+The following controls refine the browser trust boundary and are required before implementation approval. They do not select an authentication protocol or hosting topology.
+
+### 14.1 Session and token handling
+
+- Treat the browser widget as a public client. No client secret, signing key, refresh token or long-lived integration credential may be delivered to it.
+- Issue access-only widget sessions with minimum conversation/installation scope, explicit audience, short expiry, unique session identifier and server-enforced revocation. Keep tokens in the isolated frame's volatile memory where feasible; never place bearer tokens in URLs, query strings, fragments, persistent browser storage, referrers, analytics or logs.
+- Session renewal must be mediated by the trusted host backend and session broker. The browser must not mint a new session by replaying a previous bootstrap request.
+- Bind each bootstrap to a one-time unpredictable nonce, installation, expected origin, principal/anonymous identity, expiry and idempotency key. Consume the nonce atomically; reject replay, mismatched claims and changed-payload retries.
+- Define and test maximum revocation propagation time for sessions, active WebSocket connections and outstanding attachment grants.
+
+### 14.2 Origin, framing and browser privacy
+
+- Canonicalize registered origins and compare exact scheme, hostname and port. Reject wildcard suffix/prefix matching, unexpected ports, opaque/null origins for authenticated flows and origin confusion caused by redirects or internationalized hostnames.
+- Treat Origin and CORS as browser-side defense-in-depth only. They do not authenticate a host backend or authorize a tenant, installation or principal.
+- Define both sides of framing policy: the host's frame-src allowlist and the widget's frame-ancestors policy. Keep them installation-aware where operationally feasible.
+- Define a minimum iframe sandbox and Permissions Policy profile. Any capability relaxation requires a documented threat review; do not combine sandbox flags in a way that removes intended origin/process isolation.
+- Do not require third-party cookies or unpartitioned cross-site storage for core chat operation. Specify and test behavior when browsers block third-party cookies or partition storage. Any fallback must preserve server-side identity, CSRF and origin checks; it must not silently downgrade authentication.
+
+### 14.3 Cross-frame messaging and realtime
+
+- For every postMessage receiver, validate exact event.origin, expected event.source, a strict versioned schema, allowlisted message types and bounded payload size. Always use an exact target origin; never use wildcard target origin for sensitive messages.
+- Do not pass bearer tokens, integration credentials, private conversation data or privileged commands through postMessage. The frame must independently authorize every operation.
+- Authenticate WebSocket handshakes with the widget session and validate expected Origin as an additional browser control. Origin validation alone is never authentication. Recheck authorization for every subscription, conversation and message operation.
+- Define connection limits, message-size limits, per-installation and per-tenant quotas, backpressure, idle expiry, reconnect jitter and revocation behavior for active sockets.
+
+### 14.4 Expanded adversarial acceptance matrix
+
+In addition to Section 11, release tests must cover: host-page XSS and compromised bootstrap/CDN script; clickjacking/UI redress; session fixation and bootstrap nonce replay; opaque/null and hostile subdomain origins; Unicode/punycode and port normalization; frame-policy bypass; forged postMessage from the wrong source; third-party-cookie blocking and storage partitioning; WebSocket Origin spoofing and revoked-session reconnect; anonymous identity takeover; attachment decompression bombs and polyglot files; and message/connection flooding without cross-tenant impact.
+
+### 14.5 Standards profile
+
+If OAuth 2.0 is selected for any browser-facing flow, the implementation profile must be reviewed against current IETF security guidance, including RFC 9700 and RFC 10017 (OAuth 2.0 for Browser-Based Applications, August 2026). Prefer a backend-mediated session pattern where the threat model and deployment permit it. Any alternative must document token exposure, XSS impact, CSRF defenses, browser storage, refresh/rotation and revocation trade-offs. These standards guide design; they do not certify an implementation.
+
+References:
+- [RFC 9700 — Best Current Practice for OAuth 2.0 Security](https://www.rfc-editor.org/rfc/rfc9700.html)
+- [RFC 10017 — OAuth 2.0 for Browser-Based Applications](https://www.rfc-editor.org/rfc/rfc10017.html)
+- [OWASP HTML5 Security Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/HTML5_Security_Cheat_Sheet.html)
+
+**Release constraint:** LOT-CHAT-WIDGET-001 remains Proposed until these controls are reflected in concrete API/session contracts and pass adversarial browser, tenant-isolation and integration tests.
