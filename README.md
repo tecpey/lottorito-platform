@@ -149,13 +149,13 @@ Open or draft pull requests are review candidates; they are not merged baseline 
 - [English documentation index](docs/en/README.md)
 - [Persian documentation index](docs/fa/README.md)
 - [Agent operating guide](AGENTS.md)
-- [Product vision and requirements](docs/en/product/vision-and-prd.md)
-- [Proposed system architecture](docs/en/architecture/system-architecture.md)
+- [Affiliate-led product requirements draft (Lottery PRD pending)](docs/en/product/vision-and-prd.md)
+- [Initial architecture proposal (Lottery domain expansion pending)](docs/en/architecture/system-architecture.md)
 - [Project status and continuation point](docs/en/engineering/project-status.md)
 - [Proposed roadmap](docs/en/engineering/roadmap.md)
-- [Wallet and ledger principles](docs/en/finance/wallet-and-ledger.md)
-- [Partner integration contract](docs/en/partners/integration-contract.md)
-- [Security baseline](docs/en/security/security-baseline.md)
+- [Wallet and ledger principles (draft)](docs/en/finance/wallet-and-ledger.md)
+- [Affiliate partner event contract (Lottery provider contract pending)](docs/en/partners/integration-contract.md)
+- [Initial security baseline](docs/en/security/security-baseline.md)
 
 ### Governance and contribution
 
@@ -313,13 +313,13 @@ Pull Requestهای باز یا Draft صرفاً گزینه‌های در حال 
 - [فهرست مستندات فارسی](docs/fa/README.md)
 - [فهرست مستندات انگلیسی](docs/en/README.md)
 - [راهنمای فعالیت ایجنت‌ها](AGENTS.md)
-- [چشم‌انداز و نیازمندی‌های محصول](docs/fa/product/vision-and-prd.md)
-- [معماری کلان پیشنهادی](docs/fa/architecture/system-architecture.md)
+- [پیش‌نویس نیازمندی‌های اولیه Affiliate (سند PRD مربوط به Lottery در انتظار تدوین)](docs/fa/product/vision-and-prd.md)
+- [پیشنهاد اولیه معماری (تکمیل دامنه Lottery باقی مانده)](docs/fa/architecture/system-architecture.md)
 - [وضعیت پروژه و نقطه ادامه کار](docs/fa/engineering/project-status.md)
 - [نقشه راه پیشنهادی](docs/fa/engineering/roadmap.md)
-- [اصول کیف پول و دفترکل](docs/fa/finance/wallet-and-ledger.md)
-- [قرارداد یکپارچه‌سازی شرکا](docs/fa/partners/integration-contract.md)
-- [خط مبنای امنیت](docs/fa/security/security-baseline.md)
+- [اصول کیف پول و دفترکل (پیش‌نویس)](docs/fa/finance/wallet-and-ledger.md)
+- [قرارداد رویداد شریک Affiliate (قرارداد ارائه‌دهنده Lottery در انتظار تدوین)](docs/fa/partners/integration-contract.md)
+- [خط مبنای اولیه امنیت](docs/fa/security/security-baseline.md)
 
 ### حاکمیت و مشارکت
 
