@@ -1,6 +1,6 @@
 # Verified Project Status and Continuation Point
 
-**Document ID:** LOT-OPS-001 | **Version:** 0.3.0 | **Reviewed:** 2026-11-24
+**Document ID:** LOT-OPS-001 | **Version:** 0.4.0 | **Reviewed:** 2026-11-24
 
 ## Verified repository state
 - Repository: tecpey/lottorito-platform; default branch main; public visibility by owner decision.
@@ -20,7 +20,7 @@ The branch docs/agent-ready-foundation-v1 contains proposed bilingual references
 - LOT-SEC-TM-001: proposed system threat model and minimum security verification matrix.
 - LOT-API-001: proposed resource, authorization, error, pagination, idempotency and webhook conventions.
 
-The new finance, security and API references are proposals, not approved policy or implemented controls. The English/Persian pairs must be reviewed for semantic parity.
+The finance, security, API and technology/deployment references are proposals, not approved policies or implemented controls. LOT-TECH-ADR-001 compares architecture, database, queues/workflows, hosting, observability, recovery, security and data-residency decision criteria. No technology vendor or stack is approved by that document.
 
 ## Not verified
 No application implementation, physical database schema/migrations, CI workflow, automated bilingual parity check, partner API connection, sandbox certification, financial calculation/posting, payout, penetration test or production deployment has been verified.
@@ -36,8 +36,8 @@ No application implementation, physical database schema/migrations, CI workflow,
 
 ## Next sequence
 1. Review the proposed finance, threat and API baselines with the owner and domain reviewers.
-2. Add technology/deployment/reliability/data-residency ADRs with alternatives and measurable decision criteria.
-3. Define automated bilingual documentation checks (stable IDs, paired paths, links, metadata and semantic review gates).
+2. Review LOT-TECH-ADR-001; run the tenant, financial transaction, provider failure, migration, recovery and observability prototypes before accepting technology choices.
+3. Extend documentation governance with metadata validation and reviewer-owned semantic parity checks; current CI covers paired paths, IDs and local links only.
 4. Complete cross-product architecture and product-specific release gates.
 5. Decide jurisdiction, operating model, provider due diligence and commercial/financial policies.
 6. Only after decisions, scaffold the platform and implement isolated vertical slices with tests.
