@@ -1,6 +1,6 @@
 # P-01 — نمونه جداسازی Tenant
 
-**شناسه سند:** LOT-PROT-P01-001 | **نسخه:** ۰.۳.۰ | **وضعیت:** Prototype پیاده‌سازی‌شده؛ CI مقایسه هویت مستقل موفق؛ P-01 کامل همچنان جزئی | **تاریخ بازبینی:** ۲۰۲۶-۱۱-۲۴
+**شناسه سند:** LOT-PROT-P01-001 | **نسخه:** ۰.۴.۰ | **وضعیت:** Prototype پیاده‌سازی‌شده؛ CI مقایسه هویت مستقل موفق؛ P-01 کامل همچنان جزئی | **تاریخ بازبینی:** ۲۰۲۶-۱۱-۲۴
 
 ## هدف و مرز تصمیم
 
@@ -20,8 +20,8 @@
 - Role جداگانه Dispatcher که Superuser و BYPASSRLS نیست، می‌تواند Metadata سراسری Dispatch را با `FOR UPDATE SKIP LOCKED` Claim کند، اما هیچ مجوزی برای Payloadهای Job ندارد. مجوز UPDATE آن فقط به ستون‌های وضعیت/تلاش/Lease محدود است.
 - Envelope مربوط به Dispatch، Key ID، نسخه، Tenant ID، Job ID، شماره تلاش و زمان صدور را با امضای Ed25519 مقید می‌کند. Dispatcher کلید خصوصی امضا را نگه می‌دارد؛ Worker فقط کلید عمومی اعتبارسنجی را دریافت می‌کند و پیش از ایجاد Tenant Context امضا را بررسی و سپس Job را تحت RLS دوباره بارگذاری می‌کند. تست‌ها در هر اجرا یک جفت کلید موقت و تازه تولید می‌کنند.
 - Worker عضویت فعال Actor مبدأ را در تراکنش Job دوباره بررسی می‌کند، از Row Lock و تغییر وضعیت Idempotent استفاده می‌کند و Jobهایی را که عضویتشان پیش از اجرا لغو شده رد می‌کند.
-- یک مدل مقایسه‌ای دوم برای هویت دیتابیس، از LOGIN Roleهای ساختگی جداگانه برای Tenant A و B استفاده می‌کند. نگاشت خصوصی Role به Tenant فقط برای Role مالک NOLOGIN قابل خواندن است؛ یک تابع محدود SECURITY DEFINER با `search_path` ثابت، `session_user` تغییرناپذیر را به Tenant ID نگاشت می‌کند و Policyهای RLS به‌جای GUC قابل‌تغییر برنامه از این هویت احرازشده دیتابیس استفاده می‌کنند.
-- تست‌های Role مستقل تلاش می‌کنند `app.tenant_id` را جعل کنند، به Role Tenant دیگر سوئیچ کنند، نگاشت خصوصی هویت را بخوانند و رکوردی برای Tenant دیگر درج کنند؛ هیچ‌کدام نباید مرز Tenant را دور بزند.
+- یک مدل مقایسه‌ای دوم برای هویت دیتابیس، از LOGIN Roleهای ساختگی جداگانه برای Tenant A و B استفاده می‌کند. نگاشت خصوصی Role به Tenant فقط برای Role مالک اختصاصی NOLOGIN، غیر Superuser و غیر BYPASSRLS قابل خواندن است؛ یک تابع محدود SECURITY DEFINER با `search_path` ثابت (`pg_catalog, private, pg_temp`)، `session_user` تغییرناپذیر را به Tenant ID نگاشت می‌کند و Policyهای RLS به‌جای GUC قابل‌تغییر برنامه از این هویت احرازشده دیتابیس استفاده می‌کنند. تست‌ها مالکیت/تنظیم تابع را بررسی و تلاش برای Shadow کردن نام جدول در Temporary Schema را اجرا می‌کنند.
+- تست‌های Role مستقل تلاش می‌کنند `app.tenant_id` را جعل کنند، به Role Tenant دیگر سوئیچ کنند، `SESSION AUTHORIZATION` را تغییر دهند، نگاشت خصوصی هویت را بخوانند و رکوردی برای Tenant دیگر درج کنند؛ همچنین بررسی می‌کنند که ردیف‌های Membership و Payloadهای Job غیرهم‌زمان فقط در محدوده Role دیتابیس احراز‌شده قابل مشاهده باشند.
 
 ## سناریوهای پذیرش
 
@@ -41,7 +41,7 @@
 | P01-DB-05 | اجرای UPDATE/DELETE روی شیء اختصاصی Tenant B در Context مربوط به A | هیچ ردیفی تغییر یا حذف نمی‌شود؛ شیء B بدون تغییر باقی می‌ماند |
 | P01-DB-06 | INSERT ردیف Tenant B در Context مربوط به A، با دور زدن HTTP | قاعده RLS از طریق WITH CHECK نوشتن را رد می‌کند؛ تراکنش ناموفق پیش از استفاده مجدد Pool Rollback می‌شود |
 | P01-DB-07 | خواندن ردیف‌های Membership در Contextهای A و B | RLS جدول Membership فقط ردیف‌های متعلق به Tenant فعال را نمایش می‌دهد |
-| P01-DB-08 | اتصال با LOGIN Role مستقل Tenant A/B؛ جعل GUC، تلاش SET ROLE، خواندن Identity Map و Write جعلی | `session_user` دقیقاً به یک Tenant نگاشت می‌شود؛ GUC قابل‌تغییر Tenant را عوض نمی‌کند و سوئیچ Role/خواندن Map/Write بین Tenantها رد می‌شود |
+| P01-DB-08 | اتصال با LOGIN Role مستقل Tenant A/B؛ جعل GUC، تلاش تغییر Role/Session Authorization، Shadow کردن نام Identity Map در Temp Schema و Write جعلی | `session_user` دقیقاً به یک Tenant نگاشت می‌شود؛ Owner از نوع NOLOGIN و فاقد Privilege ممتاز است؛ SECURITY DEFINER با search_path ثابت در برابر Temp Shadowing مقاوم است؛ GUC قابل‌تغییر Tenant را عوض نمی‌کند و سوئیچ Role/خواندن Map/Write بین Tenantها رد می‌شود |
 | P01-ASYNC-01 | ساخت Job توسط A/B و تلاش برای جعل Tenant در Caller | Job و Metadata Dispatch اتمیک هستند؛ Tenant از Principal می‌آید و Tenant جعلی رد می‌شود |
 | P01-ASYNC-02 | بررسی Role مربوط به Dispatcher و تلاش برای خواندن Payload | Dispatcher فقط Metadata را می‌خواند/Claim می‌کند؛ SELECT روی Payload رد می‌شود و Role فاقد BYPASSRLS است |
 | P01-ASYNC-03 | تغییر Tenant ID در Envelope امضاشده صف | اعتبارسنجی امضای Ed25519 پیش از هر دسترسی به داده Tenant شکست می‌خورد |
@@ -96,7 +96,7 @@ Dependency مستقیم pg در Prototype Pin شده است، اما هنوز np
 ## ثبت نتیجه
 
 - وضعیت پیاده‌سازی: فایل‌ها در شاخه spike/p01-tenant-isolation اضافه شده‌اند.
-- نتیجه CI: موفق — اجرای GitHub Actions با شناسه [45410971589](https://github.com/tecpey/lottorito-platform/actions/runs/45410971589)، روی Head با شناسه `318e1329e2e8c723401580ec396ebed6269e5e6d`. Node.js نسخه 26.13.0 + PostgreSQL نسخه 18.7؛ نصب با `npm ci` و Lockfile ثبت‌شده؛ ۱۹ تست Node موفق، صفر شکست و صفر تست Skip‌شده. اجرای Documentation Governance با شناسه [45410971541](https://github.com/tecpey/lottorito-platform/actions/runs/45410971541) نیز موفق شد. GitHub Actions با SHAهای Commit تغییرناپذیر Pin شده‌اند.
+- نتیجه CI: موفق — اجرای GitHub Actions با شناسه [45411486646](https://github.com/tecpey/lottorito-platform/actions/runs/45411486646)، روی Head با شناسه `278ac96a161cd545ca60d4f9d43be220c9eabf16`. Node.js نسخه 26.13.0 + PostgreSQL نسخه 18.7؛ نصب با `npm ci` و Lockfile ثبت‌شده؛ ۱۹ تست Node موفق، صفر شکست و صفر تست Skip‌شده. اجرای Documentation Governance با شناسه [45411486650](https://github.com/tecpey/lottorito-platform/actions/runs/45411486650) نیز موفق شد. GitHub Actions با SHAهای Commit تغییرناپذیر Pin شده‌اند.
 - اجرای موفق شامل تست‌های قبلی RLS در Request، Pool Reuse، بررسی مجدد Membership و مسیر Async Outbox/Dispatcher/Envelope امضاشده Ed25519 است؛ همچنین تست مقایسه‌ای LOGIN Roleهای مستقل Tenant را پوشش می‌دهد: هویت Session دقیقاً به یک Tenant نگاشت می‌شود؛ تغییر GUC قابل‌تغییر، Visibility را تغییر نمی‌دهد؛ `SET ROLE` به Tenant دیگر، خواندن Identity Map خصوصی و Insert بین Tenantها رد می‌شود.
 - تست Red-Team عمدی همچنان نشان می‌دهد Role مشترک `app_runtime` در صورت تسخیر می‌تواند GUC سفارشی را به Tenant دیگری تغییر دهد. این یک مرز اعتماد شناخته‌شده است، نه اثبات جداسازی در برابر نفوذگر. مدل LOGIN Role مستقل در برابر SQL Injection محدود به اتصال یک Tenant مقاوم‌تر است، اما به Credential Broker امن و Poolهای تفکیک‌شده وابسته است؛ این کنترل‌های عملیاتی و رفتار در مقیاس هنوز آزمایش نشده‌اند.
 - اجرای محلی: در این محیط اجرا نشده است؛ اجرای تأییدشده در CI میزبانی‌شده GitHub انجام شده است.
