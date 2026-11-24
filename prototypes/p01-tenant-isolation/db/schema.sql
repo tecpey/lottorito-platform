@@ -232,7 +232,12 @@ CREATE TABLE public.support_audit (
   action text NOT NULL CHECK (action IN ('records:read', 'tenant-route:denied')),
   outcome text NOT NULL CHECK (outcome IN ('allowed', 'denied')),
   reason text NOT NULL,
-  created_at timestamptz NOT NULL DEFAULT clock_timestamp()
+  created_at timestamptz NOT NULL DEFAULT clock_timestamp(),
+  CHECK (
+    (action = 'records:read' AND tenant_id IS NOT NULL AND resource_id IS NOT NULL)
+    OR
+    (action = 'tenant-route:denied' AND tenant_id IS NULL AND resource_id IS NULL AND outcome = 'denied')
+  )
 );
 
 ALTER TABLE public.support_audit ENABLE ROW LEVEL SECURITY;
