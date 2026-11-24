@@ -773,6 +773,7 @@ test("cache keys are tenant-scoped and reject path/control segment injection", a
   assert.equal(await cache.get(TENANT_A, "profile", "summary"), "tenant A cache value");
   assert.equal(await cache.get(TENANT_B, "profile", "summary"), "tenant B cache value");
   assert.notEqual(tenantCacheKey(TENANT_A, "profile", "summary"), tenantCacheKey(TENANT_B, "profile", "summary"));
+  assert.equal(tenantCacheKey(TENANT_A.toUpperCase(), "profile", "summary"), tenantCacheKey(TENANT_A, "profile", "summary"));
   assert.throws(() => cache.get(TENANT_A, "../tenant-b", "summary"), TypeError);
   assert.throws(() => cache.set(TENANT_A, "profile", "%2e%2e", "forged"), TypeError);
   assert.equal(await cache.get(TENANT_B, "profile", "summary"), "tenant B cache value");
@@ -791,6 +792,7 @@ test("object storage keys enforce tenant prefixes and reject traversal segments"
   assert.equal(await store.get(TENANT_A, "documents", SHARED_RECORD_ID), "tenant A object");
   assert.equal(await store.get(TENANT_B, "documents", SHARED_RECORD_ID), "tenant B object");
   assert.notEqual(tenantObjectKey(TENANT_A, "documents", SHARED_RECORD_ID), tenantObjectKey(TENANT_B, "documents", SHARED_RECORD_ID));
+  assert.equal(tenantObjectKey(TENANT_A.toUpperCase(), "documents", SHARED_RECORD_ID), tenantObjectKey(TENANT_A, "documents", SHARED_RECORD_ID));
   assert.throws(() => store.get(TENANT_A, "../tenant-b", SHARED_RECORD_ID), TypeError);
   assert.throws(() => store.put(TENANT_A, "documents", "../private", "forged"), TypeError);
   assert.equal(await store.get(TENANT_B, "documents", SHARED_RECORD_ID), "tenant B object");
