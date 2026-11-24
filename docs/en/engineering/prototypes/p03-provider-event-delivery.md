@@ -1,6 +1,6 @@
 # P-03 — Provider Failure and Event Delivery Prototype
 
-**Document ID:** LOT-PROT-P03-001 | **Version:** 0.2.0 | **Status:** Prototype CI passed; full P-03 remains partial | **Review date:** 2026-11-24
+**Document ID:** LOT-PROT-P03-001 | **Version:** 0.3.0 | **Status:** Prototype CI passed; full P-03 remains partial | **Review date:** 2026-11-24
 
 ## Purpose and decision boundary
 
@@ -53,8 +53,8 @@ No partner/provider is selected or connected. RaidenBet's actual API documentati
 
 ## Verified CI evidence
 
-- P-03 integration run [45418047425](https://github.com/tecpey/lottorito-platform/actions/runs/45418047425) passed on PR head 175399f2d92435f83ac473f0ef24763e7b8abf22: 22 tests passed, 0 failed, 0 skipped, using npm ci, the committed lockfile, Node.js 26.13.0 and PostgreSQL 18.7.
-- Documentation Governance run [45418047381](https://github.com/tecpey/lottorito-platform/actions/runs/45418047381) passed on the bilingual documentation head.
+- P-03 integration run [45418365951](https://github.com/tecpey/lottorito-platform/actions/runs/45418365951) passed on PR head 20f0903f4d996ed2b5fece6730b53f908579ddfd: 22 tests passed, 0 failed, 0 skipped, using npm ci, the committed lockfile, Node.js 26.13.0 and PostgreSQL 18.7.
+- Documentation Governance run [45418367980](https://github.com/tecpey/lottorito-platform/actions/runs/45418367980) passed on the bilingual documentation head.
 - No local execution or real provider integration has been performed. Passing CI proves only the defined synthetic cases.
 
 ## Local reproduction
