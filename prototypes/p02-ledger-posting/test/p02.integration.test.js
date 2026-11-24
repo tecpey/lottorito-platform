@@ -396,6 +396,38 @@ test("tenant runtime roles cannot create objects in the public schema", async ()
   assert.equal(result.rows[0].can_create, false);
 });
 
+test("SECURITY DEFINER ownership, search_path and execute grants are hardened", async () => {
+  const result = await adminPool.query(`
+    SELECT
+      p.prosecdef AS security_definer,
+      pg_get_userbyid(p.proowner) AS owner_name,
+      p.proconfig,
+      has_function_privilege('tenant_a_ledger_runtime', p.oid, 'EXECUTE') AS tenant_can_execute,
+      EXISTS (
+        SELECT 1
+          FROM aclexplode(COALESCE(p.proacl, acldefault('f', p.proowner))) AS acl
+         WHERE acl.grantee = 0 AND acl.privilege_type = 'EXECUTE'
+      ) AS public_can_execute
+    FROM pg_proc AS p
+    WHERE p.oid = 'public.post_journal(text,uuid,uuid,jsonb)'::regprocedure
+  `);
+  assert.equal(result.rowCount, 1);
+  assert.equal(result.rows[0].security_definer, true);
+  assert.equal(result.rows[0].owner_name, "ledger_executor");
+  assert.ok(result.rows[0].proconfig.includes("search_path=pg_catalog, public, private, pg_temp"));
+  assert.equal(result.rows[0].tenant_can_execute, true);
+  assert.equal(result.rows[0].public_can_execute, false);
+
+  const roles = await adminPool.query(
+    "SELECT rolname, rolcanlogin, rolsuper, rolbypassrls FROM pg_roles WHERE rolname IN ('ledger_executor','ledger_owner','tenant_identity_owner') ORDER BY rolname"
+  );
+  assert.deepEqual(roles.rows, [
+    { rolname: "ledger_executor", rolcanlogin: false, rolsuper: false, rolbypassrls: false },
+    { rolname: "ledger_owner", rolcanlogin: false, rolsuper: false, rolbypassrls: false },
+    { rolname: "tenant_identity_owner", rolcanlogin: false, rolsuper: false, rolbypassrls: false }
+  ]);
+});
+
 test("RLS policies bind the privileged posting function to the database session tenant", async () => {
   const policies = await adminPool.query(
     "SELECT tablename, policyname, roles FROM pg_policies WHERE schemaname = 'public' AND tablename IN ('ledger_accounts','posting_requests','ledger_journals','ledger_lines','ledger_outbox') ORDER BY tablename, policyname"
