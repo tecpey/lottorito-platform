@@ -1,6 +1,6 @@
 # Lottorito Decision Register
 
-**Document ID:** LOT-ADR-REG-001 | **Version:** 2.3.0 | **Status:** Maintained register; entries retain their individual authority state
+**Document ID:** LOT-ADR-REG-001 | **Version:** 2.4.0 | **Status:** Maintained register; entries retain their individual authority state
 
 ## How to read this register
 This register prevents agents from turning discussion, examples or proposals into product rules. A record is not approved merely because it is listed here. The state and authority column govern. Evidence must be linked for every change.
@@ -64,6 +64,8 @@ This register prevents agents from turning discussion, examples or proposals int
 | LDR-042 | First-party B2C application product requirements | Owner direction / product requirements proposed | LOT-B2C-PRD-001 specifies a dedicated first-party B2C tenant using the same shared module contracts as B2B, with entitlement/jurisdiction gating and customer journeys for identity, wallet, payment, withdrawal, chat, support, notifications and localization. Only approved and eligible modules may be exposed. | The dedicated B2C tenant is owner-directed; detailed PRD, launch markets, module order, legal entity, identity model, pricing and operating policies remain Proposed/Open. Owner, product, legal, finance, security, privacy, accessibility and operations review required. No app launch or real-money feature is authorized. |
 
 | LDR-043 | API Platform and developer experience | Proposed platform contract | LOT-API-PLATFORM-001 extends LOT-API-001 and LOT-EVENT-001 with control/data planes, developer organizations and applications, entitlement catalog, credential lifecycle, webhook subscriptions, generated SDKs, Developer Portal, isolated sandbox, metering/quotas, support and API lifecycle governance. | Proposed only. No gateway, portal, SDK, sandbox, credentials, pricing, public API or production access is implemented/approved. Owner, architecture, security, finance, legal, privacy and operations review required. |
+
+| LDR-044 | Affiliate & Agent domain API capability contract | Proposed domain contract / Affiliate-first delivery direction | LOT-AFFILIATE-API-001 defines a provider-neutral capability inventory for tenant program administration, memberships, Agent hierarchy, campaigns, referral links, attribution, partner-event intake, commission transparency, statements and reporting. Wallet, ledger, payment and payout mutations remain in their owning domains. | Affiliate-first is owner-directed; this API surface, partner mappings, attribution policy, hierarchy rules, commercial formulas and production release remain Proposed/Open. Actual partner contract/sandbox and owner, legal, finance, security and operations approval are required. No partner, endpoint, rate or payment flow is approved. |
 
 ## Decision-change protocol
 1. Propose a change with rationale, alternatives, impact and evidence.
