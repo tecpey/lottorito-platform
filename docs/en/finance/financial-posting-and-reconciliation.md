@@ -1,6 +1,6 @@
 # Financial Posting and Reconciliation Model
 
-**Document ID:** LOT-FIN-001 | **Version:** 0.1.0 | **Status:** Proposed; requires owner, finance and legal review
+**Document ID:** LOT-FIN-POST-001 | **Version:** 0.1.0 | **Status:** Proposed; requires owner, finance and legal review
 
 ## 1. Purpose and authority
 This provider-neutral design baseline covers financial controls for Affiliate & Agent and Lottery. It is not an accounting policy, legal opinion, implemented ledger, or authorization for custody, stored value, banking, payment execution or regulated activity. Immutable double-entry is a project design constraint; account mappings, recognition rules, commercial formulas, funding sources and payout permissions remain open decisions.
