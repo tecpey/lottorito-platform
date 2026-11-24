@@ -13,6 +13,37 @@ ALTER ROLE app_runtime
   NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
 
 DROP TABLE IF EXISTS public.tenant_records;
+DROP TABLE IF EXISTS public.tenant_memberships;
+
+CREATE TABLE public.tenant_memberships (
+  tenant_id uuid NOT NULL,
+  subject_id text NOT NULL,
+  active boolean NOT NULL DEFAULT true,
+  PRIMARY KEY (tenant_id, subject_id)
+);
+
+ALTER TABLE public.tenant_memberships ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.tenant_memberships FORCE ROW LEVEL SECURITY;
+
+CREATE POLICY tenant_memberships_app_access
+  ON public.tenant_memberships
+  AS PERMISSIVE
+  FOR ALL
+  TO app_runtime
+  USING (true)
+  WITH CHECK (true);
+
+CREATE POLICY tenant_memberships_tenant_guard
+  ON public.tenant_memberships
+  AS RESTRICTIVE
+  FOR ALL
+  TO app_runtime
+  USING (
+    tenant_id = NULLIF(current_setting('app.tenant_id', true), '')::uuid
+  )
+  WITH CHECK (
+    tenant_id = NULLIF(current_setting('app.tenant_id', true), '')::uuid
+  );
 
 CREATE TABLE public.tenant_records (
   tenant_id uuid NOT NULL,
@@ -53,6 +84,12 @@ CREATE POLICY tenant_records_tenant_guard
 
 GRANT USAGE ON SCHEMA public TO app_runtime;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.tenant_records TO app_runtime;
+GRANT SELECT ON public.tenant_memberships TO app_runtime;
+
+-- Synthetic active memberships; production membership lifecycle is not implemented.
+INSERT INTO public.tenant_memberships (tenant_id, subject_id, active) VALUES
+  ('11111111-1111-4111-8111-111111111111', 'synthetic-user-a', true),
+  ('22222222-2222-4222-8222-222222222222', 'synthetic-user-b', true);
 
 -- Synthetic tenants and deliberately colliding record IDs/natural keys.
 INSERT INTO public.tenant_records (tenant_id, record_id, natural_key, payload) VALUES
