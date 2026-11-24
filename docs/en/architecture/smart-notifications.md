@@ -112,7 +112,37 @@ Use transactional outbox or equivalent durable handoff so domain commit and noti
 - All 12 locale templates pass native review and RTL/LTR/accessibility checks.
 - Security/transactional notifications remain distinguishable from marketing and have separate consent handling.
 
-## 11. Related documents
+## 11. TecPey implementation reference — inspected, not copied
+
+The TecPey repository `tecpey/Tecpey-Os` was inspected as a design reference. Relevant source files at the time of review:
+- `src/lib/notifications/creation.ts` — blob `248e8bd798d845b0b99ee664af68b1b65636ef6e`.
+- `src/lib/notifications/policy.ts` — blob `fc6ef6b7cf4832af4256b3768444249e151250b1`.
+- `src/lib/notifications/types.ts` — blob `c38646f86467d8a37f55794bc62412a5bfe8602e`.
+- `src/lib/notifications/copy-safety.ts` — blob `dbf28f5a5276a779948a1add1f7900cb3312ffc4`.
+- `src/lib/notifications/principal.ts` — blob `3cfb6d5c6327930b90541e47f3dc7ad3382d5a69`.
+- `scripts/check-notification-runtime-authority.mjs` — blob `e5e62b2eadc1d5ebf8d7ce3aeb49ba27b69f30a7`.
+
+**Patterns worth carrying forward:**
+- a single governed server-side creation boundary calls a deterministic notification policy;
+- notification intent, inbox row and outbox handoff are created in the same database transaction;
+- correlation keys, canonical payload hashing and transaction-scoped advisory locking protect retries and changed-payload conflicts;
+- recipient preferences, quiet hours, locale template availability, expiry, consent, urgency and category frequency are policy inputs;
+- user-facing copy has a runtime safety check, alongside a CI source-copy guard;
+- the runtime-authority guard checks immutable intent evidence, delivery visibility, leased outbox processing, retry/DLQ behavior, reconciliation and explicit worker lifecycle.
+
+**Important limits and gaps — do not copy blindly:**
+- the inspected creation service explicitly limits the pilot to `in_app`, one principal per intent and event dispatch; external channels and campaigns are disabled;
+- the inspected type contract lists only `fa` and `en` locales;
+- the principal resolver contains a default tenant identifier `tecpey`; Lottorito must never inherit a single-tenant default or bypass authenticated tenant context;
+- the pilot class allowlist is product-specific and must be redesigned for Lottorito's separate operator, affiliate/agent and customer experiences;
+- the inspected creation query and its runtime guard count delivered notifications for the rolling category-frequency window. They do not establish pending/in-flight-aware fatigue control. LOT-NOTIF-001 intentionally requires pending/in-flight accounting with concurrency-safe reservation; this must be implemented and tested independently;
+- a source guard is not a substitute for behavioral, concurrency, security and integration tests.
+
+**Lottorito adaptation rule:** reuse architectural principles only after a separate design review. Build locale-aware templates for all 12 launch locales, tenant/product-scoped policy, distinct consent purposes, channel-specific verified destinations, pending-aware fatigue budgets, and independent adapters. Do not copy TecPey tenant identifiers, two-locale assumptions, product classes, caps, or runtime code without a compatibility/security review.
+
+This reference inspection is not a security audit of TecPey, a license review, or proof that the referenced code is production-safe for Lottorito.
+
+## 12. Related documents
 
 LOT-I18N-001; LOT-COMMS-001; LOT-GROWTH-001; LOT-EVENT-001; LOT-TEN-001; LOT-SEC-TM-001; LOT-FIN-POST-001; LOT-QA-001.
 
