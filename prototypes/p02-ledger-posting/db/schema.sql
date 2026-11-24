@@ -235,8 +235,9 @@ DECLARE
   v_new_journal_id uuid;
   v_existing_fingerprint jsonb;
   v_existing_journal_id uuid;
+  v_existing_effect_id uuid;
   v_inserted integer;
-  v_conflict_count integer;
+  v_effect_inserted integer;
 BEGIN
   v_tenant_id := private.current_tenant_id();
   IF v_tenant_id IS NULL THEN
@@ -357,38 +358,22 @@ BEGIN
     'source_event_id', p_source_event_id,
     'lines', v_normalized_lines
   );
-  v_new_journal_id := gen_random_uuid();
 
-  INSERT INTO public.posting_requests (
-    tenant_id, idempotency_key, effect_id, request_fingerprint, journal_id
-  ) VALUES (
-    v_tenant_id, p_idempotency_key, p_effect_id, v_fingerprint, v_new_journal_id
-  )
-  ON CONFLICT DO NOTHING;
+  -- A request key is a transport retry identity. Resolve it before looking up the business effect.
+  SELECT r.effect_id, r.journal_id, f.request_fingerprint
+    INTO v_existing_effect_id, v_existing_journal_id, v_existing_fingerprint
+    FROM public.posting_requests AS r
+    JOIN public.financial_effects AS f
+      ON f.tenant_id = r.tenant_id
+     AND f.effect_id = r.effect_id
+     AND f.journal_id = r.journal_id
+   WHERE r.tenant_id = v_tenant_id
+     AND r.idempotency_key = p_idempotency_key
+   FOR UPDATE OF r;
 
-  GET DIAGNOSTICS v_inserted = ROW_COUNT;
-  IF v_inserted = 0 THEN
-    SELECT count(*) INTO v_conflict_count
-      FROM public.posting_requests
-     WHERE tenant_id = v_tenant_id
-       AND (idempotency_key = p_idempotency_key OR effect_id = p_effect_id);
-
-    IF v_conflict_count > 1 THEN
-      RAISE EXCEPTION 'idempotency key and financial effect identify different postings'
-        USING ERRCODE = '22023';
-    END IF;
-
-    SELECT request_fingerprint, posting_requests.journal_id
-      INTO v_existing_fingerprint, v_existing_journal_id
-      FROM public.posting_requests
-     WHERE tenant_id = v_tenant_id
-       AND (idempotency_key = p_idempotency_key OR effect_id = p_effect_id)
-     FOR UPDATE;
-
-    IF NOT FOUND THEN
-      RAISE EXCEPTION 'idempotency state is unavailable' USING ERRCODE = '40001';
-    END IF;
-    IF v_existing_fingerprint IS DISTINCT FROM v_fingerprint THEN
+  IF FOUND THEN
+    IF v_existing_effect_id IS DISTINCT FROM p_effect_id
+       OR v_existing_fingerprint IS DISTINCT FROM v_fingerprint THEN
       RAISE EXCEPTION 'idempotency key was reused with different request content'
         USING ERRCODE = '22023';
     END IF;
@@ -396,46 +381,108 @@ BEGIN
     RETURN;
   END IF;
 
-  INSERT INTO public.ledger_journals (
-    tenant_id, journal_id, source_event_id, status
-  ) VALUES (
-    v_tenant_id, v_new_journal_id, p_source_event_id, 'posted'
-  );
+  v_new_journal_id := gen_random_uuid();
 
-  INSERT INTO public.ledger_lines (
-    tenant_id, journal_id, line_no, account_id, currency_code, direction, amount_minor
+  -- The effect identity is unique independently of any transport/request key.
+  INSERT INTO public.financial_effects (
+    tenant_id, effect_id, request_fingerprint, journal_id
+  ) VALUES (
+    v_tenant_id, p_effect_id, v_fingerprint, v_new_journal_id
   )
-  SELECT
-    v_tenant_id,
-    v_new_journal_id,
-    line_no,
-    account_id::uuid,
-    currency_code,
-    direction,
-    amount_minor::numeric(38,0)
-  FROM jsonb_to_recordset(v_normalized_lines) AS x(
-    line_no integer,
-    account_id text,
-    currency_code text,
-    direction text,
-    amount_minor text
-  );
+  ON CONFLICT (tenant_id, effect_id) DO NOTHING;
 
-  INSERT INTO public.ledger_outbox (
-    tenant_id, event_id, journal_id, event_type, payload
-  ) VALUES (
-    v_tenant_id,
-    gen_random_uuid(),
-    v_new_journal_id,
-    'ledger.journal.posted',
-    jsonb_build_object(
-      'journal_id', v_new_journal_id,
-      'effect_id', p_effect_id,
-      'source_event_id', p_source_event_id
+  GET DIAGNOSTICS v_effect_inserted = ROW_COUNT;
+  IF v_effect_inserted = 0 THEN
+    SELECT request_fingerprint, journal_id
+      INTO v_existing_fingerprint, v_existing_journal_id
+      FROM public.financial_effects
+     WHERE tenant_id = v_tenant_id
+       AND effect_id = p_effect_id
+     FOR UPDATE;
+
+    IF NOT FOUND THEN
+      RAISE EXCEPTION 'financial effect state is unavailable' USING ERRCODE = '40001';
+    END IF;
+    IF v_existing_fingerprint IS DISTINCT FROM v_fingerprint THEN
+      RAISE EXCEPTION 'financial effect identity was reused with different economic content'
+        USING ERRCODE = '22023';
+    END IF;
+    v_new_journal_id := v_existing_journal_id;
+  ELSE
+    INSERT INTO public.ledger_journals (
+      tenant_id, journal_id, source_event_id, status
+    ) VALUES (
+      v_tenant_id, v_new_journal_id, p_source_event_id, 'posted'
+    );
+
+    INSERT INTO public.ledger_lines (
+      tenant_id, journal_id, line_no, account_id, currency_code, direction, amount_minor
     )
-  );
+    SELECT
+      v_tenant_id,
+      v_new_journal_id,
+      line_no,
+      account_id::uuid,
+      currency_code,
+      direction,
+      amount_minor::numeric(38,0)
+    FROM jsonb_to_recordset(v_normalized_lines) AS x(
+      line_no integer,
+      account_id text,
+      currency_code text,
+      direction text,
+      amount_minor text
+    );
 
-  RETURN QUERY SELECT v_new_journal_id, false;
+    INSERT INTO public.ledger_outbox (
+      tenant_id, event_id, journal_id, event_type, payload
+    ) VALUES (
+      v_tenant_id,
+      gen_random_uuid(),
+      v_new_journal_id,
+      'ledger.journal.posted',
+      jsonb_build_object(
+        'journal_id', v_new_journal_id,
+        'effect_id', p_effect_id,
+        'source_event_id', p_source_event_id
+      )
+    );
+  END IF;
+
+  -- Persist every request token, including aliases that redeliver an existing financial effect.
+  INSERT INTO public.posting_requests (
+    tenant_id, idempotency_key, effect_id, journal_id
+  ) VALUES (
+    v_tenant_id, p_idempotency_key, p_effect_id, v_new_journal_id
+  )
+  ON CONFLICT DO NOTHING;
+
+  GET DIAGNOSTICS v_inserted = ROW_COUNT;
+  IF v_inserted = 0 THEN
+    SELECT r.effect_id, r.journal_id, f.request_fingerprint
+      INTO v_existing_effect_id, v_existing_journal_id, v_existing_fingerprint
+      FROM public.posting_requests AS r
+      JOIN public.financial_effects AS f
+        ON f.tenant_id = r.tenant_id
+       AND f.effect_id = r.effect_id
+       AND f.journal_id = r.journal_id
+     WHERE r.tenant_id = v_tenant_id
+       AND r.idempotency_key = p_idempotency_key
+     FOR UPDATE OF r;
+
+    IF NOT FOUND THEN
+      RAISE EXCEPTION 'idempotency state is unavailable' USING ERRCODE = '40001';
+    END IF;
+    IF v_existing_effect_id IS DISTINCT FROM p_effect_id
+       OR v_existing_fingerprint IS DISTINCT FROM v_fingerprint THEN
+      RAISE EXCEPTION 'idempotency key was reused with different request content'
+        USING ERRCODE = '22023';
+    END IF;
+    RETURN QUERY SELECT v_existing_journal_id, true;
+    RETURN;
+  END IF;
+
+  RETURN QUERY SELECT v_new_journal_id, (v_effect_inserted = 0);
 END
 $function$;
 
