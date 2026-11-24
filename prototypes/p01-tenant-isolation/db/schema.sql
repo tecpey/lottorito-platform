@@ -90,6 +90,8 @@ ALTER FUNCTION private.current_tenant_id() OWNER TO tenant_identity_owner;
 REVOKE ALL ON FUNCTION private.current_tenant_id() FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION private.current_tenant_id() TO tenant_a_runtime, tenant_b_runtime;
 
+DROP TABLE IF EXISTS public.support_audit;
+DROP TABLE IF EXISTS public.support_grants;
 DROP TABLE IF EXISTS public.job_dispatch;
 DROP TABLE IF EXISTS public.tenant_jobs;
 DROP TABLE IF EXISTS public.tenant_records;
