@@ -1,6 +1,6 @@
 # Grant دانلود Export متصل به Tenant در P-01
 
-**شناسه سند:** LOT-PROT-P01-EXPORT-001 | **نسخه:** ۰.۳.۰ | **وضعیت:** Prototype ساختگی؛ ۳۶ تست CI موفق؛ سرویس تحویل تأییدنشده
+**شناسه سند:** LOT-PROT-P01-EXPORT-001 | **نسخه:** ۰.۴.۰ | **وضعیت:** Prototype ساختگی؛ ۳۶ تست CI موفق؛ سرویس تحویل تأییدنشده
 
 ## هدف
 
@@ -36,7 +36,8 @@
 | P01-EXPORT-09 | دو درخواست هم‌زمان یک Token را Redeem می‌کنند | دقیقاً یکی موفق شود |
 | P01-EXPORT-10 | TTL خارج از بازه ۶۰ تا ۶۰۰ ثانیه یا Token نامعتبر است | درخواست Fail-closed شود |
 | P01-EXPORT-11 | عضویت Tenant پس از صدور Grant لغو می‌شود | صدور Grant جدید و Redeem کردن Grant قبلی رد شود |
-| P01-EXPORT-11 | Membership کاربر پس از صدور Grant لغو می‌شود | صدور Grant جدید و Redeem Grant قبلی رد شود؛ قفل Membership، لغو هم‌زمان را Serialize کند |
+| P01-EXPORT-11 | Membership کاربر پس از صدور Grant لغو می‌شود | صدور Grant جدید و Redeem Grant قبلی رد شود |
+| P01-EXPORT-12 | لغو Membership با Redeem در حال اجرا هم‌زمان می‌شود | قفل‌های FOR SHARE و FOR UPDATE عملیات را Serialize کنند؛ تراکنشی که زودتر قفل ردیف را می‌گیرد ترتیب مجوزدهی را تعیین کند |
 
 ## مرزهای امنیتی و محدودیت‌ها
 
@@ -50,6 +51,6 @@
 
 ## وضعیت شواهد
 
-آخرین اجرای P-01 Tenant Isolation با شناسه [45426841612](https://github.com/tecpey/lottorito-platform/actions/runs/45426841612) روی Head فعلی PR با شناسه `cd4247b5e42bc68194ed3d9f1a7f9a14489ed32a` موفق شد: ۳۶ تست موفق، صفر شکست و صفر تست Skip‌شده. اجرای Documentation Governance با شناسه [45426841734](https://github.com/tecpey/lottorito-platform/actions/runs/45426841734) نیز روی همین Head موفق بود. اجرای محلی و تحویل دانلود با Provider واقعی هنوز تأیید نشده‌اند.
+اجرای P-01 با شناسه [45426841612](https://github.com/tecpey/lottorito-platform/actions/runs/45426841612) روی Head کد `cd4247b5e42bc68194ed3d9f1a7f9a14489ed32a` تعداد ۳۶ تست موفق، صفر شکست و صفر Skip داشته است. سپس تست قطعی Race دو اتصالی برای لغو Membership اضافه شد؛ اجرای CI جدید در انتظار است. اجرای Documentation Governance با شناسه [45426841734](https://github.com/tecpey/lottorito-platform/actions/runs/45426841734) روی Head مستندات قبلی موفق بود. اجرای محلی و تحویل دانلود با Provider واقعی هنوز تأیید نشده‌اند.
 
 کد، Schema و سناریوهای یکپارچه‌سازی ساختگی در یک Draft PR پشته‌شده پیاده‌سازی شده‌اند. تمام Fixtureها و Credentialها ساختگی‌اند.
