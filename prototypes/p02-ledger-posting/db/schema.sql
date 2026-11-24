@@ -253,6 +253,184 @@ BEGIN
 
   IF EXISTS (
     SELECT 1 FROM jsonb_array_elements(p_lines) AS item(value)
+    WHERE value->>'line_no' IS NULL OR value->>'line_no' !~ '^[1-9][0-9]{0,2}
+       OR (value - ARRAY['line_no','account_id','currency_code','direction','amount_minor']::text[]) <> '{}'::jsonb
+  ) THEN
+    RAISE EXCEPTION 'journal line fields are invalid' USING ERRCODE = '22023';
+  END IF;
+
+  IF EXISTS (
+    SELECT 1
+      FROM jsonb_to_recordset(p_lines) AS x(
+        line_no integer,
+        account_id text,
+        currency_code text,
+        direction text,
+        amount_minor text
+      )
+     WHERE line_no IS NULL OR line_no < 1 OR line_no > 100
+        OR account_id IS NULL OR account_id !~* '^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
+        OR currency_code IS NULL OR char_length(currency_code) <> 3 OR currency_code !~ '^[A-Z]{3}'
+        OR direction IS NULL OR direction NOT IN ('debit','credit')
+        OR amount_minor IS NULL OR amount_minor !~ '^[1-9][0-9]{0,37}$'
+  ) THEN
+    RAISE EXCEPTION 'journal line values are invalid' USING ERRCODE = '22023';
+  END IF;
+
+  IF (
+    SELECT count(DISTINCT line_no)
+      FROM jsonb_to_recordset(p_lines) AS x(line_no integer)
+  ) <> v_line_count THEN
+    RAISE EXCEPTION 'journal line numbers must be unique' USING ERRCODE = '22023';
+  END IF;
+
+  SELECT jsonb_agg(
+    jsonb_build_object(
+      'line_no', line_no,
+      'account_id', lower(account_id),
+      'currency_code', currency_code,
+      'direction', direction,
+      'amount_minor', amount_minor
+    ) ORDER BY line_no
+  )
+    INTO v_normalized_lines
+    FROM jsonb_to_recordset(p_lines) AS x(
+      line_no integer,
+      account_id text,
+      currency_code text,
+      direction text,
+      amount_minor text
+    );
+
+  IF EXISTS (
+    SELECT 1
+      FROM jsonb_to_recordset(v_normalized_lines) AS x(
+        currency_code text,
+        direction text,
+        amount_minor text
+      )
+     GROUP BY currency_code
+    HAVING sum(CASE WHEN direction = 'debit' THEN amount_minor::numeric(38,0) ELSE 0 END)
+        <> sum(CASE WHEN direction = 'credit' THEN amount_minor::numeric(38,0) ELSE 0 END)
+  ) THEN
+    RAISE EXCEPTION 'journal is not balanced per currency' USING ERRCODE = '22023';
+  END IF;
+
+  IF EXISTS (
+    SELECT 1
+      FROM jsonb_to_recordset(v_normalized_lines) AS x(
+        account_id text,
+        currency_code text
+      )
+      LEFT JOIN public.ledger_accounts AS a
+        ON a.tenant_id = v_tenant_id
+       AND a.account_id = x.account_id::uuid
+       AND a.currency_code = x.currency_code
+       AND a.active = true
+     WHERE a.account_id IS NULL
+  ) THEN
+    RAISE EXCEPTION 'ledger account or currency is unavailable' USING ERRCODE = '22023';
+  END IF;
+
+  v_fingerprint := jsonb_build_object(
+    'source_event_id', p_source_event_id,
+    'lines', v_normalized_lines
+  );
+  v_new_journal_id := gen_random_uuid();
+
+  INSERT INTO public.posting_requests (
+    tenant_id, idempotency_key, request_fingerprint, journal_id
+  ) VALUES (
+    v_tenant_id, p_idempotency_key, v_fingerprint, v_new_journal_id
+  )
+  ON CONFLICT (tenant_id, idempotency_key) DO NOTHING;
+
+  GET DIAGNOSTICS v_inserted = ROW_COUNT;
+  IF v_inserted = 0 THEN
+    SELECT request_fingerprint, posting_requests.journal_id
+      INTO v_existing_fingerprint, v_existing_journal_id
+      FROM public.posting_requests
+     WHERE tenant_id = v_tenant_id
+       AND idempotency_key = p_idempotency_key
+     FOR UPDATE;
+
+    IF NOT FOUND THEN
+      RAISE EXCEPTION 'idempotency state is unavailable' USING ERRCODE = '40001';
+    END IF;
+    IF v_existing_fingerprint IS DISTINCT FROM v_fingerprint THEN
+      RAISE EXCEPTION 'idempotency key was reused with different request content'
+        USING ERRCODE = '22023';
+    END IF;
+    RETURN QUERY SELECT v_existing_journal_id, true;
+    RETURN;
+  END IF;
+
+  INSERT INTO public.ledger_journals (
+    tenant_id, journal_id, source_event_id, status
+  ) VALUES (
+    v_tenant_id, v_new_journal_id, p_source_event_id, 'posted'
+  );
+
+  INSERT INTO public.ledger_lines (
+    tenant_id, journal_id, line_no, account_id, currency_code, direction, amount_minor
+  )
+  SELECT
+    v_tenant_id,
+    v_new_journal_id,
+    line_no,
+    account_id::uuid,
+    currency_code,
+    direction,
+    amount_minor::numeric(38,0)
+  FROM jsonb_to_recordset(v_normalized_lines) AS x(
+    line_no integer,
+    account_id text,
+    currency_code text,
+    direction text,
+    amount_minor text
+  );
+
+  INSERT INTO public.ledger_outbox (
+    tenant_id, event_id, journal_id, event_type, payload
+  ) VALUES (
+    v_tenant_id,
+    gen_random_uuid(),
+    v_new_journal_id,
+    'ledger.journal.posted',
+    jsonb_build_object(
+      'journal_id', v_new_journal_id,
+      'source_event_id', p_source_event_id
+    )
+  );
+
+  RETURN QUERY SELECT v_new_journal_id, false;
+END
+$function$;
+
+ALTER FUNCTION public.post_journal(text, uuid, jsonb) OWNER TO ledger_executor;
+REVOKE ALL ON FUNCTION public.post_journal(text, uuid, jsonb) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.post_journal(text, uuid, jsonb)
+  TO tenant_a_ledger_runtime, tenant_b_ledger_runtime;
+REVOKE CREATE ON SCHEMA public FROM ledger_owner, ledger_executor;
+
+INSERT INTO private.tenant_role_map (database_role, tenant_id) VALUES
+  ('tenant_a_ledger_runtime', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'),
+  ('tenant_b_ledger_runtime', 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb');
+
+INSERT INTO public.ledger_accounts (tenant_id, account_id, account_code, currency_code, account_type) VALUES
+  ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', '11111111-1111-4111-8111-111111111101', 'A-USD-CASH', 'USD', 'asset'),
+  ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', '11111111-1111-4111-8111-111111111102', 'A-USD-CLEARING', 'USD', 'clearing'),
+  ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', '11111111-1111-4111-8111-111111111103', 'A-JPY-CASH', 'JPY', 'asset'),
+  ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', '11111111-1111-4111-8111-111111111104', 'A-JPY-CLEARING', 'JPY', 'clearing'),
+  ('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', '22222222-2222-4222-8222-222222222201', 'B-USD-CASH', 'USD', 'asset'),
+  ('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', '22222222-2222-4222-8222-222222222202', 'B-USD-CLEARING', 'USD', 'clearing');
+
+  ) THEN
+    RAISE EXCEPTION 'journal line numbers must be positive integers' USING ERRCODE = '22023';
+  END IF;
+
+  IF EXISTS (
+    SELECT 1 FROM jsonb_array_elements(p_lines) AS item(value)
     WHERE jsonb_object_length(value) <> 5
        OR (value - ARRAY['line_no','account_id','currency_code','direction','amount_minor']::text[]) <> '{}'::jsonb
   ) THEN
