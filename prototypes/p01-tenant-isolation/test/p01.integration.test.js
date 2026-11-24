@@ -8,6 +8,7 @@ import { createTenantServer } from "../src/app.js";
 import { withTenantTransaction } from "../src/tenant-db.js";
 import { acknowledgeJob, claimNextJob } from "../src/job-dispatch.js";
 import { processTenantJob } from "../src/job-worker.js";
+import { TenantPoolRegistry, TenantPoolCapacityError } from "../src/tenant-pool-registry.js";
 import {
   TenantScopedCache,
   TenantScopedObjectStore,
@@ -31,6 +32,8 @@ assert.ok(databaseUrl, "DATABASE_URL must point to the least-privilege app_runti
 assert.ok(adminDatabaseUrl, "ADMIN_DATABASE_URL must point to the disposable fixture administrator");
 assert.ok(dispatcherDatabaseUrl, "DISPATCHER_DATABASE_URL must point to the metadata-only dispatcher role");
 assert.ok(supportDatabaseUrl, "SUPPORT_DATABASE_URL must point to the support-authorizer role");
+assert.ok(process.env.TENANT_A_DATABASE_URL, "TENANT_A_DATABASE_URL must point to the synthetic Tenant A LOGIN role");
+assert.ok(process.env.TENANT_B_DATABASE_URL, "TENANT_B_DATABASE_URL must point to the synthetic Tenant B LOGIN role");
 
 const SUPPORT_GRANT_ACTIVE = "33333333-3333-4333-8333-333333333333";
 const SUPPORT_GRANT_EXPIRED = "44444444-4444-4444-8444-444444444444";
@@ -854,4 +857,297 @@ test("reporting rows are isolated by RLS for shared and identity-bound database 
     pool.query("INSERT INTO public.tenant_reports (tenant_id, report_id, report_key, payload) VALUES ($1, $2, $3, $4)", [TENANT_A, reportId, "unauthorized", "must fail"]),
     (error) => error.code === "42501"
   );
+});
+
+
+test("tenant pool registry resolves credentials to database-bound tenant identities", async () => {
+  const registry = new TenantPoolRegistry({
+    maxTenantPools: 2,
+    maxConnectionsPerPool: 2,
+    resolveCredential: async (tenantId) => {
+      if (tenantId === TENANT_A) return { connectionString: process.env.TENANT_A_DATABASE_URL, version: "synthetic-a-v1" };
+      if (tenantId === TENANT_B) return { connectionString: process.env.TENANT_B_DATABASE_URL, version: "synthetic-b-v1" };
+      throw new Error("unknown tenant credential");
+    },
+    createPool: (options) => new Pool(options)
+  });
+
+  try {
+    const a = await registry.withTenantPool(TENANT_A, (tenantPool) =>
+      tenantPool.query("SELECT session_user::text AS role_name, private.current_tenant_id()::text AS tenant_id")
+    );
+    const b = await registry.withTenantPool(TENANT_B, (tenantPool) =>
+      tenantPool.query("SELECT session_user::text AS role_name, private.current_tenant_id()::text AS tenant_id")
+    );
+    assert.deepEqual(a.rows[0], { role_name: "tenant_a_runtime", tenant_id: TENANT_A });
+    assert.deepEqual(b.rows[0], { role_name: "tenant_b_runtime", tenant_id: TENANT_B });
+    assert.equal(registry.size, 2);
+  } finally {
+    await registry.close();
+  }
+});
+
+test("tenant pool registry coalesces concurrent creation and applies a bounded connection count", async () => {
+  let credentialCalls = 0;
+  let poolCalls = 0;
+  let createdOptions;
+  const fakePool = {
+    async query() { return { rowCount: 1, rows: [{ tenant_id: TENANT_A }] }; },
+    async end() { this.ended = true; },
+    ended: false
+  };
+  const registry = new TenantPoolRegistry({
+    maxTenantPools: 2,
+    maxConnectionsPerPool: 3,
+    resolveCredential: async () => {
+      credentialCalls += 1;
+      await delay(5);
+      return { connectionString: "synthetic-secret-not-for-logging", version: "v1" };
+    },
+    createPool: async (options) => {
+      poolCalls += 1;
+      createdOptions = options;
+      return fakePool;
+    }
+  });
+  try {
+    const [first, second] = await Promise.all([
+      registry.withTenantPool(TENANT_A, async (poolForA) => { await delay(5); return poolForA; }),
+      registry.withTenantPool(TENANT_A.toUpperCase(), async (poolForA) => { await delay(5); return poolForA; })
+    ]);
+    assert.equal(first, second);
+    assert.equal(credentialCalls, 1);
+    assert.equal(poolCalls, 1);
+    assert.equal(createdOptions.max, 3);
+    assert.equal(registry.size, 1);
+  } finally {
+    await registry.close();
+  }
+});
+
+test("tenant pool registry evicts only least-recently-used idle pools and enforces capacity", async () => {
+  let now = 0;
+  const pools = new Map();
+  const registry = new TenantPoolRegistry({
+    maxTenantPools: 1,
+    maxConnectionsPerPool: 1,
+    idleTtlMs: 100,
+    now: () => now,
+    resolveCredential: async (tenantId) => ({ connectionString: "synthetic-" + tenantId, version: "v1" }),
+    createPool: async ({ connectionString }) => {
+      const tenantId = connectionString.slice("synthetic-".length);
+      const pool = {
+        connectionString,
+        ended: false,
+        async query() { return { rowCount: 1, rows: [{ tenant_id: tenantId }] }; },
+        async end() { this.ended = true; }
+      };
+      pools.set(connectionString, pool);
+      return pool;
+    }
+  });
+
+  let releaseA;
+  let readyA;
+  const acquiredA = new Promise((resolve) => { readyA = resolve; });
+  const gateA = new Promise((resolve) => { releaseA = resolve; });
+  const activeA = registry.withTenantPool(TENANT_A, async (poolForA) => {
+    readyA(poolForA);
+    await gateA;
+    return "tenant-a-finished";
+  });
+  const poolA = await acquiredA;
+  await assert.rejects(
+    registry.withTenantPool(TENANT_B, async () => "must not acquire"),
+    TenantPoolCapacityError
+  );
+  assert.equal(poolA.ended, false);
+  releaseA();
+  assert.equal(await activeA, "tenant-a-finished");
+
+  now = 10;
+  await registry.withTenantPool(TENANT_B, async (poolForB) => {
+    assert.equal(poolForB.connectionString, "synthetic-" + TENANT_B);
+  });
+  assert.equal(poolA.ended, true);
+  assert.equal(registry.size, 1);
+  await registry.close();
+});
+
+test("tenant pool revocation blocks new leases and drains an active lease before closing", async () => {
+  let poolInstance;
+  const registry = new TenantPoolRegistry({
+    maxTenantPools: 1,
+    resolveCredential: async () => ({ connectionString: "synthetic-secret", version: "v1" }),
+    createPool: async () => {
+      poolInstance = {
+        ended: false,
+        async query() { return { rowCount: 1, rows: [{ tenant_id: TENANT_A }] }; },
+        async end() { this.ended = true; }
+      };
+      return poolInstance;
+    }
+  });
+
+  let release;
+  let ready;
+  const acquired = new Promise((resolve) => { ready = resolve; });
+  const gate = new Promise((resolve) => { release = resolve; });
+  const active = registry.withTenantPool(TENANT_A, async () => {
+    ready();
+    await gate;
+    return "finished";
+  });
+  await acquired;
+  assert.equal(await registry.revokeTenant(TENANT_A), true);
+  await assert.rejects(registry.withTenantPool(TENANT_A, async () => "must not run"), /unavailable/);
+  assert.equal(poolInstance.ended, false);
+  release();
+  assert.equal(await active, "finished");
+  assert.equal(poolInstance.ended, true);
+  assert.equal(registry.size, 0);
+});
+
+test("tenant pool registry sanitizes credential failures and evicts pools after idle TTL", async () => {
+  const failed = new TenantPoolRegistry({
+    resolveCredential: async () => { throw new Error("password=synthetic-secret"); },
+    createPool: async () => { throw new Error("must not create"); }
+  });
+  await assert.rejects(
+    failed.withTenantPool(TENANT_A, async () => null),
+    (error) => error.message === "tenant database credential resolution failed" && !error.message.includes("synthetic-secret")
+  );
+  await failed.close();
+
+  let now = 0;
+  let poolInstance;
+  const registry = new TenantPoolRegistry({
+    idleTtlMs: 50,
+    now: () => now,
+    resolveCredential: async () => ({ connectionString: "synthetic-idle", version: "v1" }),
+    createPool: async () => {
+      poolInstance = {
+        ended: false,
+        async query() { return { rowCount: 1, rows: [{ tenant_id: TENANT_A }] }; },
+        async end() { this.ended = true; }
+      };
+      return poolInstance;
+    }
+  });
+  await registry.withTenantPool(TENANT_A, async () => "ok");
+  now = 49;
+  assert.equal(await registry.evictIdle(), 0);
+  now = 50;
+  assert.equal(await registry.evictIdle(), 1);
+  assert.equal(poolInstance.ended, true);
+  assert.equal(registry.size, 0);
+  await registry.close();
+});
+
+
+test("tenant pool registry shutdown waits for active leases before closing pools", async () => {
+  let poolInstance;
+  const registry = new TenantPoolRegistry({
+    maxTenantPools: 1,
+    resolveCredential: async () => ({ connectionString: "synthetic-shutdown", version: "v1" }),
+    createPool: async () => {
+      poolInstance = {
+        ended: false,
+        async query() { return { rowCount: 1, rows: [{ tenant_id: TENANT_A }] }; },
+        async end() { this.ended = true; }
+      };
+      return poolInstance;
+    }
+  });
+  let release;
+  let ready;
+  const acquired = new Promise((resolve) => { ready = resolve; });
+  const gate = new Promise((resolve) => { release = resolve; });
+  const active = registry.withTenantPool(TENANT_A, async () => {
+    ready();
+    await gate;
+    return "completed";
+  });
+  await acquired;
+  let shutdownFinished = false;
+  const shutdown = registry.close().then(() => { shutdownFinished = true; });
+  await delay(5);
+  assert.equal(shutdownFinished, false);
+  assert.equal(poolInstance.ended, false);
+  await assert.rejects(registry.withTenantPool(TENANT_A, async () => "must not run"), /unavailable/);
+  release();
+  assert.equal(await active, "completed");
+  await shutdown;
+  assert.equal(shutdownFinished, true);
+  assert.equal(poolInstance.ended, true);
+  assert.equal(registry.size, 0);
+});
+
+test("tenant pool registry rejects invalid tenant IDs and invalid pool factories", async () => {
+  const registry = new TenantPoolRegistry({
+    resolveCredential: async () => ({ connectionString: "synthetic-invalid", version: "v1" }),
+    createPool: async () => ({ end: async () => {} })
+  });
+  await assert.rejects(
+    registry.withTenantPool("not-a-tenant", async () => null),
+    TypeError
+  );
+  await assert.rejects(
+    registry.withTenantPool(TENANT_A, async () => null),
+    /pool creation failed/
+  );
+  assert.equal(registry.size, 0);
+  await registry.close();
+});
+
+
+test("tenant pool registry rejects invalid tenant input before credential lookup", async () => {
+  let credentialCalls = 0;
+  const registry = new TenantPoolRegistry({
+    resolveCredential: async () => { credentialCalls += 1; return { connectionString: "synthetic" }; },
+    createPool: async () => ({ async end() {} })
+  });
+  await assert.rejects(registry.withTenantPool("tenant-from-request", async () => null), TypeError);
+  assert.equal(credentialCalls, 0);
+  await registry.close();
+});
+
+test("revocation during pending credential resolution prevents pool publication", async () => {
+  let resolveCredential;
+  let poolCreated = false;
+  const credentialGate = new Promise((resolve) => { resolveCredential = resolve; });
+  const registry = new TenantPoolRegistry({
+    resolveCredential: async () => credentialGate,
+    createPool: async () => {
+      poolCreated = true;
+      return { async end() {} };
+    }
+  });
+  const pending = registry.withTenantPool(TENANT_A, async () => "must not run");
+  await delay(5);
+  assert.equal(await registry.revokeTenant(TENANT_A), false);
+  resolveCredential({ connectionString: "synthetic-revoked" });
+  await assert.rejects(pending, /unavailable/);
+  assert.equal(poolCreated, false);
+  assert.equal(registry.size, 0);
+  await registry.close();
+});
+
+
+test("tenant pool registry rejects a credential mapped to another tenant", async () => {
+  let closed = false;
+  const registry = new TenantPoolRegistry({
+    resolveCredential: async () => ({ connectionString: "synthetic-wrong-tenant", version: "v1" }),
+    createPool: async () => ({
+      async query() { return { rowCount: 1, rows: [{ tenant_id: TENANT_B }] }; },
+      async end() { closed = true; }
+    })
+  });
+  await assert.rejects(
+    registry.withTenantPool(TENANT_A, async () => "must not run"),
+    (error) => error.message === "tenant database pool identity verification failed"
+  );
+  assert.equal(closed, true);
+  assert.equal(registry.size, 0);
+  await registry.close();
 });
