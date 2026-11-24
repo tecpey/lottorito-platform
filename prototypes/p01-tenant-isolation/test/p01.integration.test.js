@@ -1055,3 +1055,24 @@ test("membership revocation serializes against an in-flight export redemption", 
     );
   }
 });
+
+
+test("export object-key schema rejects traversal encoded separators and foreign tenant prefixes", async () => {
+  const invalidKeys = [
+    "tenants/" + TENANT_A + "/exports/../escape.csv",
+    "tenants/" + TENANT_A + "/exports/%2fescape.csv",
+    "tenants/" + TENANT_A + "/exports/..",
+    "tenants/" + TENANT_B + "/exports/foreign.csv"
+  ];
+  for (const objectKey of invalidKeys) {
+    await assert.rejects(
+      adminPool.query(
+        `INSERT INTO public.tenant_exports
+           (tenant_id, export_id, created_by, object_key, content_sha256, status)
+         VALUES ($1, 'dededede-dede-4ded-8ded-dededededede', 'synthetic-user-a', $2, repeat('a', 64), 'ready')`,
+        [TENANT_A, objectKey]
+      ),
+      (error) => error.code === "23514"
+    );
+  }
+});
