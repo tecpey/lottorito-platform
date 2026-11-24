@@ -6,7 +6,7 @@
 2. **Cross-product Domain & Data Design:** review LOT-DOM-001; approve independent Affiliate and Lottery bounded contexts, shared capability ownership, logical ERD, data lifecycle, tenant boundaries and migration strategy.
 3. **Tenant & Security Architecture:** review LOT-TEN-001 and LOT-SEC-TM-001; complete identity/membership, worker context, trust-boundary analysis, abuse cases, isolation verification, support access and incident-response controls.
 4. **API & Event Foundation:** review LOT-API-001 and LOT-EVENT-001; finalize resource/auth conventions, schema compatibility, inbox/outbox, idempotency, webhook signatures and replay controls.
-5. **Technology & Platform ADRs:** select stack and deployment model through evidence-backed ADRs; define secure configuration, logging, health, reliability and baseline CI.
+5. **Technology & Platform ADRs:** review LOT-TECH-ADR-001; run required prototypes and obtain owner/security/finance/legal acceptance before selecting stack, hosting, regions or numeric SLO/RPO/RTO.
 6. **Identity & Tenant Implementation:** identity, sessions, RBAC, tenant membership and isolation tests.
 7. **Affiliate & Attribution:** profiles, referral network, tracking links, events and attribution.
 8. **Finance Core:** review LOT-FIN-POST-001; approve account ownership, chart of accounts, immutable posting, balance semantics, statements, reconciliation and payout gates.
