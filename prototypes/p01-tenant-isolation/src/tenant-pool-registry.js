@@ -162,6 +162,18 @@ export class TenantPoolRegistry {
         throw new Error("tenant database pool creation failed");
       }
 
+      try {
+        const identity = await pool.query(
+          "SELECT session_user::text AS role_name, private.current_tenant_id()::text AS tenant_id"
+        );
+        if (identity.rowCount !== 1 || identity.rows[0]?.tenant_id !== tenantId) {
+          throw new Error("database identity does not match requested tenant");
+        }
+      } catch {
+        try { await pool.end(); } catch { /* Keep identity failures sanitized. */ }
+        throw new Error("tenant database pool identity verification failed");
+      }
+
       if (this.closed || this.revokedTenants.has(tenantId)) {
         await pool.end();
         throw new Error("tenant database access is unavailable");
