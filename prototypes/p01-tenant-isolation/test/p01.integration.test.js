@@ -228,9 +228,10 @@ test("RLS returns only rows for the authenticated tenant", async () => {
   const b = await request("/records", { token: "p01-synthetic-token-b" });
   assert.equal(a.status, 200);
   assert.equal(b.status, 200);
-  assert.equal(a.body.data.length, 1);
+  assert.equal(a.body.data.length, 2);
   assert.equal(b.body.data.length, 2);
-  assert.equal(a.body.data[0].payload, "synthetic tenant A fixture");
+  assert.ok(a.body.data.some((row) => row.payload === "synthetic tenant A fixture"));
+  assert.ok(a.body.data.some((row) => row.payload === "tenant A private fixture"));
   assert.ok(b.body.data.some((row) => row.payload === "synthetic tenant B fixture"));
   assert.ok(b.body.data.some((row) => row.payload === "tenant B private fixture"));
 
@@ -250,8 +251,10 @@ test("a forged tenant header cannot switch the authenticated tenant", async () =
     headers: { "x-tenant-id": TENANT_B }
   });
   assert.equal(result.status, 200);
-  assert.equal(result.body.data.length, 1);
-  assert.equal(result.body.data[0].payload, "synthetic tenant A fixture");
+  assert.equal(result.body.data.length, 2);
+  assert.ok(result.body.data.some((row) => row.payload === "synthetic tenant A fixture"));
+  assert.ok(result.body.data.some((row) => row.payload === "tenant A private fixture"));
+  assert.equal(result.body.data.some((row) => row.payload.includes("tenant B")), false);
 });
 
 test("the same object UUID resolves only inside the authenticated tenant", async () => {
