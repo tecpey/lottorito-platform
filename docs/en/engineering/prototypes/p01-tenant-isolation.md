@@ -72,7 +72,7 @@ These omissions prevent declaring the complete LOT-PROT-001 P-01 experiment pass
 
 ## Support access extension
 
-The separately reviewed synthetic support-authorizer experiment is documented in [P-01 Support Access and Break-Glass](p01-support-breakglass.md). It remains a distinct, incomplete experiment until its dedicated CI evidence passes.
+The separately reviewed synthetic support-authorizer experiment is documented in [P-01 Support Access and Break-Glass](p01-support-breakglass.md). It is stacked as PR #37; its implementation and adversarial test suite are pending CI verification and do not pass the full P-01 experiment.
 
 ## Reproduction
 
