@@ -31,6 +31,8 @@ It is not a production service, authentication implementation, complete P-01 pas
 | P01-DB-02 | Inspect runtime role and table flags | Not superuser, owner or BYPASSRLS; RLS and FORCE RLS enabled |
 | P01-DB-03 | Query/insert without tenant context | Select sees zero rows; insert denied |
 | P01-DB-04 | Attempt to set app.tenant_id using shared app_runtime role | Expected exposure: role can assert another tenant; proves GUC RLS is not a boundary against compromised runtime credentials |
+| P01-DB-05 | UPDATE/DELETE tenant-B-only object while scoped to A | Zero rows affected; B's object remains unchanged |
+| P01-DB-06 | INSERT a tenant-B row while scoped to A, bypassing HTTP | RLS WITH CHECK rejects the write; failed transaction is rolled back before pool reuse |
 
 ## Important security interpretation
 
@@ -84,4 +86,6 @@ The prototype pins the direct pg dependency but does not yet commit an npm lockf
 - LOT-PROT-001 — architecture prototype and evidence plan.
 - LOT-TECH-ADR-001 — technology, deployment and reliability ADRs.
 - PostgreSQL 18 — [Row Security Policies](https://www.postgresql.org/docs/18/ddl-rowsecurity.html).
+- OWASP — [Multi-Tenant Security Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Multi_Tenant_Security_Cheat_Sheet.html), including tenant-context provenance, transaction-local context and isolation-strategy selection.
+- AWS — [Choose the right PostgreSQL data access pattern for your SaaS application](https://aws.amazon.com/blogs/database/choose-the-right-postgresql-data-access-pattern-for-your-saas-application/), including the trade-off between shared runtime variables and per-tenant database roles.
 - Node.js — [release schedule](https://github.com/nodejs/Release).
