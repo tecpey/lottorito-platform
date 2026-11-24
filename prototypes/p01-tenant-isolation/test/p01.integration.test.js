@@ -58,9 +58,10 @@ test("RLS returns only rows for the authenticated tenant", async () => {
   assert.equal(a.status, 200);
   assert.equal(b.status, 200);
   assert.equal(a.body.data.length, 1);
-  assert.equal(b.body.data.length, 1);
+  assert.equal(b.body.data.length, 2);
   assert.equal(a.body.data[0].payload, "synthetic tenant A fixture");
-  assert.equal(b.body.data[0].payload, "synthetic tenant B fixture");
+  assert.ok(b.body.data.some((row) => row.payload === "synthetic tenant B fixture"));
+  assert.ok(b.body.data.some((row) => row.payload === "tenant B private fixture"));
 });
 
 test("a forged tenant header cannot switch the authenticated tenant", async () => {
