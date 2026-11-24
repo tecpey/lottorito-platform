@@ -155,6 +155,9 @@ END;
 $function$;
 REVOKE ALL ON FUNCTION private.reject_immutable_mutation() FROM PUBLIC;
 
+CREATE TRIGGER financial_effects_immutable
+  BEFORE UPDATE OR DELETE ON public.financial_effects
+  FOR EACH ROW EXECUTE FUNCTION private.reject_immutable_mutation();
 CREATE TRIGGER posting_requests_immutable
   BEFORE UPDATE OR DELETE ON public.posting_requests
   FOR EACH ROW EXECUTE FUNCTION private.reject_immutable_mutation();
@@ -170,6 +173,8 @@ CREATE TRIGGER ledger_outbox_immutable
 
 ALTER TABLE public.ledger_accounts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.ledger_accounts FORCE ROW LEVEL SECURITY;
+ALTER TABLE public.financial_effects ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.financial_effects FORCE ROW LEVEL SECURITY;
 ALTER TABLE public.posting_requests ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.posting_requests FORCE ROW LEVEL SECURITY;
 ALTER TABLE public.ledger_journals ENABLE ROW LEVEL SECURITY;
@@ -182,6 +187,10 @@ ALTER TABLE public.ledger_outbox FORCE ROW LEVEL SECURITY;
 CREATE POLICY ledger_accounts_executor_tenant
   ON public.ledger_accounts FOR SELECT TO ledger_executor
   USING (tenant_id = private.current_tenant_id());
+CREATE POLICY financial_effects_executor_tenant
+  ON public.financial_effects FOR ALL TO ledger_executor
+  USING (tenant_id = private.current_tenant_id())
+  WITH CHECK (tenant_id = private.current_tenant_id());
 CREATE POLICY posting_requests_executor_tenant
   ON public.posting_requests FOR ALL TO ledger_executor
   USING (tenant_id = private.current_tenant_id())
@@ -201,9 +210,8 @@ CREATE POLICY ledger_outbox_executor_tenant
 
 GRANT USAGE ON SCHEMA public TO ledger_executor, tenant_a_ledger_runtime, tenant_b_ledger_runtime;
 GRANT SELECT ON public.ledger_accounts TO ledger_executor;
+GRANT SELECT, INSERT ON public.financial_effects TO ledger_executor;
 GRANT SELECT, INSERT ON public.posting_requests TO ledger_executor;
--- Required for SELECT ... FOR UPDATE idempotency serialization; the immutability trigger still rejects UPDATE.
-GRANT UPDATE (journal_id) ON public.posting_requests TO ledger_executor;
 GRANT SELECT, INSERT ON public.ledger_journals TO ledger_executor;
 GRANT SELECT, INSERT ON public.ledger_lines TO ledger_executor;
 GRANT SELECT, INSERT ON public.ledger_outbox TO ledger_executor;
