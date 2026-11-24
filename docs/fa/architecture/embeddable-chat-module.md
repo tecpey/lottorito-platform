@@ -1,6 +1,6 @@
 # معماری ماژول چت قابل‌تعبیه
 
-**شناسه سند:** LOT-CHAT-WIDGET-001 | **نسخه:** ۱.۰.۰ | **وضعیت:** قرارداد محصول و معماری پیشنهادی؛ هیچ Runtime، Widget، SDK، API یا Provider تأیید نشده است
+**شناسه سند:** LOT-CHAT-WIDGET-001 | **نسخه:** ۱.۱.۰ | **وضعیت:** قرارداد محصول و معماری پیشنهادی؛ هیچ Runtime، Widget، SDK، API یا Provider تأیید نشده است
 
 ## ۱. هدف و مرز محصول
 
@@ -102,3 +102,46 @@ Control Plane سلامت Installation، وضعیت Credential، Originهای م�
 LOT-COMMS-001؛ LOT-API-001؛ LOT-TEN-001؛ LOT-SEC-TM-001؛ LOT-I18N-001؛ LOT-NOTIF-001؛ LOT-QA-001؛ LOT-TECH-ADR-001.
 
 **یادآوری وضعیت:** فقط معماری و قرارداد پذیرش پیشنهادی است. هیچ Widget، SDK، API، جریان Credential، Provider، گواهی امنیت یا سرویس Production راستی‌آزمایی نشده است.
+
+
+## ۱۴. پروفایل امنیت مرورگر و دروازه‌های پذیرش اختصاصی Embed
+
+کنترل‌های زیر مرز اعتماد مرورگر را دقیق‌تر می‌کنند و پیش از تأیید پیاده‌سازی الزامی‌اند. این موارد پروتکل احراز هویت یا توپولوژی میزبانی را انتخاب نمی‌کنند.
+
+### ۱۴.۱. مدیریت Session و Token
+
+- Widget مرورگر باید یک Public Client تلقی شود. هیچ Client Secret، کلید امضا، Refresh Token یا اعتبارنامه Integration بلندمدتی نباید به آن تحویل شود.
+- Sessionهای Widget فقط از نوع Access، با حداقل Scope مکالمه/Installation، Audience صریح، انقضای کوتاه، شناسه یکتای Session و امکان لغو سمت سرور صادر شوند. تا حد امکان Token در حافظه موقت Frame ایزوله نگهداری شود؛ Bearer Token هرگز در URL، Query، Fragment، ذخیره‌سازی پایدار مرورگر، Referrer، Analytics یا Log قرار نگیرد.
+- تمدید Session باید از Backend مورداعتماد میزبان و Session Broker عبور کند. مرورگر نباید بتواند صرفاً با Replay درخواست Bootstrap قبلی، Session جدید بسازد.
+- هر Bootstrap به Nonce غیرقابل‌حدس و یک‌بارمصرف، Installation، Origin موردانتظار، هویت Principal/ناشناس، انقضا و Idempotency Key متصل شود. Nonce باید به‌صورت اتمیک مصرف شود؛ Replay، Claim ناسازگار و Retry با Payload تغییرکرده رد شود.
+- حداکثر زمان انتشار لغو Session را برای Sessionها، اتصال‌های فعال WebSocket و مجوزهای دانلود پیوست تعریف و تست کنید.
+
+### ۱۴.۲. Origin، Framing و حریم خصوصی مرورگر
+
+- Originهای ثبت‌شده را Canonicalize کرده و Scheme، Hostname و Port را دقیقاً مقایسه کنید. تطبیق Wildcard مبتنی بر Prefix/Suffix، Port غیرمنتظره، Origin مبهم/Null در جریان احراز‌شده و سردرگمی Origin ناشی از Redirect یا دامنه‌های بین‌المللی را رد کنید.
+- Origin و CORS فقط کنترل دفاع در عمق سمت مرورگرند؛ آن‌ها Backend میزبان را احراز هویت نمی‌کنند و به Tenant، Installation یا Principal مجوز نمی‌دهند.
+- هر دو سمت سیاست Framing را تعریف کنید: Allowlist مربوط به frame-src میزبان و سیاست frame-ancestors مربوط به Widget. در صورت امکان عملیاتی، این سیاست‌ها به Installation نیز محدود شوند.
+- حداقل پروفایل sandbox برای iframe و Permissions Policy را مشخص کنید. هر کاهش محدودیت نیازمند Threat Review مستند است؛ Flagهای Sandbox را به شکلی ترکیب نکنید که جداسازی موردنظر Origin/Process از بین برود.
+- عملکرد اصلی Chat نباید به Third-party Cookie یا ذخیره‌سازی Cross-site غیرپارتیشن‌بندی‌شده وابسته باشد. رفتار در حالت مسدودبودن Third-party Cookie یا Partition شدن Storage را تعریف و تست کنید. هر مسیر جایگزین باید هویت سمت سرور و کنترل CSRF و Origin را حفظ کند و نباید احراز هویت را بی‌صدا تضعیف کند.
+
+### ۱۴.۳. پیام‌رسانی بین Frameها و Realtime
+
+- هر دریافت‌کننده postMessage باید event.origin دقیق، event.source موردانتظار، Schema نسخه‌بندی‌شده و سخت‌گیرانه، نوع پیام مجاز و اندازه محدود Payload را بررسی کند. همیشه Target Origin دقیق استفاده شود؛ برای پیام حساس هرگز از Wildcard استفاده نکنید.
+- Bearer Token، اعتبارنامه Integration، داده خصوصی مکالمه یا فرمان ممتاز از طریق postMessage منتقل نشود. خود Frame باید هر عملیات را مستقلاً مجوزدهی کند.
+- Handshake مربوط به WebSocket باید با Session مربوط به Widget احراز هویت شود و Origin موردانتظار نیز به‌عنوان کنترل تکمیلی مرورگر بررسی شود. اعتبارسنجی Origin به‌تنهایی احراز هویت نیست. مجوز هر Subscription، مکالمه و عملیات پیام باید دوباره بررسی شود.
+- محدودیت اتصال و اندازه پیام، سهمیه هر Installation و Tenant، Backpressure، انقضای اتصال بیکار، Jitter در اتصال مجدد و رفتار لغو برای Socketهای فعال تعریف شود.
+
+### ۱۴.۴. ماتریس پذیرش خصمانه تکمیل‌شده
+
+علاوه بر بخش ۱۱، تست انتشار باید این موارد را پوشش دهد: XSS در صفحه میزبان و دست‌کاری Bootstrap/CDN؛ Clickjacking و UI Redress؛ Session Fixation و Replay کردن Nonce در Bootstrap؛ Originهای Null/مبهم و Subdomain مخرب؛ Unicode/Punycode و نرمال‌سازی Port؛ دورزدن سیاست Frame؛ postMessage جعلی از Source نادرست؛ مسدودشدن Third-party Cookie و Partition شدن Storage؛ جعل Origin در WebSocket و اتصال مجدد با Session لغوشده؛ تصاحب هویت ناشناس؛ فایل فشرده مخرب و Polyglot؛ و Flood پیام/اتصال بدون اثر بر Tenantهای دیگر.
+
+### ۱۴.۵. پروفایل استانداردها
+
+اگر OAuth 2.0 برای هر جریان قابل‌دسترسی از مرورگر انتخاب شد، پروفایل پیاده‌سازی باید با راهنمای امنیتی جاری IETF، از جمله RFC 9700 و RFC 10017 (OAuth 2.0 for Browser-Based Applications، اوت ۲۰۲۶) بازبینی شود. هرجا مدل تهدید و استقرار اجازه می‌دهد، الگوی Session با واسطه Backend ترجیح داده شود. هر جایگزین باید ریسک افشای Token، اثر XSS، دفاع CSRF، ذخیره‌سازی مرورگر، تمدید/چرخش و مصالحه‌های لغو را مستند کند. این استانداردها راهنمای طراحی‌اند و پیاده‌سازی را گواهی نمی‌کنند.
+
+مراجع:
+- [RFC 9700 — بهترین رویه امنیت OAuth 2.0](https://www.rfc-editor.org/rfc/rfc9700.html)
+- [RFC 10017 — OAuth 2.0 برای برنامه‌های مبتنی بر مرورگر](https://www.rfc-editor.org/rfc/rfc10017.html)
+- [راهنمای امنیت HTML5 از OWASP](https://cheatsheetseries.owasp.org/cheatsheets/HTML5_Security_Cheat_Sheet.html)
+
+**محدودیت انتشار:** LOT-CHAT-WIDGET-001 تا زمانی که این کنترل‌ها در قراردادهای مشخص API/Session منعکس نشوند و تست‌های خصمانه مرورگر، جداسازی Tenant و یکپارچه‌سازی را نگذرانند، در وضعیت Proposed باقی می‌ماند.
