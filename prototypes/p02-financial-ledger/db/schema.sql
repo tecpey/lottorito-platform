@@ -435,6 +435,8 @@ GRANT SELECT ON public.currency_definitions, public.ledger_accounts,
 GRANT INSERT ON public.journal_transactions, public.economic_effects,
   public.ledger_entries, public.outbox_events TO ledger_runtime;
 GRANT UPDATE (status) ON public.journal_transactions TO ledger_runtime;
+GRANT DELETE ON public.journal_transactions TO ledger_runtime; -- trigger permits draft cleanup only
+
 
 INSERT INTO public.currency_definitions (currency_code, decimal_scale, asset_kind) VALUES
   ('USD', 2, 'fiat'),
