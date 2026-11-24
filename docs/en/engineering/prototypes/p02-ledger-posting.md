@@ -1,6 +1,6 @@
 # P-02 Tenant-Bound Double-Entry Ledger Posting
 
-**Document ID:** LOT-PROT-P02-001 | **Version:** 0.7.0 | **Status:** Synthetic prototype; separate effect/request identity stores and durable request aliases added; CI pending
+**Document ID:** LOT-PROT-P02-001 | **Version:** 0.8.0 | **Status:** Synthetic prototype; 25 integration tests and bilingual governance passed; production accounting controls unapproved
 
 ## Purpose and authority
 
@@ -58,11 +58,13 @@ This is an engineering experiment, not an accounting policy, commission/NGR spec
 
 ## Evidence status
 
-All data and credentials are synthetic. P-02 run [45463594552](https://github.com/tecpey/lottorito-platform/actions/runs/45463594552) passed 25 tests (0 failed, 0 skipped) on code head `63a5ced2f3611e200a9c681e1a972d77c176c0e4`; Documentation Governance run [45463594523](https://github.com/tecpey/lottorito-platform/actions/runs/45463594523) passed. This establishes only the tested synthetic database posting invariants, not accounting correctness, regulatory eligibility, customer acceptance or production readiness.
+All data and credentials are synthetic. P-02 run [45465421133](https://github.com/tecpey/lottorito-platform/actions/runs/45465421133) passed 25 tests (0 failed, 0 skipped) on code head `f4e8551c2297b9a4fd0771f66c3f9e7a91dbe7a0`; Documentation Governance run [45465421155](https://github.com/tecpey/lottorito-platform/actions/runs/45465421155) passed. The suite includes durable request-key aliases, separate immutable financial-effect identity, concurrent duplicate convergence, effect-content mismatch rejection and outbox effect-ID propagation. This establishes only the tested synthetic database posting invariants, not accounting correctness, regulatory eligibility, customer acceptance or production readiness.
 
 ## Research references
 
 - [PostgreSQL 18 — Numeric Types](https://www.postgresql.org/docs/18/datatype-numeric.html): exact numeric types and monetary precision.
+- [PostgreSQL 18 — Row Security Policies](https://www.postgresql.org/docs/18/ddl-rowsecurity.html): default-deny behavior, FORCE ROW LEVEL SECURITY, owner and BYPASSRLS semantics, and referential-integrity caveats.
+- [PostgreSQL 18 — CREATE FUNCTION](https://www.postgresql.org/docs/18/sql-createfunction.html): SECURITY DEFINER safety, trusted search_path, pg_temp ordering and selective EXECUTE grants.
 - [PostgreSQL 18 — INSERT / ON CONFLICT](https://www.postgresql.org/docs/18/sql-insert.html): unique-conflict handling under concurrent inserts.
 - [node-postgres — Transactions](https://node-postgres.com/features/transactions): one checked-out client is required when multiple statements form a transaction.
 - [AWS Builders' Library — Making retries safe with idempotent APIs](https://aws.amazon.com/builders-library/making-retries-safe-with-idempotent-APIs/): request identity, parameter mismatch and atomic idempotent effects.
