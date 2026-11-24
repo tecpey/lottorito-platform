@@ -15,7 +15,8 @@
 ۱۱. **Commission Engine:** قوانین نسخه‌بندی‌شده، CPA/Revenue Share/Hybrid و محاسبات بازتولیدپذیر.
 ۱۲. **Affiliate Partner Pilot:** دریافت مستندات و Sandbox واقعی شریک، ساخت Adapter افیلیت و Contract Test.
 ۱۳. **Lottery Provider Discovery & Certification:** بررسی حقوقی/ارائه‌دهنده، پروفایل قابلیت، شواهد Sandbox، Adapter چرخه عمر و تطبیق نتیجه/تسویه؛ فقط پس از تأیید مالک.
-۱۴. **کشف دامنه‌های آینده بازی تحت نظارت (بدون تعهد تحویل در MVP):** مسیرهای کشف مستقل Sportsbook، Live Casino و RNG/E-Gaming حفظ شوند؛ RFI ارائه‌دهندگان، ماتریس حوزه قضایی، State Machine دامنه، معنای Wallet/دفترکل، Certification و شواهد ریسک فقط پس از اولویت‌ها و دروازه‌های Affiliate و Lottery تکمیل شوند. مرجع: LOT-GAMING-STRATEGY-001.\n۱۵. **Admin, Reporting & Operations:** تجربه اپراتور/ایجنت/مشتری، Audit، گزارش، پشتیبانی و گردش‌کار مالی کنترل‌شده.
+۱۴. **کشف دامنه‌های آینده بازی تحت نظارت (بدون تعهد تحویل در MVP):** مسیرهای کشف مستقل Sportsbook، Live Casino و RNG/E-Gaming حفظ شوند؛ RFI ارائه‌دهندگان، ماتریس حوزه قضایی، State Machine دامنه، معنای Wallet/دفترکل، Certification و شواهد ریسک فقط پس از اولویت‌ها و دروازه‌های Affiliate و Lottery تکمیل شوند. مرجع: LOT-GAMING-STRATEGY-001.
+۱۵. **Admin, Reporting & Operations:** تجربه اپراتور/ایجنت/مشتری، Audit، گزارش، پشتیبانی و گردش‌کار مالی کنترل‌شده.
 ۱۶. **Hardening & Pilot:** تست بار/امنیت، بازیابی پشتیبان، UAT، آمادگی عملیات و تأیید حقوقی مختص حوزه قضایی.
 
 ## دروازه عبور
