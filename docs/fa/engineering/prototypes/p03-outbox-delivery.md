@@ -1,6 +1,6 @@
 # تحویل Outbox تراکنشی محدود به Tenant در P-03
 
-**شناسه سند:** LOT-PROT-P03-001 | **نسخه:** ۰.۳.۰ | **وضعیت:** Prototype ساختگی؛ ۱۰ تست Integration روی آخرین Head موفق، صفر شکست و صفر Skip؛ بدون تأیید Transport یا عملیات Production
+**شناسه سند:** LOT-PROT-P03-001 | **نسخه:** ۰.۴.۰ | **وضعیت:** Prototype ساختگی؛ ۱۰ تست Integration روی Head `a52e8c248e4a2dbc7e9e88eeb6f71b96ec3f8b02` موفق، صفر شکست و صفر Skip؛ بدون تأیید Transport یا عملیات Production
 
 ## هدف و اعتبار
 
@@ -56,7 +56,7 @@ Broker ساختگی In-memory فقط پنجره Crash را نمایش می‌د�
 
 ## ثبت نتیجه
 
-اجرای P-03 با شناسه [45468356644](https://github.com/tecpey/lottorito-platform/actions/runs/45468356644) هر ۱۰ تست Integration را با صفر شکست و صفر Skip روی آخرین Head کد `227a4dd13fa0644eebaf8c06c41788703bb2d03f` با موفقیت گذراند؛ اجرای Documentation Governance با شناسه [45468356653](https://github.com/tecpey/lottorito-platform/actions/runs/45468356653) نیز روی همان Head موفق شد. Workflow از PostgreSQL 18.7، Node.js 26.13.0 و npm ci با Lockfile ثبت‌شده استفاده کرد. این Prototype آمادگی Production یا صحت مالی/حسابداری را اثبات نمی‌کند.
+اجرای P-03 با شناسه [45468686909](https://github.com/tecpey/lottorito-platform/actions/runs/45468686909) هر ۱۰ تست Integration را با صفر شکست و صفر Skip روی Head کد `a52e8c248e4a2dbc7e9e88eeb6f71b96ec3f8b02` با موفقیت گذراند؛ اجرای Documentation Governance با شناسه [45468686901](https://github.com/tecpey/lottorito-platform/actions/runs/45468686901) نیز روی همان Head موفق شد. Workflow از PostgreSQL 18.7، Node.js 26.13.0 و npm ci با Lockfile ثبت‌شده استفاده کرد. این Prototype آمادگی Production یا صحت مالی/حسابداری را اثبات نمی‌کند.
 
 ## منابع
 
