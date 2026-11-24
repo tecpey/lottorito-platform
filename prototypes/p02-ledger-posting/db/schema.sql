@@ -131,6 +131,8 @@ CREATE TABLE public.ledger_outbox (
 CREATE INDEX ledger_outbox_tenant_created_idx
   ON public.ledger_outbox (tenant_id, created_at);
 
+REVOKE CREATE ON SCHEMA public FROM PUBLIC;
+
 ALTER TABLE public.ledger_accounts OWNER TO ledger_owner;
 ALTER TABLE public.posting_requests OWNER TO ledger_owner;
 ALTER TABLE public.ledger_journals OWNER TO ledger_owner;
