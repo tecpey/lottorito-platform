@@ -38,7 +38,7 @@ The relay is at-least-once, not exactly-once. The external publish and database 
 
 The synthetic in-memory broker only demonstrates the crash window; it does not prove broker durability, network behavior, partition ordering or provider guarantees. A real consumer must commit its inbox receipt and its own business side effect in the same transaction, or use a separate outbox/saga. Consumer deduplication does not make arbitrary external side effects exactly-once.
 
-No CDC/Debezium, Kafka/SQS, external broker, provider integration, cross-tenant relay credential, production retention/replay, schema evolution, observability, SLO, key management or operational recovery is implemented or approved. Per-tenant runtime identities are used; a global relay authority is intentionally not introduced.
+This P-03 database is a separate disposable fixture: no migration or runtime adapter currently connects the P-02 ledger_outbox table to this delivery-state schema. That integration is a later, separately reviewed step. No CDC/Debezium, Kafka/SQS, external broker, provider integration, cross-tenant relay credential, production retention/replay, schema evolution, observability, SLO, key management or operational recovery is implemented or approved. Per-tenant runtime identities are used; a global relay authority is intentionally not introduced.
 
 ## Reproduction
 
