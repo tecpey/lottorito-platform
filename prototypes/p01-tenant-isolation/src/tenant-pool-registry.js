@@ -156,6 +156,9 @@ export class TenantPoolRegistry {
         throw new Error("tenant database pool creation failed");
       }
       if (!pool || typeof pool.end !== "function" || typeof pool.query !== "function") {
+        if (pool && typeof pool.end === "function") {
+          try { await pool.end(); } catch { /* Keep factory failures sanitized. */ }
+        }
         throw new Error("tenant database pool creation failed");
       }
 
