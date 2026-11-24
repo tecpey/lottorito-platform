@@ -414,24 +414,6 @@ INSERT INTO public.tenant_memberships (tenant_id, subject_id, active) VALUES
   ('11111111-1111-4111-8111-111111111111', 'synthetic-user-a', true),
   ('22222222-2222-4222-8222-222222222222', 'synthetic-user-b', true);
 
--- Synthetic export fixtures use tenant-prefixed object keys and colliding export IDs.
-INSERT INTO public.tenant_exports (tenant_id, export_id, created_by, object_key, content_sha256, status) VALUES
-  ('11111111-1111-4111-8111-111111111111',
-   'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee',
-   'synthetic-user-a',
-   'tenants/11111111-1111-4111-8111-111111111111/exports/monthly.csv',
-   repeat('a', 64), 'ready'),
-  ('22222222-2222-4222-8222-222222222222',
-   'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee',
-   'synthetic-user-b',
-   'tenants/22222222-2222-4222-8222-222222222222/exports/monthly.csv',
-   repeat('b', 64), 'ready'),
-  ('11111111-1111-4111-8111-111111111111',
-   'ffffffff-ffff-4fff-8fff-ffffffffffff',
-   'synthetic-user-a',
-   'tenants/11111111-1111-4111-8111-111111111111/exports/revoked.csv',
-   repeat('c', 64), 'revoked');
-
 -- Synthetic report rows deliberately collide on report_id and report_key.
 INSERT INTO public.tenant_reports (tenant_id, report_id, report_key, payload) VALUES
   ('11111111-1111-4111-8111-111111111111',
