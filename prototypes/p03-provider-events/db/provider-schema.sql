@@ -417,6 +417,9 @@ AS $function$
           p.journal_id IS NULL
           OR j.journal_id IS NULL
           OR f.effect_id IS NULL
+          OR j.source_event_id IS DISTINCT FROM i.source_event_id
+          OR o.event_id IS NULL
+          OR lines.currency_code IS DISTINCT FROM i.currency_code
           OR COALESCE(lines.debit_total, 0) <> COALESCE(i.amount_minor::numeric, -1)
           OR COALESCE(lines.credit_total, 0) <> COALESCE(i.amount_minor::numeric, -1)
           OR COALESCE(lines.currency_count, 0) <> 1
@@ -429,11 +432,14 @@ AS $function$
     ON j.tenant_id = p.tenant_id AND j.journal_id = p.journal_id
   LEFT JOIN public.financial_effects AS f
     ON f.tenant_id = p.tenant_id AND f.effect_id = i.effect_id AND f.journal_id = p.journal_id
+  LEFT JOIN public.provider_inbox_outbox AS o
+    ON o.tenant_id = p.tenant_id AND o.inbox_id = p.inbox_id AND o.event_type = 'provider.event.accepted'
   LEFT JOIN LATERAL (
     SELECT
       sum(amount_minor) FILTER (WHERE direction = 'debit') AS debit_total,
       sum(amount_minor) FILTER (WHERE direction = 'credit') AS credit_total,
-      count(DISTINCT currency_code) AS currency_count
+      count(DISTINCT currency_code) AS currency_count,
+      min(currency_code) AS currency_code
     FROM public.ledger_lines AS ll
     WHERE ll.tenant_id = p.tenant_id AND ll.journal_id = p.journal_id
   ) AS lines ON true
