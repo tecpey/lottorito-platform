@@ -1,6 +1,6 @@
 # Grant دانلود Export متصل به Tenant در P-01
 
-**شناسه سند:** LOT-PROT-P01-EXPORT-001 | **نسخه:** ۰.۱.۰ | **وضعیت:** Prototype ساختگی؛ تأیید CI در انتظار
+**شناسه سند:** LOT-PROT-P01-EXPORT-001 | **نسخه:** ۰.۲.۰ | **وضعیت:** Prototype ساختگی؛ تأیید CI در انتظار
 
 ## هدف
 
@@ -11,6 +11,7 @@
 ## قرارداد پیاده‌سازی‌شده
 
 - هویت Export ترکیبی است: `(tenant_id, export_id)`؛ Object Key باید با Prefix ذخیره‌سازی همان Tenant آغاز شود.
+- هنگام صدور و Redeem، فعال‌بودن Membership همان Subject در Tenant با قفل ردیف `FOR SHARE` دوباره بررسی می‌شود.
 - صدور Grant به Tenant Resolve‌شده در سمت سرور، Subject احرازشده، Export ایجادشده توسط همان Subject و وضعیت `ready` نیاز دارد.
 - Token دارای ۲۵۶ بیت تصادفی رمزنگاری‌شده و امن است و فقط یک‌بار برگردانده می‌شود. PostgreSQL فقط Hash از نوع SHA-256 را ذخیره می‌کند و هرگز Raw Token را نگه نمی‌دارد.
 - Grant به Tenant، Subject و Export متصل است؛ زمان انقضا با ساعت PostgreSQL محاسبه می‌شود.
@@ -33,11 +34,12 @@
 | P01-EXPORT-08 | Export پس از صدور Grant لغو می‌شود | Redeem رد شود |
 | P01-EXPORT-09 | دو درخواست هم‌زمان یک Token را Redeem می‌کنند | دقیقاً یکی موفق شود |
 | P01-EXPORT-10 | TTL خارج از بازه ۶۰ تا ۶۰۰ ثانیه یا Token نامعتبر است | درخواست Fail-closed شود |
+| P01-EXPORT-11 | Membership کاربر پس از صدور Grant لغو می‌شود | صدور Grant جدید و Redeem Grant قبلی رد شود؛ قفل Membership، لغو هم‌زمان را Serialize کند |
 
 ## مرزهای امنیتی و محدودیت‌ها
 
 - این یک Primitive برای مجوزدهی دانلود است، نه سرویس کامل End-to-end. Endpoint استریم HTTP، Adapter ذخیره‌سازی شیء، Pre-signed URL در S3، CDN، اسکن بدافزار/محتوا، Range Request، Audit دانلود، Quota، Rate Limit یا چرخه عمر Retention پیاده‌سازی نشده‌اند.
-- برنامه باید Subject را مستقل از Token احراز کند؛ Token به‌تنهایی اثبات هویت نیست.
+- برنامه باید Subject را مستقل از Token احراز کند؛ Token به‌تنهایی اثبات هویت نیست. Membership فعال Tenant هنگام Redeem نیز دوباره بررسی می‌شود، نه فقط هنگام صدور Grant.
 - Object Key باید در سمت سرور باقی بماند. به Bucket عمومی Redirect نکنید و Credential ذخیره‌سازی را افشا نکنید.
 - اگر برنامه بعداً URL امضاشده Provider صادر کند، Expiry، معنای Revocation، پنجره Replay و Cache Header آن به Threat Model جداگانه نیاز دارد. URL Provider ممکن است پس از مصرف Grant دیتابیس همچنان قابل استفاده باشد.
 - Redeem یک‌بارمصرف در صورت قطع اتصال Client پس از مصرف Token و پیش از دریافت فایل، مسئله Retry ایجاد می‌کند. جریان Production باید صریحاً بین Server Streaming، Delivery Lease کوتاه‌مدت یا طراحی Download Session با Idempotency انتخاب کند.
@@ -46,6 +48,6 @@
 
 ## وضعیت شواهد
 
-اجرای P-01 Tenant Isolation با شناسه [45425122143](https://github.com/tecpey/lottorito-platform/actions/runs/45425122143) روی Head کد `097ef0d0f00a5f36dc0d1f8fea33f1934a5a4d70` موفق شد: ۳۵ تست موفق، صفر شکست و صفر تست Skip‌شده. اجرای Documentation Governance با شناسه [45425122209](https://github.com/tecpey/lottorito-platform/actions/runs/45425122209) نیز موفق بود. اجرای محلی و تحویل دانلود با Provider واقعی هنوز تأیید نشده‌اند.
+اجرای قبلی P-01 Tenant Isolation با شناسه [45425122143](https://github.com/tecpey/lottorito-platform/actions/runs/45425122143) روی Head کد `097ef0d0f00a5f36dc0d1f8fea33f1934a5a4d70` تعداد ۳۵ تست موفق داشت. سپس بررسی مجدد Membership و تست Regression آن اضافه شد؛ CI جدید در انتظار است. اجرای Documentation Governance با شناسه [45425122209](https://github.com/tecpey/lottorito-platform/actions/runs/45425122209) روی Head مستندات قبلی موفق بود. اجرای محلی و تحویل دانلود با Provider واقعی هنوز تأیید نشده‌اند.
 
 کد، Schema و سناریوهای یکپارچه‌سازی ساختگی در یک Draft PR پشته‌شده پیاده‌سازی شده‌اند. CI و اجرای محلی در انتظار هستند. تمام Fixtureها و Credentialها ساختگی‌اند.
