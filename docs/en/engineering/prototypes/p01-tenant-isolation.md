@@ -1,6 +1,6 @@
 # P-01 — Tenant Isolation Prototype
 
-**Document ID:** LOT-PROT-P01-001 | **Version:** 0.1.0 | **Status:** Implemented on a prototype branch; CI execution not yet verified | **Review date:** 2026-11-24
+**Document ID:** LOT-PROT-P01-001 | **Version:** 0.1.0 | **Status:** Prototype implemented; baseline CI passed; identity-bound comparison CI pending | **Review date:** 2026-11-24
 
 ## Purpose and decision boundary
 
@@ -90,7 +90,7 @@ The workflow provisions an ephemeral PostgreSQL 18.7 service and uses synthetic 
 
 ## Dependency and CI limitations
 
-The prototype pins the direct pg dependency but does not yet commit an npm lockfile; transitive dependency reproducibility and supply-chain pinning remain follow-up work. GitHub Actions are referenced by version tags rather than immutable commit SHAs in this first experiment. These are explicit prototype limitations, not production recommendations.
+The prototype pins the direct `pg` dependency and commits `package-lock.json`; CI uses `npm ci` for lockfile-based installation. GitHub Actions are pinned to immutable full commit SHAs. This improves repeatability of the experiment but is not a complete software-supply-chain security program.
 
 ## Result record
 
