@@ -194,6 +194,12 @@ test("runtime role is not superuser, table owner or BYPASSRLS and FORCE RLS is e
   assert.equal(role.relforcerowsecurity, true);
   assert.notEqual(role.table_owner, role.runtime_role);
 
+  const membershipPrivileges = await pool.query(
+    "SELECT has_column_privilege(current_user, 'public.tenant_memberships', 'lock_version', 'UPDATE') AS can_update_lock_version, has_column_privilege(current_user, 'public.tenant_memberships', 'active', 'UPDATE') AS can_update_active"
+  );
+  assert.equal(membershipPrivileges.rows[0].can_update_lock_version, true);
+  assert.equal(membershipPrivileges.rows[0].can_update_active, false);
+
   const policies = await pool.query(
     "SELECT policyname, permissive FROM pg_policies WHERE schemaname = 'public' AND tablename = 'tenant_records' ORDER BY policyname"
   );
