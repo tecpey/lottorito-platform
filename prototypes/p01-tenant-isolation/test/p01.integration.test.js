@@ -34,7 +34,7 @@ const { privateKey: jobSigningPrivateKeyObject, publicKey: jobVerifyPublicKeyObj
 const jobSigningPrivateKey = jobSigningPrivateKeyObject.export({ type: "pkcs8", format: "pem" });
 const jobVerifyPublicKey = jobVerifyPublicKeyObject.export({ type: "spki", format: "pem" });
 
-const adminPool = new Pool({ connectionString: adminDatabaseUrl, max: 1 });
+const adminPool = new Pool({ connectionString: adminDatabaseUrl, max: 2 });
 const dispatcherPool = new Pool({ connectionString: dispatcherDatabaseUrl, max: 1 });
 const dispatcherPool2 = new Pool({ connectionString: dispatcherDatabaseUrl, max: 1 });
 const supportPool = new Pool({ connectionString: supportDatabaseUrl, max: 2 });
@@ -474,7 +474,7 @@ test("support grant rejects expired, revoked, wrong-subject, wrong-tenant and un
     ["p01-synthetic-support-other-token", TENANT_A, SUPPORT_GRANT_ACTIVE],
     ["p01-synthetic-support-token", TENANT_B, SUPPORT_GRANT_ACTIVE],
     ["p01-synthetic-support-token", TENANT_A, "77777777-7777-4777-8777-777777777777"],
-    ["p01-synthetic-support-token", TENANT_B, SUPPORT_GRANT_OTHER_TENANT]
+    ["p01-synthetic-support-token", TENANT_A, SUPPORT_GRANT_OTHER_TENANT]
   ];
 
   for (const [token, tenantId, grantId] of cases) {
@@ -525,6 +525,14 @@ test("support-authorizer cannot read tenant payloads, job payloads or audit hist
   );
   await assert.rejects(
     supportPool.query("UPDATE public.support_audit SET reason = 'tampered'"),
+    (error) => error.code === "42501"
+  );
+  await assert.rejects(
+    supportPool.query("UPDATE public.support_grants SET revoked_at = clock_timestamp()"),
+    (error) => error.code === "42501"
+  );
+  await assert.rejects(
+    supportPool.query("DELETE FROM public.support_grants"),
     (error) => error.code === "42501"
   );
   await assert.rejects(
