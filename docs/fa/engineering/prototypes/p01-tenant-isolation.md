@@ -42,7 +42,8 @@
 | P01-ASYNC-01 | ساخت Job توسط A/B و تلاش برای جعل Tenant در Caller | Job و Metadata Dispatch اتمیک هستند؛ Tenant از Principal می‌آید و Tenant جعلی رد می‌شود |
 | P01-ASYNC-02 | بررسی Role مربوط به Dispatcher و تلاش برای خواندن Payload | Dispatcher فقط Metadata را می‌خواند/Claim می‌کند؛ SELECT روی Payload رد می‌شود و Role فاقد BYPASSRLS است |
 | P01-ASYNC-03 | تغییر Tenant ID در Envelope امضاشده صف | اعتبارسنجی HMAC پیش از هر دسترسی به داده Tenant شکست می‌خورد |
-| P01-ASYNC-04 | Claim مجدد Lease منقضی، Replay تحویل و تأیید تلاش‌ها | فقط آخرین Attempt می‌تواند Ack کند؛ اثر Job یک بار تکمیل می‌شود و Replay بی‌اثر است |
+| P01-ASYNC-04 | Claim هم‌زمان توسط دو اتصال Dispatcher، تمدید Lease و Replay تحویل | `SKIP LOCKED` Jobهای مجزا می‌دهد؛ فقط Attempt جاری Ack می‌شود؛ اثر Job یک بار تکمیل می‌شود و Replay بی‌اثر است |
+| P01-ASYNC-06 | ایجاد خطای Foreign Key در Dispatch پس از درج Job | کل Transaction Rollback می‌شود و Job یتیم باقی نمی‌ماند |
 | P01-ASYNC-05 | لغو Membership کاربر پس از Enqueue و پیش از اجرا | Worker وضعیت Job را Rejected می‌کند و Payload را اجرا نمی‌کند |
 
 ## تفسیر امنیتی مهم
