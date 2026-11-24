@@ -321,7 +321,15 @@ test("database-side validation rejects extra fields and fractional amount string
     tenantAPool.query("SELECT * FROM public.post_journal($1, $2, $3::jsonb)", ["p02-db-extra-001", EVENT_1, JSON.stringify(extra)]),
     (error) => error.code === "22023" && error.message.includes("fields are invalid")
   );
-  const fractional = [
+  const fractionalLineNumber = [
+    { line_no: 1.5, account_id: A_USD_CASH, currency_code: "USD", direction: "debit", amount_minor: "10" },
+    { line_no: 2, account_id: A_USD_CLEARING, currency_code: "USD", direction: "credit", amount_minor: "10" }
+  ];
+  await assert.rejects(
+    tenantAPool.query("SELECT * FROM public.post_journal($1, $2, $3::jsonb)", ["p02-db-line-number-001", EVENT_1, JSON.stringify(fractionalLineNumber)]),
+    (error) => error.code === "22023" && error.message.includes("line numbers must be positive integers")
+  );
+    const fractional = [
     { line_no: 1, account_id: A_USD_CASH, currency_code: "USD", direction: "debit", amount_minor: "10.5" },
     { line_no: 2, account_id: A_USD_CLEARING, currency_code: "USD", direction: "credit", amount_minor: "10.5" }
   ];
