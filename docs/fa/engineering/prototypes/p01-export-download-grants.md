@@ -16,6 +16,7 @@
 - Token دارای ۲۵۶ بیت تصادفی رمزنگاری‌شده و امن است و فقط یک‌بار برگردانده می‌شود. PostgreSQL فقط Hash از نوع SHA-256 را ذخیره می‌کند و هرگز Raw Token را نگه نمی‌دارد.
 - Grant به Tenant، Subject و Export متصل است؛ زمان انقضا با ساعت PostgreSQL محاسبه می‌شود.
 - TTL به بازه ۶۰ تا ۶۰۰ ثانیه محدود است؛ مقدار پیش‌فرض ۳۰۰ ثانیه است.
+- صدور Grant و Redeem، عضویت فعال Tenant را در همان Transaction محدود به Tenant دوباره بررسی می‌کنند و قفل Membership از نوع `FOR SHARE` می‌گیرند تا با لغو Membership Serialize شوند.
 - هنگام Redeem، ردیف Grant و Export قفل می‌شوند؛ Tenant/Subject/Hash/Expiry/Revocation/Export Status بررسی و سپس `consumed_at` به‌صورت اتمیک ثبت می‌شود.
 - Redeem موفق فقط Object Key داخلی و Checksum را به لایه مورداعتماد سرور برمی‌گرداند؛ URL عمومی یا Credential ذخیره‌سازی برگردانده نمی‌شود.
 - RLS محدود به Tenant و Foreign Key ترکیبی، ردیف‌های Export و Grant را مستقل از هم محافظت می‌کنند.
@@ -34,6 +35,7 @@
 | P01-EXPORT-08 | Export پس از صدور Grant لغو می‌شود | Redeem رد شود |
 | P01-EXPORT-09 | دو درخواست هم‌زمان یک Token را Redeem می‌کنند | دقیقاً یکی موفق شود |
 | P01-EXPORT-10 | TTL خارج از بازه ۶۰ تا ۶۰۰ ثانیه یا Token نامعتبر است | درخواست Fail-closed شود |
+| P01-EXPORT-11 | عضویت Tenant پس از صدور Grant لغو می‌شود | صدور Grant جدید و Redeem کردن Grant قبلی رد شود |
 | P01-EXPORT-11 | Membership کاربر پس از صدور Grant لغو می‌شود | صدور Grant جدید و Redeem Grant قبلی رد شود؛ قفل Membership، لغو هم‌زمان را Serialize کند |
 
 ## مرزهای امنیتی و محدودیت‌ها
@@ -48,6 +50,6 @@
 
 ## وضعیت شواهد
 
-اجرای قبلی P-01 Tenant Isolation با شناسه [45425122143](https://github.com/tecpey/lottorito-platform/actions/runs/45425122143) روی Head کد `097ef0d0f00a5f36dc0d1f8fea33f1934a5a4d70` تعداد ۳۵ تست موفق داشت. سپس بررسی مجدد Membership و تست Regression آن اضافه شد؛ CI جدید در انتظار است. اجرای Documentation Governance با شناسه [45425122209](https://github.com/tecpey/lottorito-platform/actions/runs/45425122209) روی Head مستندات قبلی موفق بود. اجرای محلی و تحویل دانلود با Provider واقعی هنوز تأیید نشده‌اند.
+اجرای P-01 Tenant Isolation با شناسه [45426108704](https://github.com/tecpey/lottorito-platform/actions/runs/45426108704) روی Head کد `b88c83ad5f5160681ec0e132c1efe07d8b913da0` موفق شد: ۳۶ تست موفق، صفر شکست و صفر تست Skip‌شده. اجرای Documentation Governance با شناسه [45426108688](https://github.com/tecpey/lottorito-platform/actions/runs/45426108688) نیز موفق بود. اجرای محلی و تحویل دانلود با Provider واقعی هنوز تأیید نشده‌اند.
 
-کد، Schema و سناریوهای یکپارچه‌سازی ساختگی در یک Draft PR پشته‌شده پیاده‌سازی شده‌اند. CI و اجرای محلی در انتظار هستند. تمام Fixtureها و Credentialها ساختگی‌اند.
+کد، Schema و سناریوهای یکپارچه‌سازی ساختگی در یک Draft PR پشته‌شده پیاده‌سازی شده‌اند. تمام Fixtureها و Credentialها ساختگی‌اند.
