@@ -271,6 +271,13 @@ test("posted journals and entries cannot be edited or deleted", async () => {
 
 test("a posted journal can only be reversed by a new exact inverse journal", async () => {
   const source = await createSourceEvent();
+  const accountIds = [ACCOUNTS.tenantA.affiliate.usdExpense, ACCOUNTS.tenantA.affiliate.usdPayable];
+  const balanceBefore = await withLedgerTransaction(runtimePool, TENANT_A, PRODUCT_AFFILIATE, (client) =>
+    client.query(
+      "SELECT account_id, balance::text FROM public.ledger_account_balances WHERE account_id = ANY($1::uuid[]) ORDER BY account_id",
+      [accountIds]
+    )
+  );
   const original = await postLedgerEffect(runtimePool, buildInput(source));
   const reversed = await reverseJournal(runtimePool, {
     tenant_id: TENANT_A,
@@ -290,11 +297,14 @@ test("a posted journal can only be reversed by a new exact inverse journal", asy
 
   const balances = await withLedgerTransaction(runtimePool, TENANT_A, PRODUCT_AFFILIATE, (client) =>
     client.query(
-      "SELECT account_code, balance::text FROM public.ledger_account_balances WHERE account_id = ANY($1::uuid[]) ORDER BY account_code",
-      [[ACCOUNTS.tenantA.affiliate.usdExpense, ACCOUNTS.tenantA.affiliate.usdPayable]]
+      "SELECT account_id, balance::text FROM public.ledger_account_balances WHERE account_id = ANY($1::uuid[]) ORDER BY account_id",
+      [accountIds]
     )
   );
-  assert.equal(balances.rows.every((row) => normalizeDecimal(row.balance) === "0"), true);
+  assert.deepEqual(
+    balances.rows.map((row) => [row.account_id, normalizeDecimal(row.balance)]),
+    balanceBefore.rows.map((row) => [row.account_id, normalizeDecimal(row.balance)])
+  );
 
   await assert.rejects(
     reverseJournal(runtimePool, {
