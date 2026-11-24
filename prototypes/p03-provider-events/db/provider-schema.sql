@@ -434,9 +434,104 @@ AS $function$
           OR f.effect_id IS NULL
           OR j.source_event_id IS DISTINCT FROM i.source_event_id
           OR o.event_id IS NULL
+          OR lo.event_id IS NULL
           OR lines.currency_code IS DISTINCT FROM i.currency_code
-          OR COALESCE(lines.debit_total, 0) <> COALESCE(i.amount_minor::numeric, -1)
-          OR COALESCE(lines.credit_total, 0) <> COALESCE(i.amount_minor::numeric, -1)
+          OR COALESCE(lines.debit_total, 0) <> COALESCE(CASE WHEN i.amount_minor ~ '^[1-9][0-9]{0,37}
+          OR COALESCE(lines.currency_count, 0) <> 1
+        )
+    )::integer
+  FROM public.provider_event_processing AS p
+  JOIN public.provider_inbox AS i
+    ON i.tenant_id = p.tenant_id AND i.inbox_id = p.inbox_id
+  LEFT JOIN public.ledger_journals AS j
+    ON j.tenant_id = p.tenant_id AND j.journal_id = p.journal_id
+  LEFT JOIN public.financial_effects AS f
+    ON f.tenant_id = p.tenant_id AND f.effect_id = i.effect_id AND f.journal_id = p.journal_id
+  LEFT JOIN public.provider_inbox_outbox AS o
+    ON o.tenant_id = p.tenant_id AND o.inbox_id = p.inbox_id AND o.event_type = 'provider.event.accepted'
+  LEFT JOIN public.ledger_outbox AS lo
+    ON lo.tenant_id = p.tenant_id AND lo.journal_id = p.journal_id AND lo.event_type = 'ledger.journal.posted'
+  LEFT JOIN LATERAL (
+    SELECT
+      sum(amount_minor) FILTER (WHERE direction = 'debit') AS debit_total,
+      sum(amount_minor) FILTER (WHERE direction = 'credit') AS credit_total,
+      count(DISTINCT currency_code) AS currency_count,
+      min(currency_code) AS currency_code
+    FROM public.ledger_lines AS ll
+    WHERE ll.tenant_id = p.tenant_id AND ll.journal_id = p.journal_id
+  ) AS lines ON true
+  WHERE p.tenant_id = private.current_tenant_id()
+$function$;
+
+ALTER FUNCTION public.receive_provider_event(text,text,text,text,uuid,uuid,text,timestamptz,text,text,jsonb,text,text,timestamptz) OWNER TO provider_executor;
+ALTER FUNCTION public.process_provider_event(uuid) OWNER TO provider_executor;
+ALTER FUNCTION public.reconcile_provider_events() OWNER TO provider_executor;
+
+REVOKE ALL ON FUNCTION public.receive_provider_event(text,text,text,text,uuid,uuid,text,timestamptz,text,text,jsonb,text,text,timestamptz) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.process_provider_event(uuid) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.reconcile_provider_events() FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.receive_provider_event(text,text,text,text,uuid,uuid,text,timestamptz,text,text,jsonb,text,text,timestamptz)
+  TO tenant_a_ledger_runtime, tenant_b_ledger_runtime;
+GRANT EXECUTE ON FUNCTION public.process_provider_event(uuid)
+  TO tenant_a_ledger_runtime, tenant_b_ledger_runtime;
+GRANT EXECUTE ON FUNCTION public.reconcile_provider_events()
+  TO tenant_a_ledger_runtime, tenant_b_ledger_runtime;
+
+INSERT INTO public.provider_account_map (
+  tenant_id, provider_id, provider_account_id, currency_code, debit_account_id, credit_account_id
+) VALUES
+  ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'synthetic_payments', 'acct-a-001', 'USD',
+   '11111111-1111-4111-8111-111111111101', '11111111-1111-4111-8111-111111111102'),
+  ('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', 'synthetic_payments', 'acct-b-001', 'USD',
+   '22222222-2222-4222-8222-222222222201', '22222222-2222-4222-8222-222222222202');
+ THEN i.amount_minor::numeric END, -1)
+          OR COALESCE(lines.credit_total, 0) <> COALESCE(CASE WHEN i.amount_minor ~ '^[1-9][0-9]{0,37}
+          OR COALESCE(lines.currency_count, 0) <> 1
+        )
+    )::integer
+  FROM public.provider_event_processing AS p
+  JOIN public.provider_inbox AS i
+    ON i.tenant_id = p.tenant_id AND i.inbox_id = p.inbox_id
+  LEFT JOIN public.ledger_journals AS j
+    ON j.tenant_id = p.tenant_id AND j.journal_id = p.journal_id
+  LEFT JOIN public.financial_effects AS f
+    ON f.tenant_id = p.tenant_id AND f.effect_id = i.effect_id AND f.journal_id = p.journal_id
+  LEFT JOIN public.provider_inbox_outbox AS o
+    ON o.tenant_id = p.tenant_id AND o.inbox_id = p.inbox_id AND o.event_type = 'provider.event.accepted'
+  LEFT JOIN LATERAL (
+    SELECT
+      sum(amount_minor) FILTER (WHERE direction = 'debit') AS debit_total,
+      sum(amount_minor) FILTER (WHERE direction = 'credit') AS credit_total,
+      count(DISTINCT currency_code) AS currency_count,
+      min(currency_code) AS currency_code
+    FROM public.ledger_lines AS ll
+    WHERE ll.tenant_id = p.tenant_id AND ll.journal_id = p.journal_id
+  ) AS lines ON true
+  WHERE p.tenant_id = private.current_tenant_id()
+$function$;
+
+ALTER FUNCTION public.receive_provider_event(text,text,text,text,uuid,uuid,text,timestamptz,text,text,jsonb,text,text,timestamptz) OWNER TO provider_executor;
+ALTER FUNCTION public.process_provider_event(uuid) OWNER TO provider_executor;
+ALTER FUNCTION public.reconcile_provider_events() OWNER TO provider_executor;
+
+REVOKE ALL ON FUNCTION public.receive_provider_event(text,text,text,text,uuid,uuid,text,timestamptz,text,text,jsonb,text,text,timestamptz) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.process_provider_event(uuid) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.reconcile_provider_events() FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.receive_provider_event(text,text,text,text,uuid,uuid,text,timestamptz,text,text,jsonb,text,text,timestamptz)
+  TO tenant_a_ledger_runtime, tenant_b_ledger_runtime;
+GRANT EXECUTE ON FUNCTION public.process_provider_event(uuid)
+  TO tenant_a_ledger_runtime, tenant_b_ledger_runtime;
+GRANT EXECUTE ON FUNCTION public.reconcile_provider_events()
+  TO tenant_a_ledger_runtime, tenant_b_ledger_runtime;
+
+INSERT INTO public.provider_account_map (
+  tenant_id, provider_id, provider_account_id, currency_code, debit_account_id, credit_account_id
+) VALUES
+  ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'synthetic_payments', 'acct-a-001', 'USD',
+   '11111111-1111-4111-8111-111111111101', '11111111-1111-4111-8111-111111111102'),
+  ('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', 'synthetic_payments', 'acct-b-001', 'USD',
+   '22222222-2222-4222-8222-222222222201', '22222222-2222-4222-8222-222222222202');
+ THEN i.amount_minor::numeric END, -1)
           OR COALESCE(lines.currency_count, 0) <> 1
         )
     )::integer
