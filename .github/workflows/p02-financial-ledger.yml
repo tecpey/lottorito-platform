@@ -43,7 +43,7 @@ jobs:
           --health-retries 12
     env:
       ADMIN_DATABASE_URL: postgres://postgres:p02-admin-only-not-production@127.0.0.1:5432/lottorito_p02
-      RUNTIME_DATABASE_URL: postgres://ledger_runtime:p02-runtime-not-production@127.0.0.1:5432/lottorito_p02
+      RUNTIME_DATABASE_URL: postgres://ledger_runtime:p02-runtime-not-for-production@127.0.0.1:5432/lottorito_p02
     steps:
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
