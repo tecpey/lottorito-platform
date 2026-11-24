@@ -1,6 +1,6 @@
 # P-01 Tenant-Bound Export Download Grants
 
-**Document ID:** LOT-PROT-P01-EXPORT-001 | **Version:** 0.5.0 | **Status:** Synthetic prototype; 36 CI tests passed; delivery service unverified
+**Document ID:** LOT-PROT-P01-EXPORT-001 | **Version:** 0.6.0 | **Status:** Synthetic prototype; 36 CI tests passed; delivery service unverified
 
 ## Purpose
 
@@ -10,7 +10,7 @@ This experiment uses synthetic PostgreSQL 18.7 data and the existing Node.js 26 
 
 ## Implemented contract
 
-- Export identity is composite: `(tenant_id, export_id)`; the object key must begin with that tenant's storage prefix.
+- Export identity is composite: `(tenant_id, export_id)`; the database enforces the exact tenant storage prefix and a safe single filename segment, rejecting traversal, encoded separators and foreign-tenant prefixes.
 - Grant issuance and redemption both reauthorize the authenticated subject's active tenant membership under a row-level `FOR SHARE` lock.
 - Grant issuance requires a server-resolved tenant, authenticated subject, an export created by that subject and export status `ready`.
 - Tokens contain 256 bits of cryptographically secure randomness and are returned once. PostgreSQL stores only a SHA-256 hash, never the raw token.
@@ -38,6 +38,7 @@ This experiment uses synthetic PostgreSQL 18.7 data and the existing Node.js 26 
 | P01-EXPORT-11 | Tenant membership is revoked after grant issuance | New grants and existing grant redemption are denied |
 | P01-EXPORT-11 | Subject membership is revoked after grant issuance | New grants and existing grant redemption are denied |
 | P01-EXPORT-12 | Membership revocation races an in-flight redemption | FOR SHARE and FOR UPDATE serialize; the transaction that wins the row lock defines the authorization order |
+| P01-EXPORT-13 | Export object key contains traversal, encoded separator or another tenant prefix | Database constraint rejects the row before it can reach a storage adapter |
 
 ## Security boundaries and limitations
 
