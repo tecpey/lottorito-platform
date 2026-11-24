@@ -1,6 +1,6 @@
 # P-02 — Financial Ledger and Reconciliation Prototype
 
-**Document ID:** LOT-PROT-P02-001 | **Version:** 0.1.0 | **Status:** Disposable prototype; CI evidence pending | **Review date:** 2026-11-24
+**Document ID:** LOT-PROT-P02-001 | **Version:** 0.2.0 | **Status:** Disposable prototype; CI evidence pending | **Review date:** 2026-11-24
 
 ## Purpose and decision boundary
 
@@ -16,11 +16,11 @@ This is not a wallet product, payment integration, payout service, customer bala
 - Monetary values use exact PostgreSQL NUMERIC(38,18) and the Node boundary accepts decimal strings only. No JavaScript floating-point arithmetic is used for amounts.
 - A journal must contain at least two entries and balance debit/credit totals independently for each currency before it can transition from draft to posted.
 - Account-currency composite foreign keys prevent posting a USD entry to a USDT account.
-- Currency scale is enforced at source-event and ledger-entry insertion boundaries.
+- Currency scale is enforced at source-event and ledger-entry insertion boundaries; account-currency composite foreign keys prevent currency substitution.
 - Posted journal headers and entries are immutable. Corrections use a new reversal journal whose entries must exactly invert the original; a unique constraint prevents a second full reversal.
 - An economic effect is protected by both a stable business-effect identity and an idempotency key. A request fingerprint prevents key reuse with a different financial payload.
 - Concurrent duplicate delivery is serialized by database uniqueness; only one posted journal/effect/outbox event should survive.
-- The journal, economic effect, entries and outbox event are written in one PostgreSQL transaction. Deferred constraint triggers require effect/outbox references to point to a posted journal at commit.
+- The journal, economic effect, entries and outbox event are written in one PostgreSQL transaction. Deferred constraint triggers require effect/outbox references to point to a posted journal at commit. Source-event existence is verified inside the same tenant/product transaction.
 - Reconciliation compares independently recorded source-event expectations with posted affiliate-payable entries and reports missing or mismatched postings.
 - Account balances are derived from posted ledger entries; no mutable balance column is used as the source of truth.
 - Synthetic tests cover tenant and product RLS, exact numeric behavior, duplicate/concurrent idempotency, unbalanced journals, currency precision, per-currency balancing, immutability, reversals and reconciliation drift.
@@ -43,6 +43,11 @@ This is not a wallet product, payment integration, payout service, customer bala
 | P02-LEDGER-12 | Update/delete source event or economic effect | Rejected |
 | P02-LEDGER-13 | Insert a journal directly as posted | Rejected; draft-to-posted transition is mandatory |
 | P02-LEDGER-14 | Read another tenant/product's ledger | RLS returns no foreign rows |
+| P02-LEDGER-15 | Perform exact decimal arithmetic and post a token amount | Decimal string is preserved without JavaScript float conversion |
+| P02-LEDGER-16 | Inspect runtime role and query without tenant/product context | Runtime is non-owner/non-BYPASSRLS; missing context returns no rows |
+| P02-LEDGER-17 | Pair a USD entry with a USDT account | Composite account/currency foreign key rejects substitution |
+| P02-LEDGER-18 | Post an event absent from the tenant/product source-event scope | Posting is rejected before journal creation |
+| P02-LEDGER-19 | Commit an effect/outbox row referencing a draft journal | Deferred commit-time constraint rejects the transaction |
 
 ## Local reproduction
 
