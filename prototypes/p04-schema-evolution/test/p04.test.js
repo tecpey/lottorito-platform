@@ -20,13 +20,21 @@ test("v1/v2 writers and readers coexist in both directions",async()=>{
  assert.deepEqual((await b2.query("SELECT canonical_payload FROM partner_events WHERE event_id=$1",[id(203)])).rows[0].canonical_payload,{worker:"v1"});
  assert.deepEqual((await b1.query("SELECT payload FROM partner_events WHERE event_id=$1",[id(204)])).rows[0].payload,{worker:"v2"});
 });
-test("conflicting dual-write fails closed",async()=>{await assert.rejects(a2.query("UPDATE partner_events SET payload=$1::jsonb,canonical_payload=$2::jsonb WHERE event_id=$3",[JSON.stringify({v:1}),JSON.stringify({v:2}),id(201)]),e=>e.code==="23514");});
+test("conflicting dual-write fails closed",async()=>{await assert.rejects(a2.query("UPDATE partner_events SET payload=$1::jsonb,canonical_payload=$2::jsonb WHERE event_id=$3",[JSON.stringify({v:3}),JSON.stringify({v:2}),id(201)]),e=>e.code==="23514");});
 test("backfill stops and resumes; RLS scopes each tenant",async()=>{
- assert.equal(await backfillBatch(a1,2),2);await a1.end();a1=new Pool({connectionString:u.a1});
- let n=0;while(await backfillBatch(a1,2))n++;assert.equal(n,2);
+ const initial=Number((await a1.query("SELECT count(*)::int n FROM partner_events WHERE canonical_payload IS NULL")).rows[0].n);
+ assert.equal(initial,4);
+ const first=await backfillBatch(a1,2);assert.ok(first>0&&first<=2);
+ await a1.end();a1=new Pool({connectionString:u.a1});
+ let resumed=0,changed=0;while((changed=await backfillBatch(a1,2))>0)resumed+=changed;
+ assert.equal(first+resumed,initial);
  assert.equal((await a1.query("SELECT count(*)::int n FROM partner_events WHERE canonical_payload IS NULL")).rows[0].n,0);
- assert.equal(await backfillBatch(b2,2),2);assert.equal((await a1.query("SELECT * FROM partner_events WHERE tenant_id=$1",[B])).rowCount,0);
-   await assert.rejects(a1.query("INSERT INTO partner_events(tenant_id,event_id,event_type,payload) VALUES($1,$2,'spoof',$3::jsonb)",[B,id(299),JSON.stringify({x:1})]),e=>e.code==="42501");
+ const bInitial=Number((await b2.query("SELECT count(*)::int n FROM partner_events WHERE canonical_payload IS NULL")).rows[0].n);
+ assert.equal(bInitial,2);
+ let bDone=0;while((changed=await backfillBatch(b2,2))>0)bDone+=changed;
+ assert.equal(bDone,bInitial);
+ assert.equal((await a1.query("SELECT * FROM partner_events WHERE tenant_id=$1",[B])).rowCount,0);
+ await assert.rejects(a1.query("INSERT INTO partner_events(tenant_id,event_id,event_type,payload) VALUES($1,$2,'spoof',$3::jsonb)",[B,id(299),JSON.stringify({x:1})]),e=>e.code==="42501");
 });
 test("migration replay is idempotent and checksum drift is rejected",async()=>{
  assert.equal(await applyMigration(admin,"p04-repeat-v1","SELECT 1"),true);assert.equal(await applyMigration(admin,"p04-repeat-v1","SELECT 1"),false);
@@ -47,7 +55,7 @@ test("failed concurrent unique index leaves invalid index and recovery replaces 
  assert.equal((await admin.query("SELECT i.indisvalid FROM pg_class c JOIN pg_index i ON i.indexrelid=c.oid WHERE c.oid=to_regclass('public.p04_events_tenant_created_idx')")).rows[0].indisvalid,true);
 });
 test("ledger/reporting remain unchanged and contract rehearsal is non-destructive",async()=>{
- const r=await admin.query("SELECT count(*)::int j,(SELECT count(*)::int FROM ledger_lines) l,(SELECT sum(amount_minor)::text FROM ledger_lines WHERE side='debit') d,(SELECT sum(amount_minor)::text FROM ledger_lines WHERE side='credit') c");
+ const r=await admin.query("SELECT count(*)::int j,(SELECT count(*)::int FROM ledger_lines) l,(SELECT sum(amount_minor)::text FROM ledger_lines WHERE side='debit') d,(SELECT sum(amount_minor)::text FROM ledger_lines WHERE side='credit') c FROM ledger_journals");
  assert.equal(r.rows[0].j,2);assert.equal(r.rows[0].l,4);assert.equal(r.rows[0].d,r.rows[0].c);
  assert.equal((await admin.query("SELECT sum(event_count)::int n FROM reporting_daily")).rows[0].n,6);
  assert.equal((await admin.query("SELECT count(*)::int n FROM partner_events WHERE canonical_payload IS NULL")).rows[0].n,0);
