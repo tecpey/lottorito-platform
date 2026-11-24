@@ -45,6 +45,8 @@ jobs:
       ADMIN_DATABASE_URL: postgres://postgres:p01-admin-only-not-production@127.0.0.1:5432/lottorito_p01
       DATABASE_URL: postgres://app_runtime:p01-only-not-for-production@127.0.0.1:5432/lottorito_p01
       DISPATCHER_DATABASE_URL: postgres://job_dispatcher:p01-dispatcher-not-for-production@127.0.0.1:5432/lottorito_p01
+      TENANT_A_DATABASE_URL: postgres://tenant_a_runtime:p01-tenant-a-not-for-production@127.0.0.1:5432/lottorito_p01
+      TENANT_B_DATABASE_URL: postgres://tenant_b_runtime:p01-tenant-b-not-for-production@127.0.0.1:5432/lottorito_p01
     steps:
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
