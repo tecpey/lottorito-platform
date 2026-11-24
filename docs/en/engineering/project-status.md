@@ -1,6 +1,6 @@
 # Verified Project Status and Continuation Point
 
-**Document ID:** LOT-OPS-001 | **Version:** 1.25.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-24
+**Document ID:** LOT-OPS-001 | **Version:** 1.26.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-24
 
 ## Verified repository state
 - Repository: tecpey/lottorito-platform; default branch main; public visibility by owner decision.
@@ -95,3 +95,8 @@ Legal entity and operating model; initial jurisdiction; provider and source-of-t
 
 ## Evidence discipline
 This record summarizes repository inspection, not an external audit. Re-fetch PR metadata and commit statuses before relying on a head SHA or CI state.
+
+
+## Latest continuation update — 2026-11-24
+
+The current verified engineering stack is P-01 PR #45 → P-02 PR #46 → P-03 PR #50. All remain Draft/open/unmerged. P-01 run [45425284220](https://github.com/tecpey/lottorito-platform/actions/runs/45425284220) passed 40 tests; P-02 run [45466918625](https://github.com/tecpey/lottorito-platform/actions/runs/45466918625) passed 25 tests; P-03 run [45469172124](https://github.com/tecpey/lottorito-platform/actions/runs/45469172124) passed 10 tests. Documentation Governance run [45469171778](https://github.com/tecpey/lottorito-platform/actions/runs/45469171778) passed on P-03 head 45b37700cb2b9ad633158ba8d5f00b8c7f0553d5. P-04 is opened as Draft PR #51 on branch spike/p04-schema-evolution, based on that exact P-03 head; current P-04 head is a63c0c8363eee4a950d0061ed0fdae0b90948190 and CI is pending. Do not merge, deploy, run destructive contract migrations or modify main without explicit owner approval. PRs #48 and #49 remain separate P-01 export/pool work requiring ancestry and CI reconciliation before integration.
