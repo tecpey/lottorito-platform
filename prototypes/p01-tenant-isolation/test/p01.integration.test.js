@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { once } from "node:events";
 import { Pool } from "pg";
 import { createTenantServer } from "../src/app.js";
+import { withTenantTransaction } from "../src/tenant-db.js";
 import {
   authenticateSyntheticRequest,
   TENANT_A,
@@ -158,6 +159,48 @@ test("runtime role is not superuser, table owner or BYPASSRLS and FORCE RLS is e
   assert.equal(role.relrowsecurity, true);
   assert.equal(role.relforcerowsecurity, true);
   assert.notEqual(role.table_owner, role.runtime_role);
+});
+
+test("RLS blocks cross-tenant UPDATE and DELETE even when the object ID is known", async () => {
+  const update = await withTenantTransaction(pool, TENANT_A, (client) =>
+    client.query(
+      "UPDATE public.tenant_records SET payload = 'tampered' WHERE record_id = $1 RETURNING record_id",
+      [TENANT_B_ONLY_RECORD_ID]
+    )
+  );
+  const remove = await withTenantTransaction(pool, TENANT_A, (client) =>
+    client.query(
+      "DELETE FROM public.tenant_records WHERE record_id = $1 RETURNING record_id",
+      [TENANT_B_ONLY_RECORD_ID]
+    )
+  );
+  assert.equal(update.rowCount, 0);
+  assert.equal(remove.rowCount, 0);
+
+  const stillThere = await request("/records/" + TENANT_B_ONLY_RECORD_ID, {
+    token: "p01-synthetic-token-b"
+  });
+  assert.equal(stillThere.status, 200);
+  assert.equal(stillThere.body.data.payload, "tenant B private fixture");
+});
+
+test("RLS WITH CHECK rejects a cross-tenant insert even if application code is bypassed", async () => {
+  await assert.rejects(
+    withTenantTransaction(pool, TENANT_A, (client) =>
+      client.query(
+        "INSERT INTO public.tenant_records (tenant_id, record_id, natural_key, payload) VALUES ($1, $2, $3, $4)",
+        [TENANT_B, "cccccccc-cccc-4ccc-8ccc-cccccccccccc", "direct-forged", "must be rejected"]
+      )
+    ),
+    (error) => error.code === "42501"
+  );
+
+  // The failed transaction must be rolled back before the pooled connection is reused.
+  const a = await request("/records", { token: "p01-synthetic-token-a" });
+  const b = await request("/records", { token: "p01-synthetic-token-b" });
+  assert.equal(a.status, 200);
+  assert.equal(b.status, 200);
+  assert.equal(b.body.data.some((row) => row.natural_key === "direct-forged"), false);
 });
 
 test("red-team boundary: a compromised shared runtime role can assert another tenant GUC", async () => {
