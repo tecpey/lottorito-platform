@@ -1,6 +1,6 @@
 # P-02 — نمونه دفترکل مالی و تطبیق
 
-**شناسه سند:** LOT-PROT-P02-001 | **نسخه:** ۰.۱.۰ | **وضعیت:** Prototype موقت؛ شواهد CI در انتظار | **تاریخ بازبینی:** ۲۰۲۶-۱۱-۲۴
+**شناسه سند:** LOT-PROT-P02-001 | **نسخه:** ۰.۲.۰ | **وضعیت:** Prototype موقت؛ شواهد CI در انتظار | **تاریخ بازبینی:** ۲۰۲۶-۱۱-۲۴
 
 ## هدف و مرز تصمیم
 
@@ -16,11 +16,11 @@ P-02 یک آزمایش با داده‌های ساختگی برای زیرساخ
 - مبالغ از NUMERIC(38,18) دقیق PostgreSQL استفاده می‌کنند و مرز Node فقط Decimal String می‌پذیرد. برای مبالغ از محاسبات Floating-point در JavaScript استفاده نمی‌شود.
 - هر Journal باید حداقل دو Entry داشته باشد و مجموع Debit/Credit را برای هر Currency به‌صورت مستقل متعادل کند تا بتواند از draft به posted منتقل شود.
 - Foreign Key مرکب Account/Currency مانع ثبت Entry دلاری در Account تتر می‌شود.
-- Scale مجاز ارز در لحظه درج Source Event و Ledger Entry در دیتابیس کنترل می‌شود.
+- Scale مجاز ارز در لحظه درج Source Event و Ledger Entry در دیتابیس کنترل می‌شود؛ Foreign Key مرکب Account/Currency مانع جایگزینی ارز می‌شود.
 - Journal و Entryهای Posted تغییرناپذیرند. اصلاح با Journal برگشتی جدید انجام می‌شود که Entryهای آن باید دقیقاً معکوس اصل باشند؛ Constraint یکتا از برگشت کامل دوم جلوگیری می‌کند.
 - Economic Effect هم با هویت پایدار اثر تجاری و هم با Idempotency Key محافظت می‌شود. Request Fingerprint مانع استفاده مجدد از Key با Payload مالی متفاوت است.
 - تحویل هم‌زمان یک اثر تکراری با Unique Constraint دیتابیس Serialize می‌شود؛ فقط یک Journal/Effect/Outbox باید ثبت نهایی شود.
-- Journal، Economic Effect، Entryها و Outbox Event در یک تراکنش PostgreSQL نوشته می‌شوند. Deferred Constraint Trigger در زمان Commit الزام می‌کند Effect و Outbox فقط به Journal ثبت‌شده اشاره کنند.
+- Journal، Economic Effect، Entryها و Outbox Event در یک تراکنش PostgreSQL نوشته می‌شوند. Deferred Constraint Trigger در زمان Commit الزام می‌کند Effect و Outbox فقط به Journal ثبت‌شده اشاره کنند. وجود Source Event نیز در همان تراکنش و محدوده Tenant/Product بررسی می‌شود.
 - Reconciliation، انتظار ثبت‌شده مستقل Source Event را با Entryهای Posted حساب Affiliate Payable مقایسه می‌کند و Posting مفقود یا نامنطبق را گزارش می‌دهد.
 - مانده حساب‌ها از Ledger Entryهای Posted محاسبه می‌شود؛ هیچ ستون Mutable برای Balance به‌عنوان منبع حقیقت وجود ندارد.
 - تست‌های ساختگی، RLS مربوط به Tenant و Product، دقت Decimal، Idempotency تکراری/هم‌زمان، Journal نامتعادل، دقت اعشار ارز، توازن مستقل ارزها، تغییرناپذیری، Reversal و انحراف Reconciliation را پوشش می‌دهند.
@@ -43,6 +43,11 @@ P-02 یک آزمایش با داده‌های ساختگی برای زیرساخ
 | P02-LEDGER-12 | تغییر/حذف Source Event یا Economic Effect | رد شود |
 | P02-LEDGER-13 | درج مستقیم Journal با وضعیت Posted | رد شود؛ گذار Draft به Posted الزامی است |
 | P02-LEDGER-14 | خواندن Ledger متعلق به Tenant/Product دیگر | RLS هیچ ردیف بیگانه‌ای برنگرداند |
+| P02-LEDGER-15 | محاسبه Decimal دقیق و ثبت مقدار Token | Decimal String بدون تبدیل Floating-point در JavaScript حفظ شود |
+| P02-LEDGER-16 | بررسی Role اجرایی و Query بدون Tenant/Product Context | Runtime مالک جدول و BYPASSRLS نباشد؛ Context غایب هیچ ردیفی برنگرداند |
+| P02-LEDGER-17 | اتصال Entry دلاری به Account تتر | Foreign Key مرکب Account/Currency جایگزینی ارز را رد کند |
+| P02-LEDGER-18 | ثبت Event خارج از محدوده Source Event همان Tenant/Product | Posting پیش از ساخت Journal رد شود |
+| P02-LEDGER-19 | Commit کردن Effect/Outbox متصل به Journal در وضعیت Draft | Deferred Constraint در زمان Commit تراکنش را رد کند |
 
 ## اجرای محلی و بازتولیدپذیری
 
