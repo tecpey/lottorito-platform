@@ -423,6 +423,7 @@ BEGIN
     'ledger.journal.posted',
     jsonb_build_object(
       'journal_id', v_new_journal_id,
+      'effect_id', p_effect_id,
       'source_event_id', p_source_event_id
     )
   );
