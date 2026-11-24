@@ -1,6 +1,6 @@
 # P-04 — تکامل Schema و سازگاری
 
-**شناسه سند:** LOT-PROT-P04-001 | **نسخه:** ۰.۱.۰ | **وضعیت:** Prototype ساختگی؛ CI در انتظار؛ بدون تصویب Migration عملیاتی
+**شناسه سند:** LOT-PROT-P04-001 | **نسخه:** ۰.۲.۰ | **وضعیت:** Prototype ساختگی؛ ۷ تست CI موفق؛ بدون تصویب Migration عملیاتی
 
 ## هدف
 
@@ -35,4 +35,4 @@ Zero Downtime، رفتار Lock/Backfill در مقیاس Production، CDC، جد
 
 ## شواهد
 
-شناسه CI، SHA، تعداد تست و نسخه‌ها فقط پس از تکمیل Workflow ثبت می‌شوند. موفقیت تست ساختگی به‌معنای آمادگی Production یا تصویب فناوری نیست.
+اجرای Integration با شناسه [45471750215](https://github.com/tecpey/lottorito-platform/actions/runs/45471750215) تعداد ۷ تست موفق، صفر شکست و صفر Skip روی Head کد 15c536e5be2f61b1805191f5977a46b17eaf1971 داشته است؛ اجرای تکراری Push با شناسه [45471737779](https://github.com/tecpey/lottorito-platform/actions/runs/45471737779) نیز موفق بوده است. Documentation Governance با شناسه [45471750133](https://github.com/tecpey/lottorito-platform/actions/runs/45471750133) روی همان Head موفق شده است. PostgreSQL 18.7، Node.js 26.13.0، npm ci و pg 8.23.1 استفاده شده‌اند. موفقیت تست ساختگی به‌معنای آمادگی Production یا تصویب فناوری نیست.
