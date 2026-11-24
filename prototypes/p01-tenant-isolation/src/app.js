@@ -1,8 +1,10 @@
 import { createServer } from "node:http";
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID, timingSafeEqual } from "node:crypto";
+import { consumeExportDownloadGrant, issueExportDownloadGrant } from "./export-grants.js";
 import { isUuid, withTenantTransaction } from "./tenant-db.js";
 
 const MAX_BODY_BYTES = 4096;
+const MAX_EXPORT_BYTES = 1024 * 1024;
 
 function respond(res, status, body) {
   res.writeHead(status, {
@@ -17,6 +19,19 @@ function httpError(status, message) {
   const error = new Error(message);
   error.statusCode = status;
   return error;
+}
+
+function respondBinary(res, bytes) {
+  res.writeHead(200, {
+    "content-type": "application/octet-stream",
+    "content-length": String(bytes.length),
+    "content-disposition": 'attachment; filename="export.bin"',
+    "cache-control": "private, no-store",
+    "pragma": "no-cache",
+    "x-content-type-options": "nosniff",
+    "content-security-policy": "default-src 'none'; sandbox"
+  });
+  res.end(bytes);
 }
 
 async function withAuthorizedTenantTransaction(pool, principal, operation) {
@@ -148,9 +163,12 @@ async function readJson(req) {
  * inside the same transaction as tenant data access. Caller tenant IDs are never
  * authorization proof.
  */
-export function createTenantServer({ pool, supportPool, authenticate }) {
+export function createTenantServer({ pool, supportPool, authenticate, objectStore }) {
   if (!pool || typeof authenticate !== "function") {
     throw new TypeError("pool and authenticate are required");
+  }
+  if (objectStore !== undefined && (!objectStore || typeof objectStore.get !== "function")) {
+    throw new TypeError("objectStore must implement get when supplied");
   }
 
   return createServer(async (req, res) => {
@@ -160,8 +178,10 @@ export function createTenantServer({ pool, supportPool, authenticate }) {
       const isJobsCollection = url.pathname === "/jobs";
       const recordMatch = url.pathname.match(/^\/records\/([0-9a-f-]+)$/i);
       const supportMatch = url.pathname.match(/^\/support\/tenants\/([0-9a-f-]+)\/records\/([0-9a-f-]+)$/i);
+      const exportGrantMatch = url.pathname.match(/^\/exports\/([0-9a-f-]+)\/download-grants$/i);
+      const isExportDownload = url.pathname === "/exports/download";
 
-      if (!isCollection && !isJobsCollection && !recordMatch && !supportMatch) {
+      if (!isCollection && !isJobsCollection && !recordMatch && !supportMatch && !exportGrantMatch && !isExportDownload) {
         respond(res, 404, { error: "not_found" });
         return;
       }
@@ -210,6 +230,74 @@ export function createTenantServer({ pool, supportPool, authenticate }) {
 
       if (!isUuid(principal.tenantId)) {
         respond(res, 401, { error: "unauthorized" });
+        return;
+      }
+
+      if (exportGrantMatch) {
+        if (req.method !== "POST") {
+          respond(res, 405, { error: "method_not_allowed" });
+          return;
+        }
+        const exportId = exportGrantMatch[1];
+        if (!isUuid(exportId)) {
+          respond(res, 404, { error: "not_found" });
+          return;
+        }
+        const grant = await issueExportDownloadGrant({
+          pool,
+          tenantId: principal.tenantId,
+          exportId,
+          subjectId: principal.subjectId
+        });
+        if (!grant) {
+          respond(res, 404, { error: "not_found" });
+          return;
+        }
+        respond(res, 201, {
+          data: {
+            token: grant.token,
+            expires_at: grant.expiresAt
+          }
+        });
+        return;
+      }
+
+      if (isExportDownload) {
+        if (req.method !== "GET") {
+          respond(res, 405, { error: "method_not_allowed" });
+          return;
+        }
+        if (!objectStore) {
+          respond(res, 503, { error: "download_unavailable" });
+          return;
+        }
+        const downloadToken = req.headers["x-export-download-token"];
+        if (typeof downloadToken !== "string") {
+          respond(res, 404, { error: "not_found" });
+          return;
+        }
+        const grant = await consumeExportDownloadGrant({
+          pool,
+          tenantId: principal.tenantId,
+          subjectId: principal.subjectId,
+          token: downloadToken
+        });
+        if (!grant) {
+          respond(res, 404, { error: "not_found" });
+          return;
+        }
+        const bytes = await objectStore.get(grant.objectKey);
+        if (!Buffer.isBuffer(bytes) || bytes.length > MAX_EXPORT_BYTES) {
+          respond(res, 404, { error: "not_found" });
+          return;
+        }
+        const actualDigest = createHash("sha256").update(bytes).digest();
+        const expectedDigest = Buffer.from(grant.contentSha256, "hex");
+        if (expectedDigest.length !== actualDigest.length || !timingSafeEqual(actualDigest, expectedDigest)) {
+          respond(res, 502, { error: "export_integrity_failure" });
+          return;
+        }
+        respondBinary(res, bytes);
         return;
       }
 
