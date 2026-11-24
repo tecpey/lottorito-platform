@@ -58,7 +58,7 @@ LOT-FIN-POST-001 کنترل‌های پیشنهادی ثبت مالی و تطب�
 | معماری | [اتوماسیون رشد و محتوا](architecture/growth-content-automation.md) | LOT-GROWTH-001؛ SEO/GEO/AEO چندزبانه و گردش کانال |
 | معماری | [اعلان هوشمند](architecture/smart-notifications.md) | LOT-NOTIF-001؛ Inbox و تحویل تحت Policy |
 | مهندسی | [برنامه Prototype معماری و شواهد](engineering/architecture-prototype-plan.md) | LOT-PROT-001؛ هشت آزمایش الزامی و شواهد پذیرش |
-| مهندسی | [آزمایش P-01 جداسازی Tenant](engineering/prototypes/p01-tenant-isolation.md) | LOT-PROT-P01-001؛ آزمایش محدود HTTP/PostgreSQL RLS، در انتظار شواهد اجرا |
+| مهندسی | [آزمایش P-01 جداسازی Tenant](engineering/prototypes/p01-tenant-isolation.md) | LOT-PROT-P01-001؛ آزمایش محدود HTTP/PostgreSQL RLS و Jobهای Async؛ ۱۹ تست CI موفق شامل مقایسه هویت `session_user` مستقل برای هر Tenant؛ P-01 کامل همچنان نامعین است |
 | مهندسی | [راهنمای عملیاتی ایجنت‌ها](engineering/agent-operating-manual.md) | مسیریابی کم‌هزینه و تحویل کار |
 | مهندسی | [دفتر ثبت تصمیم‌ها](engineering/decision-register.md) | دستور مالک، پیشنهاد و تصمیم باز |
 | مهندسی | [وضعیت پروژه](engineering/project-status.md) | وضعیت تأییدشده و نقطه ادامه |
