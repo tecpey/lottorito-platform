@@ -12,12 +12,12 @@ export function normalizeJournalRequest(input) {
   if (!input || typeof input !== "object" || Array.isArray(input)) {
     throw new TypeError("journal request must be an object");
   }
-  const allowed = new Set(["idempotency_key", "source_event_id", "lines"]);
+  const allowed = new Set(["idempotency_key", "effect_id", "source_event_id", "lines"]);
   if (Object.keys(input).some((key) => !allowed.has(key))) {
     throw new TypeError("journal request contains unsupported fields");
   }
 
-  const { idempotency_key, source_event_id, lines } = input;
+  const { idempotency_key, effect_id, source_event_id, lines } = input;
   if (
     typeof idempotency_key !== "string" ||
     !/^[A-Za-z0-9._:-]{1,128}$/.test(idempotency_key)
@@ -25,6 +25,7 @@ export function normalizeJournalRequest(input) {
     throw new TypeError("idempotency_key must contain 1 to 128 safe characters");
   }
 
+  const normalizedEffectId = requireUuid(effect_id, "effect_id");
   const normalizedSourceEventId = requireUuid(source_event_id, "source_event_id");
   if (!Array.isArray(lines) || lines.length < 2 || lines.length > 100) {
     throw new TypeError("journal must contain between 2 and 100 lines");
@@ -66,6 +67,7 @@ export function normalizeJournalRequest(input) {
 
   return {
     idempotency_key,
+    effect_id: normalizedEffectId,
     source_event_id: normalizedSourceEventId,
     lines: normalizedLines
   };
@@ -77,8 +79,8 @@ export async function postJournal(pool, input) {
   }
   const request = normalizeJournalRequest(input);
   const result = await pool.query(
-    "SELECT journal_id, duplicate FROM public.post_journal($1, $2, $3::jsonb)",
-    [request.idempotency_key, request.source_event_id, JSON.stringify(request.lines)]
+    "SELECT journal_id, duplicate FROM public.post_journal($1, $2, $3, $4::jsonb)",
+    [request.idempotency_key, request.effect_id, request.source_event_id, JSON.stringify(request.lines)]
   );
   if (result.rowCount !== 1 || !result.rows[0]?.journal_id) {
     throw new Error("ledger posting returned an invalid result");
