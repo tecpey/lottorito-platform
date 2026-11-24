@@ -268,7 +268,9 @@ BEGIN
       )
      WHERE line_no IS NULL OR line_no < 1 OR line_no > 100
         OR account_id IS NULL OR account_id !~* '^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
-        OR currency_code IS NULL OR currency_code !~ '^[A-Z]{3}
+        OR currency_code IS NULL OR char_length(currency_code) <> 3 OR currency_code !~ '^[A-Z]{3}'
+        OR direction IS NULL OR direction NOT IN ('debit','credit')
+        OR amount_minor IS NULL OR amount_minor !~ '^[1-9][0-9]{0,37}$'
   ) THEN
     RAISE EXCEPTION 'journal line values are invalid' USING ERRCODE = '22023';
   END IF;
