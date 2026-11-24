@@ -1,6 +1,6 @@
 # Verified Project Status and Continuation Point
 
-**Document ID:** LOT-OPS-001 | **Version:** 0.6.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-24
+**Document ID:** LOT-OPS-001 | **Version:** 0.7.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-24
 
 ## Verified repository state
 - Repository: tecpey/lottorito-platform; default branch main; public visibility by owner decision.
@@ -48,9 +48,10 @@ No application implementation, physical database schema/migrations, CI workflow,
 4. Extend documentation governance with metadata validation and reviewer-owned semantic parity checks; current CI covers paired paths, IDs and local links only.
 5. Review and approve the 12-language portfolio/locale variants, then define native-review coverage and quality gates.
 6. Review live-chat, content/channel automation and smart-notification policies; evaluate providers and integration contracts without enabling campaigns.
-7. Complete cross-product architecture and product-specific release gates.
-8. Decide jurisdiction, operating model, provider due diligence and commercial/financial policies.
-9. Only after decisions, scaffold the platform and implement isolated vertical slices with tests.
+7. Review LOT-GAMING-STRATEGY-001 as a future horizon; run Sportsbook, Live Casino and RNG/E-Gaming provider RFIs only after Affiliate and Lottery priorities, with separate jurisdiction, provider, finance, security and certification gates.
+8. Complete cross-product architecture and product-specific release gates.
+9. Decide jurisdiction, operating model, provider due diligence and commercial/financial policies.
+10. Only after decisions, scaffold the platform and implement isolated vertical slices with tests.
 
 ## Owner decisions still required
 Legal entity and operating model; initial jurisdiction; provider and source-of-truth rules; USD 100 illustrative agent credit; commission/NGR and network progression; account mapping and funding/custody; payout permissions; technology and deployment choices; data residency and retention; official logo source asset.
