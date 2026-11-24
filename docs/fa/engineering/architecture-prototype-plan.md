@@ -1,6 +1,6 @@
 # برنامه Prototype معماری و تولید شواهد Lottorito
 
-**شناسه سند:** LOT-PROT-001 | **نسخه:** ۱.۲.۰ | **وضعیت:** برنامه آزمایش پیشنهادی؛ اجرا و انتخاب فناوری تصویب نشده است
+**شناسه سند:** LOT-PROT-001 | **نسخه:** ۱.۳.۰ | **وضعیت:** برنامه آزمایش پیشنهادی؛ اجرا و انتخاب فناوری تصویب نشده است
 
 ## ۱. هدف و اعتبار
 
@@ -287,4 +287,4 @@ Prototype فقط زمانی **Pass** است که تمام معیارهای اج�
 - LOT-EVENT-001 — قرارداد رویداد canonical.
 - LOT-OPS-001 — وضعیت تأییدشده پروژه.
 
-**یادآوری وضعیت:** برنامه آزمایش همچنان پیشنهادی است. برش محدود P-01 برای HTTP/PostgreSQL RLS در PR شماره ۳۶، در اجرای CI با شناسه [45411486646](https://github.com/tecpey/lottorito-platform/actions/runs/45411486646) هر ۱۹ تست تعریف‌شده را با موفقیت و با Lockfile ثبت‌شده و GitHub Actions دارای SHA ثابت روی Head کد `278ac96a161cd545ca60d4f9d43be220c9eabf16` گذرانده است. این برش Jobهای Async Tenant-scoped، Outbox/Dispatch اتمیک، Claim هم‌زمان Dispatcher، Envelopeهای امضاشده Ed25519، بررسی مجدد Membership در Worker و مدل مقایسه‌ای LOGIN Role مستقل مبتنی بر `session_user` را در Records، Membership و Jobs پوشش می‌دهد. این نتیجه به معنای قبولی کل P-01 نیست: Credential Broker امن، مقیاس Poolها، Cache/Object Storage/Search/Reporting، Support/Break-glass، بار و Recovery هنوز آزمایش نشده‌اند. محدودیت اعتماد GUC با Role مشترک نیز به‌صورت صریح نمایش داده شده است. هیچ تصویب فناوری ادعا نمی‌شود.
+**یادآوری وضعیت:** برنامه آزمایش همچنان پیشنهادی است. برش محدود P-01 برای HTTP/PostgreSQL RLS در PR شماره ۳۶، در اجرای CI با شناسه [45411879156](https://github.com/tecpey/lottorito-platform/actions/runs/45411879156) هر ۱۹ تست تعریف‌شده را با موفقیت و با Lockfile ثبت‌شده و GitHub Actions دارای SHA ثابت روی Head کد `38475c0e47a8ffa485c6f9aeca58e4df8cd921fe` گذرانده است. این برش Jobهای Async Tenant-scoped، Outbox/Dispatch اتمیک، Claim هم‌زمان Dispatcher، Envelopeهای امضاشده Ed25519، بررسی مجدد Membership در Worker و مدل مقایسه‌ای LOGIN Role مستقل مبتنی بر `session_user` را در Records، Membership و Jobs پوشش می‌دهد و مالک SECURITY DEFINER، search_path ثابت و Shadowing در Temporary Schema را نیز آزمایش می‌کند. این نتیجه به معنای قبولی کل P-01 نیست: Credential Broker امن، مقیاس Poolها، Cache/Object Storage/Search/Reporting، Support/Break-glass، بار و Recovery هنوز آزمایش نشده‌اند. محدودیت اعتماد GUC با Role مشترک نیز به‌صورت صریح نمایش داده شده است. هیچ تصویب فناوری ادعا نمی‌شود.
