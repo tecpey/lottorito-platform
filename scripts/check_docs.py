@@ -19,6 +19,9 @@ DOC_ID_RE = re.compile(
     re.MULTILINE,
 )
 LINK_RE = re.compile(r"(?<!!)\[[^\]]*\]\(([^)]+)\)")
+VERSION_RE = re.compile(r"^\*\*(?:Version|نسخه)\s*:\*\*\s*\S+", re.MULTILINE)
+STATUS_RE = re.compile(r"^\*\*(?:Status|وضعیت)\s*:\*\*\s*\S+", re.MULTILINE)
+TITLE_RE = re.compile(r"^#\s+\S", re.MULTILINE)
 
 
 def markdown_files(language: str) -> dict[str, Path]:
@@ -52,8 +55,19 @@ def check_pairs(errors: list[str]) -> int:
 
     ids_by_language: dict[str, dict[str, str]] = {lang: {} for lang in LANGUAGES}
     for relative in sorted(en_paths & fa_paths):
-        en_id = extract_doc_id(files["en"][relative])
-        fa_id = extract_doc_id(files["fa"][relative])
+        en_path, fa_path = files["en"][relative], files["fa"][relative]
+        en_text = en_path.read_text(encoding="utf-8")
+        fa_text = fa_path.read_text(encoding="utf-8")
+        en_id = extract_doc_id(en_path)
+        fa_id = extract_doc_id(fa_path)
+        for lang, path, content in (("en", en_path, en_text), ("fa", fa_path, fa_text)):
+            rel_path = path.relative_to(ROOT)
+            if not TITLE_RE.search(content):
+                errors.append(f"Missing level-one Markdown title: {rel_path}")
+            if not VERSION_RE.search(content):
+                errors.append(f"Missing document version metadata: {rel_path}")
+            if not STATUS_RE.search(content):
+                errors.append(f"Missing document status metadata: {rel_path}")
         if not en_id:
             errors.append(f"Missing stable document ID: docs/en/{relative}")
         if not fa_id:
