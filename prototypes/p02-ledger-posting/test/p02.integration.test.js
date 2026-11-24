@@ -183,7 +183,7 @@ test("a financial effect identity cannot be reused for changed economic content"
   await postJournal(tenantAPool, request("p02-effect-mismatch-a", balancedUsd("901"), EVENT_1, effectId));
   await assert.rejects(
     postJournal(tenantAPool, request("p02-effect-mismatch-b", balancedUsd("902"), EVENT_1, effectId)),
-    (error) => error.code === "22023" && error.message.includes("different request content")
+    (error) => error.code === "22023" && error.message.includes("different economic content")
   );
   assert.equal(await journalCount(TENANT_A, "p02-effect-mismatch-a"), 1);
   assert.equal(await journalCount(TENANT_A, "p02-effect-mismatch-b"), 0);
