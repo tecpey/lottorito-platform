@@ -1,8 +1,8 @@
 # P-01 Support Access and Break-Glass Prototype
 
 **Document ID:** LOT-PROT-P01-SUPPORT-001  
-**Version:** 0.2.0  
-**Status:** Synthetic experiment slice implemented; CI passed; production controls not verified  
+**Version:** 0.3.0  
+**Status:** Synthetic experiment slice implemented; 27 CI tests passed; production controls not verified  
 **Parent experiment:** LOT-PROT-P01-001 / PR #36
 
 ## Purpose
@@ -13,7 +13,7 @@ This is a disposable synthetic-data experiment. It is not a production support c
 
 ## Proposed trust boundaries
 
-- A support principal is distinct from a tenant member and cannot use ordinary tenant routes.
+- A support principal is distinct from a tenant member and cannot use ordinary tenant routes. Attempts to use ordinary tenant routes are denied and audited with an explicit `tenant-route:denied` event; no tenant/resource identifier is fabricated.
 - A support grant binds the support subject, target tenant, resource scope, human-readable reason, expiry and revocation state.
 - The caller may present a grant identifier and target tenant, but neither is authorization proof. The database must match both to the authenticated support subject and an active grant.
 - A dedicated support-authorizer DB role can read grant metadata and append audit events. RLS scopes grant metadata and audit inserts to the authenticated support subject using a transaction-local context set by the trusted API process. The role cannot read tenant records, jobs, wallet data or other payload tables. This context is an application trust boundary, not protection against compromise of the support-authorizer credential or arbitrary SQL execution.
@@ -57,7 +57,7 @@ This is a disposable synthetic-data experiment. It is not a production support c
 
 ## Reproduction and evidence
 
-Implementation and synthetic fixtures are present on the stacked support branch. The integration suite exercises active/expired/revoked/mismatched grants, support-vs-tenant route separation, payload-table denial, audit-table restrictions and grant-revocation locking. CI result: PASS — [P-01 Tenant Isolation run 45414502363](https://github.com/tecpey/lottorito-platform/actions/runs/45414502363) on head `39fda51d98a65957906d670556aae7c6969cd9df`; 27 Node tests passed, 0 failed, 0 skipped, on Node.js 26.13.0 + PostgreSQL 18.7. [Documentation Governance run 45414502359](https://github.com/tecpey/lottorito-platform/actions/runs/45414502359) also passed. The support-specific cases cover subject-scoped grant RLS, active grant read/audit, expiry/revocation/mismatch denials, role separation, least privilege and grant-revocation locking. This is CI evidence for the synthetic slice only, not production support readiness.
+Implementation and synthetic fixtures are present on the stacked support branch. The integration suite exercises active/expired/revoked/mismatched grants, support-vs-tenant route separation, payload-table denial, audit-table restrictions and grant-revocation locking. CI result: PASS — [P-01 Tenant Isolation run 45415291914](https://github.com/tecpey/lottorito-platform/actions/runs/45415291914) on head `f564e6a05780da67f962d7415bb792402775b12f`; 27 Node tests passed, 0 failed, 0 skipped, on Node.js 26.13.0 + PostgreSQL 18.7. The suite includes audit coverage for denied ordinary support-route attempts. [Documentation Governance run 45415291755](https://github.com/tecpey/lottorito-platform/actions/runs/45415291755) also passed. The support-specific cases cover subject-scoped grant RLS, active grant read/audit, expiry/revocation/mismatch denials, role separation, least privilege and grant-revocation locking. This is CI evidence for the synthetic slice only, not production support readiness.
 
 For local reproduction, start the disposable PostgreSQL service from `prototypes/p01-tenant-isolation`, then export `ADMIN_DATABASE_URL`, `DATABASE_URL`, `DISPATCHER_DATABASE_URL` and `SUPPORT_DATABASE_URL` using the synthetic values documented in the parent P-01 runbook. Run `npm ci --ignore-scripts --no-audit --no-fund` and `npm test`. Never use these values against shared, staging or production databases.
 
