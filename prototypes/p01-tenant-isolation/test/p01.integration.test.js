@@ -29,6 +29,7 @@ const SUPPORT_GRANT_ACTIVE = "33333333-3333-4333-8333-333333333333";
 const SUPPORT_GRANT_EXPIRED = "44444444-4444-4444-8444-444444444444";
 const SUPPORT_GRANT_REVOKED = "55555555-5555-4555-8555-555555555555";
 const SUPPORT_GRANT_OTHER_TENANT = "66666666-6666-4666-8666-666666666666";
+const SUPPORT_GRANT_OTHER_SUBJECT = "88888888-8888-4888-8888-888888888888";
 
 const { privateKey: jobSigningPrivateKeyObject, publicKey: jobVerifyPublicKeyObject } =
   generateKeyPairSync("ed25519");
@@ -61,6 +62,28 @@ async function request(path, options = {}) {
   return { status: response.status, body: await response.json() };
 }
 
+async function withSupportSubject(subjectId, operation) {
+  const client = await supportPool.connect();
+  let transactionOpen = false;
+  let destroyConnection = null;
+  try {
+    await client.query("BEGIN");
+    transactionOpen = true;
+    await client.query("SELECT set_config('app.support_subject_id', $1, true)", [subjectId]);
+    const result = await operation(client);
+    await client.query("COMMIT");
+    transactionOpen = false;
+    return result;
+  } catch (error) {
+    if (transactionOpen) {
+      try { await client.query("ROLLBACK"); } catch (rollbackError) { destroyConnection = rollbackError; }
+    }
+    throw error;
+  } finally {
+    client.release(destroyConnection);
+  }
+}
+
 before(async () => {
   server.listen(0, "127.0.0.1");
   await once(server, "listening");
@@ -72,8 +95,9 @@ before(async () => {
       ($1, 'synthetic-support-a', $2, 'records:read', 'Customer requested investigation of record visibility', clock_timestamp() + interval '1 hour', NULL),
       ($3, 'synthetic-support-a', $2, 'records:read', 'Expired synthetic support investigation reason', clock_timestamp() - interval '1 hour', NULL),
       ($4, 'synthetic-support-a', $2, 'records:read', 'Revoked synthetic support investigation reason', clock_timestamp() + interval '1 hour', clock_timestamp()),
-      ($5, 'synthetic-support-a', $6, 'records:read', 'Wrong tenant synthetic investigation reason', clock_timestamp() + interval '1 hour', NULL)`,
-    [SUPPORT_GRANT_ACTIVE, TENANT_A, SUPPORT_GRANT_EXPIRED, SUPPORT_GRANT_REVOKED, SUPPORT_GRANT_OTHER_TENANT, TENANT_B]
+      ($5, 'synthetic-support-a', $6, 'records:read', 'Wrong tenant synthetic investigation reason', clock_timestamp() + interval '1 hour', NULL),
+      ($7, 'synthetic-support-b', $2, 'records:read', 'Other support subject synthetic grant reason', clock_timestamp() + interval '1 hour', NULL)`,
+    [SUPPORT_GRANT_ACTIVE, TENANT_A, SUPPORT_GRANT_EXPIRED, SUPPORT_GRANT_REVOKED, SUPPORT_GRANT_OTHER_TENANT, TENANT_B, SUPPORT_GRANT_OTHER_SUBJECT]
   );
 });
 
@@ -647,11 +671,33 @@ test("database access without transaction-local tenant context is default-deny",
 });
 
 
+test("support grant RLS exposes only the authenticated support subject's metadata", async () => {
+  const hidden = await withSupportSubject("synthetic-support-a", (client) =>
+    client.query("SELECT grant_id FROM public.support_grants WHERE grant_id = $1", [SUPPORT_GRANT_OTHER_SUBJECT])
+  );
+  assert.equal(hidden.rowCount, 0);
+
+  const visible = await withSupportSubject("synthetic-support-b", (client) =>
+    client.query("SELECT grant_id FROM public.support_grants WHERE grant_id = $1", [SUPPORT_GRANT_OTHER_SUBJECT])
+  );
+  assert.equal(visible.rowCount, 1);
+
+  await assert.rejects(
+    withSupportSubject("synthetic-support-a", (client) =>
+      client.query(
+        "INSERT INTO public.support_audit (audit_id, support_subject_id, tenant_id, resource_id, action, outcome, reason) VALUES ($1, $2, $3, $4, 'records:read', 'denied', $5)",
+        ["99999999-9999-4999-8999-999999999999", "synthetic-support-b", TENANT_A, SHARED_RECORD_ID, "forged subject audit event"]
+      )
+    ),
+    (error) => error.code === "42501"
+  );
+});
+
 test("support principal can read only a tenant record covered by its active grant and emits an audit event", async () => {
-  const visibleGrant = await supportPool.query(
+  const visibleGrant = await withSupportSubject("synthetic-support-a", (client) => client.query(
     "SELECT grant_id, support_subject_id, tenant_id, resource_scope, revoked_at, expires_at FROM public.support_grants WHERE grant_id = $1 AND support_subject_id = $2 AND tenant_id = $3 AND resource_scope = 'records:read' AND revoked_at IS NULL AND expires_at > clock_timestamp()",
     [SUPPORT_GRANT_ACTIVE, "synthetic-support-a", TENANT_A]
-  );
+  ));
   assert.equal(visibleGrant.rowCount, 1, "support_authorizer must see the exact active grant before the HTTP authorization path");
   const result = await request("/support/tenants/" + TENANT_A + "/records/" + SHARED_RECORD_ID, {
     token: "p01-synthetic-support-token",
@@ -785,6 +831,7 @@ test("grant revocation blocks behind an in-flight authorized support read lock",
   let locked = false;
   try {
     await lockClient.query("BEGIN");
+    await lockClient.query("SELECT set_config('app.support_subject_id', $1, true)", ["synthetic-support-a"]);
     const grant = await lockClient.query(
       "SELECT grant_id FROM public.support_grants WHERE grant_id = $1 AND revoked_at IS NULL FOR SHARE",
       [SUPPORT_GRANT_ACTIVE]
