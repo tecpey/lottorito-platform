@@ -30,8 +30,8 @@ const installation = {
   active: true
 };
 const keys = [
-  { id: "current-v2", secret: "p03-current-synthetic-secret-not-production" },
-  { id: "previous-v1", secret: "p03-previous-synthetic-secret-not-production" }
+  { id: "current-v2", secret: "whsec_cDAzLWN1cnJlbnQtc3ludGhldGljLXNlY3JldC1ub3QtcHJvZHVjdGlvbg==" },
+  { id: "previous-v1", secret: "whsec_cDAzLXByZXZpb3VzLXN5bnRoZXRpYy1zZWNyZXQtbm90LXByb2R1Y3Rpb24=" }
 ];
 const adminPool = new Pool({ connectionString: process.env.ADMIN_DATABASE_URL, max: 4 });
 const runtimePool = new Pool({ connectionString: process.env.RUNTIME_DATABASE_URL, max: 1 });
