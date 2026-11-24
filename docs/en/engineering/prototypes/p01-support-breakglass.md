@@ -1,6 +1,6 @@
 # P-01 Support Access and Break-Glass Prototype
 
-**Document ID:** LOT-PROT-P01-SUPPORT-001  
+**Document ID:** LOT-PROT-P01-SUPPORT-001 | **Version:** 0.1.0 | **Status:** Implemented prototype slice; CI verification pending  
 **Status:** Implemented prototype slice; CI verification pending  
 **Parent experiment:** LOT-PROT-P01-001
 
