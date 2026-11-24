@@ -7,7 +7,8 @@ import {
   authenticateSyntheticRequest,
   TENANT_A,
   TENANT_B,
-  SHARED_RECORD_ID
+  SHARED_RECORD_ID,
+  TENANT_B_ONLY_RECORD_ID
 } from "./fixtures.js";
 
 const databaseUrl = process.env.DATABASE_URL;
@@ -77,6 +78,18 @@ test("the same object UUID resolves only inside the authenticated tenant", async
   assert.equal(b.status, 200);
   assert.equal(a.body.data.payload, "synthetic tenant A fixture");
   assert.equal(b.body.data.payload, "synthetic tenant B fixture");
+});
+
+test("tenant A cannot read a tenant-B-only object even when it knows the identifier", async () => {
+  const denied = await request("/records/" + TENANT_B_ONLY_RECORD_ID, {
+    token: "p01-synthetic-token-a"
+  });
+  const allowed = await request("/records/" + TENANT_B_ONLY_RECORD_ID, {
+    token: "p01-synthetic-token-b"
+  });
+  assert.equal(denied.status, 404);
+  assert.equal(allowed.status, 200);
+  assert.equal(allowed.body.data.payload, "tenant B private fixture");
 });
 
 test("a forged tenant_id in a write body is rejected without a side effect", async () => {
