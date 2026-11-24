@@ -52,18 +52,18 @@ RLS یک لایه دفاع در عمق است و جایگزین احراز هو�
 
 ## روش اجرای مجدد
 
-از این پوشه دو Connection String برای دیتابیس موقت و دورریختنی فراهم کنید:
-- ADMIN_DATABASE_URL: اتصال Admin به دیتابیس محلی موقت، فقط برای ساخت Role/Table آزمایش.
-- DATABASE_URL: اتصال Role به نام app_runtime که برنامه و تست‌ها از آن استفاده می‌کنند.
-
-سپس اجرا کنید:
+از این پوشه دیتابیس محلی موقت را اجرا کنید:
 
 ```sh
+docker compose -f compose.yaml up -d --wait
+export ADMIN_DATABASE_URL='postgres://postgres:p01-admin-only-not-production@127.0.0.1:55432/lottorito_p01'
+export DATABASE_URL='postgres://app_runtime:p01-only-not-for-production@127.0.0.1:55432/lottorito_p01'
 npm install --ignore-scripts --no-audit --no-fund
 npm test
+docker compose -f compose.yaml down
 ```
 
-Workflow یک سرویس موقت PostgreSQL 18.7 ایجاد می‌کند و فقط از Credentialهای ساختگی استفاده می‌کند. اسکریپت SQL جدول Prototype را حذف و دوباره ایجاد می‌کند؛ هرگز آن را به دیتابیس مشترک، Staging یا Production متصل نکنید.
+Workflow یک سرویس موقت PostgreSQL 18.7 ایجاد می‌کند و فقط از Credentialهای ساختگی استفاده می‌کند. Workflow امکان اجرای دستی نیز دارد. اسکریپت SQL جدول Prototype را حذف و دوباره ایجاد می‌کند؛ هرگز آن را به دیتابیس مشترک، Staging یا Production متصل نکنید.
 
 ## محدودیت Dependency و CI
 
