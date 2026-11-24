@@ -1,9 +1,12 @@
-import { createHmac, timingSafeEqual } from "node:crypto";
+import { createPrivateKey, createPublicKey, sign, verify } from "node:crypto";
 import { isUuid } from "./tenant-db.js";
+
+const ENVELOPE_KEY_ID = "p01-test-ed25519-v1";
 
 function envelopePayload(envelope) {
   return [
     "lottorito-p01-job-envelope-v1",
+    envelope.key_id,
     envelope.tenant_id,
     envelope.job_id,
     String(envelope.attempt),
@@ -11,14 +14,10 @@ function envelopePayload(envelope) {
   ].join("\n");
 }
 
-function assertSecret(secret) {
-  if (typeof secret !== "string" || Buffer.byteLength(secret, "utf8") < 32) {
-    throw new TypeError("JOB_ENVELOPE_SECRET must contain at least 32 UTF-8 bytes");
+export function signJobEnvelope(fields, privateKeyPem) {
+  if (typeof privateKeyPem !== "string" || privateKeyPem.length === 0) {
+    throw new TypeError("dispatcher Ed25519 private key is required");
   }
-}
-
-export function signJobEnvelope(fields, secret) {
-  assertSecret(secret);
   if (!isUuid(fields.tenant_id) || !isUuid(fields.job_id)) {
     throw new TypeError("tenant_id and job_id must be valid UUIDs");
   }
@@ -31,32 +30,36 @@ export function signJobEnvelope(fields, secret) {
 
   const envelope = {
     version: 1,
+    key_id: ENVELOPE_KEY_ID,
     tenant_id: fields.tenant_id,
     job_id: fields.job_id,
     attempt: fields.attempt,
     issued_at: fields.issued_at
   };
-  envelope.signature = createHmac("sha256", secret)
-    .update(envelopePayload(envelope), "utf8")
-    .digest("base64url");
+  envelope.signature = sign(
+    null,
+    Buffer.from(envelopePayload(envelope), "utf8"),
+    createPrivateKey(privateKeyPem)
+  ).toString("base64url");
   return envelope;
 }
 
-export function verifyJobEnvelope(envelope, secret) {
+export function verifyJobEnvelope(envelope, publicKeyPem) {
   try {
-    assertSecret(secret);
-    if (!envelope || envelope.version !== 1 ||
+    if (!envelope || envelope.version !== 1 || envelope.key_id !== ENVELOPE_KEY_ID ||
         !isUuid(envelope.tenant_id) || !isUuid(envelope.job_id) ||
         !Number.isSafeInteger(envelope.attempt) || envelope.attempt < 1 ||
         !Number.isSafeInteger(envelope.issued_at) || envelope.issued_at < 1 ||
-        typeof envelope.signature !== "string") {
+        typeof envelope.signature !== "string" ||
+        typeof publicKeyPem !== "string" || publicKeyPem.length === 0) {
       return false;
     }
-    const expected = createHmac("sha256", secret)
-      .update(envelopePayload(envelope), "utf8")
-      .digest();
-    const actual = Buffer.from(envelope.signature, "base64url");
-    return actual.length === expected.length && timingSafeEqual(actual, expected);
+    return verify(
+      null,
+      Buffer.from(envelopePayload(envelope), "utf8"),
+      createPublicKey(publicKeyPem),
+      Buffer.from(envelope.signature, "base64url")
+    );
   } catch {
     return false;
   }
@@ -66,8 +69,10 @@ export function verifyJobEnvelope(envelope, secret) {
  * Claims one global dispatch-metadata row. The dispatcher can see tenant/job
  * identifiers and status only; it has no grant on tenant_jobs or payloads.
  */
-export async function claimNextJob(dispatcherPool, secret, { leaseSeconds = 30 } = {}) {
-  assertSecret(secret);
+export async function claimNextJob(dispatcherPool, privateKeyPem, { leaseSeconds = 30 } = {}) {
+  if (typeof privateKeyPem !== "string" || privateKeyPem.length === 0) {
+    throw new TypeError("dispatcher Ed25519 private key is required");
+  }
   if (!Number.isSafeInteger(leaseSeconds) || leaseSeconds < 0 || leaseSeconds > 3600) {
     throw new RangeError("leaseSeconds must be an integer between 0 and 3600");
   }
@@ -114,7 +119,7 @@ export async function claimNextJob(dispatcherPool, secret, { leaseSeconds = 30 }
       job_id: row.job_id,
       attempt: claimed.rows[0].attempts,
       issued_at: Date.now()
-    }, secret);
+    }, privateKeyPem);
   } catch (error) {
     if (transactionOpen) {
       try {
@@ -130,8 +135,8 @@ export async function claimNextJob(dispatcherPool, secret, { leaseSeconds = 30 }
 }
 
 /** A stale attempt cannot acknowledge a job that has since been reclaimed. */
-export async function acknowledgeJob(dispatcherPool, envelope, secret) {
-  if (!verifyJobEnvelope(envelope, secret)) return false;
+export async function acknowledgeJob(dispatcherPool, envelope, publicKeyPem) {
+  if (!verifyJobEnvelope(envelope, publicKeyPem)) return false;
   const result = await dispatcherPool.query(
     `UPDATE public.job_dispatch
         SET status = 'completed', claimed_at = NULL
