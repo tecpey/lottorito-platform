@@ -43,6 +43,7 @@
 | P02-LEDGER-18 | یک Source Event با دو Effect ID مستقل | دو ثبت مستقل و معتبر |
 | P02-LEDGER-19 | مالکیت، Search Path و مجوزهای SECURITY DEFINER | مالک NOLOGIN مورد اعتماد، مسیر امن ثابت و اجرای محدود به Tenant |
 | P02-LEDGER-20 | رویداد Outbox شناسه پایدار Effect را حمل می‌کند | Consumer پایین‌دستی همان Effect ID سند را دریافت می‌کند |
+| P02-LEDGER-21 | استفاده مجدد از Alias پذیرفته‌شده برای Effect دیگر | تعارض قطعی؛ Effect مالی جدید باقی نماند |
 
 ## موارد خارج از محدوده و تصمیم‌های باز
 
