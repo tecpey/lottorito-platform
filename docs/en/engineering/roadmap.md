@@ -9,7 +9,7 @@
 5. **Technology & Platform ADRs:** select stack and deployment model through evidence-backed ADRs; define secure configuration, logging, health, reliability and baseline CI.
 6. **Identity & Tenant Implementation:** identity, sessions, RBAC, tenant membership and isolation tests.
 7. **Affiliate & Attribution:** profiles, referral network, tracking links, events and attribution.
-8. **Finance Core:** review LOT-FIN-001; approve account ownership, chart of accounts, immutable posting, balance semantics, statements, reconciliation and payout gates.
+8. **Finance Core:** review LOT-FIN-POST-001; approve account ownership, chart of accounts, immutable posting, balance semantics, statements, reconciliation and payout gates.
 9. **Commission Engine:** versioned rules, CPA/Revenue Share/Hybrid and reproducible calculations.
 10. **Affiliate Partner Pilot:** obtain actual partner documentation and sandbox, build the Affiliate adapter and contract tests.
 11. **Lottery Provider Discovery & Certification:** legal/provider due diligence, capability profile, sandbox evidence, lifecycle adapter and result/settlement reconciliation; only after owner approval.
