@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { after, test } from "node:test";
+import { after, beforeEach, test } from "node:test";
 import { randomUUID } from "node:crypto";
 import { Pool } from "pg";
 import {
@@ -41,6 +41,15 @@ after(async () => {
   await runtimePool.end();
   await runtimePool2.end();
   await adminPool.end();
+});
+
+beforeEach(async () => {
+  await adminPool.query(`TRUNCATE TABLE
+    public.webhook_delivery_attempts,
+    public.outbound_webhook_deliveries,
+    public.provider_event_conflicts,
+    public.provider_event_expectations,
+    public.provider_event_inbox`);
 });
 
 function buildWebhook({
