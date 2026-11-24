@@ -8,7 +8,7 @@
 - PR #20's current head must be read from live PR metadata; historical SHAs in this document are not authoritative.
 - The repository work remains documentation-first. No runtime application, physical schema, provider integration, sandbox, financial posting, payout or production deployment is verified.
 - Added scripts/check_docs.py and .github/workflows/docs-governance.yml for bilingual path/ID and local-link structure checks. The first run correctly exposed that the two language indexes use EN/FA-qualified IDs; normalization was added. The Documentation Governance workflow then passed on PR head 78e47168e67b14ccc2be9df7ceae79fbf56eb59e (run 45345429559). This validates structure and local links only, not semantic translation parity.
-- The structural Documentation Governance workflow has passed on an earlier head (20 bilingual Markdown pairs; 44 local links). Re-run it after the latest changes; no result for the current head is claimed yet.
+- The Documentation Governance workflow passed on PR head b0c1045a3bd7af1e35a8eab590123e8c682d21d1 (run 45347450316): 21 bilingual Markdown pairs and 47 local links checked. This is structural validation only; semantic translation parity still requires human review.
 
 ## Documentation baseline
 The branch docs/agent-ready-foundation-v1 contains proposed bilingual references:
