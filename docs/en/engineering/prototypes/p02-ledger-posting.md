@@ -1,6 +1,6 @@
 # P-02 Tenant-Bound Double-Entry Ledger Posting
 
-**Document ID:** LOT-PROT-P02-001 | **Version:** 0.3.0 | **Status:** Synthetic prototype; financial-effect deduplication added; CI re-verification pending
+**Document ID:** LOT-PROT-P02-001 | **Version:** 0.4.0 | **Status:** Synthetic prototype; security-definer grants/search-path assertions added; latest CI pending
 
 ## Purpose and authority
 
@@ -41,6 +41,7 @@ This is an engineering experiment, not an accounting policy, commission/NGR spec
 | P02-LEDGER-16 | Concurrent requests with different keys but one effect ID | Exactly one journal and one outbox event |
 | P02-LEDGER-17 | Same effect ID reused with changed economic content | Deterministic conflict; no second journal |
 | P02-LEDGER-18 | One source event produces two distinct effect IDs | Two independent valid postings |
+| P02-LEDGER-19 | SECURITY DEFINER owner, search_path and execute grants | Trusted NOLOGIN owner, fixed safe path, tenant-only execution |
 
 ## Explicit non-goals and unresolved decisions
 
