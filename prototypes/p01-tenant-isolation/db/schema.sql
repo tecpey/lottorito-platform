@@ -89,6 +89,57 @@ ALTER FUNCTION private.current_tenant_id() OWNER TO tenant_identity_owner;
 REVOKE ALL ON FUNCTION private.current_tenant_id() FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION private.current_tenant_id() TO tenant_a_runtime, tenant_b_runtime;
 
+-- Alternative identity-bound isolation experiment: a database login identity
+-- maps to exactly one tenant. These are synthetic per-tenant credentials.
+DO $tenant_roles$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'tenant_a_runtime') THEN
+    CREATE ROLE tenant_a_runtime LOGIN PASSWORD 'p01-tenant-a-not-for-production'
+      NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'tenant_b_runtime') THEN
+    CREATE ROLE tenant_b_runtime LOGIN PASSWORD 'p01-tenant-b-not-for-production'
+      NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'tenant_identity_owner') THEN
+    CREATE ROLE tenant_identity_owner NOLOGIN
+      NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
+  END IF;
+END;
+$tenant_roles$;
+
+ALTER ROLE tenant_a_runtime LOGIN PASSWORD 'p01-tenant-a-not-for-production'
+  NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
+ALTER ROLE tenant_b_runtime LOGIN PASSWORD 'p01-tenant-b-not-for-production'
+  NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
+ALTER ROLE tenant_identity_owner NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
+
+CREATE SCHEMA IF NOT EXISTS private AUTHORIZATION tenant_identity_owner;
+REVOKE ALL ON SCHEMA private FROM PUBLIC;
+GRANT USAGE ON SCHEMA private TO tenant_a_runtime, tenant_b_runtime;
+
+CREATE TABLE IF NOT EXISTS private.tenant_role_map (
+  database_role name PRIMARY KEY,
+  tenant_id uuid NOT NULL UNIQUE
+);
+ALTER TABLE private.tenant_role_map OWNER TO tenant_identity_owner;
+GRANT SELECT ON private.tenant_role_map TO tenant_identity_owner;
+
+CREATE OR REPLACE FUNCTION private.current_tenant_id()
+RETURNS uuid
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = pg_catalog, private, pg_temp
+AS $function$
+  SELECT tenant_id
+    FROM private.tenant_role_map
+   WHERE database_role = session_user::name
+$function$;
+ALTER FUNCTION private.current_tenant_id() OWNER TO tenant_identity_owner;
+REVOKE ALL ON FUNCTION private.current_tenant_id() FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION private.current_tenant_id() TO tenant_a_runtime, tenant_b_runtime;
+
 DROP TABLE IF EXISTS public.support_audit;
 DROP TABLE IF EXISTS public.support_grants;
 DROP TABLE IF EXISTS public.job_dispatch;
