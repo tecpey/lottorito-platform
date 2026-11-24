@@ -42,6 +42,7 @@ This is an engineering experiment, not an accounting policy, commission/NGR spec
 | P02-LEDGER-17 | Same effect ID reused with changed economic content | Deterministic conflict; no second journal |
 | P02-LEDGER-18 | One source event produces two distinct effect IDs | Two independent valid postings |
 | P02-LEDGER-19 | SECURITY DEFINER owner, search_path and execute grants | Trusted NOLOGIN owner, fixed safe path, tenant-only execution |
+| P02-LEDGER-20 | Outbox event carries stable effect identity | Downstream consumers receive the same effect ID as the journal |
 
 ## Explicit non-goals and unresolved decisions
 
