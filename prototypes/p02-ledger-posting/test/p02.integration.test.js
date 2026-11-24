@@ -143,6 +143,11 @@ test("a repeated financial effect with a different request key returns the origi
     (error) => error.code === "22023" && error.message.includes("idempotency key was reused")
   );
   assert.equal(await journalCount(TENANT_A, "p02-effect-new-transport-key"), 1);
+  const rejectedEffect = await adminPool.query(
+    "SELECT count(*)::int AS count FROM public.financial_effects WHERE tenant_id = $1 AND effect_id = $2",
+    [TENANT_A, effectIdFor("p02-different-effect")]
+  );
+  assert.equal(rejectedEffect.rows[0].count, 0);
 });
 
 test("concurrent delivery with different request keys but one financial effect creates one journal", async () => {
