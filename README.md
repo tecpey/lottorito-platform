@@ -82,17 +82,18 @@ flowchart TB
       API[Public APIs / Embedded / SSO]
     end
 
-    SURF --> CORE
-
     subgraph CORE[Independent product domains]
       AFF[Affiliate and Agent Domain]
       LOT[Lottery Domain]
     end
 
+    SURF --> AFF
+    SURF --> LOT
     AFF --> AAD[Affiliate Partner Adapters]
     LOT --> LAD[Lottery Provider Adapters]
 
-    CORE -. governed integration only .-> SHARED
+    AFF -. shared platform capabilities .-> SHARED
+    LOT -. shared platform capabilities .-> SHARED
 
     subgraph SHARED[Cross-cutting platform capabilities]
       IAM[Identity, Tenant and Authorization]
@@ -246,17 +247,18 @@ flowchart TB
       API[API عمومی / Embedded / SSO]
     end
 
-    SURF --> CORE
-
     subgraph CORE[دامنه‌های مستقل محصول]
       AFF[دامنه Affiliate و Agent]
       LOT[دامنه Lottery]
     end
 
+    SURF --> AFF
+    SURF --> LOT
     AFF --> AAD[Adapterهای شرکای Affiliate]
     LOT --> LAD[Adapterهای ارائه‌دهندگان Lottery]
 
-    CORE -. یکپارچه‌سازی تحت حاکمیت مشخص .-> SHARED
+    AFF -. استفاده از قابلیت‌های مشترک پلتفرم .-> SHARED
+    LOT -. استفاده از قابلیت‌های مشترک پلتفرم .-> SHARED
 
     subgraph SHARED[قابلیت‌های مشترک و سراسری]
       IAM[هویت، Tenant و مجوزدهی]
