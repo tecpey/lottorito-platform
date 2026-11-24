@@ -45,6 +45,7 @@ export class TenantPoolRegistry {
     this.pending = new Map();
     this.revokedTenants = new Set();
     this.closed = false;
+    this.closePromise = null;
     this.creationTail = Promise.resolve();
   }
 
@@ -91,17 +92,20 @@ export class TenantPoolRegistry {
   }
 
   async close() {
-    if (this.closed) return;
+    if (this.closePromise) return this.closePromise;
     this.closed = true;
-    for (const tenantId of this.entries.keys()) this.revokedTenants.add(tenantId);
-    for (const entry of this.entries.values()) {
-      entry.revoked = true;
-      entry.retireWhenIdle = true;
-    }
-    await Promise.allSettled([...this.pending.values()]);
-    const entries = [...this.entries.values()];
-    await Promise.all(entries.map((entry) => this.#maybeCloseRetired(entry)));
-    await Promise.all(entries.map((entry) => entry.closedPromise));
+    this.closePromise = (async () => {
+      for (const tenantId of this.entries.keys()) this.revokedTenants.add(tenantId);
+      for (const entry of this.entries.values()) {
+        entry.revoked = true;
+        entry.retireWhenIdle = true;
+      }
+      await Promise.allSettled([...this.pending.values()]);
+      const entries = [...this.entries.values()];
+      await Promise.all(entries.map((entry) => this.#maybeCloseRetired(entry)));
+      await Promise.all(entries.map((entry) => entry.closedPromise));
+    })();
+    return this.closePromise;
   }
 
   get size() {
@@ -132,7 +136,10 @@ export class TenantPoolRegistry {
         throw new Error("tenant database access is unavailable");
       }
       const raced = this.entries.get(tenantId);
-      if (raced && !raced.revoked && !raced.retireWhenIdle && !raced.closed) return raced;
+      if (raced && !raced.revoked && !raced.retireWhenIdle && !raced.closed) {
+        raced.pendingLeases += 1;
+        return raced;
+      }
       await this.#ensureCapacity();
 
       let credential;
