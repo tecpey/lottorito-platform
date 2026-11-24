@@ -50,12 +50,17 @@ test.after(async () => {
 
 test("claim is tenant-scoped and returns the immutable event envelope", async () => {
   const a = await seedEvent(TENANT_A);
-  await seedEvent(TENANT_B);
+  const b = await seedEvent(TENANT_B);
   const claimed = await claimOutboxEvents(tenantAPool, { workerId: "tenant-a-worker", batchSize: 10, leaseSeconds: 30 });
   assert.equal(claimed.length, 1);
   assert.equal(claimed[0].event_id, a.eventId);
   assert.deepEqual(claimed[0].payload, a.payload);
   assert.equal((await stateFor(TENANT_A, a.eventId)).status, "leased");
+  assert.equal((await stateFor(TENANT_B, b.eventId)).status, "pending");
+  await assert.rejects(
+    consumeOutboxEvent(tenantAPool, "tenant-a-consumer", b.eventId),
+    (error) => error.code === "P0002"
+  );
 });
 
 test("concurrent workers claim disjoint rows using SKIP LOCKED semantics", async () => {
