@@ -8,14 +8,15 @@
 4. **API & Event Foundation:** review LOT-API-001 and LOT-EVENT-001; finalize resource/auth conventions, schema compatibility, inbox/outbox, idempotency, webhook signatures and replay controls.
 5. **Architecture Quality Baseline:** review LOT-QA-001; define critical journeys, workload profiles, measurable scenarios, invariants and evidence methods. Keep numeric thresholds TBD until accountable owners approve them.
 6. **Technology & Platform ADRs:** review LOT-TECH-ADR-001 against LOT-QA-001 and LOT-PROT-001; approve owners and experiment scope, then execute P-01 through P-08 in isolated synthetic environments and obtain owner/security/finance/legal acceptance before selecting stack, hosting, regions or numeric SLO/RPO/RTO.
-7. **Identity & Tenant Implementation:** identity, sessions, RBAC, tenant membership and isolation tests.
-8. **Affiliate & Attribution:** profiles, referral network, tracking links, events and attribution.
-9. **Finance Core:** review LOT-FIN-POST-001; approve account ownership, chart of accounts, immutable posting, balance semantics, statements, reconciliation and payout gates.
-10. **Commission Engine:** versioned rules, CPA/Revenue Share/Hybrid and reproducible calculations.
-11. **Affiliate Partner Pilot:** obtain actual partner documentation and sandbox, build the Affiliate adapter and contract tests.
-12. **Lottery Provider Discovery & Certification:** legal/provider due diligence, capability profile, sandbox evidence, lifecycle adapter and result/settlement reconciliation; only after owner approval.
-13. **Admin, Reporting & Operations:** operator/agent/customer surfaces, audit, reporting, support and controlled financial workflows.
-14. **Hardening & Pilot:** load/security tests, backup recovery, UAT, operational readiness and jurisdiction-specific legal approval.
+7. **Global Experience Foundation:** review LOT-I18N-001, LOT-COMMS-001, LOT-GROWTH-001 and LOT-NOTIF-001; establish 12-language parity, live-chat support, approved content/channel workflows and policy-governed smart notifications before implementation.
+8. **Identity & Tenant Implementation:** identity, sessions, RBAC, tenant membership and isolation tests.
+9. **Affiliate & Attribution:** profiles, referral network, tracking links, events and attribution.
+10. **Finance Core:** review LOT-FIN-POST-001; approve account ownership, chart of accounts, immutable posting, balance semantics, statements, reconciliation and payout gates.
+11. **Commission Engine:** versioned rules, CPA/Revenue Share/Hybrid and reproducible calculations.
+12. **Affiliate Partner Pilot:** obtain actual partner documentation and sandbox, build the Affiliate adapter and contract tests.
+13. **Lottery Provider Discovery & Certification:** legal/provider due diligence, capability profile, sandbox evidence, lifecycle adapter and result/settlement reconciliation; only after owner approval.
+14. **Admin, Reporting & Operations:** operator/agent/customer surfaces, audit, reporting, support and controlled financial workflows.
+15. **Hardening & Pilot:** load/security tests, backup recovery, UAT, operational readiness and jurisdiction-specific legal approval.
 
 ## Exit gates
 
