@@ -1,6 +1,6 @@
 # P-02 — Financial Ledger and Reconciliation Prototype
 
-**Document ID:** LOT-PROT-P02-001 | **Version:** 0.2.0 | **Status:** Disposable prototype; CI evidence pending | **Review date:** 2026-11-24
+**Document ID:** LOT-PROT-P02-001 | **Version:** 0.3.0 | **Status:** Prototype CI passed; full P-02 remains partial | **Review date:** 2026-11-24
 
 ## Purpose and decision boundary
 
@@ -49,6 +49,12 @@ This is not a wallet product, payment integration, payout service, customer bala
 | P02-LEDGER-18 | Post an event absent from the tenant/product source-event scope | Posting is rejected before journal creation |
 | P02-LEDGER-19 | Commit an effect/outbox row referencing a draft journal | Deferred commit-time constraint rejects the transaction |
 
+## Verified CI evidence
+
+- P-02 integration run [45415122608](https://github.com/tecpey/lottorito-platform/actions/runs/45415122608) passed on code head 24e299badfee5ac0207347c1be3b6ea14759a016: 19 Node tests passed, 0 failed, 0 skipped, using npm ci, the committed lockfile, Node.js 26.13.0 and PostgreSQL 18.7.
+- Documentation Governance run [45415219866](https://github.com/tecpey/lottorito-platform/actions/runs/45415219866) passed on the bilingual documentation head before this evidence annotation.
+- Local execution has not been performed in this environment. Passing CI proves only the defined synthetic test cases, not production readiness.
+
 ## Local reproduction
 
 Use only a disposable local database. The setup script drops and recreates the P-02 fixture objects; never point it at a shared, staging or production database.
@@ -67,7 +73,7 @@ All credentials and data in this experiment are synthetic and must never be reus
 
 - P-02 reuses the shared-role custom-GUC pattern for tenant/product RLS. P-01 already demonstrates that a compromised shared application role can change a custom GUC; this prototype is not an adversarial tenant-isolation proof.
 - The prototype does not yet model a production chart-of-accounts governance workflow, pending/available/held funds, account overdraft locks, high-contention account serialization, multi-ledger consolidation, FX conversion, tax, rounding policy, chargebacks, payout settlement or external bank/provider reconciliation.
-- Reconciliation is a synthetic source-event comparison, not a production bank or partner statement integration.
+- Reconciliation is a synthetic source-event comparison, not a production bank or partner statement integration. Source-event expected amounts are treated as independent inputs; this prototype does not calculate or approve the upstream commission amount.
 - The outbox is persisted atomically but no external broker, publisher retry, dead-letter queue or consumer deployment is selected.
 - No load, failover, backup/restore, disaster-recovery, penetration test, legal/accounting review or production readiness is claimed.
 - Full P-02 remains partial until these boundaries are researched and tested.
