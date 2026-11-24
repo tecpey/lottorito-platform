@@ -71,7 +71,7 @@
 
 **حداقل Fixture:** حساب‌های ساختگی در دو Tenant و حداقل دو ارز، ورودی نمونه کمیسیون نسخه‌بندی‌شده، ساعت تست کنترل‌شده، تحویل تکراری Source Event و Workerهای هم‌زمان. هیچ وجه واقعی یا موجودی قابل برداشت استفاده نشود.
 
-**اولین برش اجرایی P-02 (۲۰۲۶-۱۱-۲۴):** یک Prototype ساختگی مستقل، مرز ثبت SECURITY DEFINER محدود به Tenant، رکوردهای تغییرناپذیر Journal/Line/Request/Outbox، مبلغ صحیح دقیق NUMERIC(38,0)، کنترل توازن به‌تفکیک ارز، Idempotency محدود به Tenant با مدیریت Duplicate هم‌زمان و Transactional Outbox در یک Statement را پیاده‌سازی می‌کند. مجموعه پذیرش، Rollback هنگام شکست Outbox، دقت ۳۸ رقمی، توازن چندارزی و جداسازی حساب Tenant را بررسی می‌کند. CI در انتظار است. محاسبه کمیسیون، Economic Effect Identity فراتر از Request Token، Reversal، Hold/Balance و تطبیق بیرونی هنوز پیاده‌سازی نشده‌اند.
+**اولین برش اجرایی P-02 (۲۰۲۶-۱۱-۲۴):** یک Prototype ساختگی مستقل، مرز ثبت SECURITY DEFINER محدود به Tenant، رکوردهای تغییرناپذیر Journal/Line/Request/Outbox، مبلغ صحیح دقیق NUMERIC(38,0)، کنترل توازن به‌تفکیک ارز، Idempotency محدود به Tenant با مدیریت Duplicate هم‌زمان و Transactional Outbox در یک Statement را پیاده‌سازی می‌کند. مجموعه پذیرش، Rollback هنگام شکست Outbox، دقت ۳۸ رقمی، توازن چندارزی و جداسازی حساب Tenant را بررسی می‌کند. اجرای CI با شناسه [45428017700](https://github.com/tecpey/lottorito-platform/actions/runs/45428017700) روی Head کد `009ccb5e7066ab4e22fd070d679da4cb8e8f939f` با ۲۰ تست موفق، صفر شکست و صفر Skip همراه بود؛ Documentation Governance با شناسه [45428017847](https://github.com/tecpey/lottorito-platform/actions/runs/45428017847) نیز موفق شد. محاسبه کمیسیون، Economic Effect Identity فراتر از Request Token، Reversal، Hold/Balance و تطبیق بیرونی هنوز پیاده‌سازی نشده‌اند.
 
 
 **آزمایش‌ها:**
