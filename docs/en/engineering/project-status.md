@@ -1,6 +1,6 @@
 # Verified Project Status and Continuation Point
 
-**Document ID:** LOT-OPS-001 | **Version:** 1.14.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-24
+**Document ID:** LOT-OPS-001 | **Version:** 1.16.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-24
 
 ## Verified repository state
 - Repository: tecpey/lottorito-platform; default branch main; public visibility by owner decision.
@@ -54,11 +54,11 @@ The finance, security, API and technology/deployment references are proposals, n
 - PR #36, [P-01 Tenant Isolation](https://github.com/tecpey/lottorito-platform/pull/36), is an open Draft stacked directly on PR #35. Branch: spike/p01-tenant-isolation. Re-fetch the live PR head before relying on a SHA.
 - A disposable Node.js HTTP + PostgreSQL RLS slice exists with synthetic tenants, server-resolved test principals, transaction-local tenant context, a least-privilege runtime role, and integration tests for spoofing, cross-tenant object access and pooled-connection reuse.
 - Candidate versions are Node.js 26.13.0, PostgreSQL 18.7 and node-postgres 8.23.1. They remain experiment inputs, not accepted technology decisions.
-- GitHub Actions run [45409321843](https://github.com/tecpey/lottorito-platform/actions/runs/45408944197) passed on Node.js 26.13.0 + PostgreSQL 18.7 with committed npm lockfile and SHA-pinned Actions: 18 tests passed, 0 failed, 0 skipped. The slice now covers tenant-scoped asynchronous jobs, atomic outbox writes, metadata-only dispatcher, concurrent SKIP LOCKED claims, Ed25519-signed envelopes, idempotent replay and worker-side membership re-authorization. Local execution has not been performed in this environment. The red-team test explicitly confirms the shared-role GUC trust limitation.
+- GitHub Actions run [45411486646](https://github.com/tecpey/lottorito-platform/actions/runs/45411486646) passed on Node.js 26.13.0 + PostgreSQL 18.7 with committed npm lockfile and SHA-pinned Actions: 19 tests passed, 0 failed, 0 skipped on code head `278ac96a161cd545ca60d4f9d43be220c9eabf16`. In addition to HTTP/RLS and async outbox/dispatcher/Ed25519 job tests, the slice compares per-tenant LOGIN roles bound to PostgreSQL session_user across records, membership and jobs; GUC spoofing, cross-role SET ROLE/SET SESSION AUTHORIZATION, identity-map reads and cross-tenant writes are denied in that variant. Local execution has not been performed in this environment. The red-team test explicitly confirms the shared-role GUC trust limitation; the per-tenant credential broker and pool-scaling model remain untested.
 - Overall P-01 remains partial/inconclusive until asynchronous jobs, membership revocation, support/break-glass, other storage boundaries, load and recovery are exercised.
 
 ## Not verified
-No production application, production physical schema/migrations, provider API connection, sandbox certification, financial calculation/posting, payout, penetration test or production deployment has been verified. The disposable P-01 slice has a passing CI result for its 12 defined tests, but is not production software; full P-01 remains partial/inconclusive. Documentation Governance CI exists and has passed structural checks on selected PR heads; it does not prove semantic bilingual parity, runtime behavior, legal eligibility or security.
+No production application, production physical schema/migrations, provider API connection, sandbox certification, financial calculation/posting, payout, penetration test or production deployment has been verified. The disposable P-01 slice has a passing CI result for 19 defined tests, including an identity-bound per-tenant database-role comparison, but is not production software; full P-01 remains partial/inconclusive. Documentation Governance CI exists and has passed structural checks on selected PR heads; it does not prove semantic bilingual parity, runtime behavior, legal eligibility or security.
 
 ## Continuation rules
 1. Read AGENTS.md and this status record.
