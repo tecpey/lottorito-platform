@@ -1,6 +1,6 @@
 # Lottorito Decision Register
 
-**Document ID:** LOT-ADR-REG-001 | **Version:** 1.9.0 | **Status:** Maintained register; entries retain their individual authority state
+**Document ID:** LOT-ADR-REG-001 | **Version:** 2.0.0 | **Status:** Maintained register; entries retain their individual authority state
 
 ## How to read this register
 This register prevents agents from turning discussion, examples or proposals into product rules. A record is not approved merely because it is listed here. The state and authority column govern. Evidence must be linked for every change.
@@ -56,6 +56,8 @@ This register prevents agents from turning discussion, examples or proposals int
 | LDR-038 | Role-based dashboards and workspace product blueprint | Proposed | LOT-DASH-001 defines shared workspace shell, role-specific navigation, widgets, actions, prohibited data exposure, customer B2C experience, cross-workspace workflows, KPI governance, accessibility and 12 acceptance tests. | Product/UX proposal only. Requires owner, product, operations, security/IAM, finance, privacy and compliance review. No dashboard implementation or permission grant is claimed. |
 
 | LDR-039 | Wallet domain and balance contract | Proposed | LOT-WALLET-001 defines wallet ownership/classes, typed units, balance projections, holds, transfers, ledger posting boundaries, authorization, audit and acceptance tests. It decomposes the wallet direction in LDR-036 without approving custody, stored value, payment services, transfers or withdrawals. | Owner, product, finance/accounting, legal/compliance, security/privacy and operations review required. USD 100 Agent credit remains Open under LDR-016. No wallet runtime or money movement is authorized. |
+
+| LDR-040 | Payment orchestration and provider adapter contract | Proposed | LOT-PAYMENT-001 defines provider-neutral payment intents/attempts, adapter capabilities, tenant/legal-entity merchant context, callback verification, idempotency, routing, refunds, settlement evidence and reconciliation. It records the owner-directed Iranian and international payment target without selecting a provider or approving a market. | Apply LOT-PROVIDER-EVAL-001 to each exact provider/entity/jurisdiction/funds-flow decision unit. Owner, legal/compliance, finance, security, product and operations approval required. No payment runtime, licence, merchant account or real-money processing is authorized. |
 
 ## Decision-change protocol
 1. Propose a change with rationale, alternatives, impact and evidence.
