@@ -1,6 +1,6 @@
 # Lottorito Decision Register
 
-**Document ID:** LOT-ADR-REG-001 | **Version:** 1.4.0 | **Status:** Maintained register; entries retain their individual authority state
+**Document ID:** LOT-ADR-REG-001 | **Version:** 1.5.0 | **Status:** Maintained register; entries retain their individual authority state
 
 ## How to read this register
 This register prevents agents from turning discussion, examples or proposals into product rules. A record is not approved merely because it is listed here. The state and authority column govern. Evidence must be linked for every change.
@@ -47,6 +47,7 @@ This register prevents agents from turning discussion, examples or proposals int
 | LDR-033 | Embeddable Chat module | Owner direction / architecture proposed | Chat must be usable inside Lottorito and offered as an embeddable module/API to third-party platforms. LOT-CHAT-WIDGET-001 proposes one shared conversation core, isolated web widget, tenant-bound installations and secure short-lived sessions. | Owner direction establishes the product requirement, not implementation or commercial availability. Approve authentication, hosting/data residency, API/SDK, privacy, security, support and pricing decisions only after evidence and review. |
 
 | LDR-034 | Future regulated gaming domains and provider strategy | Owner direction / discovery proposed | Plan future Sportsbook, Live Casino and professional E-Gaming capabilities using reputable providers and a high quality bar. Preserve the sequence Affiliate first, then Lottery, then separately validated Sportsbook/Betting, Casino/Live Casino and E-Gaming. LOT-GAMING-STRATEGY-001 defines domain boundaries, provider research candidates, due-diligence scorecard and legal/technical release gates. | This is a future roadmap direction, not current MVP scope, provider selection, licence, API compatibility, contract, implementation or permission to launch. Each domain and jurisdiction needs separate owner, legal, provider, finance, security and certification gates. |
+| LDR-035 | Cross-product provider evaluation governance | Proposed | LOT-PROVIDER-EVAL-001 defines a common evidence register, supplier-role and decision-unit classification, non-compensable legal/security/financial/technical gates, RFI questionnaire, controlled test expectations and a proposed weighted scorecard. It does not select or approve any supplier. | Review with owner, legal/compliance, security, finance, product and engineering. Approve the score weights and use for any binding procurement only for a named product/entity/jurisdiction/operating-model scope. |
 
 ## Decision-change protocol
 1. Propose a change with rationale, alternatives, impact and evidence.
