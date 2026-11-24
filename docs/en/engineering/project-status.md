@@ -4,7 +4,7 @@
 
 ## Verified repository state
 - Repository: tecpey/lottorito-platform; default branch main; public visibility by owner decision.
-- As of 2026-11-24, PRs #19–#25 and #27–#35 are open Draft documentation changes. The intended stack is #19 → #20 → #21 → #22 → #23 → #24 → #25 → #27 → #28 → #29 → #30 → #31 → #32 → #33 → #34 → #35. PR #26 is a separate open Draft branch based on main and overlaps shared governance files; it must be reconciled with the stack before integration. No PR in this sequence is merged.
+- As of 2026-11-24, PRs #19–#25 and #27–#36 are open Draft changes. The intended stack is #19 → #20 → #21 → #22 → #23 → #24 → #25 → #27 → #28 → #29 → #30 → #31 → #32 → #33 → #34 → #35 → #36. PR #26 is a separate open Draft branch based on main and overlaps shared governance files; it must be reconciled with the stack before integration. No PR in this sequence is merged.
 - PR #25 is six commits behind the latest PR #24 head; PR #27–#35 inherit that stale upstream ancestry. PR #28 adds unified B2B2C, IAM and dashboard proposals; PR #29 adds LOT-WALLET-001; PR #30 adds LOT-PAYMENT-001; PR #31 adds LOT-PAYOUT-001; PR #32 adds LOT-B2C-PRD-001; PR #33 adds LOT-API-PLATFORM-001 on top of #32; PR #34 adds LOT-AFFILIATE-API-001 on top of #33; PR #35 adds LOT-CUSTOMER-PILOT-001 on top of #34 and clarifies the owner-directed RaidenBet scope as Advanced Affiliate & Agent plus Live Chat Widget only. Synchronize the upstream stack and rerun CI before merge consideration. Always read live PR metadata; this is a dated status snapshot.
 - The repository work remains documentation-first. No runtime application, physical schema, provider integration, sandbox, financial posting, payout or production deployment is verified.
 - Added scripts/check_docs.py and .github/workflows/docs-governance.yml for bilingual path/ID and local-link structure checks. The first run correctly exposed that the two language indexes use EN/FA-qualified IDs; normalization was added. The Documentation Governance workflow then passed on PR head 78e47168e67b14ccc2be9df7ceae79fbf56eb59e (run 45345429559). This validates structure and local links only, not semantic translation parity.
@@ -51,7 +51,7 @@ The finance, security, API and technology/deployment references are proposals, n
 - This is an owner-directed scope and planning baseline, not evidence of signed commercial terms, implementation, customer acceptance or production authorization.
 
 ## Current executable experiment
-- PR #36, [P-01 Tenant Isolation](https://github.com/tecpey/lottorito-platform/pull/36), is an open Draft stacked directly on PR #35. Branch: spike/p01-tenant-isolation. Latest recorded head at this update: 389afe4810ed28bad6d79c8050abd8f9bb4ab3d8.
+- PR #36, [P-01 Tenant Isolation](https://github.com/tecpey/lottorito-platform/pull/36), is an open Draft stacked directly on PR #35. Branch: spike/p01-tenant-isolation. Re-fetch the live PR head before relying on a SHA.
 - A disposable Node.js HTTP + PostgreSQL RLS slice exists with synthetic tenants, server-resolved test principals, transaction-local tenant context, a least-privilege runtime role, and integration tests for spoofing, cross-tenant object access and pooled-connection reuse.
 - Candidate versions are Node.js 26.13.0, PostgreSQL 18.7 and node-postgres 8.23.1. They remain experiment inputs, not accepted technology decisions.
 - Local tests have not been run in this environment. No CI run or status was observable at this update; do not claim test success.
