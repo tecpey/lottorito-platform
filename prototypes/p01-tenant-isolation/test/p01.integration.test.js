@@ -19,19 +19,27 @@ import {
 const databaseUrl = process.env.DATABASE_URL;
 const adminDatabaseUrl = process.env.ADMIN_DATABASE_URL;
 const dispatcherDatabaseUrl = process.env.DISPATCHER_DATABASE_URL;
+const supportDatabaseUrl = process.env.SUPPORT_DATABASE_URL;
 assert.ok(databaseUrl, "DATABASE_URL must point to the least-privilege app_runtime role");
 assert.ok(adminDatabaseUrl, "ADMIN_DATABASE_URL must point to the disposable fixture administrator");
 assert.ok(dispatcherDatabaseUrl, "DISPATCHER_DATABASE_URL must point to the metadata-only dispatcher role");
+assert.ok(supportDatabaseUrl, "SUPPORT_DATABASE_URL must point to the support-authorizer role");
+
+const SUPPORT_GRANT_ACTIVE = "33333333-3333-4333-8333-333333333333";
+const SUPPORT_GRANT_EXPIRED = "44444444-4444-4444-8444-444444444444";
+const SUPPORT_GRANT_REVOKED = "55555555-5555-4555-8555-555555555555";
+const SUPPORT_GRANT_OTHER_TENANT = "66666666-6666-4666-8666-666666666666";
 
 const { privateKey: jobSigningPrivateKeyObject, publicKey: jobVerifyPublicKeyObject } =
   generateKeyPairSync("ed25519");
 const jobSigningPrivateKey = jobSigningPrivateKeyObject.export({ type: "pkcs8", format: "pem" });
 const jobVerifyPublicKey = jobVerifyPublicKeyObject.export({ type: "spki", format: "pem" });
 
-const adminPool = new Pool({ connectionString: adminDatabaseUrl, max: 1 });
+const adminPool = new Pool({ connectionString: adminDatabaseUrl, max: 2 });
 const adminObserverPool = new Pool({ connectionString: adminDatabaseUrl, max: 1 });
 const dispatcherPool = new Pool({ connectionString: dispatcherDatabaseUrl, max: 1 });
 const dispatcherPool2 = new Pool({ connectionString: dispatcherDatabaseUrl, max: 1 });
+const supportPool = new Pool({ connectionString: supportDatabaseUrl, max: 2 });
 const tenantAPool = new Pool({ connectionString: process.env.TENANT_A_DATABASE_URL, max: 1 });
 const tenantBPool = new Pool({ connectionString: process.env.TENANT_B_DATABASE_URL, max: 1 });
 const pool = new Pool({
@@ -40,7 +48,7 @@ const pool = new Pool({
   idleTimeoutMillis: 1000,
   connectionTimeoutMillis: 3000
 });
-const server = createTenantServer({ pool, authenticate: authenticateSyntheticRequest });
+const server = createTenantServer({ pool, supportPool, authenticate: authenticateSyntheticRequest });
 let origin;
 
 async function request(path, options = {}) {
@@ -57,6 +65,10 @@ before(async () => {
   server.listen(0, "127.0.0.1");
   await once(server, "listening");
   origin = "http://127.0.0.1:" + server.address().port;
+  await adminPool.query(
+    "INSERT INTO public.support_grants (grant_id, support_subject_id, tenant_id, resource_scope, reason, expires_at, revoked_at) VALUES ($1, 'synthetic-support-a', $2, 'records:read', 'Customer requested investigation of record visibility', clock_timestamp() + interval '1 hour', NULL), ($3, 'synthetic-support-a', $2, 'records:read', 'Expired synthetic support investigation reason', clock_timestamp() - interval '1 hour', NULL), ($4, 'synthetic-support-a', $2, 'records:read', 'Revoked synthetic support investigation reason', clock_timestamp() + interval '1 hour', clock_timestamp()), ($5, 'synthetic-support-a', $6, 'records:read', 'Wrong tenant synthetic investigation reason', clock_timestamp() + interval '1 hour', NULL)",
+    [SUPPORT_GRANT_ACTIVE, TENANT_A, SUPPORT_GRANT_EXPIRED, SUPPORT_GRANT_REVOKED, SUPPORT_GRANT_OTHER_TENANT, TENANT_B]
+  );
 });
 
 after(async () => {
@@ -69,6 +81,7 @@ after(async () => {
   await dispatcherPool2.end();
   await tenantAPool.end();
   await tenantBPool.end();
+  await supportPool.end();
 });
 
 test("missing and invalid synthetic credentials cannot access tenant data", async () => {
@@ -625,4 +638,116 @@ test("database access without transaction-local tenant context is default-deny",
     ),
     (error) => error.code === "42501"
   );
+});
+
+
+
+test("support principal can read only a tenant record covered by its active grant and emits an audit event", async () => {
+  const adminGrant = await adminPool.query("SELECT grant_id::text, support_subject_id, tenant_id::text, resource_scope, expires_at > clock_timestamp() AS unexpired, revoked_at IS NULL AS unrevoked, expires_at, revoked_at FROM public.support_grants WHERE grant_id = $1", [SUPPORT_GRANT_ACTIVE]);
+  assert.equal(adminGrant.rowCount, 1, "synthetic active support grant must be seeded");
+  assert.deepEqual({ subject: adminGrant.rows[0].support_subject_id, tenant: adminGrant.rows[0].tenant_id, scope: adminGrant.rows[0].resource_scope, unexpired: adminGrant.rows[0].unexpired, unrevoked: adminGrant.rows[0].unrevoked }, { subject: "synthetic-support-a", tenant: TENANT_A, scope: "records:read", unexpired: true, unrevoked: true });
+  const visibleGrant = await supportPool.query("SELECT grant_id FROM public.support_grants WHERE grant_id = $1", [SUPPORT_GRANT_ACTIVE]);
+  assert.equal(visibleGrant.rowCount, 1, "support-authorizer RLS must expose the seeded grant");
+  const exactMatch = await supportPool.query("SELECT grant_id FROM public.support_grants WHERE grant_id = $1 AND support_subject_id = $2 AND tenant_id = $3 AND resource_scope = 'records:read' AND revoked_at IS NULL AND expires_at > clock_timestamp() FOR SHARE", [SUPPORT_GRANT_ACTIVE, "synthetic-support-a", TENANT_A]);
+  assert.equal(exactMatch.rowCount, 1, "the exact support authorization predicate must match the seeded grant");
+  const result = await request("/support/tenants/" + TENANT_A + "/records/" + SHARED_RECORD_ID, {
+    token: "p01-synthetic-support-token", headers: { "x-support-grant-id": SUPPORT_GRANT_ACTIVE }
+  });
+  assert.equal(result.status, 200);
+  assert.equal(result.body.data.payload, "synthetic tenant A fixture");
+  const audit = await adminPool.query("SELECT support_subject_id, grant_id, tenant_id, resource_id, action, outcome, reason FROM public.support_audit WHERE grant_id = $1", [SUPPORT_GRANT_ACTIVE]);
+  assert.equal(audit.rowCount, 1);
+  assert.equal(audit.rows[0].support_subject_id, "synthetic-support-a");
+  assert.equal(audit.rows[0].tenant_id, TENANT_A);
+  assert.equal(audit.rows[0].resource_id, SHARED_RECORD_ID);
+  assert.equal(audit.rows[0].action, "records:read");
+  assert.equal(audit.rows[0].outcome, "allowed");
+  assert.match(audit.rows[0].reason, /Customer requested investigation/);
+});
+
+test("support grant rejects expired, revoked, wrong-subject, wrong-tenant and unknown grants with denial audit", async () => {
+  const cases = [
+    ["p01-synthetic-support-token", TENANT_A, SUPPORT_GRANT_EXPIRED],
+    ["p01-synthetic-support-token", TENANT_A, SUPPORT_GRANT_REVOKED],
+    ["p01-synthetic-support-other-token", TENANT_A, SUPPORT_GRANT_ACTIVE],
+    ["p01-synthetic-support-token", TENANT_B, SUPPORT_GRANT_ACTIVE],
+    ["p01-synthetic-support-token", TENANT_A, "77777777-7777-4777-8777-777777777777"],
+    ["p01-synthetic-support-token", TENANT_A, SUPPORT_GRANT_OTHER_TENANT]
+  ];
+  for (const [token, tenantId, grantId] of cases) {
+    const result = await request("/support/tenants/" + tenantId + "/records/" + SHARED_RECORD_ID, {
+      token, headers: { "x-support-grant-id": grantId }
+    });
+    assert.equal(result.status, 403);
+    assert.equal(result.body.error, "support_access_denied");
+  }
+  const denied = await adminPool.query("SELECT count(*)::int AS count FROM public.support_audit WHERE outcome = 'denied'");
+  assert.equal(denied.rows[0].count, cases.length);
+});
+
+test("support principals cannot use tenant routes or mutate records, and tenant principals cannot use support routes", async () => {
+  const list = await request("/records", { token: "p01-synthetic-support-token" });
+  assert.equal(list.status, 403);
+  const mutation = await request("/records", {
+    token: "p01-synthetic-support-token", method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ natural_key: "support-write", payload: "must not write" })
+  });
+  assert.equal(mutation.status, 403);
+  const tenantToSupport = await request("/support/tenants/" + TENANT_A + "/records/" + SHARED_RECORD_ID, {
+    token: "p01-synthetic-token-a", headers: { "x-support-grant-id": SUPPORT_GRANT_ACTIVE }
+  });
+  assert.equal(tenantToSupport.status, 403);
+});
+
+test("support-authorizer role has only intended metadata and audit privileges", async () => {
+  const role = await adminPool.query("SELECT rolsuper, rolbypassrls, rolcreatedb, rolcreaterole FROM pg_roles WHERE rolname = 'support_authorizer'");
+  assert.equal(role.rowCount, 1);
+  assert.deepEqual(role.rows[0], { rolsuper: false, rolbypassrls: false, rolcreatedb: false, rolcreaterole: false });
+  const grants = await adminPool.query("SELECT has_table_privilege('support_authorizer', 'public.support_grants', 'SELECT') AS can_read_grants, has_table_privilege('support_authorizer', 'public.support_audit', 'INSERT') AS can_append_audit, has_table_privilege('support_authorizer', 'public.support_audit', 'SELECT') AS can_read_audit, has_table_privilege('support_authorizer', 'public.tenant_records', 'SELECT') AS can_read_records, has_table_privilege('support_authorizer', 'public.tenant_jobs', 'SELECT') AS can_read_jobs, has_column_privilege('support_authorizer', 'public.support_grants', 'lock_version', 'UPDATE') AS can_lock_grant, has_column_privilege('support_authorizer', 'public.support_grants', 'revoked_at', 'UPDATE') AS can_revoke_grants");
+  assert.deepEqual(grants.rows[0], { can_read_grants: true, can_append_audit: true, can_read_audit: false, can_read_records: false, can_read_jobs: false, can_lock_grant: true, can_revoke_grants: false });
+});
+
+test("support-authorizer cannot read tenant payloads, job payloads or audit history and cannot mutate audit rows", async () => {
+  await assert.rejects(supportPool.query("SELECT payload FROM public.tenant_records"), (error) => error.code === "42501");
+  await assert.rejects(supportPool.query("SELECT payload FROM public.tenant_jobs"), (error) => error.code === "42501");
+  await assert.rejects(supportPool.query("SELECT * FROM public.support_audit"), (error) => error.code === "42501");
+  await assert.rejects(supportPool.query("UPDATE public.support_audit SET reason = 'tampered'"), (error) => error.code === "42501");
+  await assert.rejects(supportPool.query("UPDATE public.support_grants SET revoked_at = clock_timestamp()"), (error) => error.code === "42501");
+  await assert.rejects(supportPool.query("DELETE FROM public.support_grants"), (error) => error.code === "42501");
+  await assert.rejects(supportPool.query("DELETE FROM public.support_audit"), (error) => error.code === "42501");
+});
+
+test("grant revocation blocks behind an in-flight authorized support read lock", async () => {
+  const lockClient = await supportPool.connect();
+  let locked = false;
+  try {
+    await lockClient.query("BEGIN");
+    const grant = await lockClient.query("SELECT grant_id FROM public.support_grants WHERE grant_id = $1 AND revoked_at IS NULL FOR SHARE", [SUPPORT_GRANT_ACTIVE]);
+    assert.equal(grant.rowCount, 1);
+    locked = true;
+    let updateFinished = false;
+    const revokePromise = adminPool.query("UPDATE public.support_grants SET revoked_at = clock_timestamp() WHERE grant_id = $1", [SUPPORT_GRANT_ACTIVE]).then((result) => {
+      updateFinished = true; return result;
+    });
+    let observedLockWait = false;
+    const deadline = Date.now() + 2000;
+    while (Date.now() < deadline && !observedLockWait) {
+      const waiting = await adminPool.query("SELECT EXISTS (SELECT 1 FROM pg_stat_activity WHERE wait_event_type = 'Lock' AND query LIKE 'UPDATE public.support_grants%') AS blocked");
+      observedLockWait = waiting.rows[0].blocked;
+      if (!observedLockWait) await delay(10);
+    }
+    assert.equal(observedLockWait, true, "revocation UPDATE should wait on support grant row lock");
+    assert.equal(updateFinished, false);
+    await lockClient.query("COMMIT");
+    locked = false;
+    await revokePromise;
+  } finally {
+    if (locked) await lockClient.query("ROLLBACK");
+    lockClient.release();
+  }
+  const denied = await request("/support/tenants/" + TENANT_A + "/records/" + SHARED_RECORD_ID, {
+    token: "p01-synthetic-support-token", headers: { "x-support-grant-id": SUPPORT_GRANT_ACTIVE }
+  });
+  assert.equal(denied.status, 403);
 });
