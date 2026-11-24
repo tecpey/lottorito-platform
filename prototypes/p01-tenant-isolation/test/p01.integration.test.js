@@ -32,6 +32,8 @@ assert.ok(databaseUrl, "DATABASE_URL must point to the least-privilege app_runti
 assert.ok(adminDatabaseUrl, "ADMIN_DATABASE_URL must point to the disposable fixture administrator");
 assert.ok(dispatcherDatabaseUrl, "DISPATCHER_DATABASE_URL must point to the metadata-only dispatcher role");
 assert.ok(supportDatabaseUrl, "SUPPORT_DATABASE_URL must point to the support-authorizer role");
+assert.ok(process.env.TENANT_A_DATABASE_URL, "TENANT_A_DATABASE_URL must point to the tenant_a_runtime role");
+assert.ok(process.env.TENANT_B_DATABASE_URL, "TENANT_B_DATABASE_URL must point to the tenant_b_runtime role");
 assert.ok(process.env.TENANT_A_DATABASE_URL, "TENANT_A_DATABASE_URL must point to the synthetic Tenant A LOGIN role");
 assert.ok(process.env.TENANT_B_DATABASE_URL, "TENANT_B_DATABASE_URL must point to the synthetic Tenant B LOGIN role");
 
@@ -1074,6 +1076,68 @@ test("tenant pool registry rejects invalid tenant IDs and invalid pool factories
     registry.withTenantPool(TENANT_A, async () => null),
     /pool creation failed/
   );
+  assert.equal(registry.size, 0);
+  await registry.close();
+});
+
+
+test("tenant pool registry rejects invalid tenant input before credential lookup", async () => {
+  let credentialCalls = 0;
+  const registry = new TenantPoolRegistry({
+    resolveCredential: async () => { credentialCalls += 1; return { connectionString: "synthetic" }; },
+    createPool: async () => ({ async end() {} })
+  });
+  await assert.rejects(registry.withTenantPool("tenant-from-request", async () => null), TypeError);
+  assert.equal(credentialCalls, 0);
+  await registry.close();
+});
+
+test("registry shutdown blocks new leases and closes an active pool after it drains", async () => {
+  let poolInstance;
+  const registry = new TenantPoolRegistry({
+    resolveCredential: async () => ({ connectionString: "synthetic-shutdown" }),
+    createPool: async () => {
+      poolInstance = { ended: false, async end() { this.ended = true; } };
+      return poolInstance;
+    }
+  });
+
+  let release;
+  let ready;
+  const acquired = new Promise((resolve) => { ready = resolve; });
+  const gate = new Promise((resolve) => { release = resolve; });
+  const active = registry.withTenantPool(TENANT_A, async () => {
+    ready();
+    await gate;
+    return "drained";
+  });
+  await acquired;
+  await registry.close();
+  await assert.rejects(registry.withTenantPool(TENANT_A, async () => null), /unavailable/);
+  assert.equal(poolInstance.ended, false);
+  release();
+  assert.equal(await active, "drained");
+  assert.equal(poolInstance.ended, true);
+  assert.equal(registry.size, 0);
+});
+
+test("revocation during pending credential resolution prevents pool publication", async () => {
+  let resolveCredential;
+  let poolCreated = false;
+  const credentialGate = new Promise((resolve) => { resolveCredential = resolve; });
+  const registry = new TenantPoolRegistry({
+    resolveCredential: async () => credentialGate,
+    createPool: async () => {
+      poolCreated = true;
+      return { async end() {} };
+    }
+  });
+  const pending = registry.withTenantPool(TENANT_A, async () => "must not run");
+  await delay(5);
+  assert.equal(await registry.revokeTenant(TENANT_A), false);
+  resolveCredential({ connectionString: "synthetic-revoked" });
+  await assert.rejects(pending, /unavailable/);
+  assert.equal(poolCreated, false);
   assert.equal(registry.size, 0);
   await registry.close();
 });
