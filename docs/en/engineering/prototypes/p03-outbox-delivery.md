@@ -1,6 +1,6 @@
 # P-03 Tenant-Scoped Transactional Outbox Delivery
 
-**Document ID:** LOT-PROT-P03-001 | **Version:** 0.1.0 | **Status:** Synthetic prototype; CI pending; no production transport or operations approved
+**Document ID:** LOT-PROT-P03-001 | **Version:** 0.2.0 | **Status:** Synthetic prototype; 10 integration tests passed (0 failed, 0 skipped); no production transport or operations approved
 
 ## Purpose and authority
 
