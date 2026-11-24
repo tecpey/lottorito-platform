@@ -444,6 +444,18 @@ test("identity-bound per-tenant database roles resist GUC spoofing and role swit
     assert.equal(roleState.rows[0].rolbypassrls, false);
     assert.equal(roleState.rows[0].can_set_other_role, false);
 
+    const expectedSubject = ownTenant === TENANT_A ? "synthetic-user-a" : "synthetic-user-b";
+    const memberships = await poolForTenant.query(
+      "SELECT subject_id FROM public.tenant_memberships ORDER BY subject_id"
+    );
+    assert.deepEqual(memberships.rows.map((row) => row.subject_id), [expectedSubject]);
+
+    const jobs = await poolForTenant.query(
+      "SELECT subject_id, payload FROM public.tenant_jobs ORDER BY job_id"
+    );
+    assert.ok(jobs.rowCount > 0);
+    assert.equal(jobs.rows.every((row) => row.subject_id === expectedSubject), true);
+
     const ownRow = await poolForTenant.query(
       "SELECT payload FROM public.tenant_records WHERE record_id = $1",
       [ownRecordId]
@@ -467,6 +479,10 @@ test("identity-bound per-tenant database roles resist GUC spoofing and role swit
 
     await assert.rejects(
       poolForTenant.query("SET ROLE " + (ownTenant === TENANT_A ? "tenant_b_runtime" : "tenant_a_runtime")),
+      (error) => error.code === "42501"
+    );
+    await assert.rejects(
+      poolForTenant.query("SET SESSION AUTHORIZATION " + (ownTenant === TENANT_A ? "tenant_b_runtime" : "tenant_a_runtime")),
       (error) => error.code === "42501"
     );
     await assert.rejects(
