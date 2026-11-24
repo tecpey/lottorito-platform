@@ -245,12 +245,12 @@ export async function completeInboxEvent(pool, {
   return withEventTransaction(pool, tenantId, productId, async (client) => {
     const result = await client.query(
       `UPDATE public.provider_event_inbox
-          SET status = 'processed', processed_at = $8,
+          SET status = 'processed', processed_at = $7,
               lease_until = NULL, claimed_by = NULL, last_error_code = NULL
         WHERE tenant_id = $1 AND product_id = $2
           AND provider_id = $3 AND provider_event_id = $4
           AND status = 'processing' AND claimed_by = $5 AND attempt_count = $6`,
-      [tenantId, productId, providerId, eventId, workerId, attemptCount, now, now]
+      [tenantId, productId, providerId, eventId, workerId, attemptCount, now]
     );
     return result.rowCount === 1;
   });
@@ -362,6 +362,7 @@ export async function recordOutboundResult(pool, {
   httpStatus = null, errorCode = null, now = new Date(),
   baseDelaySeconds = 5, maxDelaySeconds = 3600, maxAttempts = 5, jitter = 0
 }) {
+  if (!Number.isFinite(jitter) || jitter < 0 || jitter > 1) throw new RangeError("jitter must be between 0 and 1");
   return withEventTransaction(pool, tenantId, productId, async (client) => {
     const current = await client.query(
       `SELECT attempt_count
