@@ -197,6 +197,22 @@ DECLARE
   original_status text;
   reversal_mismatch boolean;
 BEGIN
+  IF TG_OP = 'INSERT' THEN
+    IF NEW.status <> 'draft' OR NEW.posted_at IS NOT NULL THEN
+      RAISE EXCEPTION 'journal transactions must be created as draft'
+        USING ERRCODE = '55000';
+    END IF;
+    RETURN NEW;
+  END IF;
+
+  IF TG_OP = 'DELETE' THEN
+    IF OLD.status = 'posted' THEN
+      RAISE EXCEPTION 'posted journal transactions are immutable'
+        USING ERRCODE = '55000';
+    END IF;
+    RETURN OLD;
+  END IF;
+
   IF OLD.status = 'posted' THEN
     RAISE EXCEPTION 'posted journal transactions are immutable'
       USING ERRCODE = '55000';
@@ -283,8 +299,9 @@ BEGIN
 END;
 $function$;
 
+DROP TRIGGER IF EXISTS journal_transaction_guard ON public.journal_transactions;
 CREATE TRIGGER journal_transaction_guard
-BEFORE UPDATE ON public.journal_transactions
+BEFORE INSERT OR UPDATE OR DELETE ON public.journal_transactions
 FOR EACH ROW EXECUTE FUNCTION public.guard_journal_transaction();
 
 CREATE OR REPLACE FUNCTION public.guard_source_event()
