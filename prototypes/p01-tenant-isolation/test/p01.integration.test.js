@@ -13,8 +13,11 @@ import {
 } from "./fixtures.js";
 
 const databaseUrl = process.env.DATABASE_URL;
+const adminDatabaseUrl = process.env.ADMIN_DATABASE_URL;
 assert.ok(databaseUrl, "DATABASE_URL must point to the least-privilege app_runtime role");
+assert.ok(adminDatabaseUrl, "ADMIN_DATABASE_URL must point to the disposable fixture administrator");
 
+const adminPool = new Pool({ connectionString: adminDatabaseUrl, max: 1 });
 const pool = new Pool({
   connectionString: databaseUrl,
   max: 1,
@@ -44,6 +47,7 @@ after(async () => {
   server.close();
   await once(server, "close");
   await pool.end();
+  await adminPool.end();
 });
 
 test("missing and invalid synthetic credentials cannot access tenant data", async () => {
@@ -51,6 +55,27 @@ test("missing and invalid synthetic credentials cannot access tenant data", asyn
   const invalid = await request("/records", { token: "not-a-valid-token" });
   assert.equal(missing.status, 401);
   assert.equal(invalid.status, 401);
+});
+
+test("membership revocation blocks the next request without affecting another tenant", async () => {
+  const revoked = await adminPool.query(
+    "UPDATE public.tenant_memberships SET active = false WHERE tenant_id = $1 AND subject_id = $2",
+    [TENANT_A, "synthetic-user-a"]
+  );
+  assert.equal(revoked.rowCount, 1);
+
+  try {
+    const a = await request("/records", { token: "p01-synthetic-token-a" });
+    const b = await request("/records", { token: "p01-synthetic-token-b" });
+    assert.equal(a.status, 403);
+    assert.equal(a.body.error, "forbidden");
+    assert.equal(b.status, 200);
+  } finally {
+    await adminPool.query(
+      "UPDATE public.tenant_memberships SET active = true WHERE tenant_id = $1 AND subject_id = $2",
+      [TENANT_A, "synthetic-user-a"]
+    );
+  }
 });
 
 test("RLS returns only rows for the authenticated tenant", async () => {
