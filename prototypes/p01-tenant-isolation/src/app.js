@@ -68,9 +68,10 @@ export function createTenantServer({ pool, authenticate }) {
     try {
       const url = new URL(req.url ?? "/", "http://localhost");
       const isCollection = url.pathname === "/records";
+      const isJobsCollection = url.pathname === "/jobs";
       const recordMatch = url.pathname.match(/^\/records\/([0-9a-f-]+)$/i);
 
-      if (!isCollection && !recordMatch) {
+      if (!isCollection && !isJobsCollection && !recordMatch) {
         respond(res, 404, { error: "not_found" });
         return;
       }
@@ -78,6 +79,35 @@ export function createTenantServer({ pool, authenticate }) {
       const principal = await authenticate(req);
       if (!principal || typeof principal.subjectId !== "string" || !isUuid(principal.tenantId)) {
         respond(res, 401, { error: "unauthorized" });
+        return;
+      }
+
+      // Enqueue a tenant-owned job and its dispatch metadata atomically.
+      if (req.method === "POST" && isJobsCollection) {
+        const body = await readJson(req);
+        if (body === null || typeof body !== "object" || Array.isArray(body)) {
+          throw httpError(400, "a JSON object is required");
+        }
+        if (body.tenant_id !== undefined && body.tenant_id !== principal.tenantId) {
+          respond(res, 403, { error: "tenant_scope_mismatch" });
+          return;
+        }
+        if (typeof body.payload !== "string" || body.payload.length < 1 || body.payload.length > 1000) {
+          throw httpError(400, "payload must contain 1 to 1000 characters");
+        }
+
+        const jobId = randomUUID();
+        await withAuthorizedTenantTransaction(pool, principal, async (client) => {
+          await client.query(
+            "INSERT INTO public.tenant_jobs (tenant_id, job_id, subject_id, payload) VALUES ($1, $2, $3, $4)",
+            [principal.tenantId, jobId, principal.subjectId, body.payload]
+          );
+          await client.query(
+            "INSERT INTO public.job_dispatch (tenant_id, job_id) VALUES ($1, $2)",
+            [principal.tenantId, jobId]
+          );
+        });
+        respond(res, 202, { data: { job_id: jobId, status: "queued" } });
         return;
       }
 
