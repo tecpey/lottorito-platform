@@ -3,7 +3,7 @@ export async function applyMigration(pool,id,sql){
  if(!/^[a-z0-9][a-z0-9._-]{2,100}$/.test(id))throw new TypeError("invalid migration id");
  const checksum=createHash("sha256").update(sql).digest("hex"),c=await pool.connect();
  try{
-  await c.query("BEGIN");await c.query("SELECT pg_advisory_xact_lock(hashtext($1)::bigint)",[id]);
+  await c.query("BEGIN");await c.query("SELECT pg_advisory_xact_lock(hashtextextended($1,0))",[id]);
   const old=await c.query("SELECT checksum FROM schema_migrations WHERE migration_id=$1",[id]);
   if(old.rowCount){if(old.rows[0].checksum!==checksum)throw new Error("migration checksum mismatch");await c.query("COMMIT");return false;}
   await c.query(sql);await c.query("INSERT INTO schema_migrations(migration_id,checksum) VALUES($1,$2)",[id,checksum]);await c.query("COMMIT");return true;

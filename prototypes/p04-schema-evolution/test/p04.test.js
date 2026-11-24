@@ -15,6 +15,10 @@ test("v1/v2 writers and readers coexist in both directions",async()=>{
    await a2.query("INSERT INTO partner_events(tenant_id,event_id,event_type,canonical_payload) VALUES($1,$2,'v2',$3::jsonb)",[A,id(202),JSON.stringify({v:2})]);
  assert.deepEqual((await a2.query("SELECT canonical_payload FROM partner_events WHERE event_id=$1",[id(201)])).rows[0].canonical_payload,{v:1});
  assert.deepEqual((await a1.query("SELECT payload FROM partner_events WHERE event_id=$1",[id(202)])).rows[0].payload,{v:2});
+ await b1.query("INSERT INTO partner_events(tenant_id,event_id,event_type,payload) VALUES($1,$2,'worker-v1',$3::jsonb)",[B,id(203),JSON.stringify({worker:"v1"})]);
+ await b2.query("INSERT INTO partner_events(tenant_id,event_id,event_type,canonical_payload) VALUES($1,$2,'worker-v2',$3::jsonb)",[B,id(204),JSON.stringify({worker:"v2"})]);
+ assert.deepEqual((await b2.query("SELECT canonical_payload FROM partner_events WHERE event_id=$1",[id(203)])).rows[0].canonical_payload,{worker:"v1"});
+ assert.deepEqual((await b1.query("SELECT payload FROM partner_events WHERE event_id=$1",[id(204)])).rows[0].payload,{worker:"v2"});
 });
 test("conflicting dual-write fails closed",async()=>{await assert.rejects(a2.query("UPDATE partner_events SET payload=$1::jsonb,canonical_payload=$2::jsonb WHERE event_id=$3",[JSON.stringify({v:1}),JSON.stringify({v:2}),id(201)]),e=>e.code==="23514");});
 test("backfill stops and resumes; RLS scopes each tenant",async()=>{
