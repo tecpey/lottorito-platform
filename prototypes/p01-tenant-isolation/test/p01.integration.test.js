@@ -510,6 +510,37 @@ test("support principals cannot use tenant routes or mutate records, and tenant 
   assert.equal(tenantToSupport.status, 403);
 });
 
+test("support-authorizer role is non-privileged and has only the intended metadata/audit grants", async () => {
+  const role = await adminPool.query(
+    "SELECT rolsuper, rolbypassrls, rolcreatedb, rolcreaterole FROM pg_roles WHERE rolname = 'support_authorizer'"
+  );
+  assert.equal(role.rowCount, 1);
+  assert.deepEqual(role.rows[0], {
+    rolsuper: false,
+    rolbypassrls: false,
+    rolcreatedb: false,
+    rolcreaterole: false
+  });
+
+  const grants = await adminPool.query(`
+    SELECT
+      has_table_privilege('support_authorizer', 'public.support_grants', 'SELECT') AS can_read_grants,
+      has_table_privilege('support_authorizer', 'public.support_audit', 'INSERT') AS can_append_audit,
+      has_table_privilege('support_authorizer', 'public.support_audit', 'SELECT') AS can_read_audit,
+      has_table_privilege('support_authorizer', 'public.tenant_records', 'SELECT') AS can_read_records,
+      has_table_privilege('support_authorizer', 'public.tenant_jobs', 'SELECT') AS can_read_jobs,
+      has_column_privilege('support_authorizer', 'public.support_grants', 'revoked_at', 'UPDATE') AS can_revoke_grants
+  `);
+  assert.deepEqual(grants.rows[0], {
+    can_read_grants: true,
+    can_append_audit: true,
+    can_read_audit: false,
+    can_read_records: false,
+    can_read_jobs: false,
+    can_revoke_grants: false
+  });
+});
+
 test("support-authorizer cannot read tenant payloads, job payloads or audit history and cannot mutate audit rows", async () => {
   await assert.rejects(
     supportPool.query("SELECT payload FROM public.tenant_records"),
