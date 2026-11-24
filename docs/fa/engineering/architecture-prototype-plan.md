@@ -65,6 +65,8 @@
 
 **آزمایش Export Download در P-01 (۲۰۲۶-۱۱-۲۴):** یک Prototype تکمیلی، Grant دانلود یک‌بارمصرف، زمان‌دار و متصل به Subject و Tenant اضافه می‌کند. Tokenها ۲۵۶ بیت تصادفی‌اند؛ فقط Hash از نوع SHA-256 ذخیره می‌شود؛ قفل ردیف PostgreSQL، Redeem و بررسی وضعیت Export را Serialize می‌کند. اجرای CI با شناسه 45429917398 روی Head کد aa0bd586c4ebc0f8785d5981ef7867c13efe7b79 تعداد ۳۸ تست موفق، صفر شکست و صفر Skip داشته است؛ شامل بازبینی مجدد Membership فعال، اثبات قطعی دو اتصالی برای Serialization لغو Membership در برابر Redeem و رد کردن Traversal/Separator کدگذاری‌شده/Prefix Tenant دیگر در سطح دیتابیس. اجرای Documentation Governance با شناسه 45429917650 نیز روی همین Head موفق شده است. HTTP Streaming، URL امضاشده Provider، رفتار CDN، اسکن محتوا و معنای Retry در تحویل، خارج از محدوده و تأییدنشده هستند.
 
+**مطالعه طراحی تحویل در P-01 (۲۰۲۶-۱۱-۲۴):** سند دوزبانه LOT-PROT-P01-DELIVERY-001، Streaming Proxy از طریق برنامه را با URL امضاشده Provider مقایسه می‌کند. برای Exportهای حساس، آزمایش ابتدا با Proxy مستقل از Provider پیشنهاد شده است؛ سند صریحاً توضیح می‌دهد Presigned URL در S3 تا زمان انقضا Bearer Capability قابل Replay است و سناریوهای Session/Retry/Range/Backpressure/Header/Audit را تعریف می‌کند. این صرفاً پیشنهاد است؛ هیچ معماری تحویل یا Provider ذخیره‌سازی تصویب نشده است.
+
 ### P-02 — تراکنش مالی و تطبیق
 
 **پرسش:** آیا یک رویداد تجاری هم‌زمان و Retryشده دقیقاً یک اثر اقتصادی معتبر و یک سند متوازن و تغییرناپذیر ایجاد می‌کند؟
