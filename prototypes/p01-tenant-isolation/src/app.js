@@ -19,6 +19,21 @@ function httpError(status, message) {
   return error;
 }
 
+async function withAuthorizedTenantTransaction(pool, principal, operation) {
+  return withTenantTransaction(pool, principal.tenantId, async (client) => {
+    // Re-check active membership inside the same transaction as tenant data.
+    // FOR SHARE serializes a concurrent membership revocation with this request.
+    const membership = await client.query(
+      "SELECT active FROM public.tenant_memberships WHERE subject_id = $1 FOR SHARE",
+      [principal.subjectId]
+    );
+    if (!membership.rows[0]?.active) {
+      throw httpError(403, "tenant membership is inactive");
+    }
+    return operation(client);
+  });
+}
+
 async function readJson(req) {
   const contentType = String(req.headers["content-type"] ?? "").split(";")[0].trim().toLowerCase();
   if (contentType !== "application/json") throw httpError(415, "application/json is required");
@@ -66,7 +81,7 @@ export function createTenantServer({ pool, authenticate }) {
 
       // Caller-supplied tenant hints are deliberately ignored.
       if (req.method === "GET" && isCollection) {
-        const rows = await withTenantTransaction(pool, principal.tenantId, async (client) => {
+        const rows = await withAuthorizedTenantTransaction(pool, principal, async (client) => {
           const result = await client.query(
             "SELECT record_id, natural_key, payload FROM public.tenant_records ORDER BY natural_key, record_id"
           );
@@ -82,7 +97,7 @@ export function createTenantServer({ pool, authenticate }) {
           respond(res, 404, { error: "not_found" });
           return;
         }
-        const row = await withTenantTransaction(pool, principal.tenantId, async (client) => {
+        const row = await withAuthorizedTenantTransaction(pool, principal, async (client) => {
           const result = await client.query(
             "SELECT record_id, natural_key, payload FROM public.tenant_records WHERE record_id = $1",
             [recordId]
@@ -117,7 +132,7 @@ export function createTenantServer({ pool, authenticate }) {
           throw httpError(400, "record_id must be a valid UUID when supplied");
         }
         const recordId = body.record_id ?? randomUUID();
-        const row = await withTenantTransaction(pool, principal.tenantId, async (client) => {
+        const row = await withAuthorizedTenantTransaction(pool, principal, async (client) => {
           const result = await client.query(
             "INSERT INTO public.tenant_records (tenant_id, record_id, natural_key, payload) VALUES ($1, $2, $3, $4) RETURNING record_id, natural_key, payload",
             [principal.tenantId, recordId, body.natural_key, body.payload]
@@ -132,7 +147,7 @@ export function createTenantServer({ pool, authenticate }) {
     } catch (error) {
       const status = Number.isInteger(error.statusCode) ? error.statusCode : 500;
       respond(res, status, {
-        error: status === 500 ? "internal_error" : "bad_request",
+        error: status === 500 ? "internal_error" : status === 403 ? "forbidden" : "bad_request",
         message: status === 500 ? "request failed" : error.message
       });
     }
