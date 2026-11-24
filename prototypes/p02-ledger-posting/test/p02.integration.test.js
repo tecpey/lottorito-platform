@@ -357,7 +357,7 @@ test("database-side validation rejects extra fields and fractional amount string
     { line_no: 2, account_id: A_USD_CLEARING, currency_code: "USD", direction: "credit", amount_minor: "10" }
   ];
   await assert.rejects(
-    tenantAPool.query("SELECT * FROM public.post_journal($1, $2, $3::jsonb)", ["p02-db-line-number-001", effectIdFor("p02-db-line-number-001"), EVENT_1, JSON.stringify(fractionalLineNumber)]),
+    tenantAPool.query("SELECT * FROM public.post_journal($1, $2, $3, $4::jsonb)", ["p02-db-line-number-001", effectIdFor("p02-db-line-number-001"), EVENT_1, JSON.stringify(fractionalLineNumber)]),
     (error) => error.code === "22023" && error.message.includes("line numbers must be positive integers")
   );
     const fractional = [
@@ -365,7 +365,7 @@ test("database-side validation rejects extra fields and fractional amount string
     { line_no: 2, account_id: A_USD_CLEARING, currency_code: "USD", direction: "credit", amount_minor: "10.5" }
   ];
   await assert.rejects(
-    tenantAPool.query("SELECT * FROM public.post_journal($1, $2, $3::jsonb)", ["p02-db-fraction-001", effectIdFor("p02-db-fraction-001"), EVENT_1, JSON.stringify(fractional)]),
+    tenantAPool.query("SELECT * FROM public.post_journal($1, $2, $3, $4::jsonb)", ["p02-db-fraction-001", effectIdFor("p02-db-fraction-001"), EVENT_1, JSON.stringify(fractional)]),
     (error) => error.code === "22023" && error.message.includes("values are invalid")
   );
 });
