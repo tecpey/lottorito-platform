@@ -1,6 +1,6 @@
 # P-02 — Financial Ledger and Reconciliation Prototype
 
-**Document ID:** LOT-PROT-P02-001 | **Version:** 0.5.0 | **Status:** Prototype CI passed; full P-02 remains partial | **Review date:** 2026-11-24
+**Document ID:** LOT-PROT-P02-001 | **Version:** 0.6.0 | **Status:** Prototype CI passed; full P-02 remains partial | **Review date:** 2026-11-24
 
 ## Purpose and decision boundary
 
@@ -51,8 +51,8 @@ This is not a wallet product, payment integration, payout service, customer bala
 
 ## Verified CI evidence
 
-- P-02 integration run [45415806446](https://github.com/tecpey/lottorito-platform/actions/runs/45415806446) passed on PR head 003551df55921413ccff3bfe746a2f671d8d35bd: 19 Node tests passed, 0 failed, 0 skipped, using npm ci, the committed lockfile, Node.js 26.13.0 and PostgreSQL 18.7.
-- Documentation Governance run [45415805992](https://github.com/tecpey/lottorito-platform/actions/runs/45415805992) passed on the bilingual documentation head before this evidence annotation.
+- P-02 integration run [45416076701](https://github.com/tecpey/lottorito-platform/actions/runs/45416076701) passed on PR head a47e5e2107ecfe96c77c48bea3d8921f726b8a17: 19 Node tests passed, 0 failed, 0 skipped, using npm ci, the committed lockfile, Node.js 26.13.0 and PostgreSQL 18.7.
+- Documentation Governance run [45416076624](https://github.com/tecpey/lottorito-platform/actions/runs/45416076624) passed on the bilingual documentation head before this evidence annotation.
 - Local execution has not been performed in this environment. Passing CI proves only the defined synthetic test cases, not production readiness.
 
 ## Local reproduction
