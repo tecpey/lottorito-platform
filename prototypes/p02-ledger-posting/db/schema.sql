@@ -30,6 +30,7 @@ ALTER ROLE ledger_owner NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NO
 ALTER ROLE ledger_executor NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
 
 DROP FUNCTION IF EXISTS public.post_journal(text, uuid, jsonb);
+DROP FUNCTION IF EXISTS public.post_journal(text, uuid, uuid, jsonb);
 DROP TABLE IF EXISTS public.ledger_outbox;
 DROP TABLE IF EXISTS public.ledger_lines;
 DROP TABLE IF EXISTS public.ledger_journals;
@@ -80,10 +81,12 @@ CREATE TABLE public.ledger_accounts (
 CREATE TABLE public.posting_requests (
   tenant_id uuid NOT NULL,
   idempotency_key text NOT NULL,
+  effect_id uuid NOT NULL,
   request_fingerprint jsonb NOT NULL,
   journal_id uuid NOT NULL,
   created_at timestamptz NOT NULL DEFAULT clock_timestamp(),
   PRIMARY KEY (tenant_id, idempotency_key),
+  UNIQUE (tenant_id, effect_id),
   UNIQUE (tenant_id, journal_id),
   CHECK (idempotency_key ~ '^[A-Za-z0-9._:-]{1,128}$')
 );
@@ -208,6 +211,7 @@ GRANT SELECT, INSERT ON public.ledger_outbox TO ledger_executor;
 
 CREATE OR REPLACE FUNCTION public.post_journal(
   p_idempotency_key text,
+  p_effect_id uuid,
   p_source_event_id uuid,
   p_lines jsonb
 )
@@ -225,6 +229,7 @@ DECLARE
   v_existing_fingerprint jsonb;
   v_existing_journal_id uuid;
   v_inserted integer;
+  v_conflict_count integer;
 BEGIN
   v_tenant_id := private.current_tenant_id();
   IF v_tenant_id IS NULL THEN
@@ -233,6 +238,7 @@ BEGIN
 
   IF p_idempotency_key IS NULL
      OR p_idempotency_key !~ '^[A-Za-z0-9._:-]{1,128}$'
+     OR p_effect_id IS NULL
      OR p_source_event_id IS NULL
      OR p_lines IS NULL
      OR jsonb_typeof(p_lines) IS DISTINCT FROM 'array' THEN
@@ -340,25 +346,36 @@ BEGIN
   END IF;
 
   v_fingerprint := jsonb_build_object(
+    'effect_id', p_effect_id,
     'source_event_id', p_source_event_id,
     'lines', v_normalized_lines
   );
   v_new_journal_id := gen_random_uuid();
 
   INSERT INTO public.posting_requests (
-    tenant_id, idempotency_key, request_fingerprint, journal_id
+    tenant_id, idempotency_key, effect_id, request_fingerprint, journal_id
   ) VALUES (
-    v_tenant_id, p_idempotency_key, v_fingerprint, v_new_journal_id
+    v_tenant_id, p_idempotency_key, p_effect_id, v_fingerprint, v_new_journal_id
   )
   ON CONFLICT (tenant_id, idempotency_key) DO NOTHING;
 
   GET DIAGNOSTICS v_inserted = ROW_COUNT;
   IF v_inserted = 0 THEN
+    SELECT count(*) INTO v_conflict_count
+      FROM public.posting_requests
+     WHERE tenant_id = v_tenant_id
+       AND (idempotency_key = p_idempotency_key OR effect_id = p_effect_id);
+
+    IF v_conflict_count > 1 THEN
+      RAISE EXCEPTION 'idempotency key and financial effect identify different postings'
+        USING ERRCODE = '22023';
+    END IF;
+
     SELECT request_fingerprint, posting_requests.journal_id
       INTO v_existing_fingerprint, v_existing_journal_id
       FROM public.posting_requests
      WHERE tenant_id = v_tenant_id
-       AND idempotency_key = p_idempotency_key
+       AND (idempotency_key = p_idempotency_key OR effect_id = p_effect_id)
      FOR UPDATE;
 
     IF NOT FOUND THEN
@@ -414,9 +431,9 @@ BEGIN
 END
 $function$;
 
-ALTER FUNCTION public.post_journal(text, uuid, jsonb) OWNER TO ledger_executor;
-REVOKE ALL ON FUNCTION public.post_journal(text, uuid, jsonb) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION public.post_journal(text, uuid, jsonb)
+ALTER FUNCTION public.post_journal(text, uuid, uuid, jsonb) OWNER TO ledger_executor;
+REVOKE ALL ON FUNCTION public.post_journal(text, uuid, uuid, jsonb) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.post_journal(text, uuid, uuid, jsonb)
   TO tenant_a_ledger_runtime, tenant_b_ledger_runtime;
 REVOKE CREATE ON SCHEMA public FROM ledger_owner, ledger_executor;
 
