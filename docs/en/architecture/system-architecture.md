@@ -1,12 +1,12 @@
 # Lottorito System Architecture
 
-**Document ID:** LOT-ARCH-001 | **Version:** 0.1.0 | **Status:** Proposal, not a final decision
+**Document ID:** LOT-ARCH-001 | **Version:** 0.2.0 | **Status:** Proposal, not a final decision
 
 ## Approach
 Domain-oriented, modular, API-first, multi-tenant architecture. The initial proposal is a Modular Monolith with explicit boundaries; extract services only when scale or operational needs justify it.
 
 ## Domains
-Identity & Access; Tenant & Partner; Affiliate & Agent Network; Tracking & Attribution; Partner Integration; Commission & Rules; Wallet & Ledger; Payout & Reconciliation; Campaign & Loyalty; Reporting & Audit.
+Identity & Access; Tenant & Partner; Affiliate & Agent Network; Tracking & Attribution; Partner Integration; Commission & Rules; Wallet & Ledger; Payout & Reconciliation; Campaign & Loyalty; Reporting & Audit; Sportsbook/Event Wagering (future); Live Casino (future); RNG/E-Gaming Content (future); Poker/Peer-to-Peer Games (separate future decision).
 
 Each domain owns its logic and data. Direct access to another domain's internal tables is prohibited; communication uses explicit contracts.
 
@@ -24,6 +24,9 @@ Atomic transactions for financial operations; outbox pattern; bounded retries wi
 
 ## Global experience capabilities
 LOT-I18N-001, LOT-COMMS-001, LOT-GROWTH-001 and LOT-NOTIF-001 define proposed bounded capabilities and integration contracts. They must remain tenant- and product-aware; shared platform capability must not create hidden coupling between Affiliate and Lottery.
+
+## Future regulated gaming domains
+LOT-GAMING-STRATEGY-001 defines future Sportsbook, Live Casino and RNG/E-Gaming as separate bounded contexts with independent provider adapters, lifecycle state machines, entitlements, jurisdictional eligibility, financial semantics and release gates. These are roadmap horizons only; no provider, licence, API, runtime or market launch is approved. Affiliate remains the first delivery priority, followed by Lottery; each later domain requires separate legal, provider, finance, security and certification evidence.
 
 ## Open decisions
 Scale, deployment regions, availability, backups, RPO/RTO, physical tenant isolation, and final technology choices must be decided before production.
