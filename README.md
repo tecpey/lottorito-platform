@@ -32,7 +32,9 @@ Lottorito is partner-neutral by design. It is not intended to be limited to one 
 | **Lottery** | Provider-neutral catalog and game configuration; schedules and draw lifecycle; ticket/order lifecycle; result ingestion and verification; ticket validation; winner and prize workflows; claims, settlement, reconciliation and reporting | Strategic product scope only. Detailed requirements, provider evaluation, jurisdiction review and implementation approval remain outstanding. |
 | **Shared platform foundations** | Identity and memberships; tenant and organization boundaries; authorization; API and integration contracts; event processing; isolated financial books and controls; audit; notifications; reporting; localization; operations and observability | Architecture concepts are documented as proposals. Final ADRs and runtime implementation are not verified. |
 
-Optional loyalty and reward capabilities may be considered as separate extensions. Their funding source, eligibility, liability, expiry, reversal and accounting rules must be defined before they enter an approved release scope.\n\nThese are **product domains, not a claim of shipped features**. The exact first commercial release, module entitlements, supported markets and acceptance criteria require separate approval.
+Optional loyalty and reward capabilities may be considered as separate extensions. Their funding source, eligibility, liability, expiry, reversal and accounting rules must be defined before they enter an approved release scope.
+
+These are **product domains, not a claim of shipped features**. The exact first commercial release, module entitlements, supported markets and acceptance criteria require separate approval.
 
 ### Who the platform is designed to serve
 
@@ -53,14 +55,16 @@ The strategic direction supports several possible adoption models:
 - White-label
 - Embedded experiences and SSO
 
-White-label configuration may adapt tenant-facing branding, domains and product presentation, while Lottorito's platform identity, ownership and technical traceability remain governed.\n\nThese are target commercial and delivery models—not a statement that each mode is currently implemented, available, or contractually offered.
+White-label configuration may adapt tenant-facing branding, domains and product presentation, while Lottorito's platform identity, ownership and technical traceability remain governed.
+
+These are target commercial and delivery models—not a statement that each mode is currently implemented, available, or contractually offered.
 
 ### Platform principles
 
 1. **Independent product domains** — Affiliate and Lottery retain separate domain logic, lifecycle rules and release gates. Integration between them is explicit; shared infrastructure does not imply shared business rules.
 2. **Partner-neutral integration** — provider-specific behavior belongs in versioned adapters and contracts, not in the product core. No single provider or pilot partner is assumed to be exclusive.
-3. **Tenant isolation by design** — tenant context must be derived from authenticated membership or an authenticated machine connection, never trusted from an untrusted payload. Isolation must cover APIs, background jobs, data access, caches, files, reports and operational tooling.
-4. **Financial integrity** — financial records are designed around exact amounts and currencies, immutable double-entry postings, atomicity, idempotency, linked reversals and reconciliation. Balances are derived from authoritative records, not edited as the source of truth. Product or tenant balances must not be implicitly pooled.
+3. **Tenant isolation by design** — tenant context must be derived from authenticated membership or an authenticated machine connection, never trusted from an untrusted payload. Isolation must cover APIs, background jobs, data access, caches, files, reports and operational tooling. The isolation model may combine pooled, bridge and dedicated (silo) resources according to tenant risk, contractual commitments, workload and jurisdiction; no single topology is assumed for every tenant.
+4. **Financial integrity** — financial records are designed around exact amounts and currencies, immutable double-entry postings, atomicity, idempotency, linked reversals and reconciliation. Balances are derived from authoritative records, not edited as the source of truth. Corrections use traceable adjustment or reversal records rather than rewriting posted history. Product or tenant balances must not be implicitly pooled.
 5. **API-first interoperability** — versioned, documented and testable contracts define how products and external systems communicate.
 6. **Modularity without premature distribution** — clear domain boundaries come first. Separate services are introduced only when measured scale, isolation, reliability or operational needs justify them.
 7. **Security, privacy and compliance by design** — each regulated capability and market requires its own legal, risk, privacy and operational assessment before activation.
@@ -116,12 +120,22 @@ The current architecture proposal favors explicit domain boundaries and a modula
 The engineering baseline is intended to include:
 
 - Authenticated tenant context and enforceable isolation at every execution boundary.
-- Versioned API and event contracts, with provider-specific adapters.
+- Tenant-aware quotas and fair-use controls for shared queues, workers, connection pools and other capacity bottlenecks, alongside platform-wide limits.
+- Versioned API and event contracts with documented compatibility and deprecation policies, plus provider-specific adapters.
 - Durable event intake, idempotent processing and controlled replay.
 - Immutable financial history with traceable adjustments and reversals.
 - Automated tests for authorization, tenant isolation, concurrency, duplicate delivery, financial invariants and recovery.
 - Structured logs, metrics, traces, audit trails, backup and disaster-recovery procedures.
 - Reproducible delivery with security review and bilingual documentation parity.
+
+### Design references
+
+The following public frameworks inform the platform's design criteria; they are reference material, not certifications or evidence of implementation:
+
+- [AWS SaaS Lens — Silo, Pool and Bridge isolation models](https://docs.aws.amazon.com/wellarchitected/latest/saas-lens/silo-pool-and-bridge-models.html)
+- [OWASP — Multi-Tenant Application Security Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Multi_Tenant_Security_Cheat_Sheet.html)
+- [Google Cloud — API Design Guide](https://docs.cloud.google.com/apis/design)
+- [CNCF — Platform Engineering Maturity Model](https://tag-app-delivery.cncf.io/whitepapers/platform-eng-maturity-model/)
 
 ### Trust, regulation and product boundaries
 
@@ -189,7 +203,9 @@ Lottorito با هدف ایجاد یک **زیرساخت جهانی، ماژولا
 | **Lottery** | کاتالوگ و پیکربندی بازی مستقل از ارائه‌دهنده؛ زمان‌بندی و چرخه قرعه‌کشی؛ چرخه بلیت و سفارش؛ دریافت و راستی‌آزمایی نتایج؛ اعتبارسنجی بلیت؛ فرایند تعیین برنده و جایزه؛ مطالبه جایزه، تسویه، تطبیق و گزارش | فعلاً در سطح چشم‌انداز راهبردی است. نیازمندی تفصیلی، ارزیابی ارائه‌دهندگان، بررسی مقررات بازارها و مجوز پیاده‌سازی همچنان باقی است. |
 | **زیرساخت‌های مشترک پلتفرم** | هویت و عضویت؛ مرز Tenant و سازمان؛ مجوزدهی؛ قراردادهای API و یکپارچه‌سازی؛ پردازش رویداد؛ دفترکل‌ها و کنترل‌های مالی تفکیک‌شده؛ ممیزی؛ اعلان؛ گزارش؛ بومی‌سازی؛ عملیات و مشاهده‌پذیری | مفاهیم معماری به‌صورت پیشنهاد مستند شده‌اند. ADRهای نهایی و پیاده‌سازی اجرایی هنوز تأیید نشده‌اند. |
 
-قابلیت‌های وفاداری و پاداش می‌توانند به‌عنوان توسعه‌های اختیاری و مستقل بررسی شوند. منبع تأمین اعتبار، شرایط احراز، مسئولیت مالی، انقضا، برگشت و قواعد حسابداری آن‌ها باید پیش از ورود به محدوده یک انتشار مصوب مشخص شود.\n\nاین موارد **دامنه‌های هدف محصول هستند، نه ادعای قابلیت‌های منتشرشده**. اولین نسخه تجاری، امکانات فعال هر ماژول، بازارهای پشتیبانی‌شده و معیارهای پذیرش باید جداگانه تصویب شوند.
+قابلیت‌های وفاداری و پاداش می‌توانند به‌عنوان توسعه‌های اختیاری و مستقل بررسی شوند. منبع تأمین اعتبار، شرایط احراز، مسئولیت مالی، انقضا، برگشت و قواعد حسابداری آن‌ها باید پیش از ورود به محدوده یک انتشار مصوب مشخص شود.
+
+این موارد **دامنه‌های هدف محصول هستند، نه ادعای قابلیت‌های منتشرشده**. اولین نسخه تجاری، امکانات فعال هر ماژول، بازارهای پشتیبانی‌شده و معیارهای پذیرش باید جداگانه تصویب شوند.
 
 ### پلتفرم برای چه کسانی طراحی می‌شود؟
 
@@ -210,7 +226,9 @@ Lottorito با هدف ایجاد یک **زیرساخت جهانی، ماژولا
 - White-label
 - تجربه Embedded و ورود یکپارچه SSO
 
-پیکربندی White-label می‌تواند برند، دامنه و نحوه نمایش محصول برای هر Tenant را متناسب کند؛ در عین حال هویت پلتفرمی، مالکیت و قابلیت ردیابی فنی Lottorito باید تحت حاکمیت مشخص باقی بماند.\n\nاین موارد مدل‌های هدف عرضه و تجاری‌سازی هستند؛ نه ادعای پیاده‌سازی، دسترس‌پذیری فعلی یا تعهد قراردادی برای هرکدام.
+پیکربندی White-label می‌تواند برند، دامنه و نحوه نمایش محصول برای هر Tenant را متناسب کند؛ در عین حال هویت پلتفرمی، مالکیت و قابلیت ردیابی فنی Lottorito باید تحت حاکمیت مشخص باقی بماند.
+
+این موارد مدل‌های هدف عرضه و تجاری‌سازی هستند؛ نه ادعای پیاده‌سازی، دسترس‌پذیری فعلی یا تعهد قراردادی برای هرکدام.
 
 ### اصول بنیادین پلتفرم
 
@@ -218,9 +236,9 @@ Lottorito با هدف ایجاد یک **زیرساخت جهانی، ماژولا
 
 ۲. **یکپارچه‌سازی مستقل از شریک** — رفتار اختصاصی هر ارائه‌دهنده در Adapter و قرارداد نسخه‌بندی‌شده قرار می‌گیرد، نه در هسته محصول. هیچ ارائه‌دهنده یا شریک پایلوتی به‌عنوان شریک انحصاری فرض نمی‌شود.
 
-۳. **جداسازی Tenant از ابتدا** — زمینه Tenant باید از عضویت احرازشده یا اتصال ماشینی معتبر استخراج شود، نه از داده ورودی غیرقابل‌اعتماد. این جداسازی باید APIها، پردازش‌های پس‌زمینه، دسترسی داده، Cache، فایل‌ها، گزارش‌ها و ابزارهای عملیاتی را پوشش دهد.
+۳. **جداسازی Tenant از ابتدا** — زمینه Tenant باید از عضویت احرازشده یا اتصال ماشینی معتبر استخراج شود، نه از داده ورودی غیرقابل‌اعتماد. این جداسازی باید APIها، پردازش‌های پس‌زمینه، دسترسی داده، Cache، فایل‌ها، گزارش‌ها و ابزارهای عملیاتی را پوشش دهد. مدل جداسازی می‌تواند با توجه به ریسک Tenant، تعهدات قراردادی، بار کاری و حوزه قضایی، ترکیبی از منابع اشتراکی (Pool)، پل (Bridge) و اختصاصی (Silo) باشد؛ برای همه Tenantها یک توپولوژی واحد فرض نمی‌شود.
 
-۴. **سلامت و تمامیت مالی** — سوابق مالی بر مبنای مبالغ و ارزهای دقیق، ثبت دوطرفه تغییرناپذیر، اتمیک بودن، idempotency، اسناد معکوس مرتبط و تطبیق طراحی می‌شوند. موجودی باید از سوابق معتبر به دست آید، نه اینکه منبع حقیقت با ویرایش مستقیم باشد. موجودی Tenantها یا محصولات نباید به‌طور ضمنی با یکدیگر ادغام شود.
+۴. **سلامت و تمامیت مالی** — سوابق مالی بر مبنای مبالغ و ارزهای دقیق، ثبت دوطرفه تغییرناپذیر، اتمیک بودن، idempotency، اسناد معکوس مرتبط و تطبیق طراحی می‌شوند. موجودی باید از سوابق معتبر به دست آید، نه اینکه منبع حقیقت با ویرایش مستقیم باشد. اصلاحات باید با ثبت تعدیل یا سند معکوس قابل‌ردیابی انجام شوند، نه با بازنویسی تاریخچه ثبت‌شده. موجودی Tenantها یا محصولات نباید به‌طور ضمنی با یکدیگر ادغام شود.
 
 ۵. **یکپارچه‌پذیری API-first** — قراردادهای نسخه‌بندی‌شده، مستند و قابل‌آزمون، نحوه ارتباط محصولات و سامانه‌های بیرونی را مشخص می‌کنند.
 
@@ -281,12 +299,22 @@ flowchart TB
 خط مبنای مهندسی موردنظر شامل این موارد است:
 
 - زمینه Tenant احرازشده و جداسازی قابل‌اعمال در تمام مرزهای اجرایی.
-- قراردادهای نسخه‌بندی‌شده API و رویداد، همراه با Adapterهای اختصاصی ارائه‌دهندگان.
+- سهمیه‌بندی متناسب با Tenant و کنترل استفاده منصفانه از صف‌ها، Workerها، Connection Poolها و سایر گلوگاه‌های ظرفیت مشترک، در کنار محدودیت‌های سراسری پلتفرم.
+- قراردادهای نسخه‌بندی‌شده API و رویداد، همراه با سیاست‌های مستند سازگاری و منسوخ‌سازی و Adapterهای اختصاصی ارائه‌دهندگان.
 - دریافت پایدار رویداد، پردازش idempotent و بازپخش کنترل‌شده.
 - تاریخچه مالی تغییرناپذیر با اصلاحات و اسناد معکوس قابل‌ردیابی.
 - تست خودکار برای مجوزدهی، جداسازی Tenant، هم‌زمانی، دریافت تکراری، قواعد مالی و بازیابی خطا.
 - لاگ ساختاریافته، metrics، tracing، ردپای ممیزی، پشتیبان‌گیری و رویه بازیابی بحران.
 - تحویل تکرارپذیر همراه با بازبینی امنیتی و همگامی مستندات فارسی و انگلیسی.
+
+### مراجع طراحی و معماری
+
+چارچوب‌های عمومی زیر در تدوین معیارهای طراحی پلتفرم مورد استفاده قرار می‌گیرند؛ این مراجع به‌معنای دریافت گواهی، انطباق رسمی یا اثبات پیاده‌سازی نیستند:
+
+- [AWS SaaS Lens — مدل‌های جداسازی Silo، Pool و Bridge](https://docs.aws.amazon.com/wellarchitected/latest/saas-lens/silo-pool-and-bridge-models.html)
+- [OWASP — راهنمای امنیت برنامه‌های چندمستاجری](https://cheatsheetseries.owasp.org/cheatsheets/Multi_Tenant_Security_Cheat_Sheet.html)
+- [Google Cloud — راهنمای طراحی API](https://docs.cloud.google.com/apis/design)
+- [CNCF — مدل بلوغ مهندسی پلتفرم](https://tag-app-delivery.cncf.io/whitepapers/platform-eng-maturity-model/)
 
 ### اعتماد، مقررات و مرزهای محصول
 
