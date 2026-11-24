@@ -1,6 +1,6 @@
 # P-01 — نمونه جداسازی Tenant
 
-**شناسه سند:** LOT-PROT-P01-001 | **نسخه:** ۰.۲.۰ | **وضعیت:** Prototype پیاده‌سازی‌شده؛ CI نسخه پایه موفق و CI مقایسه هویت مستقل در انتظار | **تاریخ بازبینی:** ۲۰۲۶-۱۱-۲۴
+**شناسه سند:** LOT-PROT-P01-001 | **نسخه:** ۰.۳.۰ | **وضعیت:** Prototype پیاده‌سازی‌شده؛ CI مقایسه هویت مستقل موفق؛ P-01 کامل همچنان جزئی | **تاریخ بازبینی:** ۲۰۲۶-۱۱-۲۴
 
 ## هدف و مرز تصمیم
 
@@ -95,18 +95,18 @@ Dependency مستقیم pg در Prototype Pin شده است، اما هنوز np
 ## ثبت نتیجه
 
 - وضعیت پیاده‌سازی: فایل‌ها در شاخه spike/p01-tenant-isolation اضافه شده‌اند.
-- نتیجه CI: موفق — آخرین اجرای تأییدشده GitHub Actions با شناسه [45409321843](https://github.com/tecpey/lottorito-platform/actions/runs/45409321843)، روی Head با شناسه `d9bcee4581523e0d9e4f11070f4196060ce7d537`. این اجرا از Node.js نسخه 26.13.0، PostgreSQL نسخه 18.7 و npm ci با Lockfile ثبت‌شده استفاده کرد؛ هر ۱۸ تست Node موفق شدند، صفر شکست و صفر تست Skip‌شده. GitHub Actions با SHAهای Commit تغییرناپذیر و تأییدشده Pin شده‌اند.
-- اجرای موفق شامل نوشتن اتمیک Job/Outbox، Claim هم‌زمان Dispatcher با `SKIP LOCKED`، Retry مربوط به Lease و رد Ack قدیمی، Envelope امضاشده Ed25519 برای Tenant/Job (کلید خصوصی فقط در Dispatcher و کلید عمومی در Worker)، مجوز Metadata-only برای Dispatcher، Replay بی‌اثر و Idempotent، بررسی مجدد Membership در Worker و رد Job پس از لغو Membership است. همچنین ابطال Membership در درخواست بعدی، RLS جدول‌ها، مجوز محدود `UPDATE(lock_version)` برای `SELECT FOR SHARE` بدون مجوز تغییر `active`، جلوگیری از UPDATE/DELETE بین Tenantها، رد Write با WITH CHECK و Pool Reuse بررسی شده‌اند.
-- تست Red-Team عمدی همچنان نشان می‌دهد Role مشترک `app_runtime` در صورت تسخیر می‌تواند GUC سفارشی را به Tenant دیگری تغییر دهد. این یک مرز اعتماد شناخته‌شده است، نه اثبات جداسازی در برابر نفوذگر.
+- نتیجه CI: موفق — اجرای GitHub Actions با شناسه [45410971589](https://github.com/tecpey/lottorito-platform/actions/runs/45410971589)، روی Head با شناسه `318e1329e2e8c723401580ec396ebed6269e5e6d`. Node.js نسخه 26.13.0 + PostgreSQL نسخه 18.7؛ نصب با `npm ci` و Lockfile ثبت‌شده؛ ۱۹ تست Node موفق، صفر شکست و صفر تست Skip‌شده. اجرای Documentation Governance با شناسه [45410971541](https://github.com/tecpey/lottorito-platform/actions/runs/45410971541) نیز موفق شد. GitHub Actions با SHAهای Commit تغییرناپذیر Pin شده‌اند.
+- اجرای موفق شامل تست‌های قبلی RLS در Request، Pool Reuse، بررسی مجدد Membership و مسیر Async Outbox/Dispatcher/Envelope امضاشده Ed25519 است؛ همچنین تست مقایسه‌ای LOGIN Roleهای مستقل Tenant را پوشش می‌دهد: هویت Session دقیقاً به یک Tenant نگاشت می‌شود؛ تغییر GUC قابل‌تغییر، Visibility را تغییر نمی‌دهد؛ `SET ROLE` به Tenant دیگر، خواندن Identity Map خصوصی و Insert بین Tenantها رد می‌شود.
+- تست Red-Team عمدی همچنان نشان می‌دهد Role مشترک `app_runtime` در صورت تسخیر می‌تواند GUC سفارشی را به Tenant دیگری تغییر دهد. این یک مرز اعتماد شناخته‌شده است، نه اثبات جداسازی در برابر نفوذگر. مدل LOGIN Role مستقل در برابر SQL Injection محدود به اتصال یک Tenant مقاوم‌تر است، اما به Credential Broker امن و Poolهای تفکیک‌شده وابسته است؛ این کنترل‌های عملیاتی و رفتار در مقیاس هنوز آزمایش نشده‌اند.
 - اجرای محلی: در این محیط اجرا نشده است؛ اجرای تأییدشده در CI میزبانی‌شده GitHub انجام شده است.
-- وضعیت کلی P-01: نامعین / فقط بخشی از محدوده تا زمان آزمایش مرزهای Async، ابطال دسترسی، Support ممتاز و سایر مسیرهای ذخیره‌سازی.
+- وضعیت کلی P-01: نامعین / فقط بخشی از محدوده. آزمایش مقایسه‌ای یک الگوی هویت دیتابیس را در Fixture ساختگی اثبات می‌کند، نه جداسازی End-to-End در Cache، Object Storage، Search، Export، Reporting، Support، Workload Identity یا مرزهای Deployment.
 - تصمیم فناوری: همچنان Proposed است؛ هیچ تصویب نهایی Stack از این آزمایش استنباط نمی‌شود.
 
 ## مراجع
 
 - LOT-PROT-001 — برنامه Prototype و شواهد معماری.
 - LOT-TECH-ADR-001 — ADR فناوری، استقرار و قابلیت اطمینان.
-- PostgreSQL 18 — [سیاست‌های Row Security](https://www.postgresql.org/docs/18/ddl-rowsecurity.html) و [مجوزها](https://www.postgresql.org/docs/18/ddl-priv.html) (الزام مجوز SELECT FOR SHARE).
+- PostgreSQL 18 — [سیاست‌های Row Security](https://www.postgresql.org/docs/18/ddl-rowsecurity.html)، [توابع اطلاعات Session](https://www.postgresql.org/docs/18/functions-info.html)، [SET ROLE](https://www.postgresql.org/docs/18/sql-set-role.html)، [SET SESSION AUTHORIZATION](https://www.postgresql.org/docs/18/sql-set-session-authorization.html)، [CREATE FUNCTION و امنیت SECURITY DEFINER](https://www.postgresql.org/docs/18/sql-createfunction.html) و [مجوزها](https://www.postgresql.org/docs/18/ddl-priv.html) (الزام مجوز SELECT FOR SHARE).
 - OWASP — [راهنمای امنیت چندمستاجری](https://cheatsheetseries.owasp.org/cheatsheets/Multi_Tenant_Security_Cheat_Sheet.html)، شامل منشأ Tenant Context، Context تراکنش‌محور و انتخاب راهبرد جداسازی.
 - AWS — [انتخاب الگوی دسترسی PostgreSQL مناسب برای SaaS](https://aws.amazon.com/blogs/database/choose-the-right-postgresql-data-access-pattern-for-your-saas-application/)، شامل Trade-off متغیرهای Runtime مشترک و Roleهای دیتابیس مستقل برای هر Tenant.
 - AWS Prescriptive Guidance — [الگوی Transactional Outbox](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html)، شامل نوشتن اتمیک Outbox و Consumerهای Idempotent با تحویل At-least-once.
