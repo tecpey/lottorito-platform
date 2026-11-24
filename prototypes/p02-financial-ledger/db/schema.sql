@@ -309,13 +309,25 @@ CREATE OR REPLACE FUNCTION public.guard_source_event()
 RETURNS trigger
 LANGUAGE plpgsql
 AS $function$
+DECLARE
+  allowed_scale smallint;
 BEGIN
+  IF TG_OP = 'INSERT' THEN
+    SELECT decimal_scale INTO allowed_scale
+      FROM public.currency_definitions
+     WHERE currency_code = NEW.currency_code;
+    IF allowed_scale IS NULL OR NEW.expected_amount <> trunc(NEW.expected_amount, allowed_scale) THEN
+      RAISE EXCEPTION 'source event amount exceeds the currency decimal scale'
+        USING ERRCODE = '22003';
+    END IF;
+    RETURN NEW;
+  END IF;
   RAISE EXCEPTION 'source events are immutable'
     USING ERRCODE = '55000';
 END;
 $function$;
 CREATE TRIGGER source_event_immutable
-BEFORE UPDATE OR DELETE ON public.source_events
+BEFORE INSERT OR UPDATE OR DELETE ON public.source_events
 FOR EACH ROW EXECUTE FUNCTION public.guard_source_event();
 
 CREATE OR REPLACE FUNCTION public.guard_economic_effect()
@@ -383,8 +395,8 @@ SELECT s.tenant_id, s.product_id, s.source_event_id, s.effect_key,
        s.currency_code, s.expected_amount,
        COALESCE(sum(
          CASE
-           WHEN a.account_code = 'affiliate_payable' AND e.side = 'credit' THEN e.amount
-           WHEN a.account_code = 'affiliate_payable' AND e.side = 'debit' THEN -e.amount
+           WHEN a.account_code = 'affiliate_payable' AND a.currency_code = s.currency_code AND e.side = 'credit' THEN e.amount
+           WHEN a.account_code = 'affiliate_payable' AND a.currency_code = s.currency_code AND e.side = 'debit' THEN -e.amount
            ELSE 0
          END
        ), 0)::numeric(38,18) AS posted_payable_amount
@@ -409,8 +421,8 @@ SELECT s.tenant_id, s.product_id, s.source_event_id, s.effect_key,
           s.currency_code, s.expected_amount
 HAVING s.expected_amount <> COALESCE(sum(
   CASE
-    WHEN a.account_code = 'affiliate_payable' AND e.side = 'credit' THEN e.amount
-    WHEN a.account_code = 'affiliate_payable' AND e.side = 'debit' THEN -e.amount
+    WHEN a.account_code = 'affiliate_payable' AND a.currency_code = s.currency_code AND e.side = 'credit' THEN e.amount
+    WHEN a.account_code = 'affiliate_payable' AND a.currency_code = s.currency_code AND e.side = 'debit' THEN -e.amount
     ELSE 0
   END
 ), 0);
