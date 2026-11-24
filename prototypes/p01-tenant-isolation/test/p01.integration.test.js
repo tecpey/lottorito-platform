@@ -2,6 +2,7 @@ import test, { before, after } from "node:test";
 import assert from "node:assert/strict";
 import { once } from "node:events";
 import { generateKeyPairSync } from "node:crypto";
+import { setTimeout as delay } from "node:timers/promises";
 import { Pool } from "pg";
 import { createTenantServer } from "../src/app.js";
 import { withTenantTransaction } from "../src/tenant-db.js";
@@ -28,6 +29,7 @@ const jobSigningPrivateKey = jobSigningPrivateKeyObject.export({ type: "pkcs8", 
 const jobVerifyPublicKey = jobVerifyPublicKeyObject.export({ type: "spki", format: "pem" });
 
 const adminPool = new Pool({ connectionString: adminDatabaseUrl, max: 1 });
+const adminObserverPool = new Pool({ connectionString: adminDatabaseUrl, max: 1 });
 const dispatcherPool = new Pool({ connectionString: dispatcherDatabaseUrl, max: 1 });
 const dispatcherPool2 = new Pool({ connectionString: dispatcherDatabaseUrl, max: 1 });
 const tenantAPool = new Pool({ connectionString: process.env.TENANT_A_DATABASE_URL, max: 1 });
@@ -62,6 +64,7 @@ after(async () => {
   await once(server, "close");
   await pool.end();
   await adminPool.end();
+  await adminObserverPool.end();
   await dispatcherPool.end();
   await dispatcherPool2.end();
   await tenantAPool.end();
@@ -517,6 +520,98 @@ test("identity-bound per-tenant database roles resist GUC spoofing and role swit
       ),
       (error) => error.code === "42501"
     );
+  }
+});
+
+
+test("membership revocation waits for an in-flight tenant transaction holding FOR SHARE", async () => {
+  let requestClient = await pool.connect();
+  const revokeClient = await adminPool.connect();
+  let releaseRequest;
+  const releaseGate = new Promise((resolve) => { releaseRequest = resolve; });
+  let lockedResolve;
+  const lockAcquired = new Promise((resolve) => { lockedResolve = resolve; });
+  let requestTransactionOpen = false;
+  let revokeTransactionOpen = false;
+
+  const inFlightRequest = (async () => {
+    await requestClient.query("BEGIN");
+    requestTransactionOpen = true;
+    await requestClient.query("SELECT set_config('app.tenant_id', $1, true)", [TENANT_A]);
+    const membership = await requestClient.query(
+      "SELECT active FROM public.tenant_memberships WHERE subject_id = $1 FOR SHARE",
+      ["synthetic-user-a"]
+    );
+    assert.equal(membership.rows[0]?.active, true);
+    lockedResolve();
+    await releaseGate;
+    await requestClient.query("COMMIT");
+    requestTransactionOpen = false;
+  })();
+
+  try {
+    await lockAcquired;
+    await revokeClient.query("BEGIN");
+    revokeTransactionOpen = true;
+    const pidResult = await revokeClient.query("SELECT pg_backend_pid() AS pid");
+    const revokePid = pidResult.rows[0].pid;
+    let updateError;
+    let updateFinished = false;
+    const update = revokeClient.query(
+      "UPDATE public.tenant_memberships SET active = false WHERE tenant_id = $1 AND subject_id = $2",
+      [TENANT_A, "synthetic-user-a"]
+    ).then(
+      () => { updateFinished = true; },
+      (error) => { updateError = error; updateFinished = true; }
+    );
+
+    let waitingOnLock = false;
+    for (let attempt = 0; attempt < 100; attempt += 1) {
+      const observed = await adminObserverPool.query(
+        "SELECT wait_event_type FROM pg_stat_activity WHERE pid = $1",
+        [revokePid]
+      );
+      if (observed.rows[0]?.wait_event_type === "Lock") {
+        waitingOnLock = true;
+        break;
+      }
+      await delay(20);
+    }
+    assert.equal(waitingOnLock, true, "revocation UPDATE should wait on the in-flight membership row lock");
+    assert.equal(updateFinished, false, "revocation must not pass the active request's FOR SHARE lock");
+
+    releaseRequest();
+    await inFlightRequest;
+    requestClient.release();
+    requestClient = null;
+    await update;
+    if (updateError) throw updateError;
+    assert.equal(updateFinished, true);
+    await revokeClient.query("COMMIT");
+    revokeTransactionOpen = false;
+
+    const subsequentRequest = await request("/records", { token: "p01-synthetic-token-a" });
+    assert.equal(subsequentRequest.status, 403);
+  } finally {
+    releaseRequest();
+    await inFlightRequest.catch(() => {});
+    if (requestClient) {
+      if (requestTransactionOpen) {
+        try { await requestClient.query("ROLLBACK"); } catch {}
+      }
+      requestClient.release();
+    }
+    if (revokeTransactionOpen) {
+      try { await revokeClient.query("ROLLBACK"); } catch {}
+    }
+    try {
+      await revokeClient.query(
+        "UPDATE public.tenant_memberships SET active = true WHERE tenant_id = $1 AND subject_id = $2",
+        [TENANT_A, "synthetic-user-a"]
+      );
+    } finally {
+      revokeClient.release();
+    }
   }
 });
 
