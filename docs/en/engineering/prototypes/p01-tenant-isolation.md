@@ -16,6 +16,10 @@ It is not a production service, authentication implementation, complete P-01 pas
 - Every database operation checks out one pooled connection, opens a transaction, applies transaction-local set_config('app.tenant_id', ..., true), performs parameterized queries and commits/rolls back on that same connection.
 - PostgreSQL RLS is enabled and forced on the fixture table. The runtime role is explicitly NOSUPERUSER, NOBYPASSRLS, non-owner, and lacks database/role creation privileges.
 - A single-connection pool deliberately forces alternating tenant requests to reuse the same physical connection.
+- Job creation writes a tenant-scoped job row and metadata-only dispatch row in one database transaction; the tenant ID is derived from the authenticated principal.
+- A separate non-superuser/non-BYPASSRLS dispatcher role can claim global dispatch metadata with `FOR UPDATE SKIP LOCKED`, but has no grant on job payloads. Its UPDATE grant is limited to dispatch status/attempt/lease columns.
+- Dispatch envelopes bind version, tenant ID, job ID, attempt and issue time with HMAC-SHA-256; the worker verifies the signature before setting tenant context and reloading the job under RLS.
+- The worker re-checks the originating subject's active membership in the job transaction, uses row locks and an idempotent status transition, and rejects jobs whose membership was revoked before execution.
 
 ## Acceptance scenarios
 
@@ -35,6 +39,11 @@ It is not a production service, authentication implementation, complete P-01 pas
 | P01-DB-05 | UPDATE/DELETE tenant-B-only object while scoped to A | Zero rows affected; B's object remains unchanged |
 | P01-DB-06 | INSERT a tenant-B row while scoped to A, bypassing HTTP | RLS WITH CHECK rejects the write; failed transaction is rolled back before pool reuse |
 | P01-DB-07 | Read tenant membership rows under A and B contexts | Membership table RLS exposes only the active tenant's membership rows |
+| P01-ASYNC-01 | Enqueue a job as A/B and attempt caller tenant override | Job and dispatch metadata are atomic; tenant comes from principal; forged tenant is denied |
+| P01-ASYNC-02 | Inspect dispatcher role and query job payloads | Dispatcher can read/claim metadata only; payload SELECT is denied; role has no BYPASSRLS |
+| P01-ASYNC-03 | Change tenant ID in a signed queue envelope | HMAC verification fails before any tenant-scoped data access |
+| P01-ASYNC-04 | Reclaim an expired lease, replay delivery and acknowledge attempts | Only current attempt can acknowledge; job effect completes once; replay is idempotent |
+| P01-ASYNC-05 | Revoke actor membership after enqueue but before execution | Worker marks the job rejected and does not execute its payload |
 
 ## Important security interpretation
 
@@ -45,7 +54,8 @@ The table owner creates the fixture and owns the table; the application connects
 ## Explicitly out of scope / not yet proven
 
 - Real authentication, session revocation, MFA, workload identity or production membership storage.
-- Concurrent race testing for membership revocation against an already in-flight request; the request transaction takes a row-level share lock so revocation must serialize behind it, but this race has not been stress-tested. PostgreSQL requires UPDATE privilege on at least one column for SELECT FOR SHARE; the runtime role receives this only on inert lock_version, not on the active authorization flag.
+- Concurrent race testing for membership revocation against an already in-flight request; the request/job transaction takes a row-level share lock so revocation must serialize behind it, but this race has not been stress-tested. PostgreSQL requires UPDATE privilege on at least one column for SELECT FOR SHARE; the runtime role receives this only on inert lock_version, not on the active authorization flag.
+- A real message broker, external queue delivery, scheduled jobs, exponential backoff, dead-letter queue, dispatcher concurrency/load testing, and production key rotation/KMS integration. The current dispatch table is a provider-neutral outbox/claim simulation, not a selected queue product.
 - Operator/support/break-glass authorization and audit.
 - Asynchronous queue jobs, retries, scheduled jobs and replay.
 - Cache, object storage, search, exports, analytics and reporting isolation.
@@ -93,4 +103,6 @@ The prototype pins the direct pg dependency but does not yet commit an npm lockf
 - PostgreSQL 18 — [Row Security Policies](https://www.postgresql.org/docs/18/ddl-rowsecurity.html) and [Privileges](https://www.postgresql.org/docs/18/ddl-priv.html) (SELECT FOR SHARE privilege requirement).
 - OWASP — [Multi-Tenant Security Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Multi_Tenant_Security_Cheat_Sheet.html), including tenant-context provenance, transaction-local context and isolation-strategy selection.
 - AWS — [Choose the right PostgreSQL data access pattern for your SaaS application](https://aws.amazon.com/blogs/database/choose-the-right-postgresql-data-access-pattern-for-your-saas-application/), including the trade-off between shared runtime variables and per-tenant database roles.
+- AWS Prescriptive Guidance — [Transactional outbox pattern](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html), including atomic outbox writes and idempotent at-least-once consumers.
+- PostgreSQL 18 — [SELECT locking clause](https://www.postgresql.org/docs/current/sql-select.html), including `SKIP LOCKED` for queue-like multi-consumer claims.
 - Node.js — [release schedule](https://github.com/nodejs/Release).
