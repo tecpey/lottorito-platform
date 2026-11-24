@@ -28,7 +28,7 @@ It is not a production service, authentication implementation, complete P-01 pas
 | P01-HTTP-05 | Conflicting tenant ID in write body | 403; no write side effect |
 | P01-HTTP-06 | Write without caller tenant ID | Server assigns authenticated tenant |
 | P01-DB-01 | Alternate A/B/A through pool size 1 | No cross-request context leakage |
-| P01-DB-02 | Inspect runtime role and table flags | Not superuser, owner or BYPASSRLS; RLS and FORCE RLS enabled |
+| P01-DB-02 | Inspect runtime role, table flags and policy composition | Not superuser, owner or BYPASSRLS; RLS and FORCE RLS enabled; tenant guard is RESTRICTIVE so future permissive policies cannot widen it |
 | P01-DB-03 | Query/insert without tenant context | Select sees zero rows; insert denied |
 | P01-DB-04 | Attempt to set app.tenant_id using shared app_runtime role | Expected exposure: role can assert another tenant; proves GUC RLS is not a boundary against compromised runtime credentials |
 | P01-DB-05 | UPDATE/DELETE tenant-B-only object while scoped to A | Zero rows affected; B's object remains unchanged |
@@ -38,7 +38,7 @@ It is not a production service, authentication implementation, complete P-01 pas
 
 RLS is defense in depth, not a substitute for authentication, membership authorization or tenant-aware application design. A custom PostgreSQL setting is trusted only because the application controls the database connection and binds the value after authenticating the principal. An explicit red-team test demonstrates that app_runtime itself can set the custom GUC to another tenant and then read that tenant's rows. This is an expected exposure of the shared-role design, not a passing isolation control. Therefore this prototype proves defense against accidental missing tenant predicates and untrusted HTTP tenant hints, but it does NOT prove isolation against arbitrary SQL execution, SQL injection or compromise of the shared application credential. Parameterized SQL, strict query boundaries, least privilege and injection testing remain mandatory. A production threat model must decide whether the shared application process is inside the trusted computing base or whether a stronger database-verifiable tenant identity mechanism is required.
 
-The table owner creates the fixture and owns the table; the application connects only as app_runtime. FORCE ROW LEVEL SECURITY is enabled. PostgreSQL superusers and BYPASSRLS roles can bypass RLS, and table ownership ordinarily bypasses it unless FORCE RLS is enabled. See the official [PostgreSQL 18 row security documentation](https://www.postgresql.org/docs/18/ddl-rowsecurity.html).
+The table owner creates the fixture and owns the table; the application connects only as app_runtime. FORCE ROW LEVEL SECURITY is enabled. A permissive baseline policy is paired with a RESTRICTIVE tenant guard: PostgreSQL combines permissive policies with OR, so the restrictive guard remains ANDed with them and prevents a later broad permissive policy from widening tenant access. PostgreSQL superusers and BYPASSRLS roles can bypass RLS, and table ownership ordinarily bypasses it unless FORCE RLS is enabled. See the official [PostgreSQL 18 row security documentation](https://www.postgresql.org/docs/18/ddl-rowsecurity.html).
 
 ## Explicitly out of scope / not yet proven
 
