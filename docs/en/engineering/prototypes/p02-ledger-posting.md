@@ -1,6 +1,6 @@
 # P-02 Tenant-Bound Double-Entry Ledger Posting
 
-**Document ID:** LOT-PROT-P02-001 | **Version:** 0.4.0 | **Status:** Synthetic prototype; security-definer grants/search-path assertions added; latest CI pending
+**Document ID:** LOT-PROT-P02-001 | **Version:** 0.5.0 | **Status:** Synthetic prototype; 25 CI tests passed; accounting policy and production controls unapproved
 
 ## Purpose and authority
 
@@ -56,7 +56,7 @@ This is an engineering experiment, not an accounting policy, commission/NGR spec
 
 ## Evidence status
 
-All data and credentials are synthetic. P-02 run [45428017700](https://github.com/tecpey/lottorito-platform/actions/runs/45428017700) passed 20 tests (0 failed, 0 skipped) on code head `009ccb5e7066ab4e22fd070d679da4cb8e8f939f`; Documentation Governance run [45428017847](https://github.com/tecpey/lottorito-platform/actions/runs/45428017847) passed. This establishes only the tested synthetic database posting invariants, not accounting correctness, regulatory eligibility, customer acceptance or production readiness.
+All data and credentials are synthetic. P-02 run [45463594552](https://github.com/tecpey/lottorito-platform/actions/runs/45463594552) passed 25 tests (0 failed, 0 skipped) on code head `63a5ced2f3611e200a9c681e1a972d77c176c0e4`; Documentation Governance run [45463594523](https://github.com/tecpey/lottorito-platform/actions/runs/45463594523) passed. This establishes only the tested synthetic database posting invariants, not accounting correctness, regulatory eligibility, customer acceptance or production readiness.
 
 ## Research references
 
