@@ -1,6 +1,6 @@
 # Lottorito Architecture Prototype and Evidence Plan
 
-**Document ID:** LOT-PROT-001 | **Version:** 1.5.0 | **Status:** Proposed experiment plan; execution and technology choices not approved
+**Document ID:** LOT-PROT-001 | **Version:** 1.7.0 | **Status:** Proposed experiment plan; execution and technology choices not approved
 
 ## 1. Purpose and authority
 
@@ -62,6 +62,10 @@ A prototype may be **Pass**, **Fail**, **Inconclusive** or **Not run**. “Pass�
 **Current P-01 experiment note (2026-11-24):** PR #36 passed 20 synthetic integration tests. Follow-on PR #39 adds scoped, time-bound, read-only support grants and append-only audit; its latest observed CI run 45418177150 passed 26 tests on head d2e9fc81a17036e5d6e63c07ee1e64fa055a24eb. This is partial evidence only: support metadata minimization, production identity/MFA, endpoint race/failure stress, credential brokering, cache/storage/search/reporting, load and recovery remain open. No technology or production architecture is approved.
 
 **Current P-01 secondary data-plane experiment (2026-11-24):** a stacked follow-on prototype adds tenant-derived cache keys, tenant-prefixed object keys, server-injected search filters and a separately RLS-protected reporting table. Cache/object/search use in-memory adapters only; provider-specific Redis/S3/OpenSearch/warehouse behavior remains explicitly unverified. The data-plane test suite passed 30 tests in run 45419828256 on code head 02850c6374dd295ec0df6ba42addf266a2d8a977. Provider-specific behavior remains unverified.
+
+**P-01 export-download experiment (2026-11-24):** a follow-on prototype adds subject-bound, tenant-scoped, expiring one-time download grants. Tokens are 256-bit random values; only SHA-256 hashes are stored; PostgreSQL row locks serialize redemption and export-status checks. CI run 45427819046 passed 37 tests (0 failed, 0 skipped) on current code head 46d8e837ab1c3b5f54ad2b17d6119419020b52f8, including active-membership reauthorization and a deterministic two-connection proof that revocation serializes against redemption. A database CHECK also rejects export object-key traversal/encoded separators/foreign tenant prefixes; P-01 run 45429917398 passed 38 tests (0 failed, 0 skipped) on code head aa0bd586c4ebc0f8785d5981ef7867c13efe7b79, and Documentation Governance run 45429917650 passed on that head. HTTP streaming, provider-signed URLs, CDN behavior, content scanning and delivery retry semantics remain out of scope and unverified.
+
+**P-01 delivery design study (2026-11-24):** bilingual LOT-PROT-P01-DELIVERY-001 compares application-mediated streaming with provider-signed URLs. It recommends a provider-neutral proxy-streaming experiment first for sensitive exports, explicitly documents that S3 presigned URLs are reusable bearer capabilities until expiry, and defines session/retry/Range/backpressure/header/audit acceptance scenarios. This is a proposal only; no delivery architecture or storage provider is approved.
 
 ### P-02 — Financial transaction and reconciliation
 

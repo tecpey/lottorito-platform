@@ -1,10 +1,11 @@
 import test, { before, after } from "node:test";
 import assert from "node:assert/strict";
 import { once } from "node:events";
-import { generateKeyPairSync } from "node:crypto";
+import { createHash, generateKeyPairSync } from "node:crypto";
 import { setTimeout as delay } from "node:timers/promises";
 import { Pool } from "pg";
 import { createTenantServer } from "../src/app.js";
+import { consumeExportDownloadGrant, issueExportDownloadGrant } from "../src/export-grants.js";
 import { withTenantTransaction } from "../src/tenant-db.js";
 import { acknowledgeJob, claimNextJob } from "../src/job-dispatch.js";
 import { processTenantJob } from "../src/job-worker.js";
@@ -36,6 +37,10 @@ const SUPPORT_GRANT_ACTIVE = "33333333-3333-4333-8333-333333333333";
 const SUPPORT_GRANT_EXPIRED = "44444444-4444-4444-8444-444444444444";
 const SUPPORT_GRANT_REVOKED = "55555555-5555-4555-8555-555555555555";
 const SUPPORT_GRANT_OTHER_TENANT = "66666666-6666-4666-8666-666666666666";
+const EXPORT_ID_SHARED = "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee";
+const EXPORT_ID_REVOKE = "ffffffff-ffff-4fff-8fff-ffffffffffff";
+const EXPORT_ID_EXPIRED = "abababab-abab-4bab-8bab-abababababab";
+const EXPORT_ID_MEMBERSHIP = "cdcdcdcd-cdcd-4dcd-8dcd-cdcdcdcdcdcd";
 
 const { privateKey: jobSigningPrivateKeyObject, publicKey: jobVerifyPublicKeyObject } =
   generateKeyPairSync("ed25519");
@@ -75,6 +80,17 @@ before(async () => {
   await adminPool.query(
     "INSERT INTO public.support_grants (grant_id, support_subject_id, tenant_id, resource_scope, reason, expires_at, revoked_at) VALUES ($1, 'synthetic-support-a', $2, 'records:read', 'Customer requested investigation of record visibility', clock_timestamp() + interval '1 hour', NULL), ($3, 'synthetic-support-a', $2, 'records:read', 'Expired synthetic support investigation reason', clock_timestamp() - interval '1 hour', NULL), ($4, 'synthetic-support-a', $2, 'records:read', 'Revoked synthetic support investigation reason', clock_timestamp() + interval '1 hour', clock_timestamp()), ($5, 'synthetic-support-a', $6, 'records:read', 'Wrong tenant synthetic investigation reason', clock_timestamp() + interval '1 hour', NULL)",
     [SUPPORT_GRANT_ACTIVE, TENANT_A, SUPPORT_GRANT_EXPIRED, SUPPORT_GRANT_REVOKED, SUPPORT_GRANT_OTHER_TENANT, TENANT_B]
+  );
+  await adminPool.query(
+    `INSERT INTO public.tenant_exports
+       (tenant_id, export_id, created_by, object_key, content_sha256, status)
+     VALUES
+       ($1, $2, 'synthetic-user-a', 'tenants/11111111-1111-4111-8111-111111111111/exports/shared.csv', repeat('a', 64), 'ready'),
+       ($3, $2, 'synthetic-user-b', 'tenants/22222222-2222-4222-8222-222222222222/exports/shared.csv', repeat('b', 64), 'ready'),
+       ($1, $4, 'synthetic-user-a', 'tenants/11111111-1111-4111-8111-111111111111/exports/revoked.csv', repeat('c', 64), 'revoked'),
+       ($1, $5, 'synthetic-user-a', 'tenants/11111111-1111-4111-8111-111111111111/exports/expired.csv', repeat('d', 64), 'ready'),
+       ($1, $6, 'synthetic-user-a', 'tenants/11111111-1111-4111-8111-111111111111/exports/membership.csv', repeat('e', 64), 'ready')`,
+    [TENANT_A, EXPORT_ID_SHARED, TENANT_B, EXPORT_ID_REVOKE, EXPORT_ID_EXPIRED, EXPORT_ID_MEMBERSHIP]
   );
 });
 
@@ -854,4 +870,209 @@ test("reporting rows are isolated by RLS for shared and identity-bound database 
     pool.query("INSERT INTO public.tenant_reports (tenant_id, report_id, report_key, payload) VALUES ($1, $2, $3, $4)", [TENANT_A, reportId, "unauthorized", "must fail"]),
     (error) => error.code === "42501"
   );
+});
+
+
+test("export download grants store only a token hash and are bound to tenant and subject", async () => {
+  const grant = await issueExportDownloadGrant({
+    pool,
+    tenantId: TENANT_A,
+    exportId: EXPORT_ID_SHARED,
+    subjectId: "synthetic-user-a"
+  });
+  assert.ok(grant);
+  assert.match(grant.token, /^[A-Za-z0-9_-]{43}$/);
+  assert.ok(grant.expiresAt instanceof Date);
+
+  const stored = await adminPool.query(
+    "SELECT encode(token_hash, 'hex') AS token_hash FROM public.export_download_grants WHERE grant_id = $1",
+    [grant.grantId]
+  );
+  const expectedHash = createHash("sha256")
+    .update(Buffer.from(grant.token, "base64url"))
+    .digest("hex");
+  assert.equal(stored.rows[0].token_hash, expectedHash);
+  assert.notEqual(stored.rows[0].token_hash, grant.token);
+
+  const wrongSubject = await consumeExportDownloadGrant({
+    pool, tenantId: TENANT_A, subjectId: "synthetic-user-b", token: grant.token
+  });
+  assert.equal(wrongSubject, null);
+
+  const wrongTenant = await consumeExportDownloadGrant({
+    pool, tenantId: TENANT_B, subjectId: "synthetic-user-a", token: grant.token
+  });
+  assert.equal(wrongTenant, null);
+
+  const delivered = await consumeExportDownloadGrant({
+    pool, tenantId: TENANT_A, subjectId: "synthetic-user-a", token: grant.token
+  });
+  assert.deepEqual(delivered, {
+    exportId: EXPORT_ID_SHARED,
+    objectKey: "tenants/" + TENANT_A + "/exports/shared.csv",
+    contentSha256: "a".repeat(64)
+  });
+
+  const replay = await consumeExportDownloadGrant({
+    pool, tenantId: TENANT_A, subjectId: "synthetic-user-a", token: grant.token
+  });
+  assert.equal(replay, null);
+});
+
+test("export grant issuance denies unowned, cross-tenant, revoked and invalid-TTL requests", async () => {
+  assert.equal(await issueExportDownloadGrant({
+    pool, tenantId: TENANT_A, exportId: EXPORT_ID_SHARED, subjectId: "synthetic-user-b"
+  }), null);
+  assert.equal(await issueExportDownloadGrant({
+    pool, tenantId: TENANT_B, exportId: EXPORT_ID_SHARED, subjectId: "synthetic-user-a"
+  }), null);
+  assert.equal(await issueExportDownloadGrant({
+    pool, tenantId: TENANT_A, exportId: EXPORT_ID_REVOKE, subjectId: "synthetic-user-a"
+  }), null);
+  await assert.rejects(issueExportDownloadGrant({
+    pool, tenantId: TENANT_A, exportId: EXPORT_ID_SHARED, subjectId: "synthetic-user-a", ttlSeconds: 30
+  }), RangeError);
+});
+
+test("expired grants and exports revoked after issuance cannot be consumed", async () => {
+  const expired = await issueExportDownloadGrant({
+    pool, tenantId: TENANT_A, exportId: EXPORT_ID_EXPIRED, subjectId: "synthetic-user-a"
+  });
+  await adminPool.query(
+    "UPDATE public.export_download_grants SET expires_at = clock_timestamp() - interval '1 second' WHERE grant_id = $1",
+    [expired.grantId]
+  );
+  assert.equal(await consumeExportDownloadGrant({
+    pool, tenantId: TENANT_A, subjectId: "synthetic-user-a", token: expired.token
+  }), null);
+
+  const revokeGrant = await issueExportDownloadGrant({
+    pool, tenantId: TENANT_A, exportId: EXPORT_ID_SHARED, subjectId: "synthetic-user-a"
+  });
+  await adminPool.query(
+    "UPDATE public.tenant_exports SET status = 'revoked' WHERE tenant_id = $1 AND export_id = $2",
+    [TENANT_A, EXPORT_ID_SHARED]
+  );
+  assert.equal(await consumeExportDownloadGrant({
+    pool, tenantId: TENANT_A, subjectId: "synthetic-user-a", token: revokeGrant.token
+  }), null);
+});
+
+test("concurrent export grant redemption succeeds exactly once", async () => {
+  const concurrentPool = new Pool({ connectionString: databaseUrl, max: 2 });
+  try {
+    const grant = await issueExportDownloadGrant({
+      pool, tenantId: TENANT_B, exportId: EXPORT_ID_SHARED, subjectId: "synthetic-user-b"
+    });
+    const results = await Promise.all([
+      consumeExportDownloadGrant({
+        pool, tenantId: TENANT_B, subjectId: "synthetic-user-b", token: grant.token
+      }),
+      consumeExportDownloadGrant({
+        pool: concurrentPool, tenantId: TENANT_B, subjectId: "synthetic-user-b", token: grant.token
+      })
+    ]);
+    assert.equal(results.filter(Boolean).length, 1);
+    assert.equal(results.filter((value) => value === null).length, 1);
+  } finally {
+    await concurrentPool.end();
+  }
+});
+
+test("malformed download tokens and invalid tenant context fail closed", async () => {
+  assert.equal(await consumeExportDownloadGrant({
+    pool, tenantId: TENANT_A, subjectId: "synthetic-user-a", token: "not-a-token"
+  }), null);
+  await assert.rejects(consumeExportDownloadGrant({
+    pool, tenantId: "not-a-tenant", subjectId: "synthetic-user-a", token: "not-a-token"
+  }), TypeError);
+});
+
+
+test("revoked tenant membership blocks new export grants and redemption of existing grants", async () => {
+  const grant = await issueExportDownloadGrant({
+    pool, tenantId: TENANT_A, exportId: EXPORT_ID_MEMBERSHIP, subjectId: "synthetic-user-a"
+  });
+  assert.ok(grant);
+
+  await adminPool.query(
+    "UPDATE public.tenant_memberships SET active = false WHERE tenant_id = $1 AND subject_id = $2",
+    [TENANT_A, "synthetic-user-a"]
+  );
+  try {
+    assert.equal(await issueExportDownloadGrant({
+      pool, tenantId: TENANT_A, exportId: EXPORT_ID_MEMBERSHIP, subjectId: "synthetic-user-a"
+    }), null);
+    assert.equal(await consumeExportDownloadGrant({
+      pool, tenantId: TENANT_A, subjectId: "synthetic-user-a", token: grant.token
+    }), null);
+  } finally {
+    await adminPool.query(
+      "UPDATE public.tenant_memberships SET active = true WHERE tenant_id = $1 AND subject_id = $2",
+      [TENANT_A, "synthetic-user-a"]
+    );
+  }
+});
+
+
+test("membership revocation serializes against an in-flight export redemption", async () => {
+  const grant = await issueExportDownloadGrant({
+    pool, tenantId: TENANT_A, exportId: EXPORT_ID_MEMBERSHIP, subjectId: "synthetic-user-a"
+  });
+  assert.ok(grant);
+
+  const revoker = await adminPool.connect();
+  let transactionOpen = false;
+  try {
+    await revoker.query("BEGIN");
+    transactionOpen = true;
+    await revoker.query(
+      "SELECT active FROM public.tenant_memberships WHERE tenant_id = $1 AND subject_id = $2 FOR UPDATE",
+      [TENANT_A, "synthetic-user-a"]
+    );
+
+    let redemptionSettled = false;
+    const redemption = consumeExportDownloadGrant({
+      pool, tenantId: TENANT_A, subjectId: "synthetic-user-a", token: grant.token
+    }).finally(() => { redemptionSettled = true; });
+
+    await delay(10);
+    assert.equal(redemptionSettled, false);
+
+    await revoker.query(
+      "UPDATE public.tenant_memberships SET active = false WHERE tenant_id = $1 AND subject_id = $2",
+      [TENANT_A, "synthetic-user-a"]
+    );
+    await revoker.query("COMMIT");
+    transactionOpen = false;
+    assert.equal(await redemption, null);
+  } finally {
+    if (transactionOpen) await revoker.query("ROLLBACK");
+    revoker.release();
+    await adminPool.query(
+      "UPDATE public.tenant_memberships SET active = true WHERE tenant_id = $1 AND subject_id = $2",
+      [TENANT_A, "synthetic-user-a"]
+    );
+  }
+});
+
+
+test("export object-key schema rejects traversal encoded separators and foreign tenant prefixes", async () => {
+  const invalidKeys = [
+    "tenants/" + TENANT_A + "/exports/../escape.csv",
+    "tenants/" + TENANT_A + "/exports/%2fescape.csv",
+    "tenants/" + TENANT_A + "/exports/..",
+    "tenants/" + TENANT_B + "/exports/foreign.csv"
+  ];
+  for (const objectKey of invalidKeys) {
+    await assert.rejects(
+      adminPool.query(
+        `INSERT INTO public.tenant_exports
+           (tenant_id, export_id, created_by, object_key, content_sha256, status)
+         VALUES ($1, 'dededede-dede-4ded-8ded-dededededede', 'synthetic-user-a', $2, repeat('a', 64), 'ready')`,
+        [TENANT_A, objectKey]
+      ),
+      (error) => error.code === "23514"
+    );
+  }
 });
