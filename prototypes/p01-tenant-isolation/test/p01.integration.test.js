@@ -41,6 +41,8 @@ const EXPORT_ID_SHARED = "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee";
 const EXPORT_ID_REVOKE = "ffffffff-ffff-4fff-8fff-ffffffffffff";
 const EXPORT_ID_EXPIRED = "abababab-abab-4bab-8bab-abababababab";
 const EXPORT_ID_MEMBERSHIP = "cdcdcdcd-cdcd-4dcd-8dcd-cdcdcdcdcdcd";
+const HTTP_EXPORT_PAYLOAD = Buffer.from("synthetic tenant A export payload");
+const HTTP_EXPORT_SHA256 = createHash("sha256").update(HTTP_EXPORT_PAYLOAD).digest("hex");
 
 const { privateKey: jobSigningPrivateKeyObject, publicKey: jobVerifyPublicKeyObject } =
   generateKeyPairSync("ed25519");
@@ -60,7 +62,12 @@ const pool = new Pool({
   idleTimeoutMillis: 1000,
   connectionTimeoutMillis: 3000
 });
-const server = createTenantServer({ pool, supportPool, authenticate: authenticateSyntheticRequest });
+const exportObjectStore = {
+  async get(key) {
+    return key === "tenants/" + TENANT_A + "/exports/membership.csv" ? HTTP_EXPORT_PAYLOAD : null;
+  }
+};
+const server = createTenantServer({ pool, supportPool, authenticate: authenticateSyntheticRequest, objectStore: exportObjectStore });
 let origin;
 
 async function request(path, options = {}) {
@@ -71,6 +78,19 @@ async function request(path, options = {}) {
     body: options.body
   });
   return { status: response.status, body: await response.json() };
+}
+
+async function downloadRequest(path, options = {}) {
+  const headers = { ...(options.token ? { authorization: "Bearer " + options.token } : {}), ...(options.headers ?? {}) };
+  const response = await fetch(new URL(path, origin), {
+    method: options.method ?? "GET",
+    headers
+  });
+  return {
+    status: response.status,
+    bytes: Buffer.from(await response.arrayBuffer()),
+    headers: response.headers
+  };
 }
 
 before(async () => {
@@ -89,8 +109,8 @@ before(async () => {
        ($3, $2, 'synthetic-user-b', 'tenants/22222222-2222-4222-8222-222222222222/exports/shared.csv', repeat('b', 64), 'ready'),
        ($1, $4, 'synthetic-user-a', 'tenants/11111111-1111-4111-8111-111111111111/exports/revoked.csv', repeat('c', 64), 'revoked'),
        ($1, $5, 'synthetic-user-a', 'tenants/11111111-1111-4111-8111-111111111111/exports/expired.csv', repeat('d', 64), 'ready'),
-       ($1, $6, 'synthetic-user-a', 'tenants/11111111-1111-4111-8111-111111111111/exports/membership.csv', repeat('e', 64), 'ready')`,
-    [TENANT_A, EXPORT_ID_SHARED, TENANT_B, EXPORT_ID_REVOKE, EXPORT_ID_EXPIRED, EXPORT_ID_MEMBERSHIP]
+       ($1, $6, 'synthetic-user-a', 'tenants/11111111-1111-4111-8111-111111111111/exports/membership.csv', $7, 'ready')`,
+    [TENANT_A, EXPORT_ID_SHARED, TENANT_B, EXPORT_ID_REVOKE, EXPORT_ID_EXPIRED, EXPORT_ID_MEMBERSHIP, HTTP_EXPORT_SHA256]
   );
 });
 
@@ -1012,4 +1032,37 @@ test("revoked tenant membership blocks new export grants and redemption of exist
       [TENANT_A, "synthetic-user-a"]
     );
   }
+});
+
+
+test("HTTP export flow binds grant to authenticated tenant and subject, verifies bytes and blocks replay", async () => {
+  const issued = await request("/exports/" + EXPORT_ID_MEMBERSHIP + "/download-grants", {
+    token: "p01-synthetic-token-a",
+    method: "POST"
+  });
+  assert.equal(issued.status, 201);
+  assert.match(issued.body.data.token, /^[A-Za-z0-9_-]{43}$/);
+  assert.ok(issued.body.data.expires_at);
+
+  const wrongTenant = await downloadRequest("/exports/download", {
+    token: "p01-synthetic-token-b",
+    headers: { "x-export-download-token": issued.body.data.token }
+  });
+  assert.equal(wrongTenant.status, 404);
+
+  const downloaded = await downloadRequest("/exports/download", {
+    token: "p01-synthetic-token-a",
+    headers: { "x-export-download-token": issued.body.data.token }
+  });
+  assert.equal(downloaded.status, 200);
+  assert.deepEqual(downloaded.bytes, HTTP_EXPORT_PAYLOAD);
+  assert.equal(downloaded.headers.get("cache-control"), "private, no-store");
+  assert.match(downloaded.headers.get("content-disposition"), /attachment/);
+  assert.equal(downloaded.headers.get("x-object-key"), null);
+
+  const replay = await downloadRequest("/exports/download", {
+    token: "p01-synthetic-token-a",
+    headers: { "x-export-download-token": issued.body.data.token }
+  });
+  assert.equal(replay.status, 404);
 });
