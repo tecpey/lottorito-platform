@@ -51,7 +51,7 @@ Use only a disposable local database. The setup script drops and recreates the P
     cd prototypes/p02-financial-ledger
     docker compose up -d
     export ADMIN_DATABASE_URL='postgres://postgres:p02-admin-only-not-production@127.0.0.1:55433/lottorito_p02'
-    export RUNTIME_DATABASE_URL='postgres://ledger_runtime:p02-runtime-not-production@127.0.0.1:55433/lottorito_p02'
+    export RUNTIME_DATABASE_URL='postgres://ledger_runtime:p02-runtime-not-for-production@127.0.0.1:55433/lottorito_p02'
     npm ci --ignore-scripts --no-audit --no-fund
     npm test
     docker compose down -v
