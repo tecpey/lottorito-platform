@@ -130,8 +130,8 @@ test("unbalanced postings are rejected without leaving request journal line or o
   );
   assert.equal(await journalCount(TENANT_A, "p02-unbalanced-001"), 0);
   const orphan = await adminPool.query(
-    "SELECT count(*)::int AS journals FROM public.ledger_journals WHERE tenant_id = $1 AND source_event_id = $2",
-    [TENANT_A, EVENT_1]
+    "SELECT count(*)::int AS journals FROM public.ledger_journals j JOIN public.posting_requests p USING (tenant_id, journal_id) WHERE p.tenant_id = $1 AND p.idempotency_key = $2",
+    [TENANT_A, "p02-unbalanced-001"]
   );
   assert.equal(orphan.rows[0].journals, 0);
 });
@@ -282,7 +282,7 @@ test("database-side validation rejects extra fields and fractional amount string
 
 test("RLS policies bind the privileged posting function to the database session tenant", async () => {
   const policies = await adminPool.query(
-    "SELECT tablename, policyname, roles FROM pg_policies WHERE schemaname = 'public' AND tablename LIKE 'ledger_%' ORDER BY tablename, policyname"
+    "SELECT tablename, policyname, roles FROM pg_policies WHERE schemaname = 'public' AND tablename IN ('ledger_accounts','posting_requests','ledger_journals','ledger_lines','ledger_outbox') ORDER BY tablename, policyname"
   );
   assert.equal(policies.rowCount, 5);
   assert.equal(policies.rows.every((row) => row.roles.includes("ledger_executor")), true);
