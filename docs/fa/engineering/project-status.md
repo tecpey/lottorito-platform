@@ -1,6 +1,6 @@
 # وضعیت واقعی پروژه و نقطه ادامه کار
 
-**شناسه:** LOT-OPS-001 | **نسخه:** ۱.۱۵.۰ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۴
+**شناسه:** LOT-OPS-001 | **نسخه:** ۱.۱۶.۰ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۴
 
 ## وضعیت تأییدشده مخزن
 - مخزن tecpey/lottorito-platform؛ شاخه پیش‌فرض main؛ سطح دسترسی Public طبق تصمیم مالک.
@@ -54,7 +54,7 @@
 - PR شماره ۳۶، [آزمایش جداسازی Tenant در P-01](https://github.com/tecpey/lottorito-platform/pull/36)، یک Draft باز است که مستقیماً روی PR شماره ۳۵ قرار گرفته است. شاخه: spike/p01-tenant-isolation. برای SHA معتبر، Metadata زنده PR را دوباره بخوانید.
 - یک برش آزمایشی و دورریختنی با HTTP در Node.js و PostgreSQL RLS وجود دارد که شامل Tenantهای ساختگی، Principal آزمایشی با Context سمت سرور، Context تراکنش‌محور، Role اجرایی با حداقل مجوز و تست‌های یکپارچه‌سازی برای جعل Tenant، دسترسی بین Tenantها و استفاده مجدد از Connection Pool است.
 - نسخه‌های کاندید آزمایش Node.js 26.13.0، PostgreSQL 18.7 و node-postgres 8.23.1 هستند؛ این نسخه‌ها ورودی آزمایش‌اند و تصمیم فناوری پذیرفته‌شده نیستند.
-- اجرای GitHub Actions با شناسه [45410971589](https://github.com/tecpey/lottorito-platform/actions/runs/45410971589) روی Node.js 26.13.0 و PostgreSQL 18.7، با Lockfile ثبت‌شده و Actionهای Pin‌شده با SHA، موفق شد: ۱۹ تست موفق، صفر شکست و صفر تست Skip‌شده. علاوه بر تست‌های HTTP/RLS و Async Outbox/Dispatcher/Envelope امضاشده Ed25519، این برش اکنون Roleهای LOGIN مستقل Tenant را که به `session_user` دیتابیس متصل‌اند نیز مقایسه می‌کند؛ جعل GUC، SET ROLE بین Tenantها، خواندن Identity Map و Write بین Tenantها در این مدل رد می‌شود. اجرای محلی در این محیط انجام نشده است. تست Red-Team محدودیت اعتماد GUC در Role مشترک را صریحاً تأیید می‌کند؛ Credential Broker و مقیاس‌پذیری Poolهای مستقل هنوز آزمایش نشده‌اند.
+- اجرای GitHub Actions با شناسه [45411486646](https://github.com/tecpey/lottorito-platform/actions/runs/45411486646) روی Node.js 26.13.0 و PostgreSQL 18.7، با Lockfile ثبت‌شده و Actionهای Pin‌شده با SHA، موفق شد: ۱۹ تست موفق، صفر شکست و صفر تست Skip‌شده روی Head کد `278ac96a161cd545ca60d4f9d43be220c9eabf16`. علاوه بر تست‌های HTTP/RLS و Async Outbox/Dispatcher/Envelope امضاشده Ed25519، این برش Roleهای LOGIN مستقل Tenant متصل به `session_user` دیتابیس را برای Records، Membership و Jobs مقایسه می‌کند؛ جعل GUC، SET ROLE/SET SESSION AUTHORIZATION بین Tenantها، خواندن Identity Map و Write بین Tenantها در این مدل رد می‌شود. اجرای محلی در این محیط انجام نشده است. تست Red-Team محدودیت اعتماد GUC در Role مشترک را صریحاً تأیید می‌کند؛ Credential Broker و مقیاس‌پذیری Poolهای مستقل هنوز آزمایش نشده‌اند.
 - وضعیت کلی P-01 تا زمان آزمایش Jobهای غیرهم‌زمان، ابطال Membership، دسترسی Support/Break-glass، سایر مرزهای ذخیره‌سازی، بار و Recovery همچنان جزئی/نامعین است.
 
 ## موارد تأییدنشده
