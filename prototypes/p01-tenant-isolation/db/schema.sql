@@ -19,6 +19,7 @@ CREATE TABLE public.tenant_memberships (
   tenant_id uuid NOT NULL,
   subject_id text NOT NULL,
   active boolean NOT NULL DEFAULT true,
+  lock_version bigint NOT NULL DEFAULT 0,
   PRIMARY KEY (tenant_id, subject_id)
 );
 
@@ -85,6 +86,9 @@ CREATE POLICY tenant_records_tenant_guard
 GRANT USAGE ON SCHEMA public TO app_runtime;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.tenant_records TO app_runtime;
 GRANT SELECT ON public.tenant_memberships TO app_runtime;
+-- PostgreSQL requires UPDATE on at least one column for SELECT ... FOR SHARE.
+-- Grant only the inert lock_version column, never the active authorization flag.
+GRANT UPDATE (lock_version) ON public.tenant_memberships TO app_runtime;
 
 -- Synthetic active memberships; production membership lifecycle is not implemented.
 INSERT INTO public.tenant_memberships (tenant_id, subject_id, active) VALUES
