@@ -157,7 +157,22 @@ CREATE POLICY provider_outbox_tenant
   USING (tenant_id = private.current_tenant_id())
   WITH CHECK (tenant_id = private.current_tenant_id());
 
+CREATE POLICY provider_executor_ledger_journals_tenant
+  ON public.ledger_journals FOR SELECT TO provider_executor
+  USING (tenant_id = private.current_tenant_id());
+CREATE POLICY provider_executor_financial_effects_tenant
+  ON public.financial_effects FOR SELECT TO provider_executor
+  USING (tenant_id = private.current_tenant_id());
+CREATE POLICY provider_executor_ledger_lines_tenant
+  ON public.ledger_lines FOR SELECT TO provider_executor
+  USING (tenant_id = private.current_tenant_id());
+CREATE POLICY provider_executor_ledger_outbox_tenant
+  ON public.ledger_outbox FOR SELECT TO provider_executor
+  USING (tenant_id = private.current_tenant_id());
+
 GRANT USAGE ON SCHEMA public TO provider_executor;
+GRANT SELECT ON public.ledger_journals, public.financial_effects,
+  public.ledger_lines, public.ledger_outbox TO provider_executor;
 GRANT SELECT ON public.provider_account_map TO provider_executor;
 GRANT SELECT, INSERT ON public.provider_inbox TO provider_executor;
 GRANT SELECT, INSERT, UPDATE ON public.provider_event_processing TO provider_executor;
