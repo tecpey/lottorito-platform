@@ -39,4 +39,6 @@ This experiment uses synthetic data and local in-memory adapters for cache, obje
 
 ## Evidence status
 
+The initial data-plane CI run `45419470701` passed all 30 tests (0 failed, 0 skipped) on the pre-hardening revision `361a7706c57558aea871b2a80c35088b0935db9d`. Subsequent hardening canonicalized tenant UUIDs and rejected blank/control-character search queries; the first CI attempt for that exact revision was cancelled before a result could be established. A fresh run is required before treating the hardened revision as verified.
+
 Run [45419828256](https://github.com/tecpey/lottorito-platform/actions/runs/45419828256) passed on head `02850c6374dd295ec0df6ba42addf266a2d8a977`: 30 tests passed, 0 failed, 0 skipped, using Node.js 26.13.0, PostgreSQL 18.7, npm ci and immutable action SHAs. Documentation Governance run [45419828218](https://github.com/tecpey/lottorito-platform/actions/runs/45419828218) passed. Local execution, provider-specific behavior, performance and failure recovery remain unverified. No production readiness or provider selection is claimed.
