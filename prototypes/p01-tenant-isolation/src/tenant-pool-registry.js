@@ -144,6 +144,9 @@ export class TenantPoolRegistry {
       if (!credential || typeof credential.connectionString !== "string" || credential.connectionString.length < 1) {
         throw new Error("tenant database credential resolution failed");
       }
+      if (this.closed || this.revokedTenants.has(tenantId)) {
+        throw new Error("tenant database access is unavailable");
+      }
 
       let pool;
       try {
