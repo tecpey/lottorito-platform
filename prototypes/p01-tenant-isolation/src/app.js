@@ -57,6 +57,14 @@ async function readSupportRecord({ supportPool, pool, principal, tenantId, recor
         )
       : { rows: [] };
 
+    console.error("P01_SUPPORT_DIAGNOSTIC", JSON.stringify({
+      suppliedGrantId: grantId,
+      parsedGrantId: safeGrantId,
+      supportSubjectId: principal.subjectId,
+      tenantId,
+      rowCount: grant.rows.length
+    }));
+
     if (grant.rows.length !== 1) {
       await client.query(
         `INSERT INTO public.support_audit
