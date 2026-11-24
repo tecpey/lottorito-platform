@@ -63,6 +63,7 @@ LOT-FIN-POST-001 defines proposed financial posting and reconciliation controls;
 | Engineering | [P-01 secondary data-plane isolation](engineering/prototypes/p01-data-plane-isolation.md) | LOT-PROT-P01-DATA-001; cache/object/search/reporting tenant boundaries; 30 CI tests passed on PR #42; synthetic adapters only, provider behavior unverified |
 | Engineering | [P-01 tenant credential and pool broker](engineering/prototypes/p01-tenant-pool-broker.md) | LOT-PROT-P01-POOL-001; trusted tenant credential resolution, bounded pools, DB identity verification, lease-safe eviction/revocation/shutdown; synthetic prototype, CI pending |
 | Engineering | [P-02 tenant-bound double-entry ledger](engineering/prototypes/p02-ledger-posting.md) | LOT-PROT-P02-001; exact integer amounts, per-currency balancing, immutable journal, request/effect idempotency, hardened SECURITY DEFINER boundary and transactional outbox; 25 CI tests passed on PR #46, synthetic only |
+| Engineering | [P-03 tenant-scoped outbox delivery](engineering/prototypes/p03-outbox-delivery.md) | LOT-PROT-P03-001; leased relay, bounded retries/dead-letter, stale-worker fencing, idempotent consumer inbox; 10 CI tests passed on PR #50, synthetic only |
 | Engineering | [Agent operating manual](engineering/agent-operating-manual.md) | Low-context task routing and handoff |
 | Engineering | [Decision register](engineering/decision-register.md) | Owner directions, proposals and unresolved decisions |
 | Engineering | [Project status](engineering/project-status.md) | Verified state and continuation point |
