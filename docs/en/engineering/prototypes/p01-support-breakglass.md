@@ -1,7 +1,8 @@
 # P-01 Support Access and Break-Glass Prototype
 
 **Document ID:** LOT-PROT-P01-SUPPORT-001  
-**Status:** Proposed experiment; implementation and CI evidence pending  
+**Version:** 0.1.0  
+**Status:** Implemented synthetic experiment slice; CI verification pending  
 **Parent experiment:** LOT-PROT-P01-001 / PR #36
 
 ## Purpose
@@ -18,7 +19,7 @@ This is a disposable synthetic-data experiment. It is not a production support c
 - A dedicated support-authorizer DB role can read grant metadata and append audit events. It cannot read tenant records, jobs, wallet data or other payload tables.
 - The existing least-privilege tenant application role performs the actual tenant-scoped read inside the RLS transaction.
 - The grant row is locked for the duration of the data read so a concurrent revocation serializes with the access.
-- Audit events are append-only to the support-authorizer role and include subject, grant, tenant, resource, action, reason, outcome and database timestamp.
+- Audit events are append-only to the support-authorizer role and include subject, grant, tenant, resource, action, reason, outcome and database timestamp. The role has INSERT but no SELECT/UPDATE/DELETE on the audit table. This is database-role-enforced append-only behavior, not cryptographic tamper-proof or independently immutable storage.
 - Support access is read-only. No write, financial, credential, payout, wallet or identity mutation is in scope.
 
 ## Acceptance scenarios
@@ -56,4 +57,10 @@ This is a disposable synthetic-data experiment. It is not a production support c
 
 ## Reproduction and evidence
 
-Implementation, synthetic fixture setup, local runbook and CI evidence will be added on the stacked support branch. Until an observed CI run passes, every scenario remains **Not verified**.
+Implementation and synthetic fixtures are present on the stacked support branch. The integration suite exercises active/expired/revoked/mismatched grants, support-vs-tenant route separation, payload-table denial, audit-table restrictions and grant-revocation locking. CI verification is pending; do not mark any scenario passed until the workflow result is observed.
+
+For local reproduction, start the disposable PostgreSQL service from `prototypes/p01-tenant-isolation`, then export `ADMIN_DATABASE_URL`, `DATABASE_URL`, `DISPATCHER_DATABASE_URL` and `SUPPORT_DATABASE_URL` using the synthetic values documented in the parent P-01 runbook. Run `npm ci --ignore-scripts --no-audit --no-fund` and `npm test`. Never use these values against shared, staging or production databases.
+
+## References
+
+- OWASP — [Logging Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html): security events, least-privilege log writers, sensitive-data exclusion, tamper detection and log monitoring. This prototype does not yet provide independent immutable storage, SIEM forwarding or a retention policy.
