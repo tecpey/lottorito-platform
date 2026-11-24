@@ -137,7 +137,12 @@ test("a repeated financial effect with a different request key returns the origi
   assert.equal(first.duplicate, false);
   assert.equal(retry.duplicate, true);
   assert.equal(await journalCount(TENANT_A, "p02-effect-original"), 1);
-  assert.equal(await journalCount(TENANT_A, "p02-effect-new-transport-key"), 0);
+  assert.equal(await journalCount(TENANT_A, "p02-effect-new-transport-key"), 1);
+  await assert.rejects(
+    postJournal(tenantAPool, request("p02-effect-new-transport-key", balancedUsd("809"), EVENT_1, effectIdFor("p02-different-effect"))),
+    (error) => error.code === "22023" && error.message.includes("idempotency key was reused")
+  );
+  assert.equal(await journalCount(TENANT_A, "p02-effect-new-transport-key"), 1);
 });
 
 test("concurrent delivery with different request keys but one financial effect creates one journal", async () => {
@@ -277,6 +282,10 @@ test("tenant runtime roles cannot directly read or mutate ledger tables", async 
     tenantAPool.query("DELETE FROM public.ledger_lines"),
     (error) => error.code === "42501"
   );
+  await assert.rejects(
+    tenantAPool.query("SELECT * FROM public.financial_effects"),
+    (error) => error.code === "42501"
+  );
   const role = await tenantAPool.query(
     "SELECT rolsuper, rolbypassrls FROM pg_roles WHERE rolname = current_user"
   );
@@ -291,6 +300,10 @@ test("posted journals lines requests and outbox are immutable even to the fixtur
   );
   await assert.rejects(
     adminPool.query("DELETE FROM public.ledger_lines WHERE tenant_id = $1 AND journal_id = $2", [TENANT_A, posted.journal_id]),
+    (error) => error.code === "55000"
+  );
+  await assert.rejects(
+    adminPool.query("UPDATE public.financial_effects SET journal_id = gen_random_uuid() WHERE tenant_id = $1 AND journal_id = $2", [TENANT_A, posted.journal_id]),
     (error) => error.code === "55000"
   );
   await assert.rejects(
@@ -333,6 +346,11 @@ test("outbox insertion failure rolls back the idempotency row and journal atomic
   );
   assert.equal(leftovers.rows[0].journals, 0);
   assert.equal(leftovers.rows[0].outbox_events, 0);
+  const effectRows = await adminPool.query(
+    "SELECT count(*)::int AS count FROM public.financial_effects WHERE tenant_id = $1 AND effect_id = $2",
+    [TENANT_A, effectIdFor("p02-outbox-failure-001")]
+  );
+  assert.equal(effectRows.rows[0].count, 0);
 });
 
 test("database identity must map to a tenant before posting", async () => {
@@ -430,9 +448,9 @@ test("SECURITY DEFINER ownership, search_path and execute grants are hardened", 
 
 test("RLS policies bind the privileged posting function to the database session tenant", async () => {
   const policies = await adminPool.query(
-    "SELECT tablename, policyname, roles FROM pg_policies WHERE schemaname = 'public' AND tablename IN ('ledger_accounts','posting_requests','ledger_journals','ledger_lines','ledger_outbox') ORDER BY tablename, policyname"
+    "SELECT tablename, policyname, roles FROM pg_policies WHERE schemaname = 'public' AND tablename IN ('ledger_accounts','financial_effects','posting_requests','ledger_journals','ledger_lines','ledger_outbox') ORDER BY tablename, policyname"
   );
-  assert.equal(policies.rowCount, 5);
+  assert.equal(policies.rowCount, 6);
   assert.equal(policies.rows.every((row) => row.roles.includes("ledger_executor")), true);
   const map = await tenantAPool.query(
     "SELECT session_user::text AS role_name, private.current_tenant_id()::text AS tenant_id"
