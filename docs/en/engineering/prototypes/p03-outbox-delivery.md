@@ -1,6 +1,6 @@
 # P-03 Tenant-Scoped Transactional Outbox Delivery
 
-**Document ID:** LOT-PROT-P03-001 | **Version:** 0.2.0 | **Status:** Synthetic prototype; 10 integration tests passed (0 failed, 0 skipped); no production transport or operations approved
+**Document ID:** LOT-PROT-P03-001 | **Version:** 0.3.0 | **Status:** Synthetic prototype; 10 integration tests passed on latest head (0 failed, 0 skipped); no production transport or operations approved
 
 ## Purpose and authority
 
@@ -56,7 +56,7 @@ The Compose database is disposable. Do not point these scripts at shared, stagin
 
 ## Result record
 
-P-03 run [45467906405](https://github.com/tecpey/lottorito-platform/actions/runs/45467906405) passed all 10 integration tests (0 failed, 0 skipped) on code head `aa8b8bb6d06547fdf177b0f637f325d8a31d29f5`; Documentation Governance run [45467914998](https://github.com/tecpey/lottorito-platform/actions/runs/45467914998) passed on the same head. The later six commits through the current documentation head change only bilingual reports, indexes and status records; no prototype source or test files changed. A new workflow run for the documentation head is queued. This prototype does not establish production readiness or financial/accounting correctness.
+P-03 run [45468356644](https://github.com/tecpey/lottorito-platform/actions/runs/45468356644) passed all 10 integration tests (0 failed, 0 skipped) on latest head `227a4dd13fa0644eebaf8c06c41788703bb2d03f`; Documentation Governance run [45468356653](https://github.com/tecpey/lottorito-platform/actions/runs/45468356653) also passed on that head. The workflow used PostgreSQL 18.7, Node.js 26.13.0 and npm ci with the committed lockfile. This prototype does not establish production readiness or financial/accounting correctness.
 
 ## References
 
