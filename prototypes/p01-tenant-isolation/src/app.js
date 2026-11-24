@@ -54,8 +54,10 @@ async function readJson(req) {
 }
 
 /**
- * authenticate(req) must validate credentials and resolve active membership
- * server-side. It must not trust tenant IDs from caller-controlled input.
+ * authenticate(req) must validate credentials and resolve a server-side
+ * principal/tenant selection. Active membership is re-checked under a row lock
+ * inside the same transaction as tenant data access. Caller tenant IDs are never
+ * authorization proof.
  */
 export function createTenantServer({ pool, authenticate }) {
   if (!pool || typeof authenticate !== "function") {
