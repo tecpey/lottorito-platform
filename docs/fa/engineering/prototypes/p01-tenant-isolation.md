@@ -1,6 +1,6 @@
 # P-01 — نمونه جداسازی Tenant
 
-**شناسه سند:** LOT-PROT-P01-001 | **نسخه:** ۰.۶.۰ | **وضعیت:** Prototype پیاده‌سازی‌شده؛ CI مقایسه هویت مستقل موفق؛ P-01 کامل همچنان جزئی | **تاریخ بازبینی:** ۲۰۲۶-۱۱-۲۴
+**شناسه سند:** LOT-PROT-P01-001 | **نسخه:** ۰.۹.۰ | **وضعیت:** Prototype پیاده‌سازی‌شده؛ CI مقایسه هویت مستقل موفق؛ P-01 کامل همچنان جزئی | **تاریخ بازبینی:** ۲۰۲۶-۱۱-۲۴
 
 ## هدف و مرز تصمیم
 
@@ -100,7 +100,7 @@ Dependency مستقیم pg در Prototype Pin شده است، اما هنوز np
 - اجرای موفق شامل تست‌های قبلی RLS در Request، Pool Reuse، بررسی مجدد Membership و مسیر Async Outbox/Dispatcher/Envelope امضاشده Ed25519 است؛ همچنین تست مقایسه‌ای LOGIN Roleهای مستقل Tenant را پوشش می‌دهد: هویت Session دقیقاً به یک Tenant نگاشت می‌شود؛ تغییر GUC قابل‌تغییر، Visibility را تغییر نمی‌دهد؛ `SET ROLE` به Tenant دیگر، خواندن Identity Map خصوصی و Insert بین Tenantها رد می‌شود.
 - تست Red-Team عمدی همچنان نشان می‌دهد Role مشترک `app_runtime` در صورت تسخیر می‌تواند GUC سفارشی را به Tenant دیگری تغییر دهد. این یک مرز اعتماد شناخته‌شده است، نه اثبات جداسازی در برابر نفوذگر. مدل LOGIN Role مستقل در برابر SQL Injection محدود به اتصال یک Tenant مقاوم‌تر است، اما به Credential Broker امن و Poolهای تفکیک‌شده وابسته است؛ این کنترل‌های عملیاتی و رفتار در مقیاس هنوز آزمایش نشده‌اند.
 - اجرای محلی: در این محیط اجرا نشده است؛ اجرای تأییدشده در CI میزبانی‌شده GitHub انجام شده است.
-- وضعیت کلی P-01: نامعین / فقط بخشی از محدوده. آزمایش مقایسه‌ای یک الگوی هویت دیتابیس را در Fixture ساختگی اثبات می‌کند، نه جداسازی End-to-End در Cache، Object Storage، Search، Export، Reporting، Support، Workload Identity یا مرزهای Deployment.
+- وضعیت کلی P-01: نامعین / فقط بخشی از محدوده. آزمایش مقایسه‌ای یک الگوی هویت دیتابیس را در Fixture ساختگی اثبات می‌کند، نه جداسازی End-to-End در Cache، Object Storage، Search، Export، Reporting، Workload Identity یا مرزهای Deployment. افزونه مستقل Support Authorizer با داده ساختگی در PR شماره ۳۷، در اجرای [45415291914](https://github.com/tecpey/lottorito-platform/actions/runs/45415291914) هر ۲۷ تست یکپارچگی، از جمله Audit مسیرهای عادی ردشده، را موفق گذرانده و Documentation Governance دوزبانه نیز در اجرای [45415291755](https://github.com/tecpey/lottorito-platform/actions/runs/45415291755) موفق بوده است؛ کنترل‌های پشتیبانی Production هنوز تأیید نشده‌اند.
 - تصمیم فناوری: همچنان Proposed است؛ هیچ تصویب نهایی Stack از این آزمایش استنباط نمی‌شود.
 
 ## مراجع
