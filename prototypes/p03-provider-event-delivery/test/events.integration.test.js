@@ -289,7 +289,7 @@ test("concurrent inbox workers claim distinct events using SKIP LOCKED", async (
 test("expired inbox lease is reclaimed and stale worker acknowledgement is rejected", async () => {
   const fixture = buildWebhook();
   await ingest(fixture);
-  const now = new Date();
+  const now = new Date(Date.now() + 1000);
   const first = await claimNextInboxEvent(runtimePool, {
     tenantId: TENANT_A, productId: PRODUCT_A, workerId: "worker-old", now, leaseSeconds: 1
   });
@@ -312,7 +312,7 @@ test("expired inbox lease is reclaimed and stale worker acknowledgement is rejec
 test("retry uses bounded exponential backoff and event becomes claimable at available_at", async () => {
   const fixture = buildWebhook();
   await ingest(fixture);
-  const now = new Date();
+  const now = new Date(Date.now() + 1000);
   const claimed = await claimNextInboxEvent(runtimePool, {
     tenantId: TENANT_A, productId: PRODUCT_A, workerId: "worker-retry", now
   });
@@ -410,7 +410,7 @@ test("outbound delivery retries transient failures and stops on permanent failur
     tenantId: TENANT_A, productId: PRODUCT_A, endpointId: "endpoint-retry",
     eventId, payload: { id: eventId, type: "com.test.retry.v1" }
   });
-  const now = new Date();
+  const now = new Date(Date.now() + 1000);
   const first = await claimNextOutboundDelivery(runtimePool, {
     tenantId: TENANT_A, productId: PRODUCT_A, workerId: "sender-a", now
   });
@@ -441,7 +441,7 @@ test("outbound delivery lease prevents stale sender acknowledgement", async () =
     tenantId: TENANT_A, productId: PRODUCT_A, endpointId: "endpoint-lease",
     eventId, payload: { id: eventId, type: "com.test.lease.v1" }
   });
-  const now = new Date();
+  const now = new Date(Date.now() + 1000);
   const first = await claimNextOutboundDelivery(runtimePool, {
     tenantId: TENANT_A, productId: PRODUCT_A, workerId: "sender-old", now, leaseSeconds: 1
   });
