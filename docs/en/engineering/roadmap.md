@@ -1,6 +1,6 @@
 # Lottorito Delivery Roadmap
 
-**Document ID:** LOT-ROAD-001 | **Version:** 0.8.0 | **Status:** Proposed sequence; owner approval required for product gates
+**Document ID:** LOT-ROAD-001 | **Version:** 0.9.0 | **Status:** Proposed sequence; owner approval required for product gates
 
 1. **Foundation & Governance:** bilingual agent handbook, decision register, stable document IDs, glossary, contribution rules and automated documentation checks; keep the finance, security and API baselines explicitly proposed until reviewed.
 2. **Cross-product Domain & Data Design:** review LOT-DOM-001; approve independent Affiliate and Lottery bounded contexts, shared capability ownership, logical ERD, data lifecycle, tenant boundaries and migration strategy.
@@ -11,7 +11,7 @@
 7. **Global Experience Foundation:** review LOT-I18N-001, LOT-COMMS-001, LOT-GROWTH-001 and LOT-NOTIF-001; establish 12-language parity, live-chat support, approved content/channel workflows and policy-governed smart notifications before implementation.
 8. **Identity & Tenant Implementation:** identity, sessions, RBAC, tenant membership and isolation tests.
 9. **Affiliate & Attribution:** profiles, referral network, tracking links, events and attribution.
-10. **Finance, Wallet & Payment Core:** review LOT-FIN-POST-001, LOT-WALLET-001 and LOT-PAYMENT-001 together; approve legal/account ownership, unit classes, chart of accounts, immutable posting, balance projections, holds, payment-intent/attempt boundaries, provider evidence, refunds, settlement and reconciliation. Keep payout/withdrawal as a separate LOT-PAYOUT-001 domain. Do not infer custody, stored value or withdrawal permission.
+10. **Finance, Wallet, Payment & Payout Core:** review LOT-FIN-POST-001, LOT-WALLET-001, LOT-PAYMENT-001 and LOT-PAYOUT-001 together while preserving their bounded contexts; approve legal/account ownership, unit classes, chart of accounts, immutable posting, balance projections, holds, payment intent/attempt, provider evidence, refunds, payout eligibility, beneficiary controls, settlement and reconciliation. Do not infer custody, stored value or withdrawal permission.
 11. **Commission Engine:** versioned rules, CPA/Revenue Share/Hybrid and reproducible calculations.
 12. **Provider Evaluation & RFI Governance:** adopt LOT-PROVIDER-EVAL-001 as the common evidence and due-diligence process before supplier selection; confirm accountable reviewers and the exact decision unit. This creates no provider selection or integration authorization.
 13. **Affiliate Partner Pilot:** apply the standard to the first Affiliate pilot decision unit; obtain actual partner documentation and an authorized sandbox, then build the Affiliate adapter and contract tests only after approvals.

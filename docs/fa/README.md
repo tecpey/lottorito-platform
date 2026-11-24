@@ -1,6 +1,6 @@
 # مستندات فارسی Lottorito
 
-**شناسه سند:** LOT-DOC-INDEX-FA-001 | **نسخه:** ۱.۹.۰ | **وضعیت:** فهرست مرجع و در حال نگهداری
+**شناسه سند:** LOT-DOC-INDEX-FA-001 | **نسخه:** ۲.۰.۰ | **وضعیت:** فهرست مرجع و در حال نگهداری
 
 این پوشه مرجع رسمی مستندات فارسی Lottorito است. مستندات انگلیسی در docs/en/ نیز به همان اندازه معتبرند.
 
@@ -35,6 +35,7 @@ LOT-FIN-POST-001 کنترل‌های پیشنهادی ثبت مالی و تطب�
 | مالی | [کیف پول و دفترکل](finance/wallet-and-ledger.md) | اصول اولیه دفترکل و نگاشت‌های باز |
 | مالی | [مدل ثبت مالی و تطبیق](finance/financial-posting-and-reconciliation.md) | LOT-FIN-POST-001؛ کنترل ثبت، وضعیت‌ها و تطبیق پیشنهادی |
 | مالی | [قرارداد دامنه Wallet و معنای موجودی](finance/wallet-domain-contract.md) | LOT-WALLET-001؛ مالکیت، کلاس‌های Wallet، واحدهای نوع‌دار، Projection موجودی، Hold، انتقال و مرز دفترکل؛ بدون تصویب Custody/پرداخت/برداشت |
+| مالی | [قرارداد Payout، برداشت و پرداخت خروجی](finance/payout-withdrawal-contract.md) | LOT-PAYOUT-001؛ برداشت مشتری، پرداخت کمیسیون/جایزه، Verification ذی‌نفع، تأییدها، Hold، اجرای Provider و تطبیق پیشنهادی؛ بدون مجوز پرداخت |
 | شرکا | [قرارداد یکپارچه‌سازی Affiliate](partners/integration-contract.md) | قرارداد اولیه رویداد شریک Affiliate |
 | شرکا | [قرارداد ارائه‌دهنده Lottery](partners/lottery-provider-contract.md) | چرخه عمر پیشنهادی مستقل از Provider |
 | شرکا | [استاندارد ارزیابی Provider](partners/provider-evaluation-standard.md) | LOT-PROVIDER-EVAL-001؛ شواهد، RFI، دروازه‌های سخت و فرایند تصمیم بین‌محصولی پیشنهادی |

@@ -1,11 +1,11 @@
 # Verified Project Status and Continuation Point
 
-**Document ID:** LOT-OPS-001 | **Version:** 1.3.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-24
+**Document ID:** LOT-OPS-001 | **Version:** 1.4.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-24
 
 ## Verified repository state
 - Repository: tecpey/lottorito-platform; default branch main; public visibility by owner decision.
-- As of 2026-11-24, PRs #19–#25 and #27–#30 are open Draft documentation changes. The intended stack is #19 → #20 → #21 → #22 → #23 → #24 → #25 → #27 → #28 → #29 → #30. PR #26 is a separate open Draft branch based on main and overlaps shared governance files; it must be reconciled with the stack before integration. No PR in this sequence is merged.
-- PR #25 is six commits behind the latest PR #24 head; PR #27–#30 inherit that stale upstream ancestry. PR #28 adds unified B2B2C, IAM and dashboard proposals; PR #29 adds LOT-WALLET-001; PR #30 adds LOT-PAYMENT-001 on top of #29. Synchronize the upstream stack and rerun CI before merge consideration. Always read live PR metadata; this is a dated status snapshot.
+- As of 2026-11-24, PRs #19–#25 and #27–#31 are open Draft documentation changes. The intended stack is #19 → #20 → #21 → #22 → #23 → #24 → #25 → #27 → #28 → #29 → #30 → #31. PR #26 is a separate open Draft branch based on main and overlaps shared governance files; it must be reconciled with the stack before integration. No PR in this sequence is merged.
+- PR #25 is six commits behind the latest PR #24 head; PR #27–#31 inherit that stale upstream ancestry. PR #28 adds unified B2B2C, IAM and dashboard proposals; PR #29 adds LOT-WALLET-001; PR #30 adds LOT-PAYMENT-001; PR #31 adds LOT-PAYOUT-001 on top of #30. Synchronize the upstream stack and rerun CI before merge consideration. Always read live PR metadata; this is a dated status snapshot.
 - The repository work remains documentation-first. No runtime application, physical schema, provider integration, sandbox, financial posting, payout or production deployment is verified.
 - Added scripts/check_docs.py and .github/workflows/docs-governance.yml for bilingual path/ID and local-link structure checks. The first run correctly exposed that the two language indexes use EN/FA-qualified IDs; normalization was added. The Documentation Governance workflow then passed on PR head 78e47168e67b14ccc2be9df7ceae79fbf56eb59e (run 45345429559). This validates structure and local links only, not semantic translation parity.
 - The Documentation Governance workflow passed on PR head 71b527be77f8df03cb179c378a020c58716c4e7c (run 45347911477): 21 bilingual Markdown pairs and 47 local links checked, including title and version/status metadata checks. This is structural validation only; semantic translation parity still requires human review.
@@ -37,6 +37,7 @@ The finance, security, API and technology/deployment references are proposals, n
 - **LOT-DASH-001:** proposed role-based workspace blueprint with 12 sections, detailed Platform/Tenant/White-Label/Affiliate/Support/Finance/Compliance/B2C experiences, KPI governance and 12 acceptance tests; no dashboard implementation claimed.
 - **LOT-WALLET-001:** proposed wallet-domain contract covering ownership/classes, typed units, balance projections, holds, transfers, ledger boundaries, authorization and 15 adversarial acceptance scenarios; it does not approve custody, stored value, payments, transfers, withdrawals or any wallet runtime.
 - **LOT-PAYMENT-001:** proposed provider-neutral payment orchestration contract covering intents/attempts, merchant and tenant isolation, adapters, webhook trust, idempotency, routing, refunds, settlement and reconciliation; no provider, merchant account, licence, payment runtime or real-money flow is approved.
+- **LOT-PAYOUT-001:** proposed disbursement contract separating customer withdrawals, Affiliate/Agent commission payouts, Lottery prize disbursements and treasury movements; covers beneficiary verification, reservations, maker-checker, provider execution, ambiguous outcomes, returns and reconciliation; no custody, banking, payout runtime or real-money disbursement is approved.
 
 ## Not verified
 No application implementation, physical database schema/migrations, provider API connection, sandbox certification, financial calculation/posting, payout, penetration test or production deployment has been verified. Documentation Governance CI exists and has passed structural checks on selected PR heads; it does not prove semantic bilingual parity, runtime behavior, legal eligibility or security.
@@ -63,7 +64,8 @@ No application implementation, physical database schema/migrations, provider API
 10. Complete cross-product architecture and product-specific release gates.
 11. Decompose the wallet direction into LOT-WALLET-001; resolve ownership, unit classes, accounting mapping and legal treatment before any wallet implementation.
 12. Specify payment orchestration (LOT-PAYMENT-001) and payout/withdrawal controls (LOT-PAYOUT-001) as separate provider-neutral domains; do not combine wallet credit, payment authorization, settlement and payout into one state machine.
-13. Only after decisions, scaffold the platform and implement isolated vertical slices with tests.
+13. Define product-specific payout eligibility and treasury/funding controls through LOT-PAYOUT-001; do not activate withdrawal or disbursement before jurisdiction, liability, provider, beneficiary and funding approvals.
+14. Only after decisions, scaffold the platform and implement isolated vertical slices with tests.
 
 ## Owner decisions still required
 Legal entity and operating model; initial jurisdiction; provider and source-of-truth rules; USD 100 illustrative agent credit; commission/NGR and network progression; account mapping and funding/custody; payout permissions; technology and deployment choices; data residency and retention; official logo source asset.
