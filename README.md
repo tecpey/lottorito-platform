@@ -171,6 +171,10 @@ Open or draft pull requests are review candidates; they are not merged baseline 
 - [Wallet and ledger principles (draft)](docs/en/finance/wallet-and-ledger.md)
 - [Affiliate partner event contract (Lottery provider contract pending)](docs/en/partners/integration-contract.md)
 - [Initial security baseline](docs/en/security/security-baseline.md)
+- [Lottery product requirements (proposed)](docs/en/product/lottery-prd.md)
+- [Lottery provider lifecycle contract (proposed)](docs/en/partners/lottery-provider-contract.md)
+- [Agent operating manual](docs/en/engineering/agent-operating-manual.md)
+- [Decision register](docs/en/engineering/decision-register.md)
 
 ### Governance and contribution
 
@@ -350,6 +354,10 @@ Pull Requestهای باز یا Draft صرفاً گزینه‌های در حال 
 - [اصول کیف پول و دفترکل (پیش‌نویس)](docs/fa/finance/wallet-and-ledger.md)
 - [قرارداد رویداد شریک Affiliate (قرارداد ارائه‌دهنده Lottery در انتظار تدوین)](docs/fa/partners/integration-contract.md)
 - [خط مبنای اولیه امنیت](docs/fa/security/security-baseline.md)
+- [نیازمندی‌های محصول Lottery (پیشنهادی)](docs/fa/product/lottery-prd.md)
+- [قرارداد چرخه عمر Provider Lottery (پیشنهادی)](docs/fa/partners/lottery-provider-contract.md)
+- [راهنمای عملیاتی ایجنت‌ها](docs/fa/engineering/agent-operating-manual.md)
+- [دفتر ثبت تصمیم‌ها](docs/fa/engineering/decision-register.md)
 
 ### حاکمیت و مشارکت
 
