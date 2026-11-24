@@ -56,7 +56,7 @@ Broker ساختگی In-memory فقط پنجره Crash را نمایش می‌د�
 
 ## ثبت نتیجه
 
-CI مربوط به PR شماره ۵۰ در انتظار است. هیچ سناریویی تا زمان بررسی Logهای Workflow موفق اعلام نشود. این Prototype آمادگی Production یا صحت مالی/حسابداری را اثبات نمی‌کند.
+اجرای P-03 با شناسه [45467906405](https://github.com/tecpey/lottorito-platform/actions/runs/45467906405) هر ۱۰ تست Integration را با صفر شکست و صفر Skip روی Head کد `aa8b8bb6d06547fdf177b0f637f325d8a31d29f5` با موفقیت گذراند؛ اجرای Documentation Governance با شناسه [45467914998](https://github.com/tecpey/lottorito-platform/actions/runs/45467914998) نیز روی همان Head موفق شد. شش Commit بعدی تا Head مستندات، فقط گزارش‌ها، Indexها و وضعیت دوزبانه را تغییر داده‌اند؛ هیچ فایل Source یا Test مربوط به Prototype تغییر نکرده است. اجرای جدید Workflow برای Head مستندات در صف است. این Prototype آمادگی Production یا صحت مالی/حسابداری را اثبات نمی‌کند.
 
 ## منابع
 
