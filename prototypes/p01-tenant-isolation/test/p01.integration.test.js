@@ -647,6 +647,8 @@ test("support principal can read only a tenant record covered by its active gran
   assert.equal(adminGrant.rowCount, 1, "synthetic active support grant must be seeded");
   const visibleGrant = await supportPool.query("SELECT grant_id FROM public.support_grants WHERE grant_id = $1", [SUPPORT_GRANT_ACTIVE]);
   assert.equal(visibleGrant.rowCount, 1, "support-authorizer RLS must expose the seeded grant");
+  const exactMatch = await supportPool.query("SELECT grant_id FROM public.support_grants WHERE grant_id = $1 AND support_subject_id = $2 AND tenant_id = $3 AND resource_scope = 'records:read' AND revoked_at IS NULL AND expires_at > clock_timestamp() FOR SHARE", [SUPPORT_GRANT_ACTIVE, "synthetic-support-a", TENANT_A]);
+  assert.equal(exactMatch.rowCount, 1, "the exact support authorization predicate must match the seeded grant");
   const result = await request("/support/tenants/" + TENANT_A + "/records/" + SHARED_RECORD_ID, {
     token: "p01-synthetic-support-token", headers: { "x-support-grant-id": SUPPORT_GRANT_ACTIVE }
   });
