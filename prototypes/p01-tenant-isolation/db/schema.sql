@@ -49,4 +49,7 @@ INSERT INTO public.tenant_records (tenant_id, record_id, natural_key, payload) V
    'welcome', 'synthetic tenant A fixture'),
   ('22222222-2222-4222-8222-222222222222',
    'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
-   'welcome', 'synthetic tenant B fixture');
+   'welcome', 'synthetic tenant B fixture'),
+  ('22222222-2222-4222-8222-222222222222',
+   'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+   'tenant-b-private', 'tenant B private fixture');
