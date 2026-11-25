@@ -1,6 +1,6 @@
 # P-04 — تکامل Schema و سازگاری
 
-**شناسه سند:** LOT-PROT-P04-001 | **نسخه:** ۰.۲.۰ | **وضعیت:** Prototype ساختگی؛ ۷ تست CI موفق؛ بدون تصویب Migration عملیاتی
+**شناسه سند:** LOT-PROT-P04-001 | **نسخه:** ۰.۳.۰ | **وضعیت:** Prototype ساختگی؛ ۸ تست CI موفق؛ بدون تصویب Migration عملیاتی
 
 ## هدف
 
@@ -28,6 +28,7 @@ P04-LOCK: توقف DDL مسدودشده با lock_timeout بدون تغییر ن
 P04-INDEX: شناسایی و اصلاح شکست ساخت Concurrent Unique Index.
 P04-FINANCE: حفظ تعداد Journal/Line، توازن Debit/Credit و مجموع Reporting.
 P04-CONTRACT: بررسی برابری Projection؛ ستون قدیمی حذف نمی‌شود.
+P04-PAYLOAD-INVARIANT: هیچ Writer قدیمی یا جدیدی نمی‌تواند هر دو نمایش Payload را خالی کند؛ مقادیر قبلی در شکست Update حفظ می‌شوند.
 
 ## محدودیت‌ها
 
@@ -35,4 +36,4 @@ Zero Downtime، رفتار Lock/Backfill در مقیاس Production، CDC، جد
 
 ## شواهد
 
-اجرای Integration با شناسه [45471750215](https://github.com/tecpey/lottorito-platform/actions/runs/45471750215) تعداد ۷ تست موفق، صفر شکست و صفر Skip روی Head کد 15c536e5be2f61b1805191f5977a46b17eaf1971 داشته است؛ اجرای تکراری Push با شناسه [45471737779](https://github.com/tecpey/lottorito-platform/actions/runs/45471737779) نیز موفق بوده است. Documentation Governance با شناسه [45471750133](https://github.com/tecpey/lottorito-platform/actions/runs/45471750133) روی همان Head موفق شده است. PostgreSQL 18.7، Node.js 26.13.0، npm ci و pg 8.23.1 استفاده شده‌اند. موفقیت تست ساختگی به‌معنای آمادگی Production یا تصویب فناوری نیست.
+Integration با شناسه [45619282469](https://github.com/tecpey/lottorito-platform/actions/runs/45619282469) روی Head دقیق `27f8dd2b089574c980c25c862e97525b57ff96be` هر ۸ تست را با صفر شکست و صفر Skip گذرانده است. تست جدید جلوگیری از خالی‌شدن هم‌زمان دو نمایش Payload نیز موفق شده است. Documentation Governance با شناسه [45619282483](https://github.com/tecpey/lottorito-platform/actions/runs/45619282483) روی همان Head موفق شده است. محیط اجرا PostgreSQL 18.7، Node.js 26.13.0، npm ci و pg 8.23.1 بوده است. این موفقیت فقط آزمایش ساختگی است و به‌معنای آمادگی Production یا تصویب فناوری نیست. PostgreSQL 18.7، Node.js 26.13.0، npm ci و pg 8.23.1 استفاده شده‌اند. موفقیت تست ساختگی به‌معنای آمادگی Production یا تصویب فناوری نیست.

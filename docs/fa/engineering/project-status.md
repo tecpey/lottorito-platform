@@ -1,6 +1,6 @@
 # وضعیت واقعی پروژه و نقطه ادامه کار
 
-**شناسه:** LOT-OPS-001 | **نسخه:** ۱.۲۷.۰ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۴
+**شناسه:** LOT-OPS-001 | **نسخه:** ۱.۲۸.۰ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۵
 
 ## وضعیت تأییدشده مخزن
 - مخزن tecpey/lottorito-platform؛ شاخه پیش‌فرض main؛ سطح دسترسی Public طبق تصمیم مالک.
@@ -97,6 +97,14 @@ PR شماره ۵۰ مربوط به تحویل Outbox در P-03، به‌صورت
 این سند خلاصه بازبینی مخزن است، نه ممیزی بیرونی. پیش از اتکا به Head SHA یا وضعیت CI، Metadata و وضعیت Commit جاری را دوباره دریافت کن.
 
 
-## به‌روزرسانی آخرین نقطه ادامه — ۲۰۲۶-۱۱-۲۴
+## آخرین به‌روزرسانی نقطه ادامه — ۲۰۲۶-۱۱-۲۵
 
-زنجیره فنی تأییدشده فعلی P-01 PR شماره ۴۵ ← P-02 PR شماره ۴۶ ← P-03 PR شماره ۵۰ است. همه Draft، باز و Mergeنشده‌اند. اجرای P-01 با شناسه [45425284220](https://github.com/tecpey/lottorito-platform/actions/runs/45425284220) تعداد ۴۰ تست موفق؛ اجرای P-02 با شناسه [45466918625](https://github.com/tecpey/lottorito-platform/actions/runs/45466918625) تعداد ۲۵ تست موفق؛ و اجرای P-03 با شناسه [45469172124](https://github.com/tecpey/lottorito-platform/actions/runs/45469172124) تعداد ۱۰ تست موفق داشته است. Documentation Governance با شناسه [45469171778](https://github.com/tecpey/lottorito-platform/actions/runs/45469171778) روی Head مربوط به P-03 یعنی 45b37700cb2b9ad633158ba8d5f00b8c7f0553d5 موفق بوده است. P-04 به‌صورت PR شماره ۵۱ در وضعیت Draft روی شاخه spike/p04-schema-evolution و روی P-03 قرار دارد. اجرای Integration با شناسه [45471750215](https://github.com/tecpey/lottorito-platform/actions/runs/45471750215) روی Head کد 15c536e5be2f61b1805191f5977a46b17eaf1971، ۷ تست موفق، صفر شکست و صفر Skip داشته است؛ Documentation Governance با شناسه [45471750133](https://github.com/tecpey/lottorito-platform/actions/runs/45471750133) نیز روی همان Head موفق بوده است. PR همچنان باز، Mergeنشده و فقط آزمایش ساختگی است. بدون تأیید صریح مالک، Merge، Deploy، Migration مخرب Contract یا تغییر main انجام نشود. PRهای ۴۸ و ۴۹ همچنان کارهای جداگانه Export/Pool در P-01 هستند و پیش از ادغام به تطبیق Ancestry و CI نیاز دارند.
+شاخه‌های مهندسی جاری همچنان Draft، باز و Mergeنشده‌اند؛ هیچ Merge، تغییر main یا Deploy مجاز نیست.
+
+- PR شماره ۶۰ مربوط به P-03C همچنان بر مبنای PR شماره ۵۰ در P-03 قرار دارد؛ Head آن `32b34f4c7c67b12874cdf6a14a2788d9a2f4c6dc` است. Integration با شناسه [45576594884](https://github.com/tecpey/lottorito-platform/actions/runs/45576594884) تعداد ۱۵ تست موفق داشته و Documentation Governance با شناسه [45576594868](https://github.com/tecpey/lottorito-platform/actions/runs/45576594868) موفق شده است.
+- PR شماره ۶۱ مربوط به P-03D روی PR شماره ۶۰ قرار دارد؛ Head فعلی آن `11f2069b537d4cf74175fd7b628a331650c45f52` و Commit پیاده‌سازی/تست `40d002a2af5875a6ead178604b90dc92aa678dc5` است. روی Head فعلی PR، اجرای P-02 با شناسه [45607661183](https://github.com/tecpey/lottorito-platform/actions/runs/45607661183) تعداد ۲۵ تست موفق؛ اجرای ترکیبی P-03C/P-03D با شناسه [45607661252](https://github.com/tecpey/lottorito-platform/actions/runs/45607661252) به‌ترتیب ۱۵ و ۱۹ تست موفق؛ و Documentation Governance با شناسه [45607661286](https://github.com/tecpey/lottorito-platform/actions/runs/45607661286) موفق بوده‌اند. فقط آزمایش ساختگی؛ بدون Provider واقعی، KMS، انتقال شبکه، سیاست حسابداری یا Migration عملیاتی.
+- PR شماره ۵۱ مربوط به P-04 همچنان بر مبنای PR شماره ۵۰ در P-03 است، نه PR شماره ۶۰ یا ۶۱. Head فعلی آن `27f8dd2b089574c980c25c862e97525b57ff96be` است. پس از اصلاح Trigger یکپارچگی Payload، Integration مربوط به P-04 با شناسه [45619282469](https://github.com/tecpey/lottorito-platform/actions/runs/45619282469) هر ۸ تست را با صفر شکست و صفر Skip گذرانده و Documentation Governance با شناسه [45619282483](https://github.com/tecpey/lottorito-platform/actions/runs/45619282483) موفق شده است.
+- زنجیره P-04 تا P-08 همچنان مستقل است: PRهای ۵۱ ← ۵۲ ← ۵۳ ← ۵۴ ← ۵۵ ← ۵۶ ← ۵۷ ← ۵۸ ← ۵۹. این زنجیره و خانواده شاخه‌های P-03C/P-03D از Head مشترک P-03 یعنی `45b37700cb2b9ad633158ba8d5f00b8c7f0553d5` منشعب شده‌اند. P-04 دیتابیس و Schema ساختگی مستقل خود را دارد و مستقیماً Schemaهای P-02/P-03 را Import نمی‌کند؛ اما فایل‌های حاکمیتی و وضعیت مشترک هم‌پوشانی دارند. Rebase کورکورانه یا ادعای Regression کامل P-04 تا P-08 روی Ancestry مربوط به P-03C/D مجاز نیست. ابتدا زنجیره باید با دقت تطبیق داده و سپس Regression کامل روی Candidate یکپارچه اجرا شود.
+- PR شماره ۵۱ همچنان Draft، باز و Mergeنشده است. P-04 فقط یک آزمایش Migration ساختگی است؛ هیچ Migration مخرب Contract یا آمادگی Production اثبات نشده است.
+
+این سند Snapshot تاریخ‌دار مخزن است. پیش از اتکا به آن، Metadata مربوط به PR و Checkهای Head دقیق را دوباره دریافت کن.

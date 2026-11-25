@@ -1,6 +1,6 @@
 # P-04 Schema Evolution and Compatibility
 
-**Document ID:** LOT-PROT-P04-001 | **Version:** 0.2.0 | **Status:** Synthetic prototype; 7 CI tests passed; no production migration approved
+**Document ID:** LOT-PROT-P04-001 | **Version:** 0.3.0 | **Status:** Synthetic prototype; 8 CI tests passed; no production migration approved
 
 ## Purpose
 
@@ -28,6 +28,7 @@ P04-LOCK: lock_timeout aborts blocked DDL without partial schema change.
 P04-INDEX: failed concurrent unique-index build is detected and repaired.
 P04-FINANCE: journal/line counts, debit-credit equality and reporting totals remain unchanged.
 P04-CONTRACT: projection parity is checked; legacy column is not dropped.
+P04-PAYLOAD-INVARIANT: neither legacy nor new writers can clear both payload representations; failed updates preserve prior values.
 
 ## Limits
 
@@ -35,4 +36,4 @@ No zero-downtime, production-scale lock/backfill, CDC, partitioned-table, multi-
 
 ## Evidence
 
-Integration run [45471750215](https://github.com/tecpey/lottorito-platform/actions/runs/45471750215) passed 7 tests (0 failed, 0 skipped) on code head 15c536e5be2f61b1805191f5977a46b17eaf1971; duplicate push run [45471737779](https://github.com/tecpey/lottorito-platform/actions/runs/45471737779) also passed. Documentation Governance run [45471750133](https://github.com/tecpey/lottorito-platform/actions/runs/45471750133) passed on the same head. PostgreSQL 18.7, Node.js 26.13.0, npm ci and pg 8.23.1 were used. Synthetic test success is not production readiness or technology approval.
+Integration [45619282469](https://github.com/tecpey/lottorito-platform/actions/runs/45619282469) passed 8 tests (0 failed, 0 skipped) on exact head `27f8dd2b089574c980c25c862e97525b57ff96be`. The new regression test prevents legacy and new writers from clearing both payload representations and confirms failed updates preserve prior values. Documentation Governance [45619282483](https://github.com/tecpey/lottorito-platform/actions/runs/45619282483) passed on the same head. PostgreSQL 18.7, Node.js 26.13.0, npm ci and pg 8.23.1 were used. Synthetic test success is not production readiness or technology approval.

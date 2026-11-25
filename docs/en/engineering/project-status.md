@@ -1,6 +1,6 @@
 # Verified Project Status and Continuation Point
 
-**Document ID:** LOT-OPS-001 | **Version:** 1.27.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-24
+**Document ID:** LOT-OPS-001 | **Version:** 1.28.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-25
 
 ## Verified repository state
 - Repository: tecpey/lottorito-platform; default branch main; public visibility by owner decision.
@@ -97,6 +97,14 @@ Legal entity and operating model; initial jurisdiction; provider and source-of-t
 This record summarizes repository inspection, not an external audit. Re-fetch PR metadata and commit statuses before relying on a head SHA or CI state.
 
 
-## Latest continuation update — 2026-11-24
+## Latest continuation update — 2026-11-25
 
-The current verified engineering stack is P-01 PR #45 → P-02 PR #46 → P-03 PR #50. All remain Draft/open/unmerged. P-01 run [45425284220](https://github.com/tecpey/lottorito-platform/actions/runs/45425284220) passed 40 tests; P-02 run [45466918625](https://github.com/tecpey/lottorito-platform/actions/runs/45466918625) passed 25 tests; P-03 run [45469172124](https://github.com/tecpey/lottorito-platform/actions/runs/45469172124) passed 10 tests. Documentation Governance run [45469171778](https://github.com/tecpey/lottorito-platform/actions/runs/45469171778) passed on P-03 head 45b37700cb2b9ad633158ba8d5f00b8c7f0553d5. P-04 is Draft PR #51 on branch spike/p04-schema-evolution, stacked on P-03. Integration run [45471750215](https://github.com/tecpey/lottorito-platform/actions/runs/45471750215) passed 7 tests (0 failed, 0 skipped) on head 15c536e5be2f61b1805191f5977a46b17eaf1971; Documentation Governance run [45471750133](https://github.com/tecpey/lottorito-platform/actions/runs/45471750133) passed on the same head. The PR remains open/unmerged and synthetic-only. Do not merge, deploy, run destructive contract migrations or modify main without explicit owner approval. PRs #48 and #49 remain separate P-01 export/pool work requiring ancestry and CI reconciliation before integration.
+The live engineering branches are still Draft/open/unmerged; no merge, main update or deployment is authorized.
+
+- P-03C PR #60 remains based on P-03 PR #50, head `32b34f4c7c67b12874cdf6a14a2788d9a2f4c6dc`. Integration [45576594884](https://github.com/tecpey/lottorito-platform/actions/runs/45576594884) passed 15 tests; Documentation Governance [45576594868](https://github.com/tecpey/lottorito-platform/actions/runs/45576594868) passed.
+- P-03D PR #61 is stacked on PR #60, current head `11f2069b537d4cf74175fd7b628a331650c45f52`; implementation/test commit `40d002a2af5875a6ead178604b90dc92aa678dc5`. On the current PR head, P-02 [45607661183](https://github.com/tecpey/lottorito-platform/actions/runs/45607661183) passed 25 tests; combined P-03C/P-03D [45607661252](https://github.com/tecpey/lottorito-platform/actions/runs/45607661252) passed 15 + 19 tests; Documentation Governance [45607661286](https://github.com/tecpey/lottorito-platform/actions/runs/45607661286) passed. Synthetic only; no real provider, KMS, transport, accounting policy or production migration.
+- P-04 PR #51 remains based on P-03 PR #50, not on PR #60/#61. Its current head is `27f8dd2b089574c980c25c862e97525b57ff96be`. After a payload-integrity trigger fix, P-04 Integration [45619282469](https://github.com/tecpey/lottorito-platform/actions/runs/45619282469) passed 8 tests (0 failures, 0 skips); Documentation Governance [45619282483](https://github.com/tecpey/lottorito-platform/actions/runs/45619282483) passed.
+- P-04 through P-08 remain a separate stack: #51 → #52 → #53 → #54 → #55 → #56 → #57 → #58 → #59. The stack and P-03C/P-03D branch family diverged from common P-03 head `45b37700cb2b9ad633158ba8d5f00b8c7f0553d5`. P-04 uses its own disposable schema/database fixture and does not directly import P-02/P-03 schemas; shared governance/status files overlap. Do not force a blind rebase or claim P-04–P-08 regression on the P-03C/D ancestry. Reconcile the stack deliberately and rerun the complete regression on the reconciled candidate.
+- PR #51 remains Draft/open/unmerged. P-04 is a synthetic migration experiment only; no destructive contract migration or production readiness is established.
+
+This record is a dated repository snapshot. Re-fetch PR metadata and exact-head checks before relying on it.
