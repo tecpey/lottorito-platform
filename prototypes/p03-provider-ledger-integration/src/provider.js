@@ -252,8 +252,8 @@ function journalLines(event, installation) {
   ];
 }
 
-function idempotencyKey(providerId, eventId) {
-  return "provider:" + digest(Buffer.from(providerId + "\0" + eventId, "utf8"));
+function idempotencyKey(productId, providerId, eventId) {
+  return "provider:" + digest(Buffer.from(productId + "\\0" + providerId + "\\0" + eventId, "utf8"));
 }
 
 async function failClaim(pool, claim, errorCode, now, retryDelaySeconds = 5) {
@@ -305,7 +305,7 @@ export async function processProviderEvent(pool, {
     const row = locked.rows[0];
     const lines = journalLines(row.canonical_event, installation);
     const posted = await postJournal(client, {
-      idempotency_key: idempotencyKey(row.provider_id, row.provider_event_id),
+      idempotency_key: idempotencyKey(row.product_id, row.provider_id, row.provider_event_id),
       effect_id: row.effect_id,
       source_event_id: row.source_event_id,
       lines
