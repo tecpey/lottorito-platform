@@ -42,6 +42,18 @@ EOF"
 RESTORE_START=$(date +%s)
 as_pg pg_ctl -D "$ROOT/restore" -l "$ROOT/restore.log" -o "-p 55432 -h 127.0.0.1 -c archive_mode=off" -w start
 RESTORE_SECONDS=$(( $(date +%s) - RESTORE_START ))
+# pg_ctl readiness can occur while hot standby is still read-only. Do not run
+# write/RLS acceptance assertions until PITR has actually completed promotion.
+RECOVERY_COMPLETE=0
+for attempt in $(seq 1 60); do
+  if test "$(restore_psql -At -c "SELECT pg_is_in_recovery()")" = "f"; then
+    RECOVERY_COMPLETE=1
+    break
+  fi
+  sleep 0.5
+done
+test "$RECOVERY_COMPLETE" = "1" || { echo "PITR target not fully completed/promoted" >&2; exit 1; }
+echo "pitr_recovery_complete=PASS"
 echo "[P05] Assert PITR and tenant RLS"
 test "$(tenant_count p05_tenant_a p05-tenant-a-not-production 55432)" = "1"
 test "$(tenant_count p05_tenant_b p05-tenant-b-not-production 55432)" = "1"
