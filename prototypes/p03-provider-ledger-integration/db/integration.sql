@@ -9,6 +9,7 @@ BEGIN
 END
 $roles$;
 ALTER ROLE provider_event_owner NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
+GRANT CREATE ON SCHEMA private TO provider_event_owner;
 
 CREATE UNIQUE INDEX IF NOT EXISTS ledger_journals_tenant_product_journal_uidx
   ON public.ledger_journals (tenant_id, product_id, journal_id);
@@ -114,6 +115,7 @@ REVOKE ALL ON FUNCTION private.reject_provider_conflict_mutation() FROM PUBLIC;
 CREATE TRIGGER provider_event_conflicts_immutable
   BEFORE UPDATE OR DELETE ON public.provider_event_conflicts
   FOR EACH ROW EXECUTE FUNCTION private.reject_provider_conflict_mutation();
+REVOKE CREATE ON SCHEMA private FROM provider_event_owner;
 
 GRANT USAGE ON SCHEMA public TO provider_event_owner,
   tenant_a_ledger_runtime, tenant_b_ledger_runtime, tenant_a_lottery_runtime;
