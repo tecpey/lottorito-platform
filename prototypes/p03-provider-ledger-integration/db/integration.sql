@@ -29,7 +29,7 @@ CREATE TABLE public.provider_event_inbox (
   source_event_id uuid NOT NULL DEFAULT gen_random_uuid(),
   status text NOT NULL DEFAULT 'accepted'
     CHECK (status IN ('accepted', 'processing', 'retry', 'processed', 'dead_letter', 'quarantined')),
-  attempt_count integer NOT NULL DEFAULT 0 CHECK (attempt_count >= 0 AND attempt_count <= max_attempts),
+  attempt_count integer NOT NULL DEFAULT 0 CHECK (attempt_count >= 0),
   max_attempts integer NOT NULL DEFAULT 5 CHECK (max_attempts BETWEEN 1 AND 20),
   available_at timestamptz NOT NULL DEFAULT clock_timestamp(),
   lease_owner text,
@@ -42,6 +42,7 @@ CREATE TABLE public.provider_event_inbox (
   PRIMARY KEY (tenant_id, product_id, provider_id, provider_event_id),
   UNIQUE (tenant_id, product_id, effect_id),
   UNIQUE (tenant_id, product_id, source_event_id),
+  CHECK (attempt_count <= max_attempts),
   FOREIGN KEY (tenant_id, product_id, journal_id)
     REFERENCES public.ledger_journals (tenant_id, product_id, journal_id),
   CHECK (
