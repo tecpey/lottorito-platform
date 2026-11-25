@@ -100,3 +100,6 @@ P-09E در Workflow مربوط به P-05 با شناسه [45637659268](https://g
 ### P-09H — دروازه اعتبارسنجی قرارداد در Replay (۲۰۲۶-۱۱-۲۵)
 
 Helper بازیابی P-05E اکنون پیش از فراخوانی Journal Posting، رویداد Canonical ذخیره‌شده را با ردیف Provider Inbox بازیابی‌شده تطبیق می‌دهد. نسخه/id/source/type در CloudEvents، Tenant، Product Scope، UUID مربوط به Source Event، نسخه Schema، ساختار traceparent و قابل‌تبدیل‌بودن Timestamp بررسی می‌شوند. Fixtureهای بازیابی اکنون Envelope کامل P-09 را دارند. هر مغایرت، تراکنش Replay را پیش از Commit شدن اثر مالی متوقف می‌کند. این همچنان یک Drill بازیابی ساختگی و موقت است، نه سرویس بازیابی Production.
+
+
+در P-09H یک سناریوی منفی Replay افزوده شده است: Product Scope رویداد بازیابی‌شده دست‌کاری می‌شود، Helper باید Fail-Closed عمل کند، تراکنش Claim باید به وضعیت `accepted` برگردد و هیچ Financial Effectی ایجاد نشود. Workflow بازیابی پس از اصلاح Quoting مربوط به Shell/JSON در Fixture دوباره در حال اجراست؛ اجرای ناموفق قبلی که همین خطای Fixture را آشکار کرد، مدرک پذیرش محسوب نمی‌شود.
