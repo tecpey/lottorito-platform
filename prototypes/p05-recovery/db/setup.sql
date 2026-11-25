@@ -29,7 +29,7 @@ INSERT INTO public.ledger_lines VALUES
 ('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb','10000000-0000-4000-8000-000000000002',1,'cash','debit',2000),('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb','10000000-0000-4000-8000-000000000002',2,'clearing','credit',2000);
 INSERT INTO public.source_events VALUES
 ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','30000000-0000-4000-8000-000000000001','20000000-0000-4000-8000-000000000001','USD',1000),
-('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb','30000000-0000-4bbb-8bbb-000000000002','20000000-0000-4000-8000-000000000002','USD',2000);
+('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb','30000000-0000-4000-8000-000000000002','20000000-0000-4000-8000-000000000002','USD',2000);
 INSERT INTO public.object_refs VALUES
 ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','40000000-0000-4000-8000-000000000001',repeat('a',64)),
 ('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb','40000000-0000-4000-8000-000000000002',repeat('b',64));
