@@ -1,6 +1,6 @@
 # P-07B — مالکیت پلتفرم مشترک و مرزهای اعتماد
 
-**شناسه سند:** LOT-PROT-P07B-001 | **نسخه:** ۰.۱.۰ | **وضعیت:** Fixture ساختگی در CI روی Head شماره 872cfd8 اعتبارسنجی شده است
+**شناسه سند:** LOT-PROT-P07B-001 | **نسخه:** ۰.۱.۰ | **وضعیت:** Fixture ساختگی در CI روی Head شماره 42083a2 اعتبارسنجی شده است
 
 ## پرسش تصمیم
 
@@ -105,7 +105,7 @@ python3 -m unittest discover -s prototypes/p07-shared-trust-boundaries/tests -v
 
 ## شواهد CI
 
-- Integration با شناسه [45570357262](https://github.com/tecpey/lottorito-platform/actions/runs/45570055150): موفق روی Head شماره 78c69234؛ هر ۳۳ تست قبول شدند.
+- Integration با شناسه [45570485750](https://github.com/tecpey/lottorito-platform/actions/runs/45570055150): موفق روی Head شماره 78c69234؛ هر ۳۳ تست قبول شدند.
 - اجرای Push با شناسه [45570199339](https://github.com/tecpey/lottorito-platform/actions/runs/45570037120): موفق.
-- Documentation Governance با شناسه [45570357292](https://github.com/tecpey/lottorito-platform/actions/runs/45570055148): روی همان Head PR موفق.
+- Documentation Governance با شناسه [45570485718](https://github.com/tecpey/lottorito-platform/actions/runs/45570055148): روی همان Head PR موفق.
 - PR شماره [۵۷](https://github.com/tecpey/lottorito-platform/pull/57) همچنان Draft، باز و Mergeنشده است.
