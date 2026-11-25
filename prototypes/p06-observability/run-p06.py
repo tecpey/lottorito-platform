@@ -157,11 +157,10 @@ def main():
     }
     unsafe_exception="provider error contained "+CANARIES[0]+" and "+CANARIES[5]
     unsafe_baggage={"user.email":CANARIES[5],"api.key":CANARIES[1],"tenant.id":TENANT_A}
-    safe_baggage={}
-    malicious_event_type="affiliate.commission.created\r\nALERT "+CANARIES[0]
-    safe_event_name="event.validation_failed"
-    safe_message_code="INVALID_EVENT_TYPE"
-    if safe_baggage or safe_event_name in malicious_event_type or safe_message_code not in ("INVALID_EVENT_TYPE",):
+    safe_baggage=sanitize_baggage(unsafe_baggage)
+    malicious_event_type="affiliate.commission.created"+chr(13)+chr(10)+"ALERT "+CANARIES[0]
+    safe_event_name,safe_message_code=normalize_event_type(malicious_event_type)
+    if safe_baggage or safe_event_name!="event.validation_failed" or safe_message_code!="INVALID_EVENT_TYPE":
         raise AssertionError("unsafe baggage or log injection was not normalized")
     psql(
       "INSERT INTO p06.logs(trace_id,span_id,tenant_ref,level,event_name,message_code,fields) VALUES("
