@@ -333,7 +333,7 @@ test("maximum attempts transition an expired or failed claim to dead letter", as
   assert.equal((await inboxRow(affiliateA, affiliateInstallation.provider_id, fixture.eventId)).status, "dead_letter");
 });
 
-test("unknown event type is quarantined without financial posting", async () => {
+test("unknown event type is rejected at signed ingress before inbox persistence", async () => {
   const fixture = webhook(affiliateInstallation);
   const body = JSON.parse(fixture.rawBody.toString("utf8"));
   body.type = "com.synthetic.unknown.v9";
@@ -342,12 +342,10 @@ test("unknown event type is quarantined without financial posting", async () => 
     eventId: fixture.eventId, rawBody, secret: currentSecret, timestamp: Math.floor(Date.now() / 1000)
   });
   const altered = { ...fixture, rawBody, headers };
-  await ingest(affiliateA, altered);
-  const { result } = await processOne(affiliateA, affiliateInstallation, altered);
-  assert.equal(result.outcome, "quarantined");
-  const stored = await inboxRow(affiliateA, affiliateInstallation.provider_id, fixture.eventId);
-  assert.equal(stored.journal_id, null);
-  assert.equal(stored.last_error_code, "P03D_UNMAPPED_EVENT");
+  const result = await ingest(affiliateA, altered);
+  assert.equal(result.http_status, 400);
+  assert.equal(result.reason, "P03D_UNMAPPED_SCHEMA");
+  assert.equal(await inboxRow(affiliateA, affiliateInstallation.provider_id, fixture.eventId), null);
 });
 
 test("lottery posting is isolated from affiliate accounts and its outbox", async () => {
