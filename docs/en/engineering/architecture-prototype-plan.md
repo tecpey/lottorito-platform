@@ -337,3 +337,13 @@ The prototype phase is complete only when all eight experiments have reproducibl
 - Exact tested code head 76650b0c799e2f2a5b2f3ae4831bb55d3a3811a6 passed P-02 25, P-03C 15, P-03D 19, P-04 7, P-05A recovery P05A_RESULT=PASS and Documentation Governance. Runs: 45609220358, 45609220468, 45609220377, 45609220359 and 45609220328. All workflows succeeded; automated suite count 66, zero failures/skips.
 - P-05A is synthetic only. Missing-WAL/interrupted-restore negative drills, off-site immutable retention, key custody, object-byte recovery, app/worker recovery, provider reconciliation, regional recovery and RPO/RTO approval remain open.
 - Next: P-05B object/key/idempotent-event recovery. Replay it onto PR #63 in a new branch and run the complete P-02/P-03C/P-03D/P-04/P-05A/P-05B regression chain. Keep original PR #52 open/Draft and do not merge or deploy.
+
+
+## P-05B on reconciled P-05A/P-04 stack — 2026-11-25
+
+- Original P-05B PR #53 is stacked on original P-05A PR #52, which descends from the original P-04 branch and omits reconciled P-03C/P-03D ancestry.
+- Replacement branch `spike/p05b-object-key-event-recovery-p03d` starts from P-05A PR #63's docs-synchronized head `481a0ab2ac15ee982745e0a3b48d4d93cc829431`. It carries P-05A recovery-complete readiness and missing-WAL/incomplete-restore negative drills, plus P-05B object/key/event recovery.
+- Additional hardening: manifest context validation; tenant/key/object-bound AES-GCM envelope AAD; strict base64 and nonce checks; plaintext size/hash verification against the manifest and database; unique aggregate sequence; deterministic locked event selection; SECURITY DEFINER search_path with pg_temp last.
+- Original PR #53 combined workflow [45533100486](https://github.com/tecpey/lottorito-platform/actions/runs/45533100486) and Documentation Governance [45533100369](https://github.com/tecpey/lottorito-platform/actions/runs/45533100369) passed, including P05A positive/negative drills, P05B object/key recovery and event replay. Historical evidence only.
+- Re-run the combined P-05 workflow and P-02/P-03C/P-03D/P-04 regression plus bilingual Documentation Governance on the replacement PR head. Do not mark P-05B verified until all pass on the exact final head.
+- No real KMS/HSM, object store, broker, provider, key custody, production data, RPO/RTO or production recovery decision is approved. P-05C failover/fencing/failback remains a separate next experiment.
