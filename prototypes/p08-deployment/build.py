@@ -11,7 +11,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT.parent / "p09-contract-recovery"))
-from contract import PRODUCT_IDS as CANONICAL_PRODUCT_IDS, normalize_scope
+from contract import ContractViolation, PRODUCT_IDS as CANONICAL_PRODUCT_IDS, normalize_scope
 
 SOURCE_REVISION_LENGTH = 40
 PRODUCT_IDS = tuple(sorted(CANONICAL_PRODUCT_IDS))
