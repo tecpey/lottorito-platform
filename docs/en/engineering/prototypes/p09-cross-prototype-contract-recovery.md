@@ -1,6 +1,6 @@
 # P-09 — Cross-Prototype Contract & Recovery Integration
 
-**Document ID:** LOT-PROT-P09-001 | **Version:** 0.2.0 | **Status:** Proposed cross-prototype contract; P-09A passed and P-09B scope-aware P-06 correlation passed on synthetic CI; no production approval
+**Document ID:** LOT-PROT-P09-001 | **Version:** 0.3.0 | **Status:** Proposed cross-prototype contract; P-09A passed and P-09B scope-aware P-06 correlation passed on synthetic CI; no production approval
 
 **Status:** Proposed contract baseline; implementation and owner approval remain open.  
 **Baseline:** `integration/p03d-p04-p08-candidate` at `c7f9ffa1f499fbd34d260b2aa6d3122d32e1ac7f`.  
@@ -99,3 +99,7 @@ The P-06 implementation now uses the canonical tenant/scope/source-event tuple f
 - Documentation Governance: [45628562765](https://github.com/tecpey/lottorito-platform/actions/runs/45628562765) passed (58 bilingual pairs, 136 local links).
 
 The P-06 fixture now proves product-scoped uniqueness and forensic filtering for colliding source-event UUIDs. P-05B, P-07B and P-08 remain open integration gates.
+
+### P-09C acceptance evidence
+
+P-08 product-aware build/provenance and lifecycle enforcement passed in [45629980686](https://github.com/tecpey/lottorito-platform/actions/runs/45629980686): **53/53 tests**. Both product artifacts are built independently; the product identity is embedded in the artifact payload, release metadata and provenance. The deployment controller rejects promotion and rollback across product scopes. This closes the synthetic P-08 slice only; P-05B recovery and P-07B event-contract alignment remain open.
