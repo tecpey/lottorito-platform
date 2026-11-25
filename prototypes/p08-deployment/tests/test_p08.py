@@ -244,7 +244,6 @@ class PromotionAndRollbackTests(unittest.TestCase):
 
     def test_safe_rollback_preserves_financial_state_and_digest(self):
         before = self.stage_state.financial_state_digest
-        before_financial_state = self.stage_state.financial_state_digest
         self.promote(self.stage_state, "v2")
         self.controller.migrate_schema(self.stage_state, 2, "expand")
         target = self.stage_state.previous_digest
@@ -269,6 +268,7 @@ class PromotionAndRollbackTests(unittest.TestCase):
                 self.approval(old_digest), GOOD_API, GOOD_WORKER)
 
     def test_forward_repair_with_schema_compatible_artifact_is_allowed(self):
+        before_financial_state = self.stage_state.financial_state_digest
         self.promote(self.stage_state, "v2")
         self.controller.migrate_schema(self.stage_state, 2, "expand")
         update_state_artifact_binding(self.stage_state, self.store, self.stage_state.current_digest, self.stage_state.previous_digest)
