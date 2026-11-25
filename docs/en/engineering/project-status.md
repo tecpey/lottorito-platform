@@ -1,6 +1,6 @@
 # Verified Project Status and Continuation Point
 
-**Document ID:** LOT-OPS-001 | **Version:** 1.28.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-24
+**Document ID:** LOT-OPS-001 | **Version:** 1.29.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-24
 
 ## Verified repository state
 
@@ -11,6 +11,15 @@
 - P-05A used a disposable PostgreSQL 18.7 container. The run verified physical base backup, pg_verifybackup, rejection of a tampered manifest, archived WAL, named PITR with pre/post-target assertions, tenant RLS read/write isolation and synthetic journal/source reconciliation. Observed CI backup+verification time was 12–13 seconds (latest final-head run: 13 seconds) and restore startup was 1 second; these are not production RPO/RTO targets.
 - P-05A does not yet test missing-WAL/interrupted-restore negative drills, object-byte/key recovery, event replay, regional recovery, failover, split-brain fencing or failback. P-05B/P-05C remain not run. RPO/RTO remain TBD; no production data, credentials, funds, deployment or merge was involved.
 - Earlier project-status entries below are dated historical snapshots; this continuation update supersedes their P-04/P-05 status statements where they conflict. Re-fetch live PR/run metadata before any merge decision.
+
+## Continuation update — 2026-11-25 (P-05B)
+
+- P-05B PR #53 is open, Draft and unmerged; it is stacked on P-05A PR #52. Final head: `99ac76a68817116d05441a8165609252e7cd8ee9`.
+- P-05B Integration (PR) [45526169535](https://github.com/tecpey/lottorito-platform/actions/runs/45526169535), Integration (branch push) [45526158154](https://github.com/tecpey/lottorito-platform/actions/runs/45526158154), and Documentation Governance [45526171881](https://github.com/tecpey/lottorito-platform/actions/runs/45526171881) passed on that head.
+- The combined disposable CI job first reran P-05A PostgreSQL 18.7 base backup, manifest verification, named PITR, RLS and financial assertions, then ran P-05B against the restored database. Object restore recovered 4,409 bytes and matched SHA-256 `2db4a9b021abba0ce01480ceda665284f023310ce909c0b0b9bcb084f771eaca` to the database reference. Missing key, corrupt ciphertext and corrupt wrapped DEK were rejected; tenant object isolation passed.
+- Event replay delivered sequence 2 before 1, tested a sequence gap, duplicate source-event delivery and duplicate economic-effect identity, injected a transaction failure before commit, verified rollback of journal/inbox/cursor, retried exactly two balanced effects, reconciled source totals to ledger cash, proved a subsequent replay was a no-op and denied cross-tenant inbox access/write.
+- P-05A missing-WAL/interrupted-restore negative drills remain open. Live KMS/HSM, production key custody/rotation, external object-store/broker/provider recovery, regional recovery and P-05C failover/fencing/failback remain untested. RPO/RTO remain TBD. No production data, live credentials, provider, real funds, merge or deployment was involved.
+- This update supersedes earlier P-05 status statements below where they conflict; older entries remain dated historical snapshots. Re-fetch live PR/run metadata before any merge decision.
 
 - Repository: tecpey/lottorito-platform; default branch main; public visibility by owner decision.
 - Current engineering stack: P-01 PR #45 → P-02 PR #46 → P-03 PR #50 → P-04 PR #51. All remain open Draft/unmerged. P-01 run [45425284220](https://github.com/tecpey/lottorito-platform/actions/runs/45425284220) passed 40 tests; P-02 run [45466918625](https://github.com/tecpey/lottorito-platform/actions/runs/45466918625) passed 25; P-03 run [45469172124](https://github.com/tecpey/lottorito-platform/actions/runs/45469172124) passed 10. P-04 integration run [45471750215](https://github.com/tecpey/lottorito-platform/actions/runs/45471750215) passed 7 tests (0 failed, 0 skipped) on head 15c536e5be2f61b1805191f5977a46b17eaf1971; push-triggered duplicate run [45471737779](https://github.com/tecpey/lottorito-platform/actions/runs/45471737779) also passed. Documentation Governance run [45471750133](https://github.com/tecpey/lottorito-platform/actions/runs/45471750133) passed on the same head. PR #51 is stacked on #50. PRs #48/#49 remain separate P-01 export/pool candidates requiring ancestry and CI reconciliation before integration. Re-fetch live PR metadata before merge planning.
