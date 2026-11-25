@@ -1,6 +1,6 @@
 # P-05B — Object, Key and Event Recovery
 
-**Document ID:** LOT-PROT-P05B-001 | **Version:** 0.2.0 | **Status:** Synthetic CI experiment passed on final head 99ac76a68817116d05441a8165609252e7cd8ee9
+**Document ID:** LOT-PROT-P05B-001 | **Version:** 0.2.0 | **Status:** Synthetic CI experiment passed on validated executable-code head 99ac76a68817116d05441a8165609252e7cd8ee9
 
 ## Authority and boundary
 
