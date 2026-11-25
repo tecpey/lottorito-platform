@@ -47,13 +47,15 @@ EOF"
 # named target marker is present and verified.
 if as_pg pg_ctl -D "$NEG/missing-wal-restore" -l "$NEG/missing-wal.log" -o "-p 55433 -h 127.0.0.1 -c archive_mode=off" -w -t 15 start >"$NEG/missing-wal-pgctl.log" 2>&1; then
   if pg_isready -h 127.0.0.1 -p 55433 >/dev/null 2>&1; then
-    count="$(as_pg psql -X -h 127.0.0.1 -p 55433 -U postgres -d lottorito_p05 -At -c "SELECT count(*) FROM public.recovery_markers WHERE marker='after-p05-restore-point'")"
-    if test "$count" = "1"; then
-      as_pg pg_ctl -D "$NEG/missing-wal-restore" -m fast -w -t 5 stop
-      echo "missing WAL unexpectedly reached the post-target marker" >&2; exit 1
+    recovery_state="$(as_pg psql -X -h 127.0.0.1 -p 55433 -U postgres -d lottorito_p05 -At -c "SELECT pg_is_in_recovery()")"
+    if test "$recovery_state" = "t"; then
+      as_pg pg_ctl -D "$NEG/missing-wal-restore" -m immediate -w -t 5 stop
+      echo "missing_wal_server_remains_read_only_in_recovery=PASS"
+    else
+      echo "missing WAL unexpectedly produced a writable server before the requested target" >&2
+      as_pg pg_ctl -D "$NEG/missing-wal-restore" -m immediate -w -t 5 stop || true
+      exit 1
     fi
-    as_pg pg_ctl -D "$NEG/missing-wal-restore" -m fast -w -t 5 stop
-    echo "missing_wal_not_accepted_as_target_recovery=PASS"
   else
     as_pg pg_ctl -D "$NEG/missing-wal-restore" -m immediate -w -t 5 stop || true
     echo "missing_wal_startup_not_ready=PASS"
