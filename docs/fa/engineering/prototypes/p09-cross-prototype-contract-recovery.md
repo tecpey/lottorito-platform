@@ -1,6 +1,6 @@
 # P-09 — یکپارچه‌سازی قرارداد و بازیابی بین Prototypeها
 
-**شناسه سند:** LOT-PROT-P09-001 | **نسخه:** ۰.۳.۰ | **وضعیت:** قرارداد پیشنهادی بین Prototypeها؛ P-09A و Correlation محصول‌محور P-09B در CI ساختگی موفق شدند؛ بدون تصویب Production
+**شناسه سند:** LOT-PROT-P09-001 | **نسخه:** ۰.۴.۰ | **وضعیت:** قرارداد پیشنهادی بین Prototypeها؛ P-09A و Correlation محصول‌محور P-09B در CI ساختگی موفق شدند؛ بدون تصویب Production
 
 **وضعیت:** خط مبنای قرارداد پیشنهادی؛ پیاده‌سازی کامل و تصویب مالک همچنان باز است.  
 **مبنای بررسی:** شاخه `integration/p03d-p04-p08-candidate` با Head برابر `c7f9ffa1f499fbd34d260b2aa6d3122d32e1ac7f`.  
@@ -103,3 +103,7 @@ Fixture مربوط به P-06 اکنون یکتایی محصول‌محور و ف
 ### شواهد پذیرش P-09C
 
 Build/Provenance محصول‌محور و اعمال Product Scope در چرخه عمر P-08 در اجرای [45629980686](https://github.com/tecpey/lottorito-platform/actions/runs/45629980686) موفق شد: **۵۳ تست از ۵۳ تست**. Artifact هر دو Product به‌صورت مستقل ساخته می‌شود و هویت Product در Payload، Release Metadata و Provenance ثبت می‌گردد. Deployment Controller، Promotion و Rollback بین Scopeهای محصولی را رد می‌کند. این فقط Slice ساختگی P-08 را می‌بندد؛ Recovery در P-05B و هم‌ترازی Event Contract در P-07B همچنان باز هستند.
+
+### شواهد پذیرش P-09D
+
+P-07B اکنون Envelope محصول‌محور Canonical را اعتبارسنجی می‌کند: UUID مربوط به Tenant، Product Scope مقید به Producer، UUID مربوط به Source Event، Schema Version و W3C Traceparent. خروجی Dispatch دقیقاً Tuple هویت Source و Trace ID موردنیاز P-06 را برمی‌گرداند. CI با شناسه [45631269584](https://github.com/tecpey/lottorito-platform/actions/runs/45631269584) با **۴۲ تست از ۴۲ تست** موفق شد. Registry و Fixtureهای Tenant ساختگی اکنون از همان انواع هویتی قرارداد P-09 استفاده می‌کنند. Eventهای Platform-originated به‌طور ضمنی از طریق Service Identity محصولات پذیرفته نمی‌شوند.
