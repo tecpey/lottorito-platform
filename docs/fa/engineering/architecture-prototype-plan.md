@@ -1,6 +1,6 @@
 # برنامه Prototype معماری و تولید شواهد Lottorito
 
-**شناسه سند:** LOT-PROT-001 | **نسخه:** ۱.۱۵.۰ | **وضعیت:** برنامه آزمایش پیشنهادی؛ اجرا و انتخاب فناوری تصویب نشده است
+**شناسه سند:** LOT-PROT-001 | **نسخه:** ۱.۱۶.۰ | **وضعیت:** برنامه آزمایش پیشنهادی؛ اجرا و انتخاب فناوری تصویب نشده است
 
 ## ۱. هدف و اعتبار
 
@@ -217,7 +217,7 @@
 
 **منابع:** Failover، Hot Standby و pg_rewind در PostgreSQL 18؛ راهنمای Lease/Watchdog در Patroni؛ تراکنش اتمیک، Lease و Linearizability در etcd.
 
-**وضعیت:** آزمایش اجرایی P-05C در Integration شاخه با شناسه [45533778752](https://github.com/tecpey/lottorito-platform/actions/runs/45533778752) روی Head کد اجرایی 4884a3c38d2da8ea9ab9961dc095eb0ddd469f4d موفق شد. دو Timeline واگرا و دو pg_rewind واقعی، شامل حذف Tail دوم در Failback، اثبات شدند. PR شماره ۵۴ همچنان Draft و Stacked روی PR شماره ۵۳ است؛ Integration نهایی PR و Governance روی Head نهایی مستندات باید پیش از بستن فاز بررسی شوند. هیچ فناوری HA، فروشنده، توپولوژی، RPO/RTO یا آمادگی Production تصویب نشده است.
+**وضعیت:** Integration مربوط به P-05C با شناسه [45533992674](https://github.com/tecpey/lottorito-platform/actions/runs/45533992674)، Integration بازگشتی P-05B با شناسه [45533992779](https://github.com/tecpey/lottorito-platform/actions/runs/45533992779) و Documentation Governance با شناسه [45533992863](https://github.com/tecpey/lottorito-platform/actions/runs/45533992863)، هر سه روی Head PR با شناسه 194c565c1471474a1d908efb3dfda89035d9d4cc موفق شدند. دو Timeline واگرا و دو عملیات واقعی pg_rewind با کپی ۳۵ و ۶۷ مگابایت، از جمله حذف Tail دوم در Failback، موفق شدند. PR شماره ۵۴ همچنان Draft و Stacked روی PR شماره ۵۳ است. هیچ فناوری HA، فروشنده، توپولوژی، RPO/RTO یا آمادگی Production تصویب نشده است.
 
 ### P-06 — Observability سرتاسری و حریم خصوصی
 
