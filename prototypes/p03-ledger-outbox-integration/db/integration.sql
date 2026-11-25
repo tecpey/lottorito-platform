@@ -235,7 +235,7 @@ BEGIN
            published_at = NULL
       FROM candidates c
      WHERE d.tenant_id = c.tenant_id AND d.event_id = c.event_id
-    RETURNING d.tenant_id, d.event_id, d.attempts, d.lease_token, d.lease_until
+    RETURNING d.tenant_id, d.product_id, d.event_id, d.attempts, d.lease_token, d.lease_until
   )
   SELECT e.event_id, e.journal_id AS aggregate_id, e.event_type, e.payload,
          c.attempts, c.lease_token, c.lease_until
