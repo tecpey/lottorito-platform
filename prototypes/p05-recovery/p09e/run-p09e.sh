@@ -54,21 +54,21 @@ INSERT INTO public.provider_event_inbox
  (tenant_id,product_id,provider_id,provider_event_id,event_type,event_source,payload_hash,signature_key_id,canonical_event,effect_id,source_event_id)
 VALUES
  ('$TENANT_A','affiliate_agent','synthetic-provider','$EVENT_ID','com.synthetic.settlement.posted.v1','urn:synthetic:p09e:affiliate',repeat('a',64),'synthetic-key-v1',
-  jsonb_build_object('specversion','1.0','id','$EVENT_ID','source','urn:synthetic:p09e:affiliate','type','com.synthetic.settlement.posted.v1','data',jsonb_build_object('amount_minor','$AMOUNT','currency_code','USD')),
+  jsonb_build_object('specversion','1.0','id','$EVENT_ID','source','urn:synthetic:p09e:affiliate','type','com.synthetic.settlement.posted.v1','time','2026-11-25T12:00:00Z','dataschema','urn:lottorito:schema:synthetic-settlement:1','tenantid','$TENANT_A','scope',jsonb_build_object('kind','product','id','affiliate_agent'),'sourceeventid','$SOURCE_EVENT_ID','schemaversion',1,'traceparent','00-0123456789abcdef0123456789abcdef-0123456789abcdef-00','data',jsonb_build_object('amount_minor','$AMOUNT','currency_code','USD')),
   '$AFFILIATE_EFFECT','$SOURCE_EVENT_ID')"
 tenant_psql "$SOURCE_PORT" tenant_a_lottery_runtime p02-tenant-a-lottery-not-for-production -c "
 INSERT INTO public.provider_event_inbox
  (tenant_id,product_id,provider_id,provider_event_id,event_type,event_source,payload_hash,signature_key_id,canonical_event,effect_id,source_event_id)
 VALUES
  ('$TENANT_A','lottery','synthetic-provider','$EVENT_ID','com.synthetic.settlement.posted.v1','urn:synthetic:p09e:lottery',repeat('b',64),'synthetic-key-v1',
-  jsonb_build_object('specversion','1.0','id','$EVENT_ID','source','urn:synthetic:p09e:lottery','type','com.synthetic.settlement.posted.v1','data',jsonb_build_object('amount_minor','$AMOUNT','currency_code','USD')),
+  jsonb_build_object('specversion','1.0','id','$EVENT_ID','source','urn:synthetic:p09e:lottery','type','com.synthetic.settlement.posted.v1','time','2026-11-25T12:00:00Z','dataschema','urn:lottorito:schema:synthetic-settlement:1','tenantid','$TENANT_A','scope',jsonb_build_object('kind','product','id','lottery'),'sourceeventid','$SOURCE_EVENT_ID','schemaversion',1,'traceparent','00-0123456789abcdef0123456789abcdef-0123456789abcdef-00','data',jsonb_build_object('amount_minor','$AMOUNT','currency_code','USD')),
   '$LOTTERY_EFFECT','$SOURCE_EVENT_ID')"
 tenant_psql "$SOURCE_PORT" tenant_b_ledger_runtime p02-tenant-b-not-for-production -c "
 INSERT INTO public.provider_event_inbox
  (tenant_id,product_id,provider_id,provider_event_id,event_type,event_source,payload_hash,signature_key_id,canonical_event,effect_id,source_event_id)
 VALUES
  ('$TENANT_B','affiliate_agent','synthetic-provider','$EVENT_ID','com.synthetic.settlement.posted.v1','urn:synthetic:p09e:tenant-b',repeat('c',64),'synthetic-key-v1',
-  jsonb_build_object('specversion','1.0','id','$EVENT_ID','source','urn:synthetic:p09e:tenant-b','type','com.synthetic.settlement.posted.v1','data',jsonb_build_object('amount_minor','$AMOUNT','currency_code','USD')),
+  jsonb_build_object('specversion','1.0','id','$EVENT_ID','source','urn:synthetic:p09e:tenant-b','type','com.synthetic.settlement.posted.v1','time','2026-11-25T12:00:00Z','dataschema','urn:lottorito:schema:synthetic-settlement:1','tenantid','$TENANT_B','scope',jsonb_build_object('kind','product','id','affiliate_agent'),'sourceeventid','$SOURCE_EVENT_ID','schemaversion',1,'traceparent','00-0123456789abcdef0123456789abcdef-0123456789abcdef-00','data',jsonb_build_object('amount_minor','$AMOUNT','currency_code','USD')),
   '$TENANT_B_EFFECT','$SOURCE_EVENT_ID')"
 
 admin_psql "$SOURCE_PORT" "$DB" -c "
