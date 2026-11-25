@@ -1,6 +1,6 @@
 # P-05B — بازیابی Object، کلید و رویداد
 
-**شناسه سند:** LOT-PROT-P05B-001 | **نسخه:** ۰.۳.۰ | **وضعیت:** آزمایش ساختگی CI روی Head اعتبارسنجی‌شده کد اجرایی 99ac76a68817116d05441a8165609252e7cd8ee9 موفق شد
+**شناسه سند:** LOT-PROT-P05B-001 | **نسخه:** ۰.۴.۰ | **وضعیت:** Integration ترکیبی ساختگی P-05A/P-05B روی Head اعتبارسنجی‌شده شاخه 0a6b8f992161cd9f9d760698b1c9d0c8e30867a9 موفق شد؛ بازیابی Production تصویب نشده است
 
 ## اعتبار و مرز
 
@@ -55,6 +55,10 @@ P-05B آزمایش PITR دیتابیس در P-05A را با بازیابی مس�
 
 ## شواهد نهایی CI
 
+- Integration نهایی ترکیبی P-05A/P-05B با شناسه [45532382323](https://github.com/tecpey/lottorito-platform/actions/runs/45532382323) و Documentation Governance با شناسه [45532382310](https://github.com/tecpey/lottorito-platform/actions/runs/45532382310)، هر دو روی Head شاخه `0a6b8f992161cd9f9d760698b1c9d0c8e30867a9` موفق شدند.
+- همان اجرای ترکیبی دو آزمون منفی P-05A را نیز بست: Staging ناقص Restore توسط Manifest Verification و راه‌اندازی سرور رد شد؛ Segment هدف WAL مفقود مانع Ready شدن بازیابی در Restore Point درخواستی شد و در Recovery Log شناسایی شد.
+
+
 - اجرای Integration ترکیبی P-05A و P-05B در Pull Request با شناسه [45526975173](https://github.com/tecpey/lottorito-platform/actions/runs/45526975173) روی Head اعتبارسنجی‌شده شاخه e4820884194ecf1ab3acd539d77145904f14ab73 موفق شد.
 - اجرای Documentation Governance با شناسه [45526975222](https://github.com/tecpey/lottorito-platform/actions/runs/45526975222) روی همان Head موفق شد.
 - Payload بازیابی‌شده ۴٬۴۰۹ بایت بود؛ SHA-256 آن `2db4a9b021abba0ce01480ceda665284f023310ce909c0b0b9bcb084f771eaca` با مرجع Object در PostgreSQL بازیابی‌شده تطبیق داشت.
@@ -64,7 +68,7 @@ P-05B آزمایش PITR دیتابیس در P-05A را با بازیابی مس�
 
 ## ایمنی، محدودیت‌ها و کارهای باز
 
-از KMS/HSM زنده، Cloud Object Storage، Broker خارجی، Provider، Credential واقعی، داده مشتری/بازیکن یا وجه واقعی استفاده نمی‌شود. AES-GCM فقط Primitive آزمایشی است، نه تصمیم مصوب فناوری پلتفرم. این آزمایش Rotation/Revocation کلید، افشای کلید، Custody چندبخشی، قطعی KMS، IAM Policy، Object Versioning/Immutability، Retention/Legal Hold، Object بزرگ/Multipart، Replication منطقه‌ای، Replay Broker خارجی، تطبیق Provider، Saga بین سرویس‌ها، هم‌زمانی بالا، بار Production، هدف RPO/RTO یا انطباق را نمی‌آزماید. آزمون منفی WAL مفقود و Restore قطع‌شده در P-05A همچنان باز است. Failover/Fencing/Failback در P-05C خارج از این کار است.
+از KMS/HSM زنده، Cloud Object Storage، Broker خارجی، Provider، Credential واقعی، داده مشتری/بازیکن یا وجه واقعی استفاده نمی‌شود. AES-GCM فقط Primitive آزمایشی است، نه تصمیم مصوب فناوری پلتفرم. این آزمایش Rotation/Revocation کلید، افشای کلید، Custody چندبخشی، قطعی KMS، IAM Policy، Object Versioning/Immutability، Retention/Legal Hold، Object بزرگ/Multipart، Replication منطقه‌ای، Replay Broker خارجی، تطبیق Provider، Saga بین سرویس‌ها، هم‌زمانی بالا، بار Production، هدف RPO/RTO یا انطباق را نمی‌آزماید. آزمون‌های منفی WAL مفقود و Staging ناقص Restore در P-05A اکنون در Workflow ترکیبی موفق‌اند؛ این نتیجه فقط Assertionهای Fail-closed ساختگی شرح‌داده‌شده در گزارش P-05A را اثبات می‌کند. Failover/Fencing/Failback در P-05C خارج از این کار است.
 
 RPO/RTO طبق LOT-QA-001 همچنان TBD است. زمان CI فقط مشاهده آزمایش است. موفقیت آزمایش ساختگی به معنی آمادگی Production یا تصویب فناوری/فروشنده نیست.
 
