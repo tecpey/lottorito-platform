@@ -1,6 +1,6 @@
 # برنامه Prototype معماری و تولید شواهد Lottorito
 
-**شناسه سند:** LOT-PROT-001 | **نسخه:** ۱.۱۱.۰ | **وضعیت:** برنامه آزمایش پیشنهادی؛ اجرا و انتخاب فناوری تصویب نشده است
+**شناسه سند:** LOT-PROT-001 | **نسخه:** ۱.۱۲.۰ | **وضعیت:** برنامه آزمایش پیشنهادی؛ اجرا و انتخاب فناوری تصویب نشده است
 
 ## ۱. هدف و اعتبار
 
@@ -169,7 +169,7 @@
 
 **شواهد:** Manifest و خروجی صحت‌سنجی Backup، نتیجه تست منفی دست‌کاری، فهرست WAL آرشیوشده، LSN/Timeline نقطه بازیابی، Log و زمان Restore، Assertions قبل/بعد از Target، نتایج جداسازی Tenant، گزارش Ledger/Reconciliation، نسخه دقیق نرم‌افزار، Runbook و محدودیت‌ها.
 
-**وضعیت:** راستی‌آزمایی ساختگی P-05A در CI روی Head با شناسه f2303a647aefd5bd8d48ba9d2e1830c881f60041 موفق شد. اجرای Integration با شناسه [45524388676](https://github.com/tecpey/lottorito-platform/actions/runs/45524388676) و Documentation Governance با شناسه [45524388734](https://github.com/tecpey/lottorito-platform/actions/runs/45524388734) موفق بودند. PostgreSQL 18.7 استفاده شد؛ در Runner دورریختنی CI، زمان Backup به‌همراه Verification برابر ۱۲ تا ۱۳ ثانیه (اجرای نهایی روی Head فعلی: ۱۳ ثانیه) و زمان راه‌اندازی Restore برابر ۱ ثانیه اندازه‌گیری شد. Log رسیدن به Restore Point نام‌گذاری‌شده بررسی شد، نشانگر قبل از Target حاضر و نشانگر بعد از Target غایب بود، RLS خواندن/نوشتن بین Tenantها را رد کرد و مجموع ساختگی Ledger/Source تطبیق داشت. آزمون منفی WAL مفقود و Restore قطع‌شده همچنان اجرا نشده‌اند. بازیابی بایت Object/کلید و Replay مرتب و Idempotent در P-05B اکنون در CI ساختگی موفق شده‌اند (PR شماره ۵۳)؛ Failover/Fencing/Failback در P-05C هنوز اجرا نشده است. این نتیجه آمادگی Production، تعهد RPO/RTO یا تصویب فناوری نیست.
+**وضعیت:** مسیر مثبت PITR و آزمون‌های منفی بازیابی P-05A در CI ساختگی ترکیبی روی Head شاخه `0a6b8f992161cd9f9d760698b1c9d0c8e30867a9` موفق شدند. Integration با شناسه [45532382323](https://github.com/tecpey/lottorito-platform/actions/runs/45532382323) و Documentation Governance با شناسه [45532382310](https://github.com/tecpey/lottorito-platform/actions/runs/45532382310) روی همان Head موفق بودند. PostgreSQL 18.7 استفاده شد؛ مسیر مثبت Restore Point نام‌گذاری‌شده، نشانگرهای قبل/بعد Target، RLS مربوط به Tenant و تطبیق مالی را بررسی کرد. مسیر منفی، Staging ناقص Restore را با `pg_verifybackup` و راه‌اندازی سرور رد کرد و Segment دقیق WAL هدف را از کپی‌های ایزوله حذف کرد؛ سرور در Recovery Target درخواستی Ready نشد و Segment مفقود در Log شناسایی شد. بازیابی بایت Object/کلید و Replay مرتب و Idempotent در P-05B نیز در همان Job موفق شدند. Failover/Fencing/Failback در P-05C هنوز اجرا نشده است. این نتیجه آمادگی Production، تعهد RPO/RTO یا تصویب فناوری نیست.
 
 
 ### P-05B — بازیابی Object، کلید و رویداد
@@ -190,7 +190,7 @@
 
 **محدودیت Custody کلید:** فایل خام KEK صرفاً مواد بازیابی ساختگی CI است. این فایل طراحی Production برای KMS/HSM، توصیه به Export کلید ریشه، Split-Knowledge، مراسم کلید یا مدل مجوزدهی نیست. AES-GCM Primitive آزمایشی است، نه استاندارد منتخب پلتفرم.
 
-**اثبات‌نشده:** قطعی/Rotation/Revocation/Compromise در KMS/HSM، IAM و کنترل دوگانه، نگهداری Immutable/Versioned Object، Legal Hold، فایل بزرگ/Multipart، Replication منطقه‌ای، دوام Broker خارجی، تطبیق Provider، Saga بین سرویس‌ها، هم‌زمانی بالا، Throughput Production، RPO/RTO یا انطباق. آزمون‌های منفی WAL مفقود و Restore قطع‌شده P-05A همچنان باز هستند؛ Failover/Fencing/Failback در P-05C مستقل است.
+**اثبات‌نشده:** قطعی/Rotation/Revocation/Compromise در KMS/HSM، IAM و کنترل دوگانه، نگهداری Immutable/Versioned Object، Legal Hold، فایل بزرگ/Multipart، Replication منطقه‌ای، دوام Broker خارجی، تطبیق Provider، Saga بین سرویس‌ها، هم‌زمانی بالا، Throughput Production، RPO/RTO یا انطباق. آزمون‌های منفی WAL مفقود و Staging ناقص Restore در P-05A فقط در Fixture ساختگی CI موفق شده‌اند؛ Orchestration بازیابی Production و کنترل پذیرش نتیجه بازیابی هنوز اثبات نشده‌اند. Failover/Fencing/Failback در P-05C مستقل است.
 
 **منابع:** صحت Checksum در AWS S3؛ اعتبارسنجی داده و Versioning در Google Cloud Storage؛ NIST SP 800-57 Part 1 Rev. 5 (Rev. 6 هنوز پیش‌نویس است)؛ راهنمای Transactional Outbox و تحویل At-least-once در AWS.
 
