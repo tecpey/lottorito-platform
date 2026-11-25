@@ -1,0 +1,1 @@
+{"product_id":"lottery","display_name":"Lottery","entrypoint":"products.lottery:run","required_platform_capabilities":["identity_context","tenant_context","audit_sink"],"product_owned_capabilities":["lottery.composition_smoke"],"product_dependencies":[],"forbidden_product_dependencies":["affiliate_agent"]}
