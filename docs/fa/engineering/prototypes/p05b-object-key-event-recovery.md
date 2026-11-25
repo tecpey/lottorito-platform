@@ -1,6 +1,6 @@
 # P-05B — بازیابی Object، کلید و رویداد
 
-**شناسه سند:** LOT-PROT-P05B-001 | **نسخه:** ۰.۱.۰ | **وضعیت:** پیاده‌سازی آزمایش ساختگی؛ انتظار برای راستی‌آزمایی CI
+**شناسه سند:** LOT-PROT-P05B-001 | **نسخه:** ۰.۲.۰ | **وضعیت:** آزمایش ساختگی CI روی Head نهایی 99ac76a68817116d05441a8165609252e7cd8ee9 موفق شد
 
 ## اعتبار و مرز
 
@@ -52,6 +52,16 @@ P-05B آزمایش PITR دیتابیس در P-05A را با بازیابی مس�
 - P05B-LEDGER: همه Journalها متوازن و مجموع Source Event با مجموع Cash در Ledger تطبیق داشته باشد.
 - P05B-TENANT-EVENT: خواندن/نوشتن Inbox بین Tenantها رد شود.
 - همه Assertionها در همان Job دورریختنی و روی PostgreSQL بازیابی‌شده توسط P-05A اجرا شوند.
+
+## شواهد نهایی CI
+
+- اجرای Integration مربوط به P-05B (Pull Request) با شناسه [45526169535](https://github.com/tecpey/lottorito-platform/actions/runs/45526169535) روی Head نهایی 99ac76a68817116d05441a8165609252e7cd8ee9 موفق شد.
+- اجرای Integration مربوط به P-05B (Branch Push) با شناسه [45526158154](https://github.com/tecpey/lottorito-platform/actions/runs/45526158154) روی همان Head موفق شد.
+- اجرای Documentation Governance با شناسه [45526171881](https://github.com/tecpey/lottorito-platform/actions/runs/45526171881) روی همان Head موفق شد.
+- Payload بازیابی‌شده ۴٬۴۰۹ بایت بود؛ SHA-256 آن `2db4a9b021abba0ce01480ceda665284f023310ce909c0b0b9bcb084f771eaca` با مرجع Object در PostgreSQL بازیابی‌شده تطبیق داشت.
+- Assertionهای Object/Key موفق بودند: بازیابی از Backupهای مستقل، Fail-closed در نبود کلید، رد Ciphertext تغییرکرده، رد DEK بسته‌بندی‌شده تغییرکرده و جداسازی مرجع Object بین Tenantها.
+- Assertionهای Event موفق بودند: تحویل نامرتب (ابتدا ۲ سپس ۱)، تقلیل Duplicate تحویل/Economic Effect، توقف در شکاف Sequence، Rollback تراکنش قطع‌شده، Retry با دقیقاً دو اثر، توازن Ledger، تطبیق Source-to-Ledger، No-op بودن Replay بعدی و جداسازی Inbox بین Tenantها.
+- همان Job یکپارچه پیش از P-05B، Backup Verification/PITR در P-05A و Assertionهای مالی/RLS آن را نیز دوباره اجرا کرد. PostgreSQL 18.7 در Container دورریختنی استفاده شد؛ هیچ ادعای RPO/RTO عملیاتی مطرح نیست.
 
 ## ایمنی، محدودیت‌ها و کارهای باز
 
