@@ -1,5 +1,5 @@
 {
-  "contract_version": "1.0.0",
+  "contract_version": "1.1.0",
   "status": "proposed_for_review",
   "product_ids": [
     "affiliate_agent",
@@ -67,10 +67,10 @@
     "validation_profile": "CloudEvents 1.0 core attributes plus Lottorito-required extensions; extension attributes remain permitted"
   },
   "legacy_mappings": {
-    "p02.product_id": "Product scope only; existing shared value is non-canonical and must not be silently reinterpreted",
+    "p02.product_id": "Canonical product values are affiliate_agent|lottery only in the disposable schema; shared is rejected for new writes. Existing shared rows require explicit inventory/quarantine and authoritative owner mapping; no automatic alias. P-02 tenant-only financial keys remain a separate open gap.",
     "p03d.provider_event_inbox": "tenant_id + product_id + provider_id + provider_event_id; source_event_id is persisted in the same product scope",
-    "p05b.p05_inbox": "tenant_id + consumer_name + source_event_id; missing product/scope dimension is an integration gap",
-    "p05b.p05_replay_cursor": "tenant_id + consumer_name + aggregate_id; missing product/scope dimension is an integration gap",
+    "p05b.p05_inbox": "tenant_id + product_id + consumer_name + source_event_id; unique economic effect is also product-qualified; RLS enforces tenant and product.",
+    "p05b.p05_replay_cursor": "tenant_id + product_id + consumer_name + aggregate_id; cursor row lock serializes replay independently per product.",
     "p06.correlation_map": "tenant_id + scope_kind + scope_id + source_event_id composite; trace_id is persisted; P-09I validates the source event envelope before correlation",
     "p06.product_domain": "affiliate_agent|lottery|platform; platform must map to platform scope, never to a product id",
     "p07b.event_contracts": "source_product and allowed_consumers map to product scope; dispatch enforces sourceeventid, schemaversion and traceparent through the shared P-09 validator",
@@ -82,7 +82,9 @@
     "Never use a bare UUID as a globally unique event, effect, journal, or correlation key.",
     "Financial effects and journals must always belong to exactly one product scope.",
     "Platform-scoped events cannot create financial effects or journals.",
-    "Legacy rows without an unambiguous product/scope mapping must be quarantined for reconciliation, not guessed."
+    "Legacy rows without an unambiguous product/scope mapping must be quarantined for reconciliation, not guessed.",
+    "Never automatically reinterpret legacy shared rows; inventory and quarantine them until an authoritative tenant/product mapping is approved.",
+    "P-05B replay inbox, economic-effect uniqueness and aggregate cursor identity must include canonical product scope."
   ],
   "event_type_policies": {
     "financial_product_only": [

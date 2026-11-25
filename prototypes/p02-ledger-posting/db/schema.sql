@@ -53,7 +53,7 @@ CREATE TABLE private.tenant_role_map (
   database_role name PRIMARY KEY,
   tenant_id uuid NOT NULL,
   product_id text NOT NULL DEFAULT 'affiliate_agent'
-    CHECK (product_id IN ('affiliate_agent', 'lottery', 'shared'))
+    CHECK (product_id IN ('affiliate_agent', 'lottery'))
 );
 ALTER TABLE private.tenant_role_map OWNER TO tenant_identity_owner;
 
@@ -90,7 +90,7 @@ GRANT EXECUTE ON FUNCTION private.current_product_id() TO ledger_executor;
 CREATE TABLE public.ledger_accounts (
   tenant_id uuid NOT NULL,
   product_id text NOT NULL DEFAULT 'affiliate_agent'
-    CHECK (product_id IN ('affiliate_agent', 'lottery', 'shared')),
+    CHECK (product_id IN ('affiliate_agent', 'lottery')),
   account_id uuid NOT NULL,
   account_code text NOT NULL,
   currency_code text NOT NULL CHECK (currency_code ~ '^[A-Z]{3}$'),
@@ -106,7 +106,7 @@ CREATE TABLE public.ledger_accounts (
 CREATE TABLE public.financial_effects (
   tenant_id uuid NOT NULL,
   product_id text NOT NULL DEFAULT 'affiliate_agent'
-    CHECK (product_id IN ('affiliate_agent', 'lottery', 'shared')),
+    CHECK (product_id IN ('affiliate_agent', 'lottery')),
   effect_id uuid NOT NULL,
   request_fingerprint jsonb NOT NULL,
   journal_id uuid NOT NULL,
@@ -119,7 +119,7 @@ CREATE TABLE public.financial_effects (
 CREATE TABLE public.posting_requests (
   tenant_id uuid NOT NULL,
   product_id text NOT NULL DEFAULT 'affiliate_agent'
-    CHECK (product_id IN ('affiliate_agent', 'lottery', 'shared')),
+    CHECK (product_id IN ('affiliate_agent', 'lottery')),
   idempotency_key text NOT NULL,
   effect_id uuid NOT NULL,
   journal_id uuid NOT NULL,
@@ -133,7 +133,7 @@ CREATE TABLE public.posting_requests (
 CREATE TABLE public.ledger_journals (
   tenant_id uuid NOT NULL,
   product_id text NOT NULL DEFAULT 'affiliate_agent'
-    CHECK (product_id IN ('affiliate_agent', 'lottery', 'shared')),
+    CHECK (product_id IN ('affiliate_agent', 'lottery')),
   journal_id uuid NOT NULL,
   source_event_id uuid NOT NULL,
   status text NOT NULL CHECK (status = 'posted'),
@@ -146,7 +146,7 @@ CREATE TABLE public.ledger_journals (
 CREATE TABLE public.ledger_lines (
   tenant_id uuid NOT NULL,
   product_id text NOT NULL DEFAULT 'affiliate_agent'
-    CHECK (product_id IN ('affiliate_agent', 'lottery', 'shared')),
+    CHECK (product_id IN ('affiliate_agent', 'lottery')),
   journal_id uuid NOT NULL,
   line_no integer NOT NULL CHECK (line_no BETWEEN 1 AND 100),
   account_id uuid NOT NULL,
@@ -164,7 +164,7 @@ CREATE TABLE public.ledger_lines (
 CREATE TABLE public.ledger_outbox (
   tenant_id uuid NOT NULL,
   product_id text NOT NULL DEFAULT 'affiliate_agent'
-    CHECK (product_id IN ('affiliate_agent', 'lottery', 'shared')),
+    CHECK (product_id IN ('affiliate_agent', 'lottery')),
   event_id uuid NOT NULL,
   journal_id uuid NOT NULL,
   event_type text NOT NULL CHECK (event_type = 'ledger.journal.posted'),

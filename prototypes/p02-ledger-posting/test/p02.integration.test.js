@@ -288,6 +288,16 @@ test("idempotency keys are scoped by tenant rather than globally", async () => {
   assert.equal(await journalCount(TENANT_B, "same-token"), 1);
 });
 
+test("legacy shared product scope is rejected rather than silently aliased", async () => {
+  await assert.rejects(
+    adminPool.query(
+      "INSERT INTO public.ledger_accounts (tenant_id, product_id, account_id, account_code, currency_code, account_type) VALUES ($1, 'shared', gen_random_uuid(), 'legacy-shared-probe', 'USD', 'asset')",
+      [TENANT_A]
+    ),
+    (error) => error.code === "23514"
+  );
+});
+
 test("tenant runtime roles cannot directly read or mutate ledger tables", async () => {
   await assert.rejects(
     tenantAPool.query("SELECT * FROM public.ledger_journals"),
