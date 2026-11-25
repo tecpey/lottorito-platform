@@ -186,21 +186,31 @@ export async function ingestProviderWebhook(pool, {
   }
 }
 
-export async function claimNextProviderEvent(pool, { workerId, leaseSeconds = 30, now = null }) {
+export async function claimNextProviderEvent(pool, { workerId, leaseSeconds = 30, now = null, providerId = null, eventId = null }) {
   if (typeof workerId !== "string" || !SAFE_ID.test(workerId)) throw new TypeError("workerId is invalid");
   if (!Number.isInteger(leaseSeconds) || leaseSeconds < 1 || leaseSeconds > 300) throw new RangeError("leaseSeconds must be 1..300");
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
+    await client.query(
+      `UPDATE public.provider_event_inbox
+          SET status='dead_letter', lease_owner=NULL, lease_token=NULL, lease_until=NULL,
+              last_error_code='MAX_ATTEMPTS_EXHAUSTED'
+        WHERE status='processing' AND lease_until <= COALESCE($1::timestamptz,clock_timestamp())
+          AND attempt_count >= max_attempts`,
+      [now]
+    );
     const selected = await client.query(
       `SELECT provider_id, provider_event_id
          FROM public.provider_event_inbox
         WHERE ((status IN ('accepted','retry') AND available_at <= COALESCE($1::timestamptz, clock_timestamp()))
            OR (status='processing' AND lease_until <= COALESCE($1::timestamptz, clock_timestamp())))
           AND attempt_count < max_attempts
+          AND ($2::text IS NULL OR provider_id=$2)
+          AND ($3::text IS NULL OR provider_event_id=$3)
         ORDER BY received_at, provider_event_id
         LIMIT 1 FOR UPDATE SKIP LOCKED`,
-      [now]
+      [now, providerId, eventId]
     );
     if (selected.rowCount === 0) {
       await client.query("COMMIT");
@@ -250,7 +260,8 @@ async function failClaim(pool, claim, errorCode, now, retryDelaySeconds = 5) {
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
-    const status = errorCode === "P03D_UNMAPPED_EVENT" ? "quarantined" :
+    const permanent = ["P03D_UNMAPPED_EVENT", "P03D_INVALID_AMOUNT", "P03D_CURRENCY_MISMATCH"].includes(errorCode);
+    const status = permanent ? "quarantined" :
       claim.attempt_count >= claim.max_attempts ? "dead_letter" : "retry";
     const result = await client.query(
       `UPDATE public.provider_event_inbox
@@ -275,6 +286,7 @@ export async function processProviderEvent(pool, {
   claim, installation, now = null, simulateBeforeCommit = false, retryDelaySeconds = 5
 }) {
   if (!claim?.provider_event_id || !claim.lease_token || !installation) throw new TypeError("claim and trusted installation are required");
+  await assertInstallationScope(pool, installation);
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
