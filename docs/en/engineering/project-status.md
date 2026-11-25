@@ -1,8 +1,17 @@
 # Verified Project Status and Continuation Point
 
-**Document ID:** LOT-OPS-001 | **Version:** 1.45.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-25
+**Document ID:** LOT-OPS-001 | **Version:** 1.49.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-25
 
 ## Verified repository state
+
+## P-08 validation — 2026-11-25
+
+- P-08 is open as Draft PR [#59](https://github.com/tecpey/lottorito-platform/pull/59) on `spike/p08-deployment-health-rollback`, stacked on P-07C PR #58. Its base is `7d349789ae8e57225dd67eaa8685685e71577fb8`; neither PR #58 nor #59 is merged.
+- Current implementation and test commit: `ac85d7389f5638c80d3ec4db582bb0d4d15eb0ee`. Artifact-store ownership refactors in `bb6347b1ad078283beac12d1eee28480cccb749a` and `08f9ec4f2956954302d3a46f8df118280e41ba39` were reviewed.
+- Integration on that commit passed in [run 45603600162](https://github.com/tecpey/lottorito-platform/actions/runs/45603600162): Python compile, deterministic byte-for-byte double-build and 48/48 tests, with zero failures and zero skips. Documentation Governance also passed in [run 45603600069](https://github.com/tecpey/lottorito-platform/actions/runs/45603600069).
+- Production-denial coverage now explicitly exercises all four state-changing operations: promotion, rollback, rollback-target retirement and schema migration. Each must be rejected while release pointers, schema, traffic/worker activation and audit remain unchanged.
+- Both independent builds produced the same SHA-256: `f02fe8ad957ab9cf6b19c64d7f57cdac66edc86744b01dd9c5c2384c3c1c076c`. The Persian/English scope, acceptance criteria (including P08-15) and limitations were reviewed for semantic parity.
+- This result validates only the synthetic P-08 fixture. The artifact store and deployment state are in-memory; provenance is unsigned; migration and financial fingerprint are not real. No production technology is selected, and no merge or deployment has occurred. PR #59 remains Draft/open because it depends on P-07C.
 
 ## P-07C initial validation — 2026-11-25
 
@@ -33,7 +42,7 @@
 - Documentation Governance [run 45569616782](https://github.com/tecpey/lottorito-platform/actions/runs/45569336699) also passed on the same PR head.
 - The synthetic fixture independently built and launched Affiliate & Agent and Lottery artifacts in fresh processes. Each artifact contained only the selected product entrypoint, the synthetic shared-platform port, its manifest and runner. Negative tests rejected direct, package-qualified, relative and dynamic sibling imports; manifests rejected product dependencies; stale/non-empty output directories were rejected; synthetic audit attribution remained product-scoped.
 - This proves only the P-07A composition/build/runtime fixture. It does not prove actual Affiliate referral/commission journeys, Lottery ticket/draw/prize workflows, shared-capability authorization, tenant RLS, event contracts, product disablement, independent migrations/deployments or production readiness. Shared identity/tenant/audit ports are synthetic stubs.
-- P-07 is now explicitly split into P-07A (product isolation), P-07B (shared platform and trust boundaries) and P-07C (independent lifecycle). P-07B and P-07C are not yet implemented.
+- At the time of the initial P-07A validation snapshot, P-07B and P-07C had not yet been implemented; the later P-07B and P-07C validation sections above supersede that historical statement.
 - No merge, deployment, production data, real credentials or real funds were used. No production architecture or microservice/database topology is approved.
 
 ## Final P-06 validation update — 2026-11-25
@@ -192,23 +201,26 @@ P-03 outbox delivery PR #50 is an open Draft stacked on P-02 PR #46. Its current
 7. Do not merge, deploy, alter settings or perform destructive actions without explicit owner approval.
 
 ## Next sequence
-1. Review LOT-QA-001 with product, engineering/SRE, security, finance, legal/privacy and owner stakeholders; define workload profiles and approve thresholds only with accountable owners.
-2. Review the proposed finance, threat and API baselines with the owner and domain reviewers.
-3. Review LOT-TECH-ADR-001 and LOT-PROT-001; approve experiment scope and accountable owners, then run P-01 through P-08 in isolated synthetic environments before accepting technology choices.
-4. Extend documentation governance with metadata validation and reviewer-owned semantic parity checks; current CI covers paired paths, IDs and local links only.
-5. Review and approve the 12-language portfolio/locale variants, then define native-review coverage and quality gates.
-6. Review live-chat, content/channel automation and smart-notification policies; evaluate providers and integration contracts without enabling campaigns.
-7. Review and approve LOT-PROVIDER-EVAL-001 with accountable owner, legal/compliance, security, finance, product and engineering reviewers; confirm proposed weights before any binding procurement use.
-8. Apply the standard first to a named Affiliate pilot decision unit and a separate Lottery research decision unit; establish jurisdiction and operating model before issuing RFIs or testing.
-9. Review LOT-GAMING-STRATEGY-001 as a future horizon; run Sportsbook, Live Casino and RNG/E-Gaming provider RFIs only after Affiliate and Lottery priorities, with separate jurisdiction, provider, finance, security and certification gates.
-10. Complete cross-product architecture and product-specific release gates.
-11. Decompose the wallet direction into LOT-WALLET-001; resolve ownership, unit classes, accounting mapping and legal treatment before any wallet implementation.
-12. Specify payment orchestration (LOT-PAYMENT-001) and payout/withdrawal controls (LOT-PAYOUT-001) as separate provider-neutral domains; do not combine wallet credit, payment authorization, settlement and payout into one state machine.
-13. Define product-specific payout eligibility and treasury/funding controls through LOT-PAYOUT-001; do not activate withdrawal or disbursement before jurisdiction, liability, provider, beneficiary and funding approvals.
-14. Review LOT-B2C-PRD-001 with owner/product/legal/finance/security/privacy/accessibility/operations; approve the first-party tenant, staged eligible modules and customer journeys before implementation.
-15. Review LOT-API-PLATFORM-001 with architecture/security/finance/legal/operations; approve API audiences, app/credential model, sandbox, webhook and lifecycle gates before building the Developer Portal or publishing APIs.
-16. Review LOT-AFFILIATE-API-001 against the actual first-pilot partner contract and sandbox; approve the narrow event/resource allowlist, attribution and commission semantics before implementing an adapter or exposing production APIs.
-17. Only after decisions, scaffold the platform and implement isolated vertical slices with tests.
+1. Execute the P-03D synthetic provider-inbox-to-ledger integration described above, then close the remaining P-01/P-02 gaps with explicit acceptance evidence.
+2. Reconcile the complete P-01–P-08 evidence matrix, resolve parallel PR ancestry (including P-01 export/pool work and P-03 provider/outbox slices), and review LOT-QA-001 with product, engineering/SRE, security, finance, legal/privacy and owner stakeholders; define workload profiles and approve thresholds only with accountable owners.
+3. Review the proposed finance, threat and API baselines with the owner and domain reviewers.
+4. Review LOT-TECH-ADR-001 and LOT-PROT-001; approve accountable owners and scope, then make technology decisions only after P-01/P-02/P-03 gaps are closed and the evidence matrix is reviewed.
+5. Extend documentation governance with metadata validation and reviewer-owned semantic parity checks; current CI covers paired paths, IDs and local links only.
+6. Review and approve the 12-language portfolio/locale variants, then define native-review coverage and quality gates.
+7. Review live-chat, content/channel automation and smart-notification policies; evaluate providers and integration contracts without enabling campaigns.
+8. Review and approve LOT-PROVIDER-EVAL-001 with accountable owner, legal/compliance, security, finance, product and engineering reviewers; confirm proposed weights before any binding procurement use.
+9. Apply the standard first to a named Affiliate pilot decision unit and a separate Lottery research decision unit; establish jurisdiction and operating model before issuing RFIs or testing.
+10. Review LOT-GAMING-STRATEGY-001 as a future horizon; run Sportsbook, Live Casino and RNG/E-Gaming provider RFIs only after Affiliate and Lottery priorities, with separate jurisdiction, provider, finance, security and certification gates.
+11. Complete cross-product architecture and product-specific release gates.
+12. Decompose the wallet direction into LOT-WALLET-001; resolve ownership, unit classes, accounting mapping and legal treatment before any wallet implementation.
+13. Specify payment orchestration (LOT-PAYMENT-001) and payout/withdrawal controls (LOT-PAYOUT-001) as separate provider-neutral domains; do not combine wallet credit, payment authorization, settlement and payout into one state machine.
+14. Define product-specific payout eligibility and treasury/funding controls through LOT-PAYOUT-001; do not activate withdrawal or disbursement before jurisdiction, liability, provider, beneficiary and funding approvals.
+15. Review LOT-B2C-PRD-001 with owner/product/legal/finance/security/privacy/accessibility/operations; approve the first-party tenant, staged eligible modules and customer journeys before implementation.
+16. Review LOT-API-PLATFORM-001 with architecture/security/finance/legal/operations; approve API audiences, app/credential model, sandbox, webhook and lifecycle gates before building the Developer Portal or publishing APIs.
+17. Review LOT-AFFILIATE-API-001 against the actual first-pilot partner contract and sandbox; approve the narrow event/resource allowlist, attribution and commission semantics before implementing an adapter or exposing production APIs.
+18. Only after decisions, scaffold the platform and implement isolated vertical slices with tests.
+
+The 2026-11-24 sequence is retained in Git history and superseded by the ordered 2026-11-25 sequence above.
 
 ## Owner decisions still required
 Legal entity and operating model; initial jurisdiction; provider and source-of-truth rules; USD 100 illustrative agent credit; commission/NGR and network progression; account mapping and funding/custody; payout permissions; technology and deployment choices; data residency and retention; official logo source asset.
@@ -217,6 +229,6 @@ Legal entity and operating model; initial jurisdiction; provider and source-of-t
 This record summarizes repository inspection, not an external audit. Re-fetch PR metadata and commit statuses before relying on a head SHA or CI state.
 
 
-## Latest continuation update — 2026-11-24
+## Historical continuation snapshot — 2026-11-24 (superseded by the 2026-11-25 reconciliation above)
 
 The current verified engineering stack is P-01 PR #45 → P-02 PR #46 → P-03 PR #50. All remain Draft/open/unmerged. P-01 run [45425284220](https://github.com/tecpey/lottorito-platform/actions/runs/45425284220) passed 40 tests; P-02 run [45466918625](https://github.com/tecpey/lottorito-platform/actions/runs/45466918625) passed 25 tests; P-03 run [45469172124](https://github.com/tecpey/lottorito-platform/actions/runs/45469172124) passed 10 tests. Documentation Governance run [45469171778](https://github.com/tecpey/lottorito-platform/actions/runs/45469171778) passed on P-03 head 45b37700cb2b9ad633158ba8d5f00b8c7f0553d5. P-04 is Draft PR #51 on branch spike/p04-schema-evolution, stacked on P-03. Integration run [45471750215](https://github.com/tecpey/lottorito-platform/actions/runs/45471750215) passed 7 tests (0 failed, 0 skipped) on head 15c536e5be2f61b1805191f5977a46b17eaf1971; Documentation Governance run [45471750133](https://github.com/tecpey/lottorito-platform/actions/runs/45471750133) passed on the same head. The PR remains open/unmerged and synthetic-only. Do not merge, deploy, run destructive contract migrations or modify main without explicit owner approval. PRs #48 and #49 remain separate P-01 export/pool work requiring ancestry and CI reconciliation before integration.

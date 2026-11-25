@@ -1,6 +1,6 @@
 # برنامه Prototype معماری و تولید شواهد Lottorito
 
-**شناسه سند:** LOT-PROT-001 | **نسخه:** ۱.۲۴.۰ | **وضعیت:** برنامه آزمایش پیشنهادی؛ اجرا و انتخاب فناوری تصویب نشده است
+**شناسه سند:** LOT-PROT-001 | **نسخه:** ۱.۲۵.۰ | **وضعیت:** برنامه آزمایش پیشنهادی؛ اجرا و انتخاب فناوری تصویب نشده است
 
 ## ۱. هدف و اعتبار
 
@@ -116,6 +116,12 @@
 - تطبیق، رکوردهای مفقود، تکراری، دیررس و نامنطبق را شناسایی کند.
 
 **شواهد:** تنظیمات Simulator، Timeline تحویل، سوابق Inbox/Outbox، تاریخچه Retry/Dead Letter، استثناهای تطبیق و پیش‌نویس Runbook بازیابی.
+
+**شواهد اجرای فعلی (۲۰۲۶-۱۱-۲۵):**
+- PR شماره ۴۱، [Provider Event Delivery](https://github.com/tecpey/lottorito-platform/pull/41)، Head با پیشوند 42ffdadb...: Integration با شناسه [45418733151](https://github.com/tecpey/lottorito-platform/actions/runs/45418733151) و Documentation Governance با شناسه [45418733003](https://github.com/tecpey/lottorito-platform/actions/runs/45418733003) موفق شدند؛ گزارش PR شامل ۲۲ تست ساختگی است. PR همچنان Draft و مبتنی بر شاخه قدیمی‌تر P-02 است.
+- PR شماره ۵۰، [Tenant-scoped Outbox Delivery](https://github.com/tecpey/lottorito-platform/pull/50)، Head با پیشوند 45b37700...: Integration با شناسه [45469172124](https://github.com/tecpey/lottorito-platform/actions/runs/45469172124) و Documentation Governance با شناسه [45469171778](https://github.com/tecpey/lottorito-platform/actions/runs/45469171778) موفق شدند؛ ۱۰ تست ساختگی. PR همچنان Draft است و مبنای Stack مربوط به P-04 تا P-08 محسوب می‌شود.
+- PR شماره ۶۰، [P-03C Ledger Outbox Integration](https://github.com/tecpey/lottorito-platform/pull/60)، مستندشده در [LOT-PROT-P03C-001](prototypes/p03-ledger-outbox-integration.md)، Head با پیشوند 32b34f4c...: Integration با شناسه [45576594884](https://github.com/tecpey/lottorito-platform/actions/runs/45576594884) هر ۱۵ تست را موفق کرد؛ Documentation Governance با شناسه [45576594868](https://github.com/tecpey/lottorito-platform/actions/runs/45576594868) نیز موفق شد. این آزمایش ledger_outbox در P-02 را در یک دیتابیس PostgreSQL به Delivery State در P-03 متصل می‌کند و همچنان Draft است.
+- **P-03 هنوز Partial است:** PR شماره ۴۱ برای Provider Ingress و PR شماره ۵۰ برای Delivery، Fixtureهای جداگانه بودند؛ P-03C شکاف Outbox خروجی از P-02 به P-03 را می‌بندد، اما Callback ورودی Provider هنوز به Posting در P-02 متصل نشده است. P-03D پیشنهادی باید Provider Inbox امضاشده را به Posting Idempotent در P-02 و مسیر Outbox در P-03C متصل کند. هیچ Provider، Broker یا Transport عملیاتی تصویب نشده است.
 
 ### P-04 — تکامل Schema و سازگاری
 
@@ -267,12 +273,11 @@
 
 **شواهد:** گزارش Build/Run جداگانه، Dependency Graph، ماتریس Configuration، تست منفی مجوزدهی، فهرست Migration و چک‌لیست عملیات مستقل.
 
-**تقسیم اجرایی (۲۰۲۶-۱۱-۲۵):**
-- **P-07A — جداسازی محصول:** هر محصول باید بدون وابستگی Package/Runtime به محصول خواهر، مستقل Build و راه‌اندازی شود. شواهد ساختگی اولیه در [LOT-PROT-P07A-001](prototypes/p07a-product-isolation.md) تعریف شده است؛ این آزمایش اثبات مسیر اصلی کسب‌وکار نیست.
-- **P-07B — پلتفرم مشترک و مرزهای اعتماد:** مالکیت و Interfaceهای Identity، Tenant، Finance، Notifications و Audit مشخص شوند؛ مجوزدهی، Entitlement، دسترسی داده بین‌محصولی و Event Contract، از جمله رفتار Default-Deny، آزمایش شوند. شواهد ساختگی اولیه در [LOT-PROT-P07B-001](prototypes/p07b-shared-trust-boundaries.md) ثبت شده و CI روی Head ثبت‌شده 42083a2 موفق است؛ اما کنترل‌های اعتماد Production اثبات نشده‌اند.
-- **P-07C — چرخه عمر مستقل:** غیرفعال‌سازی محصول، جداسازی Configuration و Migration، ارتقا/Rollback مستقل Artifact، مالکیت عملیات و قابلیت ردیابی White-label آزمایش شوند. شواهد ساختگی اولیه در [LOT-PROT-P07C-001](prototypes/p07c-independent-lifecycle.md) ثبت شده و ۴۱ تست CI روی Head ثبت‌شده موفق شده‌اند؛ اما چرخه عمر Production اثبات نشده است.
-- P-07A به‌تنهایی P-07 را نمی‌بندد. اجرای P-07B و P-07C به بازبینی شواهد قبلی و تعیین محدوده صریح وابسته است؛ هیچ معماری Production از پیش تصویب نشده است.
-
+**شواهد اجرای فعلی (۲۰۲۶-۱۱-۲۵):**
+- **P-07A — مرزبندی محصولات:** [PR شماره ۵۶](https://github.com/tecpey/lottorito-platform/pull/56)، Head با پیشوند 3932c1fa...؛ Integration با شناسه [45569616972](https://github.com/tecpey/lottorito-platform/actions/runs/45569616972) و Documentation Governance با شناسه [45569616782](https://github.com/tecpey/lottorito-platform/actions/runs/45569616782) موفق شدند. Manifest/Validator ساختگی، قواعد منطقی Dependency را اثبات می‌کند، نه Import/Build Isolation برنامه واقعی را.
+- **P-07B — پلتفرم مشترک و مرزهای اعتماد:** [PR شماره ۵۷](https://github.com/tecpey/lottorito-platform/pull/57)، Head با پیشوند a29bb2c5...؛ Integration با شناسه [45570609387](https://github.com/tecpey/lottorito-platform/actions/runs/45570609387) و Documentation Governance با شناسه [45570609463](https://github.com/tecpey/lottorito-platform/actions/runs/45570609463) موفق شدند. Contract/Authorization ساختگی، IAM، RLS یا مجوزدهی Broker در Production را اثبات نمی‌کند.
+- **P-07C — چرخه عمر مستقل:** [PR شماره ۵۸](https://github.com/tecpey/lottorito-platform/pull/58)، Head با پیشوند 7d349789...؛ Integration با شناسه [45571662643](https://github.com/tecpey/lottorito-platform/actions/runs/45571662643) و Documentation Governance با شناسه [45571662650](https://github.com/tecpey/lottorito-platform/actions/runs/45571662650) موفق شدند؛ ۴۱ تست موفق. Fixture چرخه عمر، Binary، Deployment Unit یا Migration مستقل Production را اثبات نمی‌کند.
+- هر سه PR همچنان Draft، باز و Mergeنشده‌اند. سه Slice ساختگی اعلام‌شده P-07 موفق شده‌اند؛ این نتیجه تصویب معماری Production یا اثبات استقلال محصولات زنده نیست.
 ### P-08 — استقرار، Health Gate و Rollback
 
 **پرسش:** آیا Artifact تغییرناپذیر با تزریق کنترل‌شده Secret، بررسی سلامت و مسیر Rollback/Roll-forward آزموده‌شده به‌صورت ایمن ارتقا می‌یابد؟
@@ -297,6 +302,7 @@
 
 **شواهد:** Artifact Digest، Manifest استقرار، Secret Scan، Timeline Health Check، Transcript شکست/Rollback، Audit و Runbook اپراتور.
 
+**شواهد اجرای فعلی (۲۰۲۶-۱۱-۲۵):** [PR شماره ۵۹](https://github.com/tecpey/lottorito-platform/pull/59)، Head دقیق فعلی PR برابر `94320c62f1997cd3e7ba58fe74e3049ac30414b7` و آخرین Revision حاوی تغییر کد `d0e120a2afecd966c4f4867438b16b1b9ff54479` است. Integration با شناسه [45602775479](https://github.com/tecpey/lottorito-platform/actions/runs/45602775479) و اجرای مستقل تکراری [45602765868](https://github.com/tecpey/lottorito-platform/actions/runs/45602765868) هر دو روی Head دقیق فعلی موفق شدند: Compile، مقایسه بایت‌به‌بایت Double-build قطعی و ۴۶ از ۴۶ تست با صفر شکست و صفر Skip. هر دو Artifact، SHA-256 برابر `f02fe8ad957ab9cf6b19c64d7f57cdac66edc86744b01dd9c5c2384c3c1c076c` داشتند. Documentation Governance با شناسه [45602775407](https://github.com/tecpey/lottorito-platform/actions/runs/45602775407) نیز روی همان Head موفق شد. Scope، معیارهای پذیرش و محدودیت‌های P-08 در نسخه فارسی و انگلیسی به‌صورت دستی تطبیق داده شدند. PR شماره ۵۹ تا زمان Merge نشدن PR شماره ۵۸ مربوط به P-07C، Draft/باز/Mergeنشده باقی می‌ماند. این Fixture استقرار Production، SLSA Attestation امضاشده، Secret Manager واقعی، Migration دیتابیس یا اثبات دفترکل مالی نیست.
 ## ۵. قواعد پذیرش مشترک Prototypeها
 
 تمام Prototypeها باید:
@@ -322,6 +328,9 @@ Prototype فقط زمانی **Pass** است که تمام معیارهای اج�
 
 در صورت نیاز وابستگی‌ها، ترتیب قابل تنظیم است؛ اما هر هشت Prototype الزامی می‌مانند مگر اینکه مالک معافیت صریح ثبت کند.
 
+**تطبیق وضعیت شواهد (۲۰۲۶-۱۱-۲۵):** P-01 و P-02 دارای Sliceهای ساختگی موفق هستند، اما در برابر محدوده پذیرش گسترده‌تر خود همچنان Partial هستند. P-03 دارای Sliceهای موفق Provider Delivery و Outbox و همچنین پل یکپارچه P-03C است؛ با این حال تا زمانی که Provider Event ورودی به Posting در P-02 و Reconciliation متصل نشود، P-03 نیز Partial باقی می‌ماند. P-04، P-05A/B/C، P-06، P-07A/B/C و P-08 در محدوده صریح خود شواهد ساختگی موفق دارند. PRهای شماره ۴۱ و ۵۰ تا ۶۰، حسب مورد، همچنان باز و Draft/Mergeنشده‌اند؛ هیچ Merge یا Deploy عملیاتی از این نتایج استنباط نمی‌شود.
+
+**آزمایش پیشنهادی بعدی:** P-03D — اتصال Provider Inbox به Posting Idempotent در P-02 و Outbox در P-03C. باید کنترل Signature/Timestamp/Replay، پذیرش پایدار Inbox پیش از HTTP Acknowledgement، نگاشت Provider Event به Canonical Effect، حداکثر یک Posting مالی برای هر Provider Event، اتمیک‌بودن Inbox Processing/Posting/Outbox، Retry/Dead-letter/Replay و Reconciliation را بررسی کند. نباید فرمول Commission/NGR یا Credential واقعی Provider را وارد کند؛ این موارد به تصمیم‌های مستقل مالک نیاز دارند.
 ## ۷. قالب گزارش آزمایش
 
 برای هر P-0x موارد زیر ثبت شود:
