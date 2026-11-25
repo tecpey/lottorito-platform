@@ -6,11 +6,11 @@ import sys
 import uuid
 from pathlib import Path
 from typing import Any
-sys.path.insert(0, str(ROOT.parent / "p09-contract-recovery"))
-from contract import ContractViolation, validate_event
 from policy import AUDIT_DECISIONS, resolve_principal
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT.parent / "p09-contract-recovery"))
+from contract import ContractViolation, validate_event
 CONTRACTS_PATH = ROOT / "registry" / "event-contracts.json"
 ENTITLEMENTS_PATH = ROOT / "registry" / "tenant-entitlements.json"
 PRODUCT_SOURCES = {
