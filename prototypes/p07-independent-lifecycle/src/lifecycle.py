@@ -220,8 +220,10 @@ def apply_migration(
             raise LifecycleError("product_disabled")
 
     current = tenant["schemas"].get(schema)
-    if migration_id in tenant["applied_migrations"].get(schema, []) or current == migration["to_version"]:
+    if migration_id in tenant["applied_migrations"].get(schema, []):
         return {"status": "already_applied", "migration_id": migration_id, "schema_version": current}
+    if current == migration["to_version"]:
+        raise LifecycleConflict("schema_version_already_advanced_without_migration_record")
     if current != migration["from_version"]:
         raise LifecycleConflict("migration_from_version_mismatch")
 
@@ -235,6 +237,12 @@ def apply_migration(
         required_release = migration.get("required_active_release")
         if required_release and active_release_id != required_release:
             raise LifecycleError("contract_migration_requires_new_release")
+        if migration["phase"] == "contract":
+            previous_id = tenant["products"][owner].get("previous_release")
+            if previous_id:
+                previous_release = releases.get(previous_id)
+                if previous_release is None or migration["to_version"] not in previous_release["supported_schema_versions"]:
+                    raise LifecycleError("incompatible_rollback_release_retained")
 
     tenant["schemas"][schema] = migration["to_version"]
     tenant["applied_migrations"].setdefault(schema, []).append(migration_id)
@@ -302,12 +310,34 @@ def promote_release(
     return {"status": "promoted", "product_id": product_id, "release_id": release_id}
 
 
+def retire_previous_release(
+    state: dict[str, Any], tenant_id: str, product_id: str, expected_previous_release: str,
+    token: str, confirmation: str, correlation_id: str = "corr-p07c-retire",
+) -> dict[str, Any]:
+    actor = _require_release_manager(token, product_id)
+    tenant = _tenant(state, tenant_id)
+    product = _product(tenant, product_id)
+    previous_id = product["previous_release"]
+    if previous_id is None:
+        raise LifecycleError("no_previous_release")
+    if previous_id != expected_previous_release:
+        raise LifecycleConflict("stale_previous_release_compare_and_swap")
+    if confirmation != "RETIRE_PREVIOUS_RELEASE":
+        raise AuthorizationError("explicit_retirement_confirmation_required")
+    # Retire only the rollback pointer; do not delete the artifact or product data.
+    product["previous_release"] = None
+    _audit(actor, tenant_id, product_id, "release.rollback_target.retire", previous_id, None, correlation_id)
+    return {"status": "retired", "product_id": product_id, "retired_release_id": previous_id}
+
+
 def rollback_release(
     state: dict[str, Any], tenant_id: str, product_id: str, token: str,
     releases: dict[str, Any] | None = None, correlation_id: str = "corr-p07c-rollback",
 ) -> dict[str, Any]:
     actor = _require_release_manager(token, product_id)
     tenant = _tenant(state, tenant_id)
+    if tenant["environment"] != "staging":
+        raise LifecycleError("production_rollback_not_enabled_in_fixture")
     product = _product(tenant, product_id)
     registry = _release_registry(releases)
     target_id = product["previous_release"]
