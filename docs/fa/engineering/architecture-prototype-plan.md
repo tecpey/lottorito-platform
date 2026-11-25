@@ -1,6 +1,6 @@
 # برنامه Prototype معماری و تولید شواهد Lottorito
 
-**شناسه سند:** LOT-PROT-001 | **نسخه:** ۱.۶.۰ | **وضعیت:** برنامه آزمایش پیشنهادی؛ اجرا و انتخاب فناوری تصویب نشده است
+**شناسه سند:** LOT-PROT-001 | **نسخه:** ۱.۲۶.۰ | **وضعیت:** برنامه آزمایش پیشنهادی؛ اجرا و انتخاب فناوری تصویب نشده است
 
 ## ۱. هدف و اعتبار
 
@@ -117,6 +117,12 @@
 
 **شواهد:** تنظیمات Simulator، Timeline تحویل، سوابق Inbox/Outbox، تاریخچه Retry/Dead Letter، استثناهای تطبیق و پیش‌نویس Runbook بازیابی.
 
+**شواهد اجرای فعلی (۲۰۲۶-۱۱-۲۵):**
+- PR شماره ۴۱، [Provider Event Delivery](https://github.com/tecpey/lottorito-platform/pull/41)، Head با پیشوند 42ffdadb...: Integration با شناسه [45418733151](https://github.com/tecpey/lottorito-platform/actions/runs/45418733151) و Documentation Governance با شناسه [45418733003](https://github.com/tecpey/lottorito-platform/actions/runs/45418733003) موفق شدند؛ گزارش PR شامل ۲۲ تست ساختگی است. PR همچنان Draft و مبتنی بر شاخه قدیمی‌تر P-02 است.
+- PR شماره ۵۰، [Tenant-scoped Outbox Delivery](https://github.com/tecpey/lottorito-platform/pull/50)، Head با پیشوند 45b37700...: Integration با شناسه [45469172124](https://github.com/tecpey/lottorito-platform/actions/runs/45469172124) و Documentation Governance با شناسه [45469171778](https://github.com/tecpey/lottorito-platform/actions/runs/45469171778) موفق شدند؛ ۱۰ تست ساختگی. PR همچنان Draft است و مبنای Stack مربوط به P-04 تا P-08 محسوب می‌شود.
+- PR شماره ۶۰، [P-03C Ledger Outbox Integration](https://github.com/tecpey/lottorito-platform/pull/60)، مستندشده در [LOT-PROT-P03C-001](prototypes/p03-ledger-outbox-integration.md)، Head با پیشوند 32b34f4c...: Integration با شناسه [45576594884](https://github.com/tecpey/lottorito-platform/actions/runs/45576594884) هر ۱۵ تست را موفق کرد؛ Documentation Governance با شناسه [45576594868](https://github.com/tecpey/lottorito-platform/actions/runs/45576594868) نیز موفق شد. این آزمایش ledger_outbox در P-02 را در یک دیتابیس PostgreSQL به Delivery State در P-03 متصل می‌کند و همچنان Draft است.
+- **برش یکپارچه‌سازی Provider-to-Ledger در P-03 به‌صورت ساختگی تکمیل شده است:** P-03C، Outbox تغییرناپذیر P-02 را به Delivery State محدود به Tenant وصل می‌کند؛ P-03D پذیرش امضاشده Provider Inbox را به Posting اتمیک P-02 و Delivery State در P-03C متصل می‌کند. شواهد فعلی PR شماره ۶۱ شامل P-02 با ۲۵ از ۲۵، P-03C با ۱۵ از ۱۵ و P-03D با ۲۲ از ۲۲ تست است. الزامات گسترده‌تر پلتفرمی P-03 همچنان Partial هستند؛ هیچ Provider، Broker، KMS یا Transport عملیاتی تصویب نشده است.
+
 ### P-04 — تکامل Schema و سازگاری
 
 **پرسش:** آیا ساختار داده می‌تواند تغییر کند، در حالی که نسخه‌های پشتیبانی‌شده برنامه و Worker هم‌زمان کار می‌کنند و داده از دست نمی‌رود یا قفل ناایمن طولانی ایجاد نمی‌شود؟
@@ -141,53 +147,107 @@
 
 **شواهد:** Migration Script، Checksum/Count قبل و بعد، مشاهده Lock/Latency، ماتریس سازگاری، بازیابی اجرای متوقف‌شده و گزارش Rollback/Roll-forward.
 
-### P-05 — Backup، Restore و بازیابی
+### P-05 — پشتیبان‌گیری، بازیابی و تداوم
 
-**پرسش:** آیا داده حیاتی و وابستگی‌های ضروری به وضعیت قابل استفاده و سازگار درونی، مطابق اهداف بازیابی مورد تأیید مالک، برمی‌گردند؟
+**پرسش:** آیا می‌توان از یک Cluster ساختگی مشابه Lottorito نسخه پشتیبان گرفت، صحت آن را بررسی کرد، تا نقطه بازیابی نام‌گذاری‌شده بازگرداند و حفظ جداسازی Tenant و Invariantهای مالی را اثبات کرد؟
 
-**حداقل Fixture:** محیط ایزوله با رکورد ساختگی Database، تاریخچه Event، Ledger، ارجاع Object، تنظیمات و Key غیرProduction. از Backup یا Secret واقعی Production استفاده نشود.
+**مرز تصمیم:** P-05 سه برش مستقل با پذیرش جداگانه دارد. P-05A نسخه فیزیکی پایه، پیوستگی آرشیو WAL، PITR، صحت‌سنجی Restore و تطبیق مالی ساختگی را اثبات می‌کند. P-05B جداگانه بازیابی بایت Object، کلید/تنظیمات و Replay رویداد را می‌آزماید. P-05C جداگانه Failover، Writer Fencing، جلوگیری از Split-brain و Failback را بررسی می‌کند. موفقیت P-05A به‌معنای موفقیت P-05B یا P-05C نیست.
+
+**Fixture حداقلی:** Cluster دورریختنی PostgreSQL 18.7، دو Tenant ساختگی با هویت Login مستقل، رکورد رویداد مبدأ، Fixture اسناد مالی متوازن، Metadata ارجاع Object و نشانگر حادثه پس از Restore Point. Backup عملیاتی، وجه واقعی، Credential زنده، Secret شریک یا داده مشتری/بازیکن ممنوع است.
+
+**آزمایش‌های P-05A:**
+۱. پیش از Base Backup آرشیو WAL را فعال و با pg_basebackup نسخه فیزیکی و Manifest بسازید.
+۲. pg_verifybackup را اجرا کنید؛ یک کپی از Manifest را عمداً دست‌کاری و رد شدن آن را اثبات کنید.
+۳. Restore Point نام‌گذاری‌شده بسازید، داده مالی/رویداد ساختگی پس از آن Commit کنید، تعویض WAL را اجباری و آرشیو Segment لازم را تأیید کنید.
+۴. Backup را در Data Directory دوم و ایزوله Restore کنید؛ restore_command، recovery.signal و Recovery Target نام‌گذاری‌شده را تنظیم کنید و پس از رسیدن به Target آن را Promote کنید.
+۵. وجود داده پیش از Target و نبود داده پس از Target را اثبات و Log و زمان Restore را ثبت کنید.
+۶. توازن Journal، مجموع کنترلی Source Event تا Ledger، یکتایی Economic Effect و سلامت Metadata ارجاع Object را دوباره محاسبه کنید.
+۷. با Login دیتابیس مستقل هر Tenant متصل شوید و ثابت کنید RLS پس از Restore نیز مانع خواندن بین Tenantها می‌شود.
+۸. خرابی WAL مفقود، Manifest نامعتبر، Restore قطع‌شده و آرشیو غیرقابل‌دسترس را ثبت کنید؛ هیچ سناریویی بی‌صدا Skip نشود.
+
+**معیار پذیرش P-05A:** موفقیت Base Backup و pg_verifybackup؛ رد کپی خراب‌شده؛ مرز دقیق PITR؛ راه‌اندازی Cluster بازیابی‌شده و پذیرش اتصال احرازشده؛ صفر Journal نامتوازن، Economic Effect تکراری، اختلاف توضیح‌نداده‌شده Source-to-Ledger یا ارجاع ساختگی خراب به Object؛ صفر مشاهده بین Tenantها؛ بررسی صریح پیوستگی WAL؛ ثبت نسخه‌ها، زمان‌ها، فرمان‌ها و شواهد CI.
+
+**P-05B (خارج از این برش):** بازیابی Payload از شبیه‌ساز ایزوله Object Storage؛ بررسی Content Hash؛ بازیابی Key/Envelope ساختگی با سلسله‌مراتب مستقل و صرفاً آزمایشی؛ Replay رویداد با Idempotency مربوط به Inbox/Economic Effect و تطبیق منبع/Provider. وجود ردیف ارجاع Object در دیتابیس اثبات بازیابی بایت‌های فایل نیست. کلید Production هرگز در Backup دیتابیس یا Fixture مربوط به CI قرار نگیرد.
+
+**P-05C (خارج از این برش):** انشعاب Timeline بین Primary/Standby ساختگی، Promotion، Writer Fencing مبتنی بر Epoch، رد نوشتن Primary قدیمی، اتصال مجدد آگاه از Timeline و Failback. pg_rewind فقط ابزار نامزد است؛ دسترسی WAL، پیش‌نیاز Checksum یا wal_log_hints، Shutdown تمیز، Replay WAL پس از Rewind و مسیر جایگزین شکست باید آزمون شوند. شکست Rewind ممکن است مقصد را غیرقابل‌استفاده کند و به Base Backup تازه نیاز داشته باشد.
+
+**مرجع RPO/RTO:** اهداف عددی در LOT-QA-001 همچنان TBD هستند و به تأیید مالک/متخصص دامنه نیاز دارند. RPO، RTO و نرخ Restore مشاهده‌شده را گزارش کنید، بدون ادعای انطباق با هدف مصوب. مثال‌های Provider ابری تعهد Lottorito نیستند.
+
+**شواهد:** Manifest و خروجی صحت‌سنجی Backup، نتیجه تست منفی دست‌کاری، فهرست WAL آرشیوشده، LSN/Timeline نقطه بازیابی، Log و زمان Restore، Assertions قبل/بعد از Target، نتایج جداسازی Tenant، گزارش Ledger/Reconciliation، نسخه دقیق نرم‌افزار، Runbook و محدودیت‌ها.
+
+**وضعیت:** مسیر مثبت PITR و آزمون‌های منفی بازیابی P-05A در CI ساختگی ترکیبی روی Head کد اجرایی `146a9bc635e3b03db568c423fb0958b62bc31c7b` موفق شدند. Integration با شناسه [45532825694](https://github.com/tecpey/lottorito-platform/actions/runs/45532825694) و Documentation Governance با شناسه [45532825916](https://github.com/tecpey/lottorito-platform/actions/runs/45532825916) روی همان Head موفق بودند. PostgreSQL 18.7 استفاده شد. مسیر مثبت پیش از Assertionهای نوشتنی صریحاً منتظر `pg_is_in_recovery() = false` ماند؛ Ready شدن توسط `pg_ctl` به‌تنهایی پایان Recovery محسوب نشد. مسیر منفی، Staging ناقص Restore را با `pg_verifybackup` و راه‌اندازی سرور رد کرد و Segment دقیق WAL هدف را از کپی‌های ایزوله حذف کرد؛ راه‌اندازی Recovery پیش از Target درخواستی Fail-closed شد و Segment مفقود در Log شناسایی شد. بازیابی بایت Object/کلید و Replay مرتب و Idempotent در P-05B نیز در همان Job موفق شدند. Failover/Fencing/Failback در P-05C هنوز اجرا نشده است. این نتیجه آمادگی Production، تعهد RPO/RTO یا تصویب فناوری نیست.
+
+
+### P-05B — بازیابی Object، کلید و رویداد
+
+**پرسش:** پس از بازیابی دیتابیس در P-05A، آیا پلتفرم می‌تواند بایت‌های دقیق Object و مواد مستقل کلید لازم برای رمزگشایی را بازیابی کند و سپس رویدادهای Pending را بدون فقدان یا تکرار اثر اقتصادی Replay کند؟
+
+**Fixture ساختگی:** یک Object باینری متعلق به Tenant A، مرجع SHA-256 ثبت‌شده در دیتابیس بازیابی‌شده، Payload رمز‌شده با AES-256-GCM و DEK تصادفی، DEK بسته‌بندی‌شده مستقل و KEK بازیابی ساختگی در مجموعه Backup جداگانه؛ Inbox محدود به Tenant، Cursor توالی Aggregate و دو Source Event ساختگی مستقل. بدون Cloud، KMS/HSM زنده، Broker، Provider، Secret Production یا داده واقعی.
 
 **آزمایش‌ها:**
-۱. Backup رمزگذاری‌شده بسازید و در محیط پاک و ایزوله Restore کنید.
-۲. در صورت پشتیبانی Candidate، Point-in-Time Recovery را آزمایش کنید.
-۳. داده Object و Key Material لازم را با فرایند Test-Key مصوب Restore کنید.
-۴. اختلال Database، Worker و وابستگی را شبیه‌سازی و ترتیب بازیابی را تعیین کنید.
-۵. رویدادهای دریافتی حین قطعی را Replay و مجموع Provider/Source را با وضعیت Restoreشده تطبیق دهید.
-۶. Failback را آزمایش و از Split-brain Writer در دوره بازیابی جلوگیری کنید.
+۱. کل Payload را با AES-256-GCM و AAD مقید به Tenant/Object/Version رمز کنید؛ DEK را با KEK مستقل و AAD مقید به هویت Key/Object Wrap کنید.
+۲. بایت Object/Manifest/Envelope و مواد بازیابی کلید ساختگی را مستقل Backup کنید؛ نسخه فعال را حذف کنید؛ هر دو مجموعه را Restore و تعداد بایت و SHA-256 کامل Plaintext را با مرجع قابل اعتماد PostgreSQL مقایسه کنید.
+۳. خطای نبود کلید، Ciphertext تغییرکرده و DEK بسته‌بندی‌شده تغییرکرده تزریق کنید؛ همه مسیرها باید Fail-closed باشند. نبود Plaintext در Backup مربوط به Object را بررسی کنید.
+۴. ابتدا Sequence شماره ۲ را تحویل دهید، سپس ۱، Sequence شماره ۲ را تکرار و Event ID متفاوت با Economic Effect ID تکراری ارسال کنید. شکاف Sequence باید Cursor را متوقف و هویت‌های تکراری باید ادغام شوند.
+۵. پیش از Commit تراکنش و پس از نوشتن‌های تابع Replay خطا تزریق کنید؛ Rollback کامل Journal، Line، وضعیت Inbox و Cursor را اثبات کنید. Retry باید دقیقاً یک Journal متوازن برای هر Effect، Cursor صحیح، تطبیق Source-to-Ledger و Replay بعدی بدون اثر داشته باشد.
+۶. ثابت کنید Tenant B نمی‌تواند Metadata مربوط به Object/Inbox متعلق به Tenant A را بخواند و نمی‌تواند ردیف Inbox بین Tenantها بنویسد.
 
-**معیار Pass:**
-- Restore تکرارپذیر و دارای Integrity Check باشد.
-- مرز Tenant، تراز Journal، یکتایی Event و ارجاع Object حفظ شود.
-- Key/Configuration لازم بدون افشای Secret قابل بازیابی باشد.
-- مراحل، وابستگی‌ها، نقش‌ها و نقاط تصمیم بازیابی مستند باشند.
-- نتیجه زمان‌دار با RPO/RTO مصوب مقایسه شود؛ اگر هدفی تصویب نشده، فقط اندازه‌گیری گزارش شود و ادعای انطباق با هدف مطرح نشود.
-- وجود Backup به‌تنهایی شاهد قابلیت بازیابی تلقی نشود.
+**معیار Pass:** تطبیق دقیق بایت/Hash Object؛ رد کلید یا Object خراب/مفقود؛ اعمال جداسازی Tenant؛ Deduplication شناسه Event و Economic Effect؛ جلوگیری از عبور از شکاف Sequence؛ Rollback کامل Replay قطع‌شده؛ Retry با دقیقاً دو اثر و بدون Duplicate؛ توازن Journal؛ تطبیق مجموع Source و Ledger؛ و No-op بودن Replay دوم.
 
-**شواهد:** گزارش زمان‌دار تمرین، Manifest بازیابی، گزارش Integrity/Reconciliation، شاهد بازیابی Key، Runbook و بازه مشاهده‌شده Downtime/Data Loss.
+**محدودیت Custody کلید:** فایل خام KEK صرفاً مواد بازیابی ساختگی CI است. این فایل طراحی Production برای KMS/HSM، توصیه به Export کلید ریشه، Split-Knowledge، مراسم کلید یا مدل مجوزدهی نیست. AES-GCM Primitive آزمایشی است، نه استاندارد منتخب پلتفرم.
 
-### P-06 — Observability سرتاسری و حریم خصوصی
+**اثبات‌نشده:** قطعی/Rotation/Revocation/Compromise در KMS/HSM، IAM و کنترل دوگانه، نگهداری Immutable/Versioned Object، Legal Hold، فایل بزرگ/Multipart، Replication منطقه‌ای، دوام Broker خارجی، تطبیق Provider، Saga بین سرویس‌ها، هم‌زمانی بالا، Throughput Production، RPO/RTO یا انطباق. آزمون‌های منفی WAL مفقود و Staging ناقص Restore در P-05A فقط در Fixture ساختگی CI موفق شده‌اند؛ Orchestration بازیابی Production و کنترل پذیرش نتیجه بازیابی هنوز اثبات نشده‌اند. مسیر مثبت اکنون بررسی‌های نوشتنی را به `pg_is_in_recovery() = false` مشروط می‌کند. Failover/Fencing/Failback در P-05C مستقل است.
 
-**پرسش:** آیا اپراتور می‌تواند یک رویداد ساختگی شریک را از Ingress تا Attribution، تصمیم کمیسیون و ارجاع Journal ردیابی کند، در حالی که Secret و داده شخصی/مالی غیرضروری وارد Telemetry نشود؟
+**منابع:** صحت Checksum در AWS S3؛ اعتبارسنجی داده و Versioning در Google Cloud Storage؛ NIST SP 800-57 Part 1 Rev. 5 (Rev. 6 هنوز پیش‌نویس است)؛ راهنمای Transactional Outbox و تحویل At-least-once در AWS.
 
-**حداقل Fixture:** هویت Tenant و Event ساختگی، Credential تولیدشده، داده شخصی Fake و Secret Canary کنترل‌شده.
+**وضعیت:** CI ساختگی P-05B روی Head اعتبارسنجی‌شده شاخه با شناسه e4820884194ecf1ab3acd539d77145904f14ab73 موفق شد. اجرای Integration ترکیبی P-05A/P-05B در Pull Request با شناسه [45526975173](https://github.com/tecpey/lottorito-platform/actions/runs/45526975173) و Documentation Governance با شناسه [45526975222](https://github.com/tecpey/lottorito-platform/actions/runs/45526975222) موفق شدند. Object بازیابی‌شده ۴٬۴۰۹ بایتی با مرجع SHA-256 دیتابیس تطبیق داشت؛ حالت‌های کلید/Object مفقود یا خراب Fail-closed شدند؛ Assertionهای Duplicate/ترتیب Replay، قطع تراکنش و Retry، تطبیق Ledger و جداسازی Tenant موفق شدند. هیچ فناوری، فروشنده، آمادگی Production، RPO/RTO یا مجوز انتشار تصویب نشده است.
+
+### P-05C — Failover، Writer Fencing و Failback
+
+**پرسش:** آیا Prototype بازیابی می‌تواند Promotion کنترل‌شده Primary به Standby را نشان دهد، Writer قدیمی را رد کند، فقط یک گره Writable نگه دارد، Primary قبلی را Rewind کند و Failback کنترل‌شده را کامل سازد؟
+
+**توپولوژی ساختگی:** دو Cluster مستقل PostgreSQL 18.7 در یک Container دورریختنی؛ Physical Streaming Replication؛ Data Checksum و wal_log_hints؛ یک ردیف محلی Writer Epoch/Lease؛ بدون DCS خارجی، Cluster اجماع، Watchdog، Cloud Instance یا زیرساخت Production.
 
 **آزمایش‌ها:**
-۱. Event را از Ingress، Validation، Inbox، پردازش دامنه، Outbox، Worker تا ارجاع Ledger Trace کنید.
-۲. Request، Actor، Tenant، Product، Source Event، Economic Effect و Journal Entry را مرتبط کنید.
-۳. Log، Trace، Metric، Exception، Dashboard و Alert Payload را برای Secret Canary و فیلد حساس بررسی کنید.
-۴. شناسه‌های پرکاردینالیتی و Labelهای Tenant/Customer را در Metric آزمایش کنید.
-۵. Authorization Denial، قطعی Provider، Backlog صف، مغایرت Reconciliation و نقض Ledger Invariant ایجاد کنید.
-۶. رویدادهای Audit ممتاز و دسترسی به Telemetry را بررسی کنید.
+۱. یک Event پایه Seed و Streaming Standby اثبات شود.
+۲. Gate محلی Promotion تا زمانی که فرایند Primary قبلی فعال است، Promotion را رد کند. Standby متوقف شود، یک Tail ساختگی و عمداً Replicateنشده روی Primary قدیمی Commit و سپس Primary قدیمی پیش از Promotion متوقف شود.
+۳. Standby راه‌اندازی و Promote شود؛ Epoch از ۱ به ۲ افزایش یابد. هویت/Epoch مربوط به Writer قدیمی و Lease منقضی‌شده Fail-closed شوند.
+۴. دو Promotion Claimant با Expected Epoch شماره ۲ رقابت کنند؛ دقیقاً یک Compare-and-Swap اتمیک باید برنده Epoch شماره ۳ شود و دیگری هیچ Token دریافت نکند.
+۵. Primary قبلی متوقف‌شده با pg_rewind Rewind و به‌عنوان Standby فقط‌خواندنی دوباره Join شود؛ Event مربوط به Primary ارتقایافته حاضر و Tail قدیمیِ عمداً Replicateنشده غایب باشد.
+۶. پس از Replay، Switchover کنترل‌شده به Node اولیه انجام شود، Epoch از ۳ به ۴ برسد، Marker مربوط به Failback نوشته شود، گره دیگر Rewind و به‌عنوان Standby Join شود.
+۷. پس از Failback، دقیقاً یک Primary قابل نوشتن، یک Standby فقط‌خواندنی و وضعیت سازگار Epoch/Active Writer اثبات شود.
 
-**معیار Pass:**
-- مسیر حیاتی از Telemetry مجاز بازسازی شود، بدون اینکه Log به‌عنوان Ledger تلقی شود.
-- Correlation در مرزهای هم‌زمان و غیرهمزمان سازگار باشد.
-- Secret Canary و فیلدهای ممنوع در Telemetry ظاهر نشوند.
-- Metricها از Cardinality نامحدود Tenant/Customer پرهیز کنند؛ شناسه‌های تفصیلی کنترل دسترسی داشته باشند.
-- Alert دارای مالک، شدت، Runbook قابل اقدام و نویز کنترل‌شده باشد.
-- دسترسی Telemetry و اقدامات ممتاز قابل ممیزی باشند.
+**معیار Pass:** رد Promotion تا زمان فعال بودن Primary قدیمی؛ توقف فرایند قدیمی پیش از Promotion؛ موفقیت Promotion Standby؛ رد Token قدیمی و Lease منقضی؛ برنده شدن دقیقاً یک Claimant هم‌زمان Epoch؛ موفقیت Rewind و Join؛ غیبت Tail واگرای Replicateنشده؛ Read-only بودن Primary قبلی پس از Join؛ موفقیت Failback کنترل‌شده و Rewind دوم؛ و دقیقاً یک Writer در توپولوژی نهایی.
 
-**شواهد:** Trace پالایش‌شده، فهرست Metric/Label، Policy فیلد Log، اسکن Secret Canary، نگاشت Alert/Runbook و Audit دسترسی.
+**محدودیت‌های حیاتی:** توقف فرایند فقط شبیه‌سازی Local CI برای Fence است، نه STONITH، Fencing میزبان/Storage یا Watchdog. ردیف Writer Epoch داده برنامه‌ای Replicateشده است، نه DCS مستقل با Quorum؛ نمی‌تواند جلوی Primary قدیمیِ جداافتاده از شبکه را برای پذیرش نوشتن محلی بگیرد. آزمایش عمداً یک Event ساختگی Commitشده اما Replicateنشده را از دست می‌دهد تا پنجره فقدان داده در Replication غیرهم‌زمان آشکار شود. Network Partition واقعی، از دست‌رفتن Quorum، Primaryهای زنده هم‌زمان، قطعی DCS، خرابی Watchdog، Failover منطقه‌ای، ترافیک Production، RPO یا RTO آزموده نمی‌شوند.
+
+**منابع:** Failover، Hot Standby و pg_rewind در PostgreSQL 18؛ راهنمای Lease/Watchdog در Patroni؛ تراکنش اتمیک، Lease و Linearizability در etcd.
+
+**وضعیت:** Integration مربوط به P-05C با شناسه [45533992674](https://github.com/tecpey/lottorito-platform/actions/runs/45533992674)، Integration بازگشتی P-05B با شناسه [45533992779](https://github.com/tecpey/lottorito-platform/actions/runs/45533992779) و Documentation Governance با شناسه [45533992863](https://github.com/tecpey/lottorito-platform/actions/runs/45533992863)، هر سه روی Head PR با شناسه 194c565c1471474a1d908efb3dfda89035d9d4cc موفق شدند. دو Timeline واگرا و دو عملیات واقعی pg_rewind با کپی ۳۵ و ۶۷ مگابایت، از جمله حذف Tail دوم در Failback، موفق شدند. PR شماره ۵۴ همچنان Draft و Stacked روی PR شماره ۵۳ است. هیچ فناوری HA، فروشنده، توپولوژی، RPO/RTO یا آمادگی Production تصویب نشده است.
+
+### P-06 — مشاهده‌پذیری سرتاسری و حریم خصوصی
+
+**پرسش:** آیا می‌توان یک رویداد ساختگی Affiliate/Agent را از Ingress شریک تا احراز اصالت، Inbox، Attribution، کمیسیون، Outbox، Worker، Journal واقعی P-02 و Reconciliation بازسازی کرد، بدون افشای Secret/PII یا ایجاد Cardinality نامحدود Metric؟
+
+**Fixture ساختگی:** PostgreSQL 18.7 با Schema موجود دفترکل P-02؛ یک Journal ساختگی واقعی و متوازن؛ نه Span سازگار با W3C Trace Context؛ ارجاع‌های مبهم HMAC؛ Log ساختاریافته؛ ۵۰۰ هویت Tenant ساختگی تجمیع‌شده در Metric محدود؛ Telemetry Reader محدود به Tenant؛ Mapping Forensic ممیزی‌شده؛ Privileged Audit فقط‌افزودنی.
+
+**آزمایش‌ها:**
+۱. یک Journal واقعی P-02 با Role اجرایی Tenant A ثبت و Journal را به ارجاع‌های Trace مربوط به Event/Economic Effect متصل کنید.
+۲. Trace با زنجیره Parent میان Ingress، احراز اصالت، Inbox، Attribution، کمیسیون، Outbox، Worker، Ledger و Reconciliation بسازید. Trace Context را از مرز ناهمزمان حفظ کنید؛ PII یا Credential در traceparent/tracestate/baggage قرار نگیرد.
+۳. شناسه خام Tenant/Actor/Event/Effect/Journal را از Telemetry عمومی حذف کنید. ارجاع مبهم HMAC در Span/Log و Mapping خام در جدول Forensic محدودشده نگهداری شود.
+۴. Secret و PII Canary در ورودی درون‌حافظه‌ای Event/Exception قرار دهید؛ نبود آن‌ها در Span، Log، Metric، Alert و Audit را اثبات کنید. تزریق CR/LF در Event Name را به Validation Failure محدود تبدیل کنید.
+۵. RLS برای Span/Log با استفاده از Mapping نقش دیتابیس احرازشده به Tenant اعمال شود. ثابت کنید خواندن بین Tenantها هیچ ردیفی برنمی‌گرداند و Telemetry Reader به Raw Correlation Mapping دسترسی ندارد.
+۶. پیش از نمایش Mapping خام، دسترسی Forensic دارای Reason باید در همان Session دیتابیس ثبت شود؛ Actor/Action/Target/Reason/Outcome در Audit فقط‌افزودنی ثبت شود.
+۷. ۵۰۰ هویت Tenant را شبیه‌سازی کنید، در حالی که Metric فقط بر اساس Label محدود Operation/Outcome/Product/Reason تجمیع می‌شود؛ محدودماندن Series و نبود Label شناسه Tenant/User/Event/Actor/Journal را اثبات کنید.
+۸. پنج کلاس Alert را با Severity، Owner و Runbook پایدار Seed کنید.
+
+**معیار Pass:** Journal واقعی P-02 به نه Span متصل باشد؛ Parent Graph و Async Context معتبر باشند؛ ارجاع Source/Effect/Journal تطبیق داشته باشد؛ همه Canaryها/شناسه‌های خام از Telemetry غایب باشند؛ Baggage و Log Injection خنثی شوند؛ RLS محدوده Tenant را اعمال کند؛ Mapping خام نیازمند دسترسی Forensic دارای Reason و Audit باشد؛ Audit فقط‌افزودنی باشد؛ ۵۰۰ Tenant باعث رشد Cardinality نشوند؛ همه Alertها Owner/Severity/Runbook داشته باشند.
+
+**محدودیت‌های حیاتی:** Harness از شناسه سازگار با W3C و Span به‌سبک OTel استفاده می‌کند، اما OpenTelemetry SDK را متصل نمی‌کند و OTLP را به Collector نمی‌فرستد. کلید HMAC فقط مواد موقت CI است. Retention، Encryption، Residency، Sampling، Hardening Collector، Export Policy، تحویل Alert، SLO، تصویب حقوقی/حریم خصوصی یا مجوزدهی کامل پلتفرم Telemetry در Production آزموده نمی‌شوند. Log/Trace/Metric/Audit دفترکل مالی نیستند.
+
+**منابع:** W3C Trace Context؛ Context Propagation و Messaging Convention در OpenTelemetry؛ OWASP Logging Cheat Sheet؛ راهنمای Cardinality در Prometheus؛ NIST SP 800-92 (راهنمای منتشرشده؛ Rev. 1 نهایی فرض نمی‌شود)؛ وضعیت بلوغ Redaction Processor در OpenTelemetry Collector.
+
+**وضعیت:** Integration مربوط به P-06 با شناسه [45535315659](https://github.com/tecpey/lottorito-platform/actions/runs/45535315659) و Documentation Governance با شناسه [45535315503](https://github.com/tecpey/lottorito-platform/actions/runs/45535315503) روی Head PR با شناسه `9f30a2966ce77aca8a7df6acf8e803733bd723dd` موفق شدند. نه Span، Journal واقعی P-02 را متصل کردند؛ ۵۰۰ Tenant ساختگی یکتا فقط چهار Metric Series ساختند؛ Assertionهای حریم خصوصی، RLS، Forensic Audit و Alert موفق شدند. PR شماره ۵۵ همچنان Draft و Stacked روی P-05C PR شماره ۵۴ است. هیچ Instrumentation Production، فروشنده، سیاست Retention، مبنای قانونی یا آمادگی Production تصویب نشده است.
 
 ### P-07 — ترکیب مستقل محصولات
 
@@ -213,6 +273,11 @@
 
 **شواهد:** گزارش Build/Run جداگانه، Dependency Graph، ماتریس Configuration، تست منفی مجوزدهی، فهرست Migration و چک‌لیست عملیات مستقل.
 
+**شواهد اجرای فعلی (۲۰۲۶-۱۱-۲۵):**
+- **P-07A — مرزبندی محصولات:** [PR شماره ۵۶](https://github.com/tecpey/lottorito-platform/pull/56)، Head با پیشوند 3932c1fa...؛ Integration با شناسه [45569616972](https://github.com/tecpey/lottorito-platform/actions/runs/45569616972) و Documentation Governance با شناسه [45569616782](https://github.com/tecpey/lottorito-platform/actions/runs/45569616782) موفق شدند. Manifest/Validator ساختگی، قواعد منطقی Dependency را اثبات می‌کند، نه Import/Build Isolation برنامه واقعی را.
+- **P-07B — پلتفرم مشترک و مرزهای اعتماد:** [PR شماره ۵۷](https://github.com/tecpey/lottorito-platform/pull/57)، Head با پیشوند a29bb2c5...؛ Integration با شناسه [45570609387](https://github.com/tecpey/lottorito-platform/actions/runs/45570609387) و Documentation Governance با شناسه [45570609463](https://github.com/tecpey/lottorito-platform/actions/runs/45570609463) موفق شدند. Contract/Authorization ساختگی، IAM، RLS یا مجوزدهی Broker در Production را اثبات نمی‌کند.
+- **P-07C — چرخه عمر مستقل:** [PR شماره ۵۸](https://github.com/tecpey/lottorito-platform/pull/58)، Head با پیشوند 7d349789...؛ Integration با شناسه [45571662643](https://github.com/tecpey/lottorito-platform/actions/runs/45571662643) و Documentation Governance با شناسه [45571662650](https://github.com/tecpey/lottorito-platform/actions/runs/45571662650) موفق شدند؛ ۴۱ تست موفق. Fixture چرخه عمر، Binary، Deployment Unit یا Migration مستقل Production را اثبات نمی‌کند.
+- هر سه PR همچنان Draft، باز و Mergeنشده‌اند. سه Slice ساختگی اعلام‌شده P-07 موفق شده‌اند؛ این نتیجه تصویب معماری Production یا اثبات استقلال محصولات زنده نیست.
 ### P-08 — استقرار، Health Gate و Rollback
 
 **پرسش:** آیا Artifact تغییرناپذیر با تزریق کنترل‌شده Secret، بررسی سلامت و مسیر Rollback/Roll-forward آزموده‌شده به‌صورت ایمن ارتقا می‌یابد؟
@@ -237,6 +302,7 @@
 
 **شواهد:** Artifact Digest، Manifest استقرار، Secret Scan، Timeline Health Check، Transcript شکست/Rollback، Audit و Runbook اپراتور.
 
+**شواهد اجرای فعلی (۲۰۲۶-۱۱-۲۵):** [PR شماره ۵۹](https://github.com/tecpey/lottorito-platform/pull/59)، Head دقیق فعلی PR برابر `94320c62f1997cd3e7ba58fe74e3049ac30414b7` و آخرین Revision حاوی تغییر کد `d0e120a2afecd966c4f4867438b16b1b9ff54479` است. Integration با شناسه [45602775479](https://github.com/tecpey/lottorito-platform/actions/runs/45602775479) و اجرای مستقل تکراری [45602765868](https://github.com/tecpey/lottorito-platform/actions/runs/45602765868) هر دو روی Head دقیق فعلی موفق شدند: Compile، مقایسه بایت‌به‌بایت Double-build قطعی و ۴۶ از ۴۶ تست با صفر شکست و صفر Skip. هر دو Artifact، SHA-256 برابر `f02fe8ad957ab9cf6b19c64d7f57cdac66edc86744b01dd9c5c2384c3c1c076c` داشتند. Documentation Governance با شناسه [45602775407](https://github.com/tecpey/lottorito-platform/actions/runs/45602775407) نیز روی همان Head موفق شد. Scope، معیارهای پذیرش و محدودیت‌های P-08 در نسخه فارسی و انگلیسی به‌صورت دستی تطبیق داده شدند. PR شماره ۵۹ تا زمان Merge نشدن PR شماره ۵۸ مربوط به P-07C، Draft/باز/Mergeنشده باقی می‌ماند. این Fixture استقرار Production، SLSA Attestation امضاشده، Secret Manager واقعی، Migration دیتابیس یا اثبات دفترکل مالی نیست.
 ## ۵. قواعد پذیرش مشترک Prototypeها
 
 تمام Prototypeها باید:
@@ -262,6 +328,9 @@ Prototype فقط زمانی **Pass** است که تمام معیارهای اج�
 
 در صورت نیاز وابستگی‌ها، ترتیب قابل تنظیم است؛ اما هر هشت Prototype الزامی می‌مانند مگر اینکه مالک معافیت صریح ثبت کند.
 
+**تطبیق وضعیت شواهد (۲۰۲۶-۱۱-۲۵):** P-01 و P-02 دارای Sliceهای ساختگی موفق هستند، اما در برابر محدوده پذیرش گسترده‌تر خود همچنان Partial هستند. P-03 دارای Sliceهای موفق Provider Delivery و Outbox و همچنین پل یکپارچه P-03C است؛ با این حال تا زمانی که Provider Event ورودی به Posting در P-02 و Reconciliation متصل نشود، P-03 نیز Partial باقی می‌ماند. P-04، P-05A/B/C، P-06، P-07A/B/C و P-08 در محدوده صریح خود شواهد ساختگی موفق دارند. PRهای شماره ۴۱ و ۵۰ تا ۶۰، حسب مورد، همچنان باز و Draft/Mergeنشده‌اند؛ هیچ Merge یا Deploy عملیاتی از این نتایج استنباط نمی‌شود.
+
+**دروازه معماری بعدی:** زنجیره P-04 تا P-08 را روی یک Candidate واحد با P-03C/P-03D تطبیق بده؛ هر دو خانواده Prototype حفظ و هم‌پوشانی مستندات مشترک حل شود. Workflowهای P-02، P-03C، P-03D، P-04، P-05A/B/C، P-06، P-07A/B/C و P-08 روی همان Candidate دقیق اجرا شوند. پیش از تطبیق ماتریس شواهد هشت Prototype، P-09 جدید تعریف نکن. هیچ Merge یا آمادگی Production از این کار استنباط نمی‌شود.
 ## ۷. قالب گزارش آزمایش
 
 برای هر P-0x موارد زیر ثبت شود:
@@ -299,10 +368,4 @@ Prototype فقط زمانی **Pass** است که تمام معیارهای اج�
 **یادآوری وضعیت:** برنامه آزمایش همچنان پیشنهادی است. برش محدود P-01 برای HTTP/PostgreSQL RLS در PR شماره ۳۶، در اجرای CI با شناسه [45412556456](https://github.com/tecpey/lottorito-platform/actions/runs/45412556456) هر ۲۰ تست تعریف‌شده را با موفقیت و با Lockfile ثبت‌شده و GitHub Actions دارای SHA ثابت روی Head کد `f53caa4e801c9eeed94dfe706e03c6dfcf02a660` گذرانده است. این برش Jobهای Async Tenant-scoped، Outbox/Dispatch اتمیک، Claim هم‌زمان Dispatcher، Envelopeهای امضاشده Ed25519، بررسی مجدد Membership در Worker و مدل مقایسه‌ای LOGIN Role مستقل مبتنی بر `session_user` را در Records، Membership و Jobs پوشش می‌دهد و مالک SECURITY DEFINER، search_path ثابت و Shadowing در Temporary Schema را نیز آزمایش می‌کند؛ همچنین یک تست دو اتصالی اثبات می‌کند لغو Membership پشت تراکنش در حال اجرای `FOR SHARE` منتظر می‌ماند. این نتیجه به معنای قبولی کل P-01 نیست: Credential Broker امن، مقیاس Poolها، Cache/Object Storage/Search/Reporting، Support/Break-glass، بار و Recovery هنوز آزمایش نشده‌اند. محدودیت اعتماد GUC با Role مشترک نیز به‌صورت صریح نمایش داده شده است. هیچ تصویب فناوری ادعا نمی‌شود.
 
 
-## شواهد P-03C/P-03D و تطبیق زنجیره — ۲۰۲۶-۱۱-۲۵
-
-- P-03C، Outbox تغییرناپذیر P-02 را به وضعیت Delivery محدود به Tenant متصل می‌کند. P-03D پذیرش امضاشده Provider Inbox را به Posting اتمیک در P-02 و وضعیت Delivery در P-03C وصل می‌کند. این مرحله، برش ساختگی فعلی یکپارچه‌سازی ورودی/خروجی Provider-to-Ledger را تکمیل می‌کند، نه تمام نیازمندی‌های پلتفرمی P-03 یا اتصال عملیاتی Provider را.
-- پوشش Regression مربوط به P-03D شامل HMAC روی Raw Body، تازگی Timestamp، Base64 Canonical، محدودیت اندازه Body/Header و پیکربندی، Installation و هویت دیتابیس مورداعتماد، پذیرش پایدار Inbox، Duplicate/Conflict، Posting/Outbox/Delivery اتمیک، Retry/Dead-letter/Quarantine، Fencing مربوط به Lease، جداسازی Product، Reconciliation و ناورداهای وضعیت Inbox در سطح دیتابیس است.
-- Head مربوط به PR شماره ۶۰ در P-03C برابر 32b34f4c7c67b12874cdf6a14a2788d9a2f4c6dc، در اجرای [45576594884](https://github.com/tecpey/lottorito-platform/actions/runs/45576594884) تعداد ۱۵ تست موفق داشته است. Head فعلی PR شماره ۶۱ در P-03D برابر 14d69ec5be1a9285049c1f88529f375782f2de51 است و P-02 با ۲۵ از ۲۵ در [45619908420](https://github.com/tecpey/lottorito-platform/actions/runs/45619908420)، P-03C با ۱۵ از ۱۵ و P-03D با ۲۲ از ۲۲ در [45619908381](https://github.com/tecpey/lottorito-platform/actions/runs/45619908381)، و Documentation Governance در [45619908378](https://github.com/tecpey/lottorito-platform/actions/runs/45619908378) موفق شده‌اند. همه آزمایش‌ها ساختگی‌اند؛ Provider، KMS، انتقال شبکه، سیاست حسابداری یا Migration عملیاتی تصویب نشده است.
-- PR شماره ۵۱ مربوط به P-04 همچنان بر مبنای PR شماره ۵۰ در P-03 قرار دارد، نه PR شماره ۶۰ یا ۶۱. Head فعلی P-04 برابر f701ab33a6357a892c2eff8e07f5f8ba05ae52ad است و ۸ از ۸ تست را در [45619609686](https://github.com/tecpey/lottorito-platform/actions/runs/45619609686) گذرانده؛ Documentation Governance با شناسه [45619609509](https://github.com/tecpey/lottorito-platform/actions/runs/45619609509) نیز موفق بوده است.
-- PRهای ۵۱ تا ۵۹ زنجیره P-04 تا P-08 و PRهای ۶۰ تا ۶۱ زنجیره P-03C/P-03D را تشکیل می‌دهند. هر دو از Head مشترک P-03 یعنی 45b37700cb2b9ad633158ba8d5f00b8c7f0553d5 منشعب شده‌اند. P-04 یک Fixture مستقل Schema/Database است و Schemaهای P-02/P-03 را Import نمی‌کند، اما فایل‌های حاکمیتی و وضعیت مشترک هم‌پوشانی دارند. Ancestry و مستندات مشترک را آگاهانه تطبیق بده و سپس Regression کامل P-02/P-03C/P-03D/P-04 تا P-08 را روی یک Candidate واحد اجرا کن. Rebase کورکورانه، تغییر Base، Merge یا Deploy مجاز نیست.
+**وضعیت آزمایش P-04 (۲۰۲۶-۱۱-۲۵):** Head فعلی PR شماره ۵۱ برابر 016695c0b8b6f06fb91c563338f1e0fd6d928f72 و بر مبنای PR شماره ۵۰ در P-03 است. نقص Trigger سازگاری که می‌توانست هر دو ستون Payload قدیمی و Canonical را هنگام UPDATE خالی کند اصلاح و با تست Regression پوشش داده شده است. Integration مربوط به P-04 با شناسه [45620775017](https://github.com/tecpey/lottorito-platform/actions/runs/45620775017) هر ۸ تست را موفق گذرانده و Documentation Governance با شناسه [45620774995](https://github.com/tecpey/lottorito-platform/actions/runs/45620774995) موفق شده است. Fixture همچنان ساختگی و مستقل است؛ هیچ Migration عملیاتی، ادعای Zero Downtime یا تصویب فناوری مطرح نیست.
