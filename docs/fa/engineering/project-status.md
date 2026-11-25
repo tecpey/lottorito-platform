@@ -115,3 +115,15 @@ PR شماره ۵۰ مربوط به تحویل Outbox در P-03، به‌صورت
 - شاخه ادامه P-04 با نام `spike/p04-schema-evolution-p03d` از همان Head مربوط به PR شماره ۶۱ ایجاد شد. ده فایل اختصاصی Workflow، Prototype و گزارش دوزبانه P-04 منتقل شده‌اند؛ README، نقشه معماری و اسناد P-02/P-03D نیز بدون بازنویسی مستندات جدیدتر P-03D همگام شده‌اند.
 - PR اصلی شماره ۵۱ به‌عنوان مرجع تاریخی بازبینی، باز و Draft باقی می‌ماند؛ نه Retarget شده و نه Merge. PR جایگزین P-04 و CI آن در انتظار ایجاد/اجرا هستند؛ تا زمانی که P-02، P-03C/P-03D، P-04 و Documentation Governance روی Head دقیق جدید موفق نشوند، P-04 روی زنجیره تطبیق‌یافته Verified تلقی نمی‌شود.
 - پس از تأیید P-04، مراحل P-05A، P-05B، P-05C، P-06، P-07A، P-07B، P-07C و P-08 به‌ترتیب وابستگی روی زنجیره تطبیق‌یافته Replay شوند. محدودیت هر آزمایش حفظ و کل زنجیره Regression دوباره اجرا شود. هیچ Merge، تغییر main، Migration مخرب یا Deploy مجاز نیست.
+
+
+## تأیید زنجیره تطبیق‌یافته P-04 — ۲۰۲۶-۱۱-۲۵
+
+- شاخه PR شماره ۶۲ با نام `spike/p04-schema-evolution-p03d` بر مبنای PR شماره ۶۱ در P-03D است؛ PR اصلی P-04 با شماره ۵۱ باز و Draft باقی می‌ماند و Retarget یا Merge نشده است.
+- Head دقیق کد آزمایش‌شده: `dca0762678ed45da122ba109276c54ce61ac0846`.
+- اجرای P-02 با شناسه [45608274029](https://github.com/tecpey/lottorito-platform/actions/runs/45608274029): تعداد ۲۵/۲۵ موفق.
+- اجرای P-03C/P-03D با شناسه [45608274098](https://github.com/tecpey/lottorito-platform/actions/runs/45608274098): تعداد ۱۵/۱۵ برای P-03C و ۱۹/۱۹ برای P-03D موفق.
+- اجرای P-04 با شناسه [45608274118](https://github.com/tecpey/lottorito-platform/actions/runs/45608274118): تعداد ۷/۷ موفق.
+- Documentation Governance با شناسه [45608274060](https://github.com/tecpey/lottorito-platform/actions/runs/45608274060): موفق.
+- هر چهار Workflow روی یک Head با موفقیت کامل شدند و هیچ تست شکست‌خورده یا Skip وجود نداشت. پوشش Integration در مجموع ۶۶ تست است (۲۵ + ۱۵ + ۱۹ + ۷). این فقط پذیرش ساختگی است.
+- قدم بعدی: مراحل P-05A، P-05B، P-05C، P-06، P-07A، P-07B، P-07C و P-08 به‌ترتیب وابستگی روی زنجیره تطبیق‌یافته Rebase/Replay شوند؛ PRهای اصلی تا زمان موفقیت CI کامل، به‌عنوان سابقه بازبینی حفظ شوند. هیچ Merge، تغییر main، Migration مخرب یا Deploy مجاز نیست.
