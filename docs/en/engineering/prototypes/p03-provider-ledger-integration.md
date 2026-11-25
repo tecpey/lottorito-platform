@@ -139,3 +139,8 @@ The combined P-03C/P-03D regression passed on P-05A replacement code head 76650b
 ## P-05B downstream regression gate — 2026-11-25
 
 P-05B event replay is a synthetic recovery projection, not a replacement for P-03D provider inbox or P-03C delivery state. Re-run the 34-test P-03C/P-03D suite on the P-05B replacement head to preserve the provider-to-ledger bridge and tenant/product isolation.
+
+
+## P-05B downstream regression gate — 2026-11-25
+
+P-05B event replay is a synthetic recovery projection, not a replacement for P-03D provider inbox or P-03C delivery state. Re-run the 34-test P-03C/P-03D suite on the P-05B replacement head to preserve the provider-to-ledger bridge and tenant/product isolation.
