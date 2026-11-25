@@ -1,8 +1,20 @@
 # وضعیت واقعی پروژه و نقطه ادامه کار
 
-**شناسه:** LOT-OPS-001 | **نسخه:** ۱.۳۳.۰ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۵
+**شناسه:** LOT-OPS-001 | **نسخه:** ۱.۳۴.۰ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۵
 
 ## وضعیت تأییدشده مخزن
+
+## آخرین به‌روزرسانی نقطه ادامه — ۲۰۲۶-۱۱-۲۵ (اجرای P-05C)
+
+- P-05C همچنان PR شماره ۵۴، باز و Draft است و روی P-05B PR شماره ۵۳ قرار دارد؛ Merge نشده است. PR شماره ۵۳ روی شماره ۵۲ و PR شماره ۵۲ روی شماره ۵۱ Stacked شده‌اند. هیچ‌یک از PRهای این زنجیره بازیابی Merge نشده‌اند.
+- Integration اجرایی P-05C در اجرای شاخه با شناسه [45533778752](https://github.com/tecpey/lottorito-platform/actions/runs/45533778752) روی Head کد اجرایی 4884a3c38d2da8ea9ab9961dc095eb0ddd469f4d موفق شد.
+- آزمایش دو Cluster PostgreSQL 18.7، Physical Streaming Replication، رد Promotion در زمان فعال بودن Primary قدیمی، Process Fencing محلی، Epoch از ۱ به ۲، رد Writer قدیمی، رد Lease منقضی و Compare-and-Swap هم‌زمان Epoch شماره ۳ با دقیقاً یک برنده را اجرا کرد.
+- pg_rewind واقعی اول ۳۵ مگابایت کپی کرد و Primary قبلی را به‌عنوان Standby فقط‌خواندنی برگرداند؛ Tail اول که عمداً Replicate نشده بود غایب بود.
+- Failback کنترل‌شده یک Tail ساختگی دوم و Replicateنشده ایجاد کرد، گره بازگشته را Promote کرد و pg_rewind واقعی دوم با کپی ۶۷ مگابایت انجام شد. Tail دوم غایب، Marker مربوط به Failback حاضر و Epoch شماره ۴/Active Writer برابر Node A روی هر دو گره تأیید شد.
+- Integration روی Head نهایی PR و Documentation Governance برای Commit نهایی مستندات هنوز باید بررسی شوند تا P-05C بسته اعلام شود. این آزمایش اثبات Fencing در Production نیست: توقف فرایند فقط شبیه‌سازی Local CI است و ردیف Epoch، DCS مستقل با Quorum نیست. هر دو Tail عمداً Replicateنشده، ریسک فقدان داده در Replication غیرهم‌زمان را نشان می‌دهند؛ RPO/RTO همچنان TBD هستند.
+- هیچ داده Production، Credential واقعی، وجه واقعی، منبع Cloud، Merge یا Deploy استفاده نشد. هیچ فروشنده HA، توپولوژی یا آمادگی Production تصویب نشده است.
+
+
 
 ## آخرین به‌روزرسانی نقطه ادامه — ۲۰۲۶-۱۱-۲۵ (P-05C)
 
