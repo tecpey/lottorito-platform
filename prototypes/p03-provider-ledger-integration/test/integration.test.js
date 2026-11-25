@@ -333,6 +333,16 @@ test("maximum attempts transition an expired or failed claim to dead letter", as
   assert.equal((await inboxRow(affiliateA, affiliateInstallation.provider_id, fixture.eventId)).status, "dead_letter");
 });
 
+test("signed provider timestamp must already conform to RFC3339", async () => {
+  const fixture = webhook(affiliateInstallation, {
+    payloadScope: { occurred_at: "November 25, 2026" }
+  });
+  const result = await ingest(affiliateA, fixture);
+  assert.equal(result.http_status, 400);
+  assert.equal(result.reason, "P03D_CONTRACT_VIOLATION");
+  assert.equal(await inboxRow(affiliateA, affiliateInstallation.provider_id, fixture.eventId), null);
+});
+
 test("unknown event type is rejected at signed ingress before inbox persistence", async () => {
   const fixture = webhook(affiliateInstallation);
   const body = JSON.parse(fixture.rawBody.toString("utf8"));
