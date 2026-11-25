@@ -95,3 +95,14 @@ PR شماره ۵۰ مربوط به تحویل Outbox در P-03، به‌صورت
 
 ## انضباط شواهد
 این سند خلاصه بازبینی مخزن است، نه ممیزی بیرونی. پیش از اتکا به Head SHA یا وضعیت CI، Metadata و وضعیت Commit جاری را دوباره دریافت کن.
+
+
+## ادامه P-03D — ۲۰۲۶-۱۱-۲۵
+
+- سند LOT-PROT-001، آزمایش P-03D را قدم بعدی الزامی معرفی می‌کند: Provider Inbox به Posting Idempotent در P-02 و Outbox در P-03C. تا زمانی که این شکاف یکپارچه‌سازی P-03 باقی است، P-09 جدیدی اختراع نمی‌شود.
+- PR شماره ۴۱ یک Fixture قدیمی Provider Event است که بر مبنای Base مربوط به P-02 با SHA `90cc45464c25c325befd35bd7af1c8a16c1f78d3` ساخته شده؛ خط فعلی P-02، Head مربوط به PR شماره ۴۶ یعنی `76d1f421ecdf8e921c7e8a116e2c23dcdaef4b7b` است و سپس PR شماره ۵۰ با Head `45b37700cb2b9ad633158ba8d5f00b8c7f0553d5` قرار دارد. PR شماره ۴۱ فقط ورودی تحقیق است؛ مدل Tenant/Product مبتنی بر GUC مشترک آن را بدون بازطراحی به مدل هویت Session فعلی Cherry-pick نکن.
+- PR شماره ۶۰ برای P-03C بر مبنای Head مربوط به PR شماره ۵۰ یعنی `45b37700cb2b9ad633158ba8d5f00b8c7f0553d5` قرار دارد؛ اجرای Integration با شناسه [45576594884](https://github.com/tecpey/lottorito-platform/actions/runs/45576594884) تعداد ۱۵ تست موفق داشته و Documentation Governance با شناسه [45576594868](https://github.com/tecpey/lottorito-platform/actions/runs/45576594868) موفق شده است. PR همچنان Draft، باز و Mergeنشده است.
+- PR شماره ۵۱ برای P-04 یک شاخه هم‌سطح PR شماره ۶۰ و روی همان Base مربوط به P-03 است، نه فرزند P-03C. بنابراین زنجیره P-04 تا P-08 بعداً به تطبیق Ancestry و اجرای مجدد تست نیاز دارد؛ فرض نکن CI مربوط به P-08 شامل P-03C است.
+- شاخه جدید `spike/p03d-provider-ledger-integration` از Head مربوط به P-03C یعنی `32b34f4c7c67b12874cdf6a14a2788d9a2f4c6dc` شروع شده است. این شاخه Product Identity را به Role Map و ردیف‌های Ledger ساختگی P-02، وضعیت Delivery/Consumer محصول‌محور در P-03C، دریافت امضاشده Provider Inbox، Posting مالی و تکمیل Inbox و ایجاد Delivery State در یک تراکنش، Retry/Fencing/Quarantine و Reconciliation اضافه می‌کند. CI مربوط به P-03D در انتظار است؛ این کار هنوز Verified نیست.
+- برخی Constraintهای یکتایی P-02 همچنان Tenant-wide و محافظه‌کارانه/Fail-closed هستند، هرچند Product Attribution و RLS اضافه شده‌اند. معنای کامل کلیدهای مرکب و مستقل Product نیازمند بازبینی است. هیچ تصمیمی درباره Commission/NGR، Provider واقعی، Policy حساب، شخصیت حقوقی، Payout یا Schema عملیاتی گرفته نشده است.
+- Workflowهای Integration مربوط به P-02، P-03C و P-03D و Documentation Governance دوزبانه باید روی Head نهایی شاخه دوباره اجرا شوند. محدودیت Synthetic-only حفظ شود. هیچ Merge، تغییر main یا Deploy مجاز نیست.
