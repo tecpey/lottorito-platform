@@ -1,6 +1,6 @@
 # Lottorito Architecture Prototype and Evidence Plan
 
-**Document ID:** LOT-PROT-001 | **Version:** 1.9.0 | **Status:** Proposed experiment plan; execution and technology choices not approved
+**Document ID:** LOT-PROT-001 | **Version:** 1.10.0 | **Status:** Proposed experiment plan; execution and technology choices not approved
 
 ## 1. Purpose and authority
 
@@ -169,7 +169,7 @@ A prototype may be **Pass**, **Fail**, **Inconclusive** or **Not run**. “Pass�
 
 **Evidence:** backup manifest and verification output, tamper-negative result, archived WAL inventory, restore-point LSN/timeline, restore logs and timing, pre/post-target assertions, tenant-isolation results, journal/reconciliation report, exact versions, runbook and limitations.
 
-**Status:** P-05A synthetic CI verification passed on head f2303a647aefd5bd8d48ba9d2e1830c881f60041. Integration run [45524388676](https://github.com/tecpey/lottorito-platform/actions/runs/45524388676) and Documentation Governance run [45524388734](https://github.com/tecpey/lottorito-platform/actions/runs/45524388734) passed. PostgreSQL 18.7 was used; CI measured 12–13 seconds (latest final-head run: 13 seconds) for backup plus verification and 1 second for restore startup in this disposable runner only. The named restore-point log was asserted, the pre-target marker was present, the post-target marker absent, tenant RLS read/write denial held, and synthetic ledger/source totals reconciled. Missing-WAL and interrupted-restore negative drills remain untested; object-byte/key recovery and failover/fencing/failback are P-05B/P-05C and not run. This is not production readiness, an RPO/RTO commitment or technology approval.
+**Status:** P-05A synthetic CI verification passed on head f2303a647aefd5bd8d48ba9d2e1830c881f60041. Integration run [45524388676](https://github.com/tecpey/lottorito-platform/actions/runs/45524388676) and Documentation Governance run [45524388734](https://github.com/tecpey/lottorito-platform/actions/runs/45524388734) passed. PostgreSQL 18.7 was used; CI measured 12–13 seconds (latest final-head run: 13 seconds) for backup plus verification and 1 second for restore startup in this disposable runner only. The named restore-point log was asserted, the pre-target marker was present, the post-target marker absent, tenant RLS read/write denial held, and synthetic ledger/source totals reconciled. Missing-WAL and interrupted-restore negative drills remain untested. P-05B object-byte/key recovery and ordered idempotent replay have now passed synthetic CI (PR #53); P-05C failover/fencing/failback remains not run. This is not production readiness, an RPO/RTO commitment or technology approval.
 
 
 ### P-05B — Object, key and event recovery
@@ -194,7 +194,7 @@ A prototype may be **Pass**, **Fail**, **Inconclusive** or **Not run**. “Pass�
 
 **References:** AWS S3 checksum validation; Google Cloud Storage data validation/versioning; NIST SP 800-57 Part 1 Rev. 5 (Rev. 6 remains a draft); AWS transactional outbox and at-least-once event processing guidance.
 
-**Status:** Implementation is on the P-05B feature branch; final CI evidence is pending. No technology, vendor, production readiness, RPO/RTO or release approval is implied.
+**Status:** P-05B synthetic CI passed on head 99ac76a68817116d05441a8165609252e7cd8ee9. Pull-request Integration [45526169535](https://github.com/tecpey/lottorito-platform/actions/runs/45526169535), branch Integration [45526158154](https://github.com/tecpey/lottorito-platform/actions/runs/45526158154), and Documentation Governance [45526171881](https://github.com/tecpey/lottorito-platform/actions/runs/45526171881) passed. The restored 4,409-byte object matched its database SHA-256 reference; missing/corrupt key and object cases failed closed; duplicate/out-of-order replay, transaction interruption/retry, ledger reconciliation and tenant isolation assertions passed. No technology, vendor, production readiness, RPO/RTO or release approval is implied.
 
 ### P-06 — End-to-end observability and privacy
 
