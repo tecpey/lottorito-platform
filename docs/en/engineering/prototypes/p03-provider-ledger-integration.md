@@ -1,6 +1,6 @@
 # P-03D — Provider Inbox to Product-Scoped Ledger Posting and Outbox
 
-**Document ID:** LOT-PROT-P03D-001 | **Version:** 0.1.0 | **Status:** Synthetic integration prototype; CI validation pending | **Review date:** 2026-11-25
+**Document ID:** LOT-PROT-P03D-001 | **Version:** 0.2.0 | **Status:** Synthetic integration prototype; 22 P-03D and 15 P-03C tests passed; no production claim | **Review date:** 2026-11-25
 
 ## Purpose
 
@@ -12,11 +12,11 @@ The experiment must prove that durable provider acceptance, one idempotent finan
 
 - Trusted server-side installation configuration binds provider, tenant and product. Request payload fields never select tenant, product or ledger accounts.
 - Database session identity maps to both tenant and product. RLS uses `session_user`-derived tenant/product functions; no caller-controlled custom GUC is trusted.
-- HMAC-SHA-256 verifies exact raw request bytes, signed event ID and timestamp, constant-time comparison, bounded freshness and current/previous key rotation. This is a synthetic Standard Webhooks-style adapter, not a universal provider protocol.
+- HMAC-SHA-256 verifies exact raw request bytes, signed event ID and timestamp, constant-time comparison, canonical Base64, bounded freshness, bounded header/body sizes and current/previous key rotation. This is a synthetic Standard Webhooks-style adapter, not a universal provider protocol.
 - Provider event ID plus exact raw-body SHA-256 defines inbox duplicate/conflict behavior. Same ID/same hash is idempotent; same ID/different hash creates immutable conflict evidence and never overwrites the accepted event.
 - The simulated HTTP 202 is returned only after the tenant/product-scoped inbox transaction commits.
 - Provider event mapping is trusted configuration. Provider payload cannot supply account IDs, debit/credit direction or posting policy.
-- A bounded worker lease and fencing token protect concurrent processing and stale workers.
+- A bounded worker lease and fencing token protect concurrent processing and stale workers; database constraints keep processed markers and attempt counts internally consistent.
 - Worker processing calls P-02 `post_journal` on the same PostgreSQL connection/transaction that marks the inbox event processed. P-02 inserts the immutable journal, lines and ledger outbox; the P-03C trigger creates delivery state in that same transaction.
 - A pre-commit failure rolls back inbox completion, journal, lines, outbox and delivery state. Retry/dead-letter/quarantine state is recorded in a separate fenced transaction.
 - Product identity is recorded and enforced in P-02 ledger rows and P-03C delivery/consumer rows. A synthetic second product role proves that one tenant's Affiliate & Agent and Lottery data are not visible to each other.
@@ -62,6 +62,7 @@ For conservative compatibility, some existing P-02 uniqueness constraints remain
 | P03D-16 | Direct ledger mutation | Runtime role denied |
 | P03D-17 | Reconciliation | Missing events are surfaced; complete path clears the exception |
 | P03D-18 | Unmapped database identity | Posting fails closed |
+| P03D-19 | Partial processed state or attempt-count overflow | Rejected by database constraints |
 
 ## CI and reproduction
 
@@ -106,11 +107,11 @@ The plain-text synthetic signing-secret path now enforces the same minimum 128-b
 
 ## Verified synthetic CI result — 2026-11-25
 
-Exact validated PR head: `40d002a2af5875a6ead178604b90dc92aa678dc5`.
+Exact current validated PR head: `14d69ec5be1a9285049c1f88529f375782f2de51`.
 
-- P-02 Ledger Posting: [run 114](https://github.com/tecpey/lottorito-platform/actions/runs/45607187120) — 25 passed, 0 failed, 0 skipped.
-- P-03C/P-03D combined integration: [run 31](https://github.com/tecpey/lottorito-platform/actions/runs/45607186885) — P-03C 15 passed and P-03D 19 passed; 34 total, 0 failed, 0 skipped. All setup, test, and cleanup steps succeeded.
-- Documentation Governance: [run 702](https://github.com/tecpey/lottorito-platform/actions/runs/45607186745) — passed.
+- P-02 Ledger Posting: [run 135](https://github.com/tecpey/lottorito-platform/actions/runs/45619908420) — 25 passed, 0 failed, 0 skipped.
+- P-03C/P-03D combined integration: [run 57](https://github.com/tecpey/lottorito-platform/actions/runs/45619908381) — P-03C 15 passed and P-03D 22 passed; 37 total, 0 failed, 0 skipped. All setup, test, and cleanup steps succeeded.
+- Documentation Governance: [run 725](https://github.com/tecpey/lottorito-platform/actions/runs/45619908378) — passed.
 
 This verifies the synthetic acceptance matrix on the cited branch head only. PR #61 remains Draft/open and stacked on PR #60; no merge, production provider integration, production database migration, technology approval or deployment is implied.
 

@@ -1,6 +1,6 @@
 # P-03D — اتصال Provider Inbox به ثبت مالی محصول‌محور و Outbox
 
-**شناسه سند:** LOT-PROT-P03D-001 | **نسخه:** ۰.۱.۰ | **وضعیت:** Prototype یکپارچه‌سازی ساختگی؛ اعتبارسنجی CI در انتظار اجرا | **تاریخ بازبینی:** ۲۰۲۶-۱۱-۲۵
+**شناسه سند:** LOT-PROT-P03D-001 | **نسخه:** ۰.۲.۰ | **وضعیت:** Prototype یکپارچه‌سازی ساختگی؛ ۲۲ تست P-03D و ۱۵ تست P-03C موفق؛ بدون ادعای Production | **تاریخ بازبینی:** ۲۰۲۶-۱۱-۲۵
 
 ## هدف
 
@@ -12,11 +12,11 @@ P-03D شکاف ورودی باقی‌مانده در P-03 را می‌بندد �
 
 - پیکربندی مورداعتماد سمت سرور، Provider و Tenant و Product را به هم متصل می‌کند. فیلدهای Payload درخواست هرگز Tenant، Product یا حساب دفترکل را انتخاب نمی‌کنند.
 - هویت Session دیتابیس هم Tenant و هم Product را تعیین می‌کند. RLS از توابع مبتنی بر `session_user` استفاده می‌کند؛ به Custom GUC قابل‌کنترل توسط Caller اعتماد نمی‌شود.
-- HMAC-SHA-256 روی بایت‌های دقیق Raw Request، شناسه و Timestamp امضاشده، مقایسه Constant-time، پنجره تازگی محدود و چرخش کلید فعلی/قبلی را بررسی می‌کند. این فقط Adapter ساختگی به سبک Standard Webhooks است، نه پروتکل عمومی همه Providerها.
+- HMAC-SHA-256 روی بایت‌های دقیق Raw Request، شناسه و Timestamp امضاشده، مقایسه Constant-time، Base64 Canonical، پنجره تازگی محدود، محدودیت اندازه Header/Body و چرخش کلید فعلی/قبلی را بررسی می‌کند. این فقط Adapter ساختگی به سبک Standard Webhooks است، نه پروتکل عمومی همه Providerها.
 - شناسه Provider Event همراه SHA-256 بدنه خام، مبنای Duplicate/Conflict در Inbox است. شناسه یکسان و Hash یکسان Idempotent است؛ شناسه یکسان با بدنه متفاوت، مدرک تعارض تغییرناپذیر ایجاد می‌کند و رویداد پذیرفته‌شده را بازنویسی نمی‌کند.
 - پاسخ شبیه‌سازی‌شده HTTP 202 فقط پس از Commit تراکنش Inbox با Scope Tenant/Product برگردانده می‌شود.
 - نگاشت Provider Event از پیکربندی مورداعتماد انجام می‌شود. Payload Provider نمی‌تواند شناسه حساب، جهت Debit/Credit یا Policy ثبت مالی را تعیین کند.
-- Lease محدود Worker و Fencing Token از پردازش هم‌زمان و Worker منقضی‌شده محافظت می‌کنند.
+- Lease محدود Worker و Fencing Token از پردازش هم‌زمان و Worker منقضی‌شده محافظت می‌کنند؛ Constraintهای دیتابیس Markerهای پردازش و سقف Attempt را سازگار نگه می‌دارند.
 - Worker، تابع `post_journal` در P-02 را روی همان Connection/Transactionای فراخوانی می‌کند که Inbox را Processed می‌کند. P-02 سند، سطرها و Ledger Outbox تغییرناپذیر را درج می‌کند؛ Trigger مربوط به P-03C وضعیت Delivery را در همان تراکنش می‌سازد.
 - شکست پیش از Commit باید تکمیل Inbox، سند، سطرها، Outbox و وضعیت Delivery را Rollback کند. وضعیت Retry/Dead-letter/Quarantine پس از Rollback و با Fencing جداگانه ثبت می‌شود.
 - Product ID در ردیف‌های دفترکل P-02 و ردیف‌های Delivery/Consumer در P-03C ثبت و با RLS اعمال می‌شود. یک Role ساختگی برای Product دوم اثبات می‌کند داده Affiliate & Agent و Lottery یک Tenant برای یکدیگر قابل مشاهده نیست.
@@ -62,6 +62,7 @@ Role Map ساختگی P-02 اکنون هر Role از نوع Database LOGIN را 
 | P03D-16 | تغییر مستقیم Ledger | رد Role عملیاتی |
 | P03D-17 | Reconciliation | رویداد مفقود آشکار و مسیر کامل از فهرست استثنا خارج شود |
 | P03D-18 | هویت دیتابیس بدون Mapping | رد امن Posting |
+| P03D-19 | وضعیت Processed ناقص یا Attempt Count بیش از حد | رد در سطح Constraint دیتابیس |
 
 ## CI و بازتولید
 
@@ -106,11 +107,11 @@ Workflow اختصاصی از PostgreSQL 18.7، Node.js 26.13.0، Lockfile ثبت
 
 ## نتیجه تأییدشده CI ساختگی — ۲۰۲۶-۱۱-۲۵
 
-Head دقیق PR که اعتبارسنجی شد: `40d002a2af5875a6ead178604b90dc92aa678dc5`.
+Head دقیق فعلی PR که اعتبارسنجی شد: `14d69ec5be1a9285049c1f88529f375782f2de51`.
 
-- P-02 Ledger Posting: [اجرای ۱۱۴](https://github.com/tecpey/lottorito-platform/actions/runs/45607187120) — ۲۵ موفق، صفر شکست و صفر Skip.
-- Integration ترکیبی P-03C/P-03D: [اجرای ۳۱](https://github.com/tecpey/lottorito-platform/actions/runs/45607186885) — تعداد ۱۵ تست موفق برای P-03C و ۱۹ تست موفق برای P-03D؛ در مجموع ۳۴ تست، صفر شکست و صفر Skip. تمام مراحل Setup، تست و Cleanup موفق بودند.
-- Documentation Governance: [اجرای ۷۰۲](https://github.com/tecpey/lottorito-platform/actions/runs/45607186745) — موفق.
+- P-02 Ledger Posting: [اجرای ۱۳۵](https://github.com/tecpey/lottorito-platform/actions/runs/45619908420) — ۲۵ موفق، صفر شکست و صفر Skip.
+- Integration ترکیبی P-03C/P-03D: [اجرای ۵۷](https://github.com/tecpey/lottorito-platform/actions/runs/45619908381) — تعداد ۱۵ تست موفق برای P-03C و ۲۲ تست موفق برای P-03D؛ در مجموع ۳۷ تست، صفر شکست و صفر Skip. تمام مراحل Setup، تست و Cleanup موفق بودند.
+- Documentation Governance: [اجرای ۷۲۵](https://github.com/tecpey/lottorito-platform/actions/runs/45619908378) — موفق.
 
 این نتیجه فقط ماتریس پذیرش ساختگی را روی Head شاخه ذکرشده راستی‌آزمایی می‌کند. PR شماره ۶۱ همچنان Draft و باز و وابسته به PR شماره ۶۰ است؛ هیچ Merge، اتصال Provider عملیاتی، Migration دیتابیس Production، تصویب فناوری یا Deploy از آن نتیجه نمی‌شود.
 

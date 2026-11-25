@@ -1,6 +1,6 @@
 # Verified Project Status and Continuation Point
 
-**Document ID:** LOT-OPS-001 | **Version:** 1.25.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-24
+**Document ID:** LOT-OPS-001 | **Version:** 1.26.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-25
 
 ## Verified repository state
 - Repository: tecpey/lottorito-platform; default branch main; public visibility by owner decision.
@@ -97,12 +97,12 @@ Legal entity and operating model; initial jurisdiction; provider and source-of-t
 This record summarizes repository inspection, not an external audit. Re-fetch PR metadata and commit statuses before relying on a head SHA or CI state.
 
 
-## P-03D continuation — 2026-11-25
+## Current continuation and evidence — 2026-11-25
 
-- LOT-PROT-001 identifies P-03D as the next required experiment: provider inbox to idempotent P-02 posting and P-03C outbox. P-09 is not being invented while this P-03 integration gap remains.
-- PR #41 is an older provider-event fixture based on P-02 base `90cc45464c25c325befd35bd7af1c8a16c1f78d3`; the current P-02 line is PR #46 head `76d1f421ecdf8e921c7e8a116e2c23dcdaef4b7b`, followed by P-03 PR #50 head `45b37700cb2b9ad633158ba8d5f00b8c7f0553d5`. Reuse PR #41 only as a research input; do not cherry-pick its shared-GUC tenant/product model into the current session-identity design.
-- PR #60 P-03C is based on PR #50 head `45b37700cb2b9ad633158ba8d5f00b8c7f0553d5`; its Integration run [45576594884](https://github.com/tecpey/lottorito-platform/actions/runs/45576594884) passed 15 tests and Documentation Governance run [45576594868](https://github.com/tecpey/lottorito-platform/actions/runs/45576594868) passed. It remains Draft/open/unmerged.
-- PR #51 P-04 is a sibling of PR #60 on the same P-03 base, not a descendant of P-03C. The P-04–P-08 stack therefore requires a later ancestry/retest reconciliation; do not assume P-08 CI includes P-03C.
-- Branch `spike/p03d-provider-ledger-integration` is based on P-03C head `32b34f4c7c67b12874cdf6a14a2788d9a2f4c6dc`. It adds signed provider inbox ingestion, trusted installation/database identity checks, product-aware P-02/P-03C records, same-transaction P-02 posting + inbox completion + P-03C delivery-state creation, retry/fencing/quarantine and reconciliation. Synthetic acceptance is verified on PR #61 head `40d002a2af5875a6ead178604b90dc92aa678dc5`: P-02 25/25, P-03C 15/15, P-03D 19/19 and Documentation Governance all passed (runs 45607187120, 45607186885 and 45607186745).
-- Some existing P-02 uniqueness constraints remain tenant-wide (conservative and fail-closed), even though product attribution and RLS are added. Fully product-local composite identity semantics remain a review item. No commission/NGR, real provider, account policy, legal entity, payout, or production schema decision is made.
-- P-03D synthetic acceptance is complete on the cited head; re-run validation if any later commit changes implementation or docs. Next: reconcile P-04 PR #51 and the P-04–P-08 stack ancestry against P-03C PR #60, then plan P-04 regression gates without merging either stack. PR #61 remains Draft/open and stacked on PR #60. No PR merge, main change or deployment is authorized.
+- PR #60 (P-03C) remains Draft/open/unmerged on P-03 PR #50 head 45b37700cb2b9ad633158ba8d5f00b8c7f0553d5; P-03C head is 32b34f4c7c67b12874cdf6a14a2788d9a2f4c6dc. Integration [45576594884](https://github.com/tecpey/lottorito-platform/actions/runs/45576594884) passed 15 tests; Documentation Governance [45576594868](https://github.com/tecpey/lottorito-platform/actions/runs/45576594868) passed.
+- PR #61 (P-03D) is stacked on PR #60 and remains Draft/open/unmerged. Current exact head: 14d69ec5be1a9285049c1f88529f375782f2de51. P-02 [45619908420](https://github.com/tecpey/lottorito-platform/actions/runs/45619908420) passed 25 tests; combined P-03C/P-03D [45619908381](https://github.com/tecpey/lottorito-platform/actions/runs/45619908381) passed P-03C 15/15 and P-03D 22/22 (37 total, 0 failures, 0 skips); Documentation Governance [45619908378](https://github.com/tecpey/lottorito-platform/actions/runs/45619908378) passed on the same exact head.
+- Additional P-03D regression coverage rejects partial processed markers, attempt-count overflow, non-canonical Base64 signatures and invalid replay-window/body-size configuration. Database constraints require processed_at and journal_id to be both present only for processed rows and enforce attempt_count no greater than max_attempts.
+- P-04 PR #51 remains based on P-03 PR #50, not on #60/#61. Current head f701ab33a6357a892c2eff8e07f5f8ba05ae52ad; P-04 Integration [45619609686](https://github.com/tecpey/lottorito-platform/actions/runs/45619609686) passed 8/8 and Documentation Governance [45619609509](https://github.com/tecpey/lottorito-platform/actions/runs/45619609509) passed.
+- PRs #51–#59 form a separate P-04–P-08 stack, diverged from the P-03C/P-03D family at common P-03 head 45b37700cb2b9ad633158ba8d5f00b8c7f0553d5. P-04 has its own disposable schema/database and does not import P-02/P-03 schema, but shared governance/status files overlap. Reconcile branch ancestry and shared docs deliberately; do not blindly retarget/rebase or claim integrated regression. The next gate is a single-candidate regression across P-02/P-03C/P-03D/P-04–P-08.
+- PR #41 is an older provider-event fixture on a different P-02 model; use it only as research input, never cherry-pick its shared custom-GUC tenant/product model into the current session_user-derived identity model.
+- No PR merge, main update, production provider, KMS, transport, accounting policy, destructive migration or deployment is authorized. All evidence above is synthetic only.
