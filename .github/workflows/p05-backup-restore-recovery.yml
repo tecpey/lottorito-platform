@@ -8,7 +8,6 @@ on:
       - "docs/fa/engineering/prototypes/p05-backup-restore-recovery.md"
       - "docs/en/engineering/architecture-prototype-plan.md"
       - "docs/fa/engineering/architecture-prototype-plan.md"
-      - ".github/workflows/p05-backup-restore-recovery.yml"
 permissions:
   contents: read
 concurrency:
