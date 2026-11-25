@@ -154,3 +154,6 @@ P-03D now constructs its canonical envelope only from trusted installation metad
 P-07B dispatch invokes the shared Python validator after its existing authentication, producer-scope and denial-reason checks. P-05E recovery/replay checks the persisted envelope against the inbox row and refuses to post if tenant, product, provider event, source event, schema or trace metadata disagree. Its synthetic recovery fixtures now carry the full required envelope.
 
 These are synthetic prototype integrations, not production deployment evidence. P-09H acceptance remains contingent on the complete CI matrix for the exact final PR head; live provider integrations, production key custody, and production runtime wiring remain out of scope.
+
+
+P-09H also bounds `schemaversion` to the interoperable JSON safe-integer range (1 through 9007199254740991) in both language implementations, preventing Python's arbitrary-precision integers from accepting values that JavaScript cannot represent exactly.
