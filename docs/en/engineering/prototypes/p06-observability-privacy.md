@@ -1,6 +1,6 @@
 # P-06 — End-to-End Observability and Privacy
 
-**Document ID:** LOT-PROT-P06-001 | **Version:** 0.1.0 | **Status:** Synthetic implementation; CI validation pending
+**Document ID:** LOT-PROT-P06-001 | **Version:** 0.2.0 | **Status:** Synthetic P-06 PR Integration and Documentation Governance passed on PR head 9f30a2966ce77aca8a7df6acf8e803733bd723dd; production instrumentation/privacy approval not implied
 
 ## Authority and boundary
 
@@ -75,6 +75,15 @@ This is not an implemented application instrumentation layer, deployed OpenTelem
 - Alert owner/runbook identifiers are checked as metadata only; no real alert routing occurs.
 - Logs, spans, metrics and audit records are not the ledger and must never be used to calculate balances or authorize financial transitions.
 - RPO/RTO, legal basis, jurisdictional privacy requirements and production telemetry access policies remain owner/security/legal decisions.
+
+
+
+## Final CI evidence
+
+- P-06 PR Integration [run 45535315659](https://github.com/tecpey/lottorito-platform/actions/runs/45535315659) and Documentation Governance [run 45535315503](https://github.com/tecpey/lottorito-platform/actions/runs/45535315503) passed on PR head `9f30a2966ce77aca8a7df6acf8e803733bd723dd`.
+- Nine linked spans correlated the actual P-02 journal from partner ingress to reconciliation. The run generated 500 unique synthetic tenant references while retaining only four metric series.
+- All assertions passed: P-02 journal, W3C parent chain, async trace correlation, secret/PII canary absence, baggage filtering, log-injection normalization, tenant RLS, audited forensic access, least privilege, append-only audit, bounded cardinality and alert owner/severity/runbook.
+- An initial harness run failed only because the test compared PostgreSQL boolean text `false` with psql's display form `f`; the assertion was corrected and the final PR-head run passed.
 
 ## References
 
