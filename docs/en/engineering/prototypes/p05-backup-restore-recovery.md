@@ -45,6 +45,8 @@ The combined P-05 workflow adds two fail-closed checks beyond the original posit
 1. **Incomplete restore staging:** create a disposable copy of the physical backup, remove the required `global/pg_control` file, and require both `pg_verifybackup` and PostgreSQL startup to reject the incomplete staging directory. This is an interrupted/incomplete restore-artifact simulation; it does not claim to kill a live production restore process mid-write.
 2. **Missing target WAL:** create independent copies of the base backup and WAL archive, remove the exact WAL segment containing the named restore target from both the copied archive and copied `pg_wal`, and attempt targeted recovery. PostgreSQL may fail startup or may expose a valid earlier recovery state depending on the available WAL. Either way, the drill must reject the result as a successful named-target recovery unless the expected post-target marker is present. The negative test checks the requested segment in the recovery log and never alters the positive fixture or source archive.
 
+The positive path also polls `pg_is_in_recovery()` until it returns `false` before running writable financial/RLS assertions. `pg_ctl` reporting readiness alone is insufficient because a server may accept read-only connections while recovery is still in progress. The missing-WAL negative path explicitly rejects a server that becomes writable before the requested target.
+
 The distinction matters: a server that starts after exhausting available WAL is not, by that fact alone, proof that it reached the requested recovery target. The recovery acceptance gate must validate the expected business marker/control state before accepting traffic. PostgreSQL documents that `restore_command` must return nonzero for absent archive files and that interrupted recovery can be restarted; `pg_verifybackup` detects missing files but does not replace a real restore and content validation.
 
 **Status:** Negative-drill implementation is in the combined CI workflow; validation is pending until the final branch head completes Integration and Documentation Governance.
@@ -58,6 +60,8 @@ No production data, credentials, partner secrets, real funds or live endpoints. 
 - https://www.postgresql.org/docs/18/continuous-archiving.html
 - https://www.postgresql.org/docs/18/app-pgbasebackup.html
 - https://www.postgresql.org/docs/18/app-pgverifybackup.html
+- https://www.postgresql.org/docs/18/runtime-config-wal.html
+- https://www.postgresql.org/docs/18/functions-admin.html
 - https://www.postgresql.org/docs/18/app-pgrewind.html
 - https://sre.google/sre-book/data-integrity/
 - https://docs.cloud.google.com/architecture/framework/reliability/perform-testing-for-recovery-from-data-loss
