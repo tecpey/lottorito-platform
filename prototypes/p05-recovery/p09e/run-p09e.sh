@@ -104,6 +104,21 @@ restore_tenant_b(){ tenant_psql "$RESTORE_PORT" tenant_b_ledger_runtime p02-tena
 assert_eq "$(restore_admin -At -c "SELECT count(*) FROM public.provider_event_inbox")" "3" "restored provider inbox"
 assert_eq "$(restore_admin -At -c "SELECT count(*) FROM public.financial_effects")" "0" "restored financial effects before replay"
 
+echo "[P-09E] Corrupt a restored event scope and prove replay fails closed before any financial effect"
+restore_admin -c "UPDATE public.provider_event_inbox
+  SET canonical_event=jsonb_set(canonical_event,'{scope,id}','\\"lottery\\"'::jsonb)
+  WHERE tenant_id='$TENANT_B' AND product_id='affiliate_agent' AND provider_id='synthetic-provider' AND provider_event_id='$EVENT_ID'"
+if restore_tenant_b -c "SELECT public.p09e_process_provider_event('$EVENT_ID','$TENANT_B_CASH','$TENANT_B_CLEARING','$AMOUNT','provider:p09e:tenant-b:$EVENT_ID')" >"$ROOT/corrupt-replay.log" 2>&1; then
+  echo "P-09E corrupted canonical event unexpectedly replayed" >&2
+  exit 1
+fi
+assert_eq "$(restore_admin -At -c "SELECT count(*) FROM public.financial_effects")" "0" "corrupt replay creates no financial effect"
+assert_eq "$(restore_admin -At -c "SELECT status FROM public.provider_event_inbox WHERE tenant_id='$TENANT_B' AND product_id='affiliate_agent' AND provider_id='synthetic-provider' AND provider_event_id='$EVENT_ID'")" "accepted" "corrupt replay transaction rolls back claim"
+restore_admin -c "UPDATE public.provider_event_inbox
+  SET canonical_event=jsonb_set(canonical_event,'{scope,id}','\\"affiliate_agent\\"'::jsonb)
+  WHERE tenant_id='$TENANT_B' AND product_id='affiliate_agent' AND provider_id='synthetic-provider' AND provider_event_id='$EVENT_ID'"
+echo "replay_contract_corruption_blocked=PASS"
+
 echo "[P-09E] Inject a failure after P-02 journal/outbox writes but before P-03D inbox commit"
 if restore_tenant_a -c "BEGIN; SELECT public.p09e_process_provider_event('$EVENT_ID','$AFFILIATE_CASH','$AFFILIATE_CLEARING','$AMOUNT','provider:p09e:affiliate:$EVENT_ID'); SELECT 1/0; COMMIT" >"$ROOT/interrupted-transaction.log" 2>&1; then
   echo "P-09E injected failure unexpectedly committed" >&2
