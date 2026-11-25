@@ -329,6 +329,34 @@ test("lottery posting is isolated from affiliate accounts and its outbox", async
   assert.equal(lotteryClaims.some((row) => row.aggregate_id === stored.journal_id), true);
 });
 
+test("inbox constraints reject partial processed state and attempt overflow", async () => {
+  const fixture = webhook(affiliateInstallation);
+  await ingest(affiliateA, fixture);
+  const where = "WHERE tenant_id=$1 AND product_id=$2 AND provider_id=$3 AND provider_event_id=$4";
+  const args = [TENANT_A, PRODUCT_AFFILIATE, affiliateInstallation.provider_id, fixture.eventId];
+  await assert.rejects(
+    affiliateA.query("UPDATE public.provider_event_inbox SET processed_at=clock_timestamp() " + where, args),
+    (error) => error.code === "23514"
+  );
+  await assert.rejects(
+    affiliateA.query("UPDATE public.provider_event_inbox SET status='processed' " + where, args),
+    (error) => error.code === "23514"
+  );
+  await assert.rejects(
+    affiliateA.query("UPDATE public.provider_event_inbox SET status='retry', processed_at=clock_timestamp() " + where, args),
+    (error) => error.code === "23514"
+  );
+  await assert.rejects(
+    affiliateA.query("UPDATE public.provider_event_inbox SET attempt_count=max_attempts+1 " + where, args),
+    (error) => error.code === "23514"
+  );
+  const stored = await inboxRow(affiliateA, affiliateInstallation.provider_id, fixture.eventId);
+  assert.equal(stored.status, "accepted");
+  assert.equal(stored.processed_at, null);
+  assert.equal(stored.journal_id, null);
+  assert.equal(stored.attempt_count, 0);
+});
+
 test("provider worker cannot write ledger tables directly and product spoof is denied", async () => {
   await assert.rejects(
     affiliateA.query("INSERT INTO public.ledger_outbox(tenant_id,product_id,event_id,journal_id,event_type,payload) VALUES($1,$2,gen_random_uuid(),gen_random_uuid(),'ledger.journal.posted','{}'::jsonb)", [TENANT_A, PRODUCT_LOTTERY]),

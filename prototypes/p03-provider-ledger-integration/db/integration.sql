@@ -29,7 +29,7 @@ CREATE TABLE public.provider_event_inbox (
   source_event_id uuid NOT NULL DEFAULT gen_random_uuid(),
   status text NOT NULL DEFAULT 'accepted'
     CHECK (status IN ('accepted', 'processing', 'retry', 'processed', 'dead_letter', 'quarantined')),
-  attempt_count integer NOT NULL DEFAULT 0 CHECK (attempt_count >= 0),
+  attempt_count integer NOT NULL DEFAULT 0 CHECK (attempt_count >= 0 AND attempt_count <= max_attempts),
   max_attempts integer NOT NULL DEFAULT 5 CHECK (max_attempts BETWEEN 1 AND 20),
   available_at timestamptz NOT NULL DEFAULT clock_timestamp(),
   lease_owner text,
@@ -49,7 +49,11 @@ CREATE TABLE public.provider_event_inbox (
     OR
     (status <> 'processing' AND lease_owner IS NULL AND lease_token IS NULL AND lease_until IS NULL)
   ),
-  CHECK ((status = 'processed') = (processed_at IS NOT NULL AND journal_id IS NOT NULL))
+  CHECK (
+    (status = 'processed' AND processed_at IS NOT NULL AND journal_id IS NOT NULL)
+    OR
+    (status <> 'processed' AND processed_at IS NULL AND journal_id IS NULL)
+  )
 );
 ALTER TABLE public.provider_event_inbox OWNER TO provider_event_owner;
 
