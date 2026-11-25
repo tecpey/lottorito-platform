@@ -20,7 +20,9 @@ function secretBytes(secret) {
     if (decoded.length < 16) throw new TypeError("webhook secret must contain at least 128 bits");
     return decoded;
   }
-  return Buffer.from(secret, "utf8");
+  const encoded = Buffer.from(secret, "utf8");
+  if (encoded.length < 16) throw new TypeError("webhook secret must contain at least 128 bits");
+  return encoded;
 }
 
 function constantTimeEqual(left, right) {
