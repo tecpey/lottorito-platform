@@ -513,7 +513,8 @@ test("P-09F same provider event and source UUID remain isolated across Affiliate
       JSON.stringify(canonical), scope.effectId, sourceEventId
     );
     const p = Array.from({ length: 11 }, (_, i) => "$" + (offset + i + 1));
-    placeholders.push("(" + p.join(",") + "::jsonb)");
+    p[8] += "::jsonb";
+    placeholders.push("(" + p.join(",") + ")");
   }
 
   await admin.query(
