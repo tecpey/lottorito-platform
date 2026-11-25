@@ -1,4 +1,4 @@
-name: P-03C Ledger Outbox Integration
+name: P-03C/P-03D Ledger and Provider Integration
 
 on:
   workflow_dispatch:
@@ -37,7 +37,7 @@ concurrency:
 
 jobs:
   integration:
-    name: Node.js 26 + PostgreSQL 18.7 ledger-outbox integration
+    name: Node.js 26 + PostgreSQL 18.7 ledger/provider integration
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     services:
