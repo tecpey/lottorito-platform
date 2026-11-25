@@ -274,9 +274,16 @@ class PromotionAndRollbackTests(unittest.TestCase):
     def test_production_environment_is_never_eligible(self):
         digest = self.built["v2"][0]
         production = DeploymentState("production", 1, self.built["v1"][0])
+        before = (production.current_digest, production.previous_digest, production.api_digest,
+                  production.worker_digest, production.traffic_enabled, production.workers_enabled,
+                  production.schema_version, list(production.audit))
         with self.assertRaisesRegex(GateRejected, "environment_not_allowed"):
             self.controller.promote(production, digest, self.approval(digest, "production"), DEPLOY_ACTOR,
                 production.current_digest, GOOD_API, GOOD_WORKER, self.built["v2"][1], SOURCE)
+        after = (production.current_digest, production.previous_digest, production.api_digest,
+                 production.worker_digest, production.traffic_enabled, production.workers_enabled,
+                 production.schema_version, list(production.audit))
+        self.assertEqual(after, before)
 
     def test_api_readiness_failure_blocks_traffic_and_workers(self):
         digest = self.built["v2"][0]
@@ -331,6 +338,48 @@ class PromotionAndRollbackTests(unittest.TestCase):
         with self.assertRaisesRegex(GateRejected, "rollback_schema_incompatible"):
             self.controller.rollback(self.stage_state, old_digest, self.stage_state.current_digest, DEPLOY_ACTOR,
                 self.approval(old_digest), GOOD_API, GOOD_WORKER)
+
+    def test_production_rollback_is_rejected_without_state_change(self):
+        current = self.built["v2"][0]
+        previous = self.built["v1"][0]
+        production = DeploymentState(
+            "production", 1, current, previous_digest=previous,
+            api_digest=current, worker_digest=current,
+            traffic_enabled=True, workers_enabled=True,
+        )
+        before = (production.current_digest, production.previous_digest, production.api_digest,
+                  production.worker_digest, production.traffic_enabled, production.workers_enabled,
+                  production.schema_version, list(production.audit))
+        with self.assertRaisesRegex(GateRejected, "environment_not_allowed"):
+            self.controller.rollback(
+                production, previous, current, DEPLOY_ACTOR, self.approval(previous, "production"),
+                GOOD_API, GOOD_WORKER,
+            )
+        after = (production.current_digest, production.previous_digest, production.api_digest,
+                 production.worker_digest, production.traffic_enabled, production.workers_enabled,
+                 production.schema_version, list(production.audit))
+        self.assertEqual(after, before)
+
+    def test_production_rollback_target_retirement_is_rejected_without_state_change(self):
+        current = self.built["v2"][0]
+        previous = self.built["v1"][0]
+        production = DeploymentState(
+            "production", 1, current, previous_digest=previous,
+            api_digest=current, worker_digest=current,
+            traffic_enabled=True, workers_enabled=True,
+        )
+        before = (production.current_digest, production.previous_digest, production.api_digest,
+                  production.worker_digest, production.traffic_enabled, production.workers_enabled,
+                  production.schema_version, list(production.audit))
+        with self.assertRaisesRegex(GateRejected, "environment_not_allowed"):
+            self.controller.retire_rollback_target(
+                production, 2, "RETIRE_ROLLBACK_TARGET", DEPLOY_ACTOR,
+                self.approval(current, "production"),
+            )
+        after = (production.current_digest, production.previous_digest, production.api_digest,
+                 production.worker_digest, production.traffic_enabled, production.workers_enabled,
+                 production.schema_version, list(production.audit))
+        self.assertEqual(after, before)
 
     def test_production_schema_migration_is_rejected_without_state_change(self):
         digest = self.built["v1"][0]
