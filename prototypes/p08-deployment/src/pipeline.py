@@ -16,11 +16,10 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Mapping
 
-from build import BUILD_TYPE, BUILDER_ID, canonical_json
+from build import BUILD_TYPE, BUILDER_ID
 
 SECRET_ENV = "LOTTORITO_SYNTHETIC_RUNTIME_SECRET"
 ALLOWED_ENVIRONMENTS = {"test", "staging"}
-PRODUCTION_ENVIRONMENT = "production"
 RETIRE_CONFIRMATION = "RETIRE_ROLLBACK_TARGET"
 
 
@@ -203,9 +202,8 @@ class ImmutableArtifactStore:
 
 
 class DeploymentController:
-    def __init__(self, store: ImmutableArtifactStore, releases: Mapping[str, Mapping[str, Any]]) -> None:
+    def __init__(self, store: ImmutableArtifactStore) -> None:
         self.store = store
-        self.releases = dict(releases)
 
     def _metadata(self, digest: str) -> dict[str, Any]:
         return read_release_metadata(self.store.get(digest))
@@ -309,45 +307,14 @@ class DeploymentController:
             "schema_version": state.schema_version,
         })
 
-    @staticmethod
-    def migrate_schema(state: DeploymentState, target_version: int, phase: str) -> None:
+    def migrate_schema(self, state: DeploymentState, target_version: int, phase: str) -> None:
         if phase not in {"expand", "contract"} or target_version != state.schema_version + 1:
             raise GateRejected("migration_transition_invalid")
-        active = read_release_metadata(_artifact_for_state(state))
+        active = self._metadata(state.current_digest)
         if not (active["min_schema"] <= target_version <= active["max_schema"]):
             raise GateRejected("active_release_cannot_read_target_schema")
         if phase == "contract" and state.previous_digest is not None:
-            previous = read_release_metadata(_artifact_for_state_digest(state, state.previous_digest))
+            previous = self._metadata(state.previous_digest)
             if not (previous["min_schema"] <= target_version <= previous["max_schema"]):
                 raise GateRejected("rollback_target_incompatible")
         state.schema_version = target_version
-
-    @staticmethod
-    def _audit_placeholder() -> None:
-        return None
-
-
-# The state stores only digests. The controller binds the artifact bytes for migration checks.
-_ARTIFACTS_BY_STATE: dict[int, dict[str, bytes]] = {}
-
-
-def bind_state_artifacts(state: DeploymentState, store: ImmutableArtifactStore) -> None:
-    _ARTIFACTS_BY_STATE[id(state)] = {digest: store.get(digest) for digest in (state.current_digest, state.previous_digest) if digest}
-
-
-def _artifact_for_state(state: DeploymentState) -> bytes:
-    try:
-        return _ARTIFACTS_BY_STATE[id(state)][state.current_digest]
-    except KeyError as exc:
-        raise GateRejected("active_artifact_not_bound") from exc
-
-
-def _artifact_for_state_digest(state: DeploymentState, digest: str) -> bytes:
-    try:
-        return _ARTIFACTS_BY_STATE[id(state)][digest]
-    except KeyError as exc:
-        raise GateRejected("rollback_artifact_not_bound") from exc
-
-
-def update_state_artifact_binding(state: DeploymentState, store: ImmutableArtifactStore, *digests: str) -> None:
-    _ARTIFACTS_BY_STATE[id(state)] = {digest: store.get(digest) for digest in digests if digest}
