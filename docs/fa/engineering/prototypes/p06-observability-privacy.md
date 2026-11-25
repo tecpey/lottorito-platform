@@ -97,3 +97,7 @@ P-06 بررسی می‌کند آیا یک رویداد ساختگی Affiliate & 
 - https://prometheus.io/docs/practices/naming/
 - https://csrc.nist.gov/pubs/sp/800/92/final
 - https://csrc.nist.gov/Projects/log-management
+
+## الحاقیه P-09B — Correlation آگاه از Scope (۲۰۲۶-۱۱-۲۵)
+
+ادامه P-09 کلید Correlation ساختگی را از `(tenant_id, source_event_id)` به `(tenant_id, scope_kind, scope_id, source_event_id)` گسترش می‌دهد. Session و Grant دسترسی Forensic نیز به همین Tuple به‌علاوه `trace_id` مقید می‌شوند؛ View مربوطه تمام ابعاد را تطبیق می‌دهد، نه فقط Trace ID را. Runner مربوط به P-06 یک UUID یکسان Tenant/Source Event را برای Affiliate و Lottery ثبت می‌کند و اثبات می‌کند Grant مربوط به Affiliate فقط ردیف Affiliate را برمی‌گرداند و Grant مستقل Lottery فقط ردیف Lottery را. Workflow مربوط به P-06 روی Candidate فعلی P-09 دروازه پذیرش است؛ این همچنان Fixture ساختگی است، نه مجوزدهی Telemetry در Production.
