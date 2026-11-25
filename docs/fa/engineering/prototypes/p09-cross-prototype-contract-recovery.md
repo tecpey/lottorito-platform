@@ -1,6 +1,6 @@
 # P-09 — یکپارچه‌سازی قرارداد و بازیابی بین Prototypeها
 
-**شناسه سند:** LOT-PROT-P09-001 | **نسخه:** ۰.۱.۰ | **وضعیت:** قرارداد پیشنهادی بین Prototypeها؛ فقط خط مبنای ساختگی P-09A؛ بدون تصویب Production
+**شناسه سند:** LOT-PROT-P09-001 | **نسخه:** ۰.۲.۰ | **وضعیت:** قرارداد پیشنهادی بین Prototypeها؛ P-09A و Correlation محصول‌محور P-09B در CI ساختگی موفق شدند؛ بدون تصویب Production
 
 **وضعیت:** خط مبنای قرارداد پیشنهادی؛ پیاده‌سازی کامل و تصویب مالک همچنان باز است.  
 **مبنای بررسی:** شاخه `integration/p03d-p04-p08-candidate` با Head برابر `c7f9ffa1f499fbd34d260b2aa6d3122d32e1ac7f`.  
@@ -90,3 +90,12 @@ Event مالی باید Product Scope داشته باشد. Event پلتفرمی 
 ## P-09B — Correlation محصول‌محور در Observability
 
 پیاده‌سازی P-06 اکنون از Tuple استاندارد Tenant/Scope/Source Event برای یکتایی Correlation، Grant دسترسی Forensic و فیلتر View استفاده می‌کند. یک سناریوی خصمانه قطعی، UUID یکسان Source Event و Trace ID را برای Affiliate و Lottery در یک Tenant تکرار می‌کند؛ Grant ممیزی‌شده هر محصول باید دقیقاً فقط ردیف خودش را نمایش دهد. این تغییر ابهام Correlation صرفاً Tenantمحور را در Slice ساختگی P-06 می‌بندد. بااین‌حال هنوز P-05 Recovery، مجوزدهی Event در P-07B یا Provenance Artifact در P-08 را منطبق نمی‌کند؛ آن‌ها Sliceهای مستقل بعدی P-09 هستند.
+
+
+### شواهد پذیرش P-09B
+
+- Workflow قرارداد P-09A با شناسه [45628562955](https://github.com/tecpey/lottorito-platform/actions/runs/45628562955) موفق شد؛ شامل اعتبارسنجی JSON، Compile و ۱۳ تست از ۱۳ تست.
+- Correlation محصول‌محور P-06 با شناسه [45628562800](https://github.com/tecpey/lottorito-platform/actions/runs/45628562800) روی Head دقیق شاخه `109530985a00bd158866e45a8c11e3bb5f520f53` موفق شد.
+- Documentation Governance با شناسه [45628562765](https://github.com/tecpey/lottorito-platform/actions/runs/45628562765) موفق شد (۵۸ جفت سند دوزبانه و ۱۳۶ لینک محلی).
+
+Fixture مربوط به P-06 اکنون یکتایی محصول‌محور و فیلتر Forensic را برای UUIDهای یکسان Source Event اثبات می‌کند. P-05B، P-07B و P-08 همچنان دروازه‌های یکپارچه‌سازی باز هستند.
