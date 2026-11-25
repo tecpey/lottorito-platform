@@ -148,3 +148,20 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 - P-05A [run 45609220359](https://github.com/tecpey/lottorito-platform/actions/runs/45609220359): P05A_RESULT=PASS.
 - Documentation Governance [run 45609220328](https://github.com/tecpey/lottorito-platform/actions/runs/45609220328): passed.
 - All five workflows succeeded on the same head. Next: rebase/replay P-05B onto PR #63 and preserve the complete regression chain. Synthetic-only; no merge, main update, destructive migration or deployment.
+
+
+## P-05B ancestry reconciliation — 2026-11-25
+
+- Original PR #53 is based on original P-05A PR #52 and inherits the old P-04 ancestry. New branch `spike/p05b-object-key-event-recovery-p03d` is based on reconciled P-05A PR #63 head `481a0ab2ac15ee982745e0a3b48d4d93cc829431`.
+- Carried P-05B object/key/event code and bilingual report, P-05A recovery-complete gate, missing-WAL/incomplete-restore negative drills, and combined workflow. Added strict manifest tenant/object/key/version checks, tenant-bound wrapped-DEK AAD, validated nonce/base64/size, plaintext-size/hash comparison, unique aggregate sequence and safer SECURITY DEFINER search_path.
+- Historical PR #53 combined recovery run [45533100486](https://github.com/tecpey/lottorito-platform/actions/runs/45533100486) and governance run [45533100369](https://github.com/tecpey/lottorito-platform/actions/runs/45533100369) passed; they do not validate the replacement.
+- Replacement PR #64 is pending creation/CI. It must pass P-02, P-03C/P-03D, P-04, combined P-05A/P-05B including negative drills, and bilingual Documentation Governance on the exact final head. Original PR #53 remains open/Draft and untouched.
+- P-05B is synthetic only; no real key custody, KMS/HSM, object store, broker, provider, production RPO/RTO or production recovery is approved. Next separate horizon is P-05C failover/fencing/failback.
+
+
+## P-05B reconciled verification — 2026-11-25
+
+- PR #64 code head bbad5969fc3c952ebafdaed3c8d2306dbd018ad4 passed P-02 [45611209596](https://github.com/tecpey/lottorito-platform/actions/runs/45611209596) 25/25; P-03C/P-03D [45611209613](https://github.com/tecpey/lottorito-platform/actions/runs/45611209613) 15/15 + 19/19; P-04 [45611209559](https://github.com/tecpey/lottorito-platform/actions/runs/45611209559) 7/7; combined P-05A/P-05B [45611209642](https://github.com/tecpey/lottorito-platform/actions/runs/45611209642) all positive/negative assertions PASS; Documentation Governance [45611209546](https://github.com/tecpey/lottorito-platform/actions/runs/45611209546) passed.
+- P-05A positive PITR, recovery-complete gate, incomplete-restore rejection and missing-WAL fail-closed checks passed. P-05B object/key and ordered event replay assertions passed.
+- All five workflows passed on the same exact head. Automated P-02–P-04 coverage is 66 tests with 0 failures/0 skips. P-05A/P-05B shell assertions also passed.
+- Next: P-05C failover/fencing/failback experiment. RPO/RTO remain TBD; no production recovery decision is approved. PR #64 remains Draft/open; original PR #53 remains untouched.

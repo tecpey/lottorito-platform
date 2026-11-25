@@ -63,3 +63,18 @@ P-05A PR #52 was based on the original P-04 branch. Its replacement branch `spik
 ## P-05A reconciled-stack regression result — 2026-11-25
 
 P-04 passed on P-05A replacement code head 76650b0c799e2f2a5b2f3ae4831bb55d3a3811a6: [run 45609220377](https://github.com/tecpey/lottorito-platform/actions/runs/45609220377), 7 passed, 0 failed, 0 skipped. P-05A remains a downstream, independent synthetic recovery experiment.
+
+
+## P-05B downstream regression gate — 2026-11-25
+
+P-05B extends the reconciled P-04/P-05A chain with synthetic object/key/event recovery. Re-run the 7-test P-04 compatibility suite on the P-05B replacement head; no P-04 schema contract or production migration is changed.
+
+
+## P-05B downstream regression gate — 2026-11-25
+
+P-05B extends the reconciled P-04/P-05A chain with synthetic object/key/event recovery. Re-run the 7-test P-04 compatibility suite on the P-05B replacement head; no P-04 schema contract or production migration is changed.
+
+
+## P-05B reconciled regression result — 2026-11-25
+
+P-04 passed on PR #64 head bbad5969fc3c952ebafdaed3c8d2306dbd018ad4: [run 45611209559](https://github.com/tecpey/lottorito-platform/actions/runs/45611209559), 7/7, zero failures/skips. P-05B does not alter the P-04 schema-evolution contract.

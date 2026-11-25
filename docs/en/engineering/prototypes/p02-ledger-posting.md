@@ -91,3 +91,18 @@ P-05A is being replayed onto the reconciled P-04 branch. Its backup/PITR fixture
 ## P-05A reconciled-stack regression result — 2026-11-25
 
 P-02 regression passed on P-05A replacement code head 76650b0c799e2f2a5b2f3ae4831bb55d3a3811a6: [run 45609220358](https://github.com/tecpey/lottorito-platform/actions/runs/45609220358), 25 passed, 0 failed, 0 skipped. P-05A remains an independent synthetic recovery fixture and does not modify P-02 ledger schema.
+
+
+## P-05B downstream regression gate — 2026-11-25
+
+P-05B's object/key/event recovery fixture remains independent of the P-02 ledger schema. The 25-test P-02 integration suite must be rerun on the P-05B replacement head; event replay may not bypass P-02 ledger invariants or imply a production ledger migration.
+
+
+## P-05B downstream regression gate — 2026-11-25
+
+P-05B's object/key/event recovery fixture is independent of the P-02 ledger schema. The 25-test P-02 integration suite must be rerun on the P-05B replacement head; event replay may not bypass P-02 ledger invariants or imply a production ledger migration.
+
+
+## P-05B reconciled regression result — 2026-11-25
+
+P-02 passed on PR #64 head bbad5969fc3c952ebafdaed3c8d2306dbd018ad4: [run 45611209596](https://github.com/tecpey/lottorito-platform/actions/runs/45611209596), 25/25, zero failures/skips. P-05B remains separate from P-02 schema and may not bypass ledger posting invariants.

@@ -91,3 +91,18 @@ P-05A روی شاخه تطبیق‌یافته P-04 بازپخش می‌شود. F
 ## نتیجه Regression تطبیق‌یافته P-05A — ۲۰۲۶-۱۱-۲۵
 
 Regression مربوط به P-02 روی Head کد جایگزین P-05A با SHA 76650b0c799e2f2a5b2f3ae4831bb55d3a3811a6 موفق شد: [اجرای 45609220358](https://github.com/tecpey/lottorito-platform/actions/runs/45609220358)، ۲۵ تست موفق، صفر شکست و صفر Skip. P-05A همچنان Fixture بازیابی مستقل و ساختگی است و Schema دفترکل P-02 را تغییر نمی‌دهد.
+
+
+## دروازه Regression پایین‌دستی P-05B — ۲۰۲۶-۱۱-۲۵
+
+Fixture بازیابی Object/Key/Event در P-05B مستقل از Schema دفترکل P-02 باقی می‌ماند. مجموعه ۲۵ تست Integration مربوط به P-02 باید روی Head جایگزین P-05B دوباره اجرا شود؛ Replay رویداد نباید از Invariantهای دفترکل P-02 عبور کند یا به معنی Migration عملیاتی Ledger تلقی شود.
+
+
+## دروازه Regression پایین‌دستی P-05B — ۲۰۲۶-۱۱-۲۵
+
+Fixture بازیابی Object/Key/Event در P-05B مستقل از Schema دفترکل P-02 باقی می‌ماند. مجموعه ۲۵ تست Integration مربوط به P-02 باید روی Head جایگزین P-05B دوباره اجرا شود؛ Replay رویداد نباید از Invariantهای دفترکل P-02 عبور کند یا به معنی Migration عملیاتی Ledger تلقی شود.
+
+
+## نتیجه Regression تطبیق‌یافته P-05B — ۲۰۲۶-۱۱-۲۵
+
+P-02 روی Head مربوط به PR شماره ۶۴ با SHA bbad5969fc3c952ebafdaed3c8d2306dbd018ad4 موفق شد: [اجرای 45611209596](https://github.com/tecpey/lottorito-platform/actions/runs/45611209596)، ۲۵/۲۵، بدون شکست و Skip. P-05B از Schema مربوط به P-02 مستقل است و نباید از Invariantهای Posting دفترکل عبور کند.

@@ -337,3 +337,20 @@ Prototype فقط زمانی **Pass** است که تمام معیارهای اج�
 - Head دقیق کد آزمایش‌شده 76650b0c799e2f2a5b2f3ae4831bb55d3a3811a6، P-02 با ۲۵ تست، P-03C با ۱۵ تست، P-03D با ۱۹ تست، P-04 با ۷ تست، بازیابی P-05A با نتیجه P05A_RESULT=PASS و Documentation Governance را با موفقیت گذراند. اجراها: 45609220358، 45609220468، 45609220377، 45609220359 و 45609220328. تمام Workflowها موفق بودند؛ مجموعه خودکار ۶۶ تست داشت و هیچ شکست یا Skip وجود نداشت.
 - P-05A فقط ساختگی است. آزمون منفی WAL مفقود/Restore قطع‌شده، نگهداری Off-site/Immutable، مالکیت کلید، بازیابی بایت Object، بازیابی App/Worker، تطبیق Provider، بازیابی منطقه‌ای و تصویب RPO/RTO همچنان باز هستند.
 - قدم بعدی: بازیابی Object/Key و Event Idempotency در P-05B. آن را در شاخه‌ای جدید روی PR شماره ۶۳ Replay کن و زنجیره کامل Regression مربوط به P-02/P-03C/P-03D/P-04/P-05A/P-05B را اجرا کن. PR اصلی شماره ۵۲ باز و Draft بماند؛ هیچ Merge یا Deploy انجام نشود.
+
+
+## P-05B روی زنجیره تطبیق‌یافته P-05A/P-04 — ۲۰۲۶-۱۱-۲۵
+
+- PR اصلی P-05B با شماره ۵۳ روی PR اصلی P-05A با شماره ۵۲ قرار دارد که از شاخه اصلی P-04 منشعب شده و Ancestry تطبیق‌یافته P-03C/P-03D را ندارد.
+- شاخه جایگزین `spike/p05b-object-key-event-recovery-p03d` از Head همگام‌شده با مستندات PR شماره ۶۳ در P-05A یعنی `481a0ab2ac15ee982745e0a3b48d4d93cc829431` شروع شده است. دروازه Recovery-complete در P-05A و آزمون‌های منفی WAL مفقود/Restore ناقص، همراه بازیابی Object/Key/Event در P-05B منتقل شده‌اند.
+- سخت‌سازی تکمیلی: بررسی Context در Manifest؛ اتصال AAD مربوط به AES-GCM به Tenant/Key/Object؛ بررسی سخت‌گیرانه Base64 و Nonce؛ تطبیق اندازه و Hash متن بازیابی‌شده با Manifest و دیتابیس؛ یکتایی Sequence در Aggregate؛ انتخاب قطعی Event با Lock؛ و قرار دادن pg_temp در انتهای search_path تابع SECURITY DEFINER.
+- Workflow ترکیبی PR اصلی شماره ۵۳ با شناسه [45533100486](https://github.com/tecpey/lottorito-platform/actions/runs/45533100486) و Documentation Governance با شناسه [45533100369](https://github.com/tecpey/lottorito-platform/actions/runs/45533100369) موفق بوده‌اند و آزمون‌های مثبت/منفی P05A، بازیابی Object/Key و Replay رویداد P05B را اجرا کرده‌اند. این شواهد تاریخی‌اند.
+- Workflow ترکیبی P-05 و Regressionهای P-02/P-03C/P-03D/P-04 همراه Documentation Governance دوزبانه باید روی Head جایگزین PR دوباره اجرا شوند. تا زمانی که همه روی Head دقیق نهایی موفق نشده‌اند، P-05B Verified اعلام نشود.
+- هیچ KMS/HSM، Object Store، Broker، Provider، Custody کلید، داده Production، RPO/RTO یا تصمیم بازیابی Production تصویب نمی‌شود. Failover/Fencing/Failback در P-05C آزمایش مستقل بعدی است.
+
+
+## تأیید P-05B روی زنجیره تطبیق‌یافته — ۲۰۲۶-۱۱-۲۵
+
+- Head مربوط به PR شماره ۶۴ با SHA bbad5969fc3c952ebafdaed3c8d2306dbd018ad4، P-02 با ۲۵ تست، P-03C با ۱۵ تست، P-03D با ۱۹ تست، P-04 با ۷ تست، بازیابی مثبت/منفی ترکیبی P-05A/P-05B و Documentation Governance را با موفقیت گذراند. اجراها: 45611209596، 45611209613، 45611209559، 45611209642 و 45611209546.
+- سخت‌سازی P-05B شامل Context سخت‌گیرانه Manifest، AAD محدود به Tenant برای Wrapped-DEK، کنترل Nonce/Base64/Size، اندازه و Hash متن بازیابی‌شده، یکتایی Aggregate Sequence و پردازش قطعی Event با Lock است. آزمون‌های منفی بازیابی P-05A نیز موفق‌اند.
+- P-05B فقط ساختگی باقی می‌ماند. آزمایش بعدی P-05C برای Failover/Fencing/Failback با ایمنی Lease/Fencing، آمادگی Promotion و سازگاری مالی است؛ RPO/RTO همچنان TBD است. PR اصلی شماره ۵۳ به‌عنوان سابقه بازبینی باز و Draft می‌ماند؛ PR شماره ۶۴ نیز Draft و باز است. هیچ Merge یا Deploy انجام نمی‌شود.

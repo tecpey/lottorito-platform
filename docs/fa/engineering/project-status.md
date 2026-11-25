@@ -148,3 +148,20 @@ PR شماره ۵۰ مربوط به تحویل Outbox در P-03، به‌صورت
 - P-05A با [اجرای 45609220359](https://github.com/tecpey/lottorito-platform/actions/runs/45609220359): نتیجه P05A_RESULT=PASS.
 - Documentation Governance با [اجرای 45609220328](https://github.com/tecpey/lottorito-platform/actions/runs/45609220328): موفق.
 - هر پنج Workflow روی یک Head یکسان موفق شدند. قدم بعدی: P-05B روی PR شماره ۶۳ Replay شود و زنجیره کامل Regression حفظ گردد. فقط ساختگی؛ بدون Merge، تغییر main، Migration مخرب یا Deploy.
+
+
+## تطبیق Ancestry مربوط به P-05B — ۲۰۲۶-۱۱-۲۵
+
+- PR اصلی شماره ۵۳ بر مبنای PR اصلی P-05A با شماره ۵۲ است و Ancestry قدیمی P-04 را به ارث می‌برد. شاخه جدید `spike/p05b-object-key-event-recovery-p03d` بر مبنای Head تطبیق‌یافته PR شماره ۶۳ در P-05A یعنی `481a0ab2ac15ee982745e0a3b48d4d93cc829431` ساخته شده است.
+- کد بازیابی Object/Key/Event در P-05B و گزارش دوزبانه، دروازه Recovery-complete در P-05A، آزمون‌های منفی WAL مفقود/Restore ناقص و Workflow ترکیبی منتقل شده‌اند. بررسی سخت‌گیرانه Tenant/Object/Key/Version در Manifest، AAD محدود به Tenant برای Wrapped-DEK، اعتبارسنجی Nonce/Base64/Size، تطبیق Size/Hash متن بازیابی‌شده، یکتایی Aggregate Sequence و search_path امن‌تر برای SECURITY DEFINER نیز افزوده شده‌اند.
+- اجرای ترکیبی Recovery در PR اصلی شماره ۵۳ با شناسه [45533100486](https://github.com/tecpey/lottorito-platform/actions/runs/45533100486) و Governance با شناسه [45533100369](https://github.com/tecpey/lottorito-platform/actions/runs/45533100369) موفق بوده‌اند؛ این شواهد شاخه جایگزین را تأیید نمی‌کنند.
+- PR جایگزین شماره ۶۴ در انتظار ایجاد/CI است. باید P-02، P-03C/P-03D، P-04، P-05A/P-05B ترکیبی همراه آزمون‌های منفی و Documentation Governance دوزبانه را روی Head دقیق نهایی بگذراند. PR اصلی شماره ۵۳ باز، Draft و دست‌نخورده باقی می‌ماند.
+- P-05B فقط ساختگی است؛ هیچ Custody واقعی کلید، KMS/HSM، Object Store، Broker، Provider، RPO/RTO عملیاتی یا بازیابی Production تصویب نمی‌شود. افق آزمایش مستقل بعدی P-05C برای Failover/Fencing/Failback است.
+
+
+## تأیید تطبیق‌یافته P-05B — ۲۰۲۶-۱۱-۲۵
+
+- Head کد PR شماره ۶۴ با SHA bbad5969fc3c952ebafdaed3c8d2306dbd018ad4، P-02 با اجرای [45611209596](https://github.com/tecpey/lottorito-platform/actions/runs/45611209596) برابر ۲۵/۲۵؛ P-03C/P-03D با اجرای [45611209613](https://github.com/tecpey/lottorito-platform/actions/runs/45611209613) برابر ۱۵/۱۵ + ۱۹/۱۹؛ P-04 با اجرای [45611209559](https://github.com/tecpey/lottorito-platform/actions/runs/45611209559) برابر ۷/۷؛ P-05A/P-05B ترکیبی با اجرای [45611209642](https://github.com/tecpey/lottorito-platform/actions/runs/45611209642) تمام Assertionهای مثبت/منفی را موفق گذراند؛ Documentation Governance با اجرای [45611209546](https://github.com/tecpey/lottorito-platform/actions/runs/45611209546) نیز موفق شد.
+- PITR مثبت P-05A، دروازه Recovery-complete، رد Restore ناقص و Fail-closed در WAL مفقود موفق شدند. Assertionهای بازیابی Object/Key و Replay مرتب Event در P-05B نیز موفق بودند.
+- هر پنج Workflow روی یک Head دقیق یکسان موفق شدند. پوشش خودکار P-02 تا P-04 شامل ۶۶ تست با صفر شکست و صفر Skip است. Assertionهای Shell مربوط به P-05A/P-05B نیز موفق‌اند.
+- قدم بعدی: آزمایش P-05C برای Failover/Fencing/Failback. RPO/RTO همچنان TBD است و هیچ تصمیم بازیابی Production تصویب نشده است. PR شماره ۶۴ Draft و باز می‌ماند؛ PR اصلی شماره ۵۳ دست‌نخورده باقی می‌ماند.
