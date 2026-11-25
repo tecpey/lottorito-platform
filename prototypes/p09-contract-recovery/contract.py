@@ -125,7 +125,7 @@ def validate_event(event: Any) -> dict[str, Any]:
     _validate_uri_reference(event["dataschema"], "dataschema")
     _validate_rfc3339(event["time"])
     version = event["schemaversion"]
-    if isinstance(version, bool) or not isinstance(version, int) or version < SCHEMA_VERSION_MIN:
+    if isinstance(version, bool) or not isinstance(version, int) or version < SCHEMA_VERSION_MIN or version > 9007199254740991:
         raise ContractViolation("schema_version_invalid")
     identity = source_event_identity(event["tenantid"], event["scope"], event["sourceeventid"])
     trace_id = _validate_traceparent(event["traceparent"])
