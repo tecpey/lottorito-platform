@@ -1,6 +1,6 @@
 # P-07B — Shared Platform Ownership and Trust Boundaries
 
-**Document ID:** LOT-PROT-P07B-001 | **Version:** 0.1.0 | **Status:** Synthetic fixture validated in CI on PR head 42083a2
+**Document ID:** LOT-PROT-P07B-001 | **Version:** 0.2.0 | **Status:** Synthetic fixture validated in CI on PR head 42083a2
 
 ## Decision question
 
@@ -109,3 +109,7 @@ python3 -m unittest discover -s prototypes/p07-shared-trust-boundaries/tests -v
 - Push integration [run 45570199339](https://github.com/tecpey/lottorito-platform/actions/runs/45570037120): PASS.
 - Documentation Governance [run 45570485718](https://github.com/tecpey/lottorito-platform/actions/runs/45570055148): PASS on the same PR head.
 - PR [#57](https://github.com/tecpey/lottorito-platform/pull/57) remains Draft, open and unmerged.
+
+## P-09D canonical event identity and trace-context addendum (2026-11-25)
+
+P-07B now requires a product-scoped envelope aligned to ADR-009: canonical UUID tenant identity, explicit `scope={kind: product, id: source_product}`, canonical UUID `sourceeventid`, positive integer `schemaversion`, and W3C Trace Context `traceparent`. The contract registry binds source scope, schema version and required envelope fields. The dispatch result exposes the canonical source-event tuple and trace ID for mapping to P-06 correlation. Synthetic tenant fixtures were converted from labels to UUIDs so the same tenant identity type is used across P-02/P-03D/P-06/P-07B. P-07B CI [45631269584](https://github.com/tecpey/lottorito-platform/actions/runs/45631269584) passed **42/42 tests**. Product-originated P-07B events currently require product scope; platform-originated events remain a separately governed future extension.
