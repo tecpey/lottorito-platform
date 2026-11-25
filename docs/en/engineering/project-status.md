@@ -115,3 +115,15 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 - New P-04 continuation branch `spike/p04-schema-evolution-p03d` is created from that PR #61 head. It carries the ten P-04-specific workflow, prototype and bilingual report files; README, architecture plan and P-02/P-03D docs are synchronized without replacing the newer P-03D documentation.
 - Original PR #51 remains open/Draft as a historical review source. It is not retargeted or merged. The replacement P-04 PR is pending creation/CI; do not call P-04 verified on the reconciled stack until P-02, P-03C/P-03D, P-04 and Documentation Governance pass on the exact new head.
 - After P-04 verification, replay P-05A, P-05B, P-05C, P-06, P-07A, P-07B, P-07C and P-08 in dependency order onto the reconciled branch chain. Preserve each experiment's limits and re-run the complete regression chain. No merge, main update, destructive migration or deployment is authorized.
+
+
+## P-04 reconciled stack verification — 2026-11-25
+
+- PR #62 branch `spike/p04-schema-evolution-p03d` is based on P-03D PR #61; original P-04 PR #51 remains open/Draft and is not retargeted or merged.
+- Exact tested code head: `dca0762678ed45da122ba109276c54ce61ac0846`.
+- P-02 run [45608274029](https://github.com/tecpey/lottorito-platform/actions/runs/45608274029): 25/25 passed.
+- P-03C/P-03D run [45608274098](https://github.com/tecpey/lottorito-platform/actions/runs/45608274098): P-03C 15/15 and P-03D 19/19 passed.
+- P-04 run [45608274118](https://github.com/tecpey/lottorito-platform/actions/runs/45608274118): 7/7 passed.
+- Documentation Governance run [45608274060](https://github.com/tecpey/lottorito-platform/actions/runs/45608274060): passed.
+- All four workflows completed successfully with zero failures and zero skipped tests on the same head. Total integration coverage: 66 tests (25 + 15 + 19 + 7). This is synthetic acceptance only.
+- Next: rebase/replay P-05A, P-05B, P-05C, P-06, P-07A, P-07B, P-07C and P-08 onto the reconciled stack in dependency order; preserve original PRs as historical review references until replacements pass full CI. No merge, main update, destructive migration or deployment is authorized.
