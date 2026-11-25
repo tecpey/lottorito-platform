@@ -1,13 +1,14 @@
 # Verified Project Status and Continuation Point
 
-**Document ID:** LOT-OPS-001 | **Version:** 1.31.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-24
+**Document ID:** LOT-OPS-001 | **Version:** 1.32.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-25
 
 ## Verified repository state
 
 ## Latest continuation update — 2026-11-25 (P-05A negative recovery + P-05B)
+- The positive PITR path now waits until `pg_is_in_recovery()` returns `false` before writable financial/RLS assertions. This fixes a CI race where `pg_ctl` readiness occurred while PostgreSQL still accepted only read-only recovery connections; that earlier run was not counted as an RLS pass. The missing-WAL test now also rejects any writable startup before the requested target.
 
-- P-05B remains Draft PR #53, open and unmerged, stacked on P-05A PR #52; P-05A remains Draft/open/unmerged on P-04 PR #51. The validated branch head for the combined executable tests is 0a6b8f992161cd9f9d760698b1c9d0c8e30867a9. Re-fetch PR metadata for the post-documentation current head before relying on it.
-- Combined P-05A/P-05B Integration [run 45532382323](https://github.com/tecpey/lottorito-platform/actions/runs/45532382323), branch-push Integration [run 45532372804](https://github.com/tecpey/lottorito-platform/actions/runs/45532372804), and Documentation Governance [run 45532382310](https://github.com/tecpey/lottorito-platform/actions/runs/45532382310) passed on the validated head.
+- P-05B remains Draft PR #53, open and unmerged, stacked on P-05A PR #52; P-05A remains Draft/open/unmerged on P-04 PR #51. The validated executable-code head for the combined recovery tests is 146a9bc635e3b03db568c423fb0958b62bc31c7b. Re-fetch PR metadata for the current documentation head before relying on it.
+- Final combined P-05A/P-05B Integration [run 45532825694](https://github.com/tecpey/lottorito-platform/actions/runs/45532825694) and Documentation Governance [run 45532825916](https://github.com/tecpey/lottorito-platform/actions/runs/45532825916) passed on executable-code head 146a9bc635e3b03db568c423fb0958b62bc31c7b.
 - P-05A positive PITR, PostgreSQL 18.7 base-backup manifest verification/tamper rejection, named restore point, pre/post-target assertions, tenant RLS and synthetic ledger/source reconciliation passed.
 - P-05A negative drills passed: an incomplete restore staging directory was rejected by pg_verifybackup and PostgreSQL startup; the exact target WAL segment was removed from isolated archive and base-backup copies, and the recovery server did not become ready at the requested target. The absent segment was found in the recovery log. This is a synthetic incomplete-staging/missing-WAL drill, not a live production restore interruption.
 - P-05B recovered a 4,409-byte synthetic object and matched SHA-256 2db4a9b021abba0ce01480ceda665284f023310ce909c0b0b9bcb084f771eaca to the restored PostgreSQL reference. Missing key, corrupted ciphertext and corrupted wrapped DEK failed closed. Ordered replay, duplicate collapse, sequence-gap blocking, atomic rollback/retry, exactly two balanced effects, no-op replay, source-to-ledger reconciliation and tenant isolation passed.
