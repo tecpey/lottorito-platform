@@ -13,7 +13,7 @@ PRODUCT_SOURCES = {
     "lottery": "urn:lottorito:product:lottery",
 }
 CLASSIFICATION = {"public": 0, "internal": 1, "confidential": 2, "restricted_financial": 3}
-FORBIDDEN_DATA_KEYS = {"password", "passwordhash", "secret", "token", "apikey", "accesstoken", "refreshtoken", "authorization", "credential", "email", "phone", "nationalid", "iban", "accountnumber"}
+FORBIDDEN_DATA_KEYS = {"password", "passwordhash", "secret", "token", "apikey", "accesstoken", "refreshtoken", "authorization", "credential", "email", "phone", "nationalid", "iban", "accountnumber", "tenantid"}
 
 
 def _deny(reason: str, product_id: str | None = None, tenant_id: str | None = None) -> dict[str, Any]:
@@ -88,10 +88,10 @@ def dispatch_event(
         return _deny("consumer_not_permitted_by_contract", consumer["product_id"], tenant_id)
     if event["dataschema"] != contract.get("dataschema"):
         return _deny("unsupported_schema_version", consumer["product_id"], tenant_id)
-    if event["classification"] not in CLASSIFICATION or contract.get("max_data_classification") not in CLASSIFICATION:
+    if event["classification"] not in CLASSIFICATION or contract.get("data_classification") not in CLASSIFICATION:
         return _deny("unknown_data_classification", consumer["product_id"], tenant_id)
-    if CLASSIFICATION[event["classification"]] > CLASSIFICATION[contract["max_data_classification"]]:
-        return _deny("data_classification_exceeds_contract", consumer["product_id"], tenant_id)
+    if event["classification"] != contract["data_classification"]:
+        return _deny("data_classification_mismatch", consumer["product_id"], tenant_id)
     if not set(contract.get("required_data_fields", [])).issubset(event["data"]):
         return _deny("event_payload_missing_required_field", consumer["product_id"], tenant_id)
     if _contains_forbidden_key(event["data"]):
