@@ -1,6 +1,6 @@
 import { isDeepStrictEqual } from "node:util";
 
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const TRACEPARENT = /^00-([0-9a-f]{32})-([0-9a-f]{16})-([0-9a-f]{2})$/;
 const URI_ALLOWED = new Set("-._~:/?#[]@!$&'()*+,;=%ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
 const FINANCIAL_PRODUCT_ONLY = new Set(["ledger.journal.posted", "com.synthetic.settlement.posted.v1"]);
@@ -59,9 +59,11 @@ export function validateEvent(event) {
   uriReference(event.source, "source");
   uriReference(event.dataschema, "dataschema");
   rfc3339(event.time);
-  if (typeof event.tenantid !== "string" || !UUID.test(event.tenantid) ||
-      typeof event.sourceeventid !== "string" || !UUID.test(event.sourceeventid)) {
-    throw new ContractViolation("event_identity_invalid");
+  if (typeof event.tenantid !== "string" || !UUID.test(event.tenantid)) {
+    throw new ContractViolation("tenant_id_invalid");
+  }
+  if (typeof event.sourceeventid !== "string" || !UUID.test(event.sourceeventid)) {
+    throw new ContractViolation("source_event_id_invalid");
   }
   const [scopeKind, scopeId] = scopeIdentity(event.scope);
   if (!Number.isSafeInteger(event.schemaversion) || event.schemaversion < 1) {
