@@ -62,6 +62,18 @@ class ProductCompositionTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "importlib dynamic imports"):
             assert_no_cross_product_imports("import importlib" + chr(10) + "importlib.import_module('products.lottery')", "lottery")
 
+    def test_relative_sibling_import_is_rejected(self):
+        with self.assertRaisesRegex(ValueError, "forbidden cross-product import"):
+            assert_no_cross_product_imports("from . import lottery", "lottery")
+
+    def test_non_empty_output_directory_is_rejected(self):
+        with tempfile.TemporaryDirectory() as temp:
+            output = Path(temp) / "artifact"
+            output.mkdir()
+            (output / "stale_lottery.py").write_text("# stale sibling artifact")
+            with self.assertRaisesRegex(ValueError, "must be empty"):
+                build_product("affiliate_agent", output)
+
     def test_smoke_audit_is_scoped_to_selected_product(self):
         for product_id in ("affiliate_agent", "lottery"):
             with self.subTest(product=product_id):
