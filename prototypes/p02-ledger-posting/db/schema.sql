@@ -555,6 +555,8 @@ ALTER FUNCTION public.post_journal(text, uuid, uuid, jsonb) OWNER TO ledger_exec
 REVOKE ALL ON FUNCTION public.post_journal(text, uuid, uuid, jsonb) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.post_journal(text, uuid, uuid, jsonb)
   TO tenant_a_ledger_runtime, tenant_b_ledger_runtime;
+GRANT EXECUTE ON FUNCTION public.post_journal(text, uuid, uuid, jsonb)
+  TO tenant_a_lottery_runtime;
 REVOKE CREATE ON SCHEMA public FROM ledger_owner, ledger_executor;
 
 INSERT INTO private.tenant_role_map (database_role, tenant_id, product_id) VALUES
@@ -562,12 +564,12 @@ INSERT INTO private.tenant_role_map (database_role, tenant_id, product_id) VALUE
   ('tenant_b_ledger_runtime', 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', 'affiliate_agent'),
   ('tenant_a_lottery_runtime', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'lottery');
 
-INSERT INTO public.ledger_accounts (tenant_id, account_id, account_code, currency_code, account_type) VALUES
-  ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', '11111111-1111-4111-8111-111111111101', 'A-USD-CASH', 'USD', 'asset'),
-  ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', '11111111-1111-4111-8111-111111111102', 'A-USD-CLEARING', 'USD', 'clearing'),
-  ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', '11111111-1111-4111-8111-111111111103', 'A-JPY-CASH', 'JPY', 'asset'),
-  ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', '11111111-1111-4111-8111-111111111104', 'A-JPY-CLEARING', 'JPY', 'clearing'),
-  ('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', '22222222-2222-4222-8222-222222222201', 'B-USD-CASH', 'USD', 'asset'),
-  ('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', '22222222-2222-4222-8222-222222222202', 'B-USD-CLEARING', 'USD', 'clearing'),
+INSERT INTO public.ledger_accounts (tenant_id, account_id, account_code, currency_code, account_type, product_id) VALUES
+  ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', '11111111-1111-4111-8111-111111111101', 'A-USD-CASH', 'USD', 'asset', 'affiliate_agent'),
+  ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', '11111111-1111-4111-8111-111111111102', 'A-USD-CLEARING', 'USD', 'clearing', 'affiliate_agent'),
+  ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', '11111111-1111-4111-8111-111111111103', 'A-JPY-CASH', 'JPY', 'asset', 'affiliate_agent'),
+  ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', '11111111-1111-4111-8111-111111111104', 'A-JPY-CLEARING', 'JPY', 'clearing', 'affiliate_agent'),
+  ('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', '22222222-2222-4222-8222-222222222201', 'B-USD-CASH', 'USD', 'asset', 'affiliate_agent'),
+  ('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', '22222222-2222-4222-8222-222222222202', 'B-USD-CLEARING', 'USD', 'clearing', 'affiliate_agent'),
   ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', '33333333-3333-4333-8333-333333333301', 'A-LOTTERY-USD-CASH', 'USD', 'asset', 'lottery'),
   ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', '33333333-3333-4333-8333-333333333302', 'A-LOTTERY-USD-CLEARING', 'USD', 'clearing', 'lottery');
