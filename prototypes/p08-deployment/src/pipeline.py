@@ -90,7 +90,7 @@ def verify_provenance(data: bytes, provenance: Mapping[str, Any], expected_diges
         metadata = read_release_metadata(data)
         with zipfile.ZipFile(__import__("io").BytesIO(data), "r") as archive:
             entrypoint_digest = digest_bytes(archive.read("__main__.py"))
-    except (zipfile.BadZipFile, KeyError):
+    except (zipfile.BadZipFile, KeyError, GateRejected):
         return False
     if not isinstance(subject, list) or not isinstance(predicate, dict) or not isinstance(build_definition, dict):
         return False
