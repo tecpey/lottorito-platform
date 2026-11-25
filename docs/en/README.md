@@ -82,7 +82,7 @@ LOT-FIN-POST-001 defines proposed financial posting and reconciliation controls;
 
 ## Automated documentation checks
 
-The structural validator at [scripts/check_docs.py](../../scripts/check_docs.py) checks paired Markdown paths, stable and unique document IDs, level-one titles, version/status metadata, and relative local links. GitHub Actions runs it through the [Documentation Governance workflow](../../.github/workflows/docs-governance.yml). These checks do not establish semantic translation parity; human review remains mandatory. Documentation Governance passed on the P-08 PR #59 head in run [45577208030](https://github.com/tecpey/lottorito-platform/actions/runs/45577208030); this is structural/link validation, not semantic translation certification.
+The structural validator at [scripts/check_docs.py](../../scripts/check_docs.py) checks paired Markdown paths, stable and unique document IDs, level-one titles, version/status metadata, and relative local links. GitHub Actions runs it through the [Documentation Governance workflow](../../.github/workflows/docs-governance.yml). These checks do not establish semantic translation parity; human review remains mandatory. Documentation Governance passed on the final P-08 PR #59 head `1046b525...` in run [45577321154](https://github.com/tecpey/lottorito-platform/actions/runs/45577321154); this is structural/link validation, not semantic translation certification.
 
 ## Evidence and status discipline
 
