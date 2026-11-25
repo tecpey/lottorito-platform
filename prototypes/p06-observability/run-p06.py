@@ -128,6 +128,11 @@ def main():
     canonical_identity = validate_event(canonical_event)["identity"]
     if canonical_identity != (TENANT_A, "product", "affiliate_agent", source_event_id):
         raise AssertionError("P-09 canonical event identity did not survive into P-06")
+    lottery_event = {**canonical_event, "id": "p06-lottery-" + source_event_id,
+                     "scope": {"kind": "product", "id": "lottery"}}
+    lottery_identity = validate_event(lottery_event)["identity"]
+    if lottery_identity != (TENANT_A, "product", "lottery", source_event_id):
+        raise AssertionError("P-09 did not preserve product-qualified source-event identity")
     span_records=[]
     for i,(service,name,outcome) in enumerate(stages):
         span_id=span_ids[i]; parent=span_ids[i-1] if i else None
