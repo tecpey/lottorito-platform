@@ -34,6 +34,8 @@ jobs:
         run: docker compose -f prototypes/p05-recovery/compose.yaml up -d --build --wait --wait-timeout 90
       - name: Run backup verification, PITR and integrity assertions
         run: docker compose -f prototypes/p05-recovery/compose.yaml exec -T postgres bash /workspace/scripts/run-p05.sh
+      - name: Run P-09E physical restore and replay against the exact P-02/P-03D schema and records
+        run: docker compose -f prototypes/p05-recovery/compose.yaml exec -T postgres bash /workspace/p09e/run-p09e.sh
       - name: Run P-05B object, key and event recovery assertions
         run: docker compose -f prototypes/p05-recovery/compose.yaml exec -T postgres bash /workspace/p05b/run-p05b.sh
       - name: Run P-05A missing-WAL and incomplete-restore negative drills
