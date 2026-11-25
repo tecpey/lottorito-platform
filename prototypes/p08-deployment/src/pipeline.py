@@ -59,7 +59,12 @@ def read_release_metadata(data: bytes) -> dict[str, Any]:
         raise GateRejected("artifact_product_invalid")
     if not isinstance(metadata.get("version"), str):
         raise GateRejected("artifact_version_missing")
-    if not isinstance(metadata.get("min_schema"), int) or not isinstance(metadata.get("max_schema"), int):
+    if (
+        isinstance(metadata.get("min_schema"), bool)
+        or not isinstance(metadata.get("min_schema"), int)
+        or isinstance(metadata.get("max_schema"), bool)
+        or not isinstance(metadata.get("max_schema"), int)
+    ):
         raise GateRejected("artifact_schema_support_invalid")
     if metadata["min_schema"] < 1 or metadata["max_schema"] < metadata["min_schema"]:
         raise GateRejected("artifact_schema_range_invalid")
@@ -86,6 +91,10 @@ def verify_provenance(data: bytes, provenance: Mapping[str, Any], expected_diges
             entrypoint_digest = digest_bytes(archive.read("__main__.py"))
     except (zipfile.BadZipFile, KeyError):
         return False
+    if not isinstance(subject, list) or not isinstance(predicate, dict) or not isinstance(build_definition, dict):
+        return False
+    if not isinstance(run_details, dict):
+        return False
     return (
         provenance.get("_type") == "https://in-toto.io/Statement/v1"
         and provenance.get("predicateType") == "https://slsa.dev/provenance/v1"
@@ -110,7 +119,7 @@ def run_artifact(artifact_path: Path, secret: RuntimeSecret | None = None) -> st
     # Pass an allowlisted environment only; never inherit ambient CI/host secrets.
     env: dict[str, str] = {}
     if secret is not None:
-        if not secret.reference.startswith("secret://") or not secret.value:
+        if not isinstance(secret.reference, str) or not secret.reference.startswith("secret://") or not isinstance(secret.value, str) or not secret.value:
             raise GateRejected("runtime_secret_reference_invalid")
         env[SECRET_ENV] = secret.value
     result = subprocess.run(
@@ -138,19 +147,19 @@ class HealthSnapshot:
     @property
     def liveness_ok(self) -> bool:
         # Downstream dependency outages must not trigger restart loops.
-        return self.process_alive
+        return self.process_alive is True
 
     @property
     def readiness_ok(self) -> bool:
         return (
-            self.startup_complete
-            and self.process_alive
-            and all(self.critical_dependencies.values())
+            self.startup_complete is True
+            and self.process_alive is True
+            and all(value is True for value in self.critical_dependencies.values())
         )
 
     @property
     def worker_readiness_ok(self) -> bool:
-        return self.readiness_ok and self.worker_ready
+        return self.readiness_ok and self.worker_ready is True
 
 
 @dataclass(frozen=True)
@@ -212,7 +221,7 @@ class DeploymentController:
               actor: str, api_health: HealthSnapshot) -> dict[str, Any]:
         if state.environment not in ALLOWED_ENVIRONMENTS:
             raise GateRejected("environment_not_allowed")
-        if not approval.valid or approval.environment != state.environment:
+        if approval.valid is not True or approval.environment != state.environment:
             raise GateRejected("approval_invalid_or_wrong_environment")
         if approval.artifact_digest != digest:
             raise GateRejected("approval_digest_mismatch")
@@ -262,11 +271,13 @@ class DeploymentController:
     def rollback(self, state: DeploymentState, target_digest: str, expected_current_digest: str,
                  actor: str, approval: Approval, api_health: HealthSnapshot,
                  worker_health: HealthSnapshot) -> dict[str, Any]:
-        if state.current_digest != expected_current_digest:
-            raise DeploymentConflict("stale_current_release")
         if state.environment not in ALLOWED_ENVIRONMENTS:
             raise GateRejected("environment_not_allowed")
-        if not approval.valid or approval.environment != state.environment or approval.artifact_digest != target_digest:
+        if state.current_digest != expected_current_digest:
+            raise DeploymentConflict("stale_current_release")
+        if state.api_digest != state.current_digest or state.worker_digest != state.current_digest:
+            raise DeploymentConflict("active_component_release_drift")
+        if approval.valid is not True or approval.environment != state.environment or approval.artifact_digest != target_digest:
             raise GateRejected("approval_invalid_or_wrong_environment")
         if approval.role != "release_approver" or approval.approved_by in {approval.requested_by, actor}:
             raise GateRejected("separation_of_duties_violation")
@@ -303,9 +314,11 @@ class DeploymentController:
                                confirmation: str, actor: str, approval: Approval) -> None:
         if state.environment not in ALLOWED_ENVIRONMENTS:
             raise GateRejected("environment_not_allowed")
+        if state.api_digest != state.current_digest or state.worker_digest != state.current_digest:
+            raise DeploymentConflict("active_component_release_drift")
         if confirmation != RETIRE_CONFIRMATION:
             raise GateRejected("explicit_retirement_confirmation_required")
-        if not approval.valid or approval.environment != state.environment or approval.artifact_digest != state.current_digest:
+        if approval.valid is not True or approval.environment != state.environment or approval.artifact_digest != state.current_digest:
             raise GateRejected("approval_invalid_or_wrong_environment")
         if approval.role != "release_approver" or approval.approved_by in {approval.requested_by, actor}:
             raise GateRejected("separation_of_duties_violation")
@@ -313,6 +326,9 @@ class DeploymentController:
             raise GateRejected("no_rollback_target")
         if target_schema_version != state.schema_version + 1:
             raise GateRejected("rollback_retirement_target_schema_invalid")
+        active = self._metadata(state.current_digest)
+        if not (active["min_schema"] <= target_schema_version <= active["max_schema"]):
+            raise GateRejected("active_release_cannot_read_target_schema")
         previous = self._metadata(state.previous_digest)
         if previous["min_schema"] <= target_schema_version <= previous["max_schema"]:
             raise GateRejected("rollback_target_still_compatible")
@@ -329,10 +345,14 @@ class DeploymentController:
             "financial_state_digest": state.financial_state_digest,
         })
 
-    def migrate_schema(self, state: DeploymentState, target_version: int, phase: str) -> None:
+    def migrate_schema(self, state: DeploymentState, target_version: int, phase: str, actor: str) -> None:
         if phase not in {"expand", "contract"} or target_version != state.schema_version + 1:
             raise GateRejected("migration_transition_invalid")
+        if state.api_digest != state.current_digest or state.worker_digest != state.current_digest:
+            raise DeploymentConflict("active_component_release_drift")
         active = self._metadata(state.current_digest)
+        if not (active["min_schema"] <= state.schema_version <= active["max_schema"]):
+            raise GateRejected("active_release_current_schema_incompatible")
         if not (active["min_schema"] <= target_version <= active["max_schema"]):
             raise GateRejected("active_release_cannot_read_target_schema")
         if state.previous_digest is not None:
@@ -340,3 +360,4 @@ class DeploymentController:
             if not (previous["min_schema"] <= target_version <= previous["max_schema"]):
                 raise GateRejected("rollback_target_incompatible")
         state.schema_version = target_version
+        state.audit.append(self._audit(actor, state, state.current_digest, f"schema.{phase}", "accepted"))
