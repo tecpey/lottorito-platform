@@ -127,3 +127,12 @@ Workflow یکپارچه‌سازی P-03C/P-03D با شناسه [45637659485](htt
 مستندات PostgreSQL، `FOR UPDATE SKIP LOCKED` را برای مصرف‌کننده‌های Queue مناسب می‌دانند، اما هشدار می‌دهند که نمای ناسازگار ایجاد می‌کند و برای Read عمومی مناسب نیست ([قفل‌گذاری SELECT](https://www.postgresql.org/docs/18/sql-select.html)، [قفل‌های سطح ردیف](https://www.postgresql.org/docs/18/explicit-locking.html)). Lease Token یک شرط Fencing در سطح Application است و جایگزین Row Lock نیست.
 
 این نتیجه فقط نخستین Slice هم‌زمانی/جداسازی Scope در P-09F را می‌بندد. P-03D معنای Aggregate Sequence ندارد؛ اجرای مستقیم Node Worker روی Cluster بازیابی‌شده P-09E و Interleavingهای گسترده‌تر Failure همچنان باز هستند.
+
+
+### اصلاح انطباق Validator در P-09A — ۲۰۲۶-۱۱-۲۵
+
+در بازبینی مستقل Contract در برابر Validator مشخص شد که فایل `contract.json` وجود `traceparent` را اجباری تعریف کرده، اما تابع `validate_event()` حضور آن را کنترل نمی‌کرد. اکنون Validator این فیلد را الزامی می‌کند و ساختار نسخه ۰۰ استاندارد W3C Trace Context، حروف هگزادسیمال کوچک و غیرصفر بودن trace-id و parent-id را اعتبارسنجی می‌کند. Trace ID معتبر نیز در خروجی Event برگردانده می‌شود تا برای Correlation بعدی قابل استفاده باشد. شناسه Trace مستقل در Correlation نیز مقدار تماماً صفر را رد می‌کند.
+
+پوشش Regression اکنون شامل traceparent مفقود، مقادیر دارای ساختار یا نسخه نامعتبر، trace-id/parent-id صفر و شناسه Correlation تماماً صفر است. انتظار می‌رود مجموعه تست P-09A شامل ۱۵ تست باشد؛ پذیرش نهایی منوط به موفقیت CI روی Head دقیق جدید PR است. این اصلاح هنوز اعتبارسنجی معنایی Timestamp با RFC 3339 یا URI-reference را اضافه نمی‌کند و Validator را به P-02 تا P-08 متصل نمی‌سازد.
+
+مبنای تحقیق: [توصیه‌نامه W3C Trace Context](https://www.w3.org/TR/trace-context/) (ساختار traceparent نسخه ۰۰ و شناسه‌های صفر نامعتبر)؛ [مشخصات اصلی CloudEvents](https://github.com/cloudevents/spec/blob/main/cloudevents/spec.md) (ویژگی‌های اصلی اجباری و مدل Extension Attribute).
