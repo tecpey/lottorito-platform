@@ -49,6 +49,7 @@ def recover(folder,key_folder,out):
     dek=AESGCM(kek).decrypt(wrap_nonce,wrapped_dek,f"{TENANT}|{KEY_ID}|{OBJECT}".encode())
     plain=AESGCM(dek).decrypt(base64.b64decode(m["payload_nonce"],validate=True),(folder/"payload.aesgcm").read_bytes(),f"{TENANT}|{OBJECT}|v1".encode())
     digest=hashlib.sha256(plain).hexdigest()
+    if len(plain)!=m["plaintext_size"]: fail("plaintext size mismatch")
     if digest!=m["plaintext_sha256"]: fail("plaintext checksum mismatch")
     out.write_bytes(plain)
     return plain,m
