@@ -86,7 +86,8 @@
   ],
   "event_type_policies": {
     "financial_product_only": [
-      "ledger.journal.posted"
+      "ledger.journal.posted",
+      "com.synthetic.settlement.posted.v1"
     ]
   }
 }
