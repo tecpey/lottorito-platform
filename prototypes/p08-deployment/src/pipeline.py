@@ -293,18 +293,34 @@ class DeploymentController:
             "financial_state_digest": state.financial_state_digest,
         }
 
-    @staticmethod
-    def retire_rollback_target(state: DeploymentState, confirmation: str, actor: str) -> None:
+    def retire_rollback_target(self, state: DeploymentState, target_schema_version: int,
+                               confirmation: str, actor: str, approval: Approval) -> None:
+        if state.environment not in ALLOWED_ENVIRONMENTS:
+            raise GateRejected("environment_not_allowed")
         if confirmation != RETIRE_CONFIRMATION:
             raise GateRejected("explicit_retirement_confirmation_required")
+        if not approval.valid or approval.environment != state.environment or approval.artifact_digest != state.current_digest:
+            raise GateRejected("approval_invalid_or_wrong_environment")
+        if approval.role != "release_approver" or approval.approved_by in {approval.requested_by, actor}:
+            raise GateRejected("separation_of_duties_violation")
+        if state.previous_digest is None:
+            raise GateRejected("no_rollback_target")
+        if target_schema_version != state.schema_version + 1:
+            raise GateRejected("rollback_retirement_target_schema_invalid")
+        previous = self._metadata(state.previous_digest)
+        if previous["min_schema"] <= target_schema_version <= previous["max_schema"]:
+            raise GateRejected("rollback_target_still_compatible")
+        retired_digest = state.previous_digest
         state.previous_digest = None
         state.audit.append({
             "actor": actor,
             "environment": state.environment,
             "artifact_digest": state.current_digest,
+            "retired_artifact_digest": retired_digest,
             "action": "rollback_target.retired",
             "outcome": "accepted",
             "schema_version": state.schema_version,
+            "financial_state_digest": state.financial_state_digest,
         })
 
     def migrate_schema(self, state: DeploymentState, target_version: int, phase: str) -> None:
