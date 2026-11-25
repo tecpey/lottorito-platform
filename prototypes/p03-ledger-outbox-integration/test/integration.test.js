@@ -286,13 +286,35 @@ test("invalid claim and consumer parameters fail closed", async () => {
   );
 });
 
-test("the ledger outbox delivery trigger fails closed if tenant context is absent", async () => {
-  const input = request("p03c-unmapped-post-001");
-  await assert.rejects(
-    adminPool.query(
-      "SELECT * FROM public.post_journal($1,$2,$3,$4::jsonb)",
-      [input.idempotency_key, input.effect_id, input.source_event_id, JSON.stringify(input.lines)]
-    ),
-    (error) => error.code === "42501"
+test("the ledger outbox delivery trigger rejects an unscoped source insert", async () => {
+  const client = await adminPool.connect();
+  const effectId = randomUUID();
+  const journalId = randomUUID();
+  const eventId = randomUUID();
+  try {
+    await client.query("BEGIN");
+    await client.query(
+      "INSERT INTO public.financial_effects(tenant_id,effect_id,request_fingerprint,journal_id) VALUES($1,$2,$3::jsonb,$4)",
+      [TENANT_A, effectId, JSON.stringify({ effect_id: effectId, synthetic: true }), journalId]
+    );
+    await client.query(
+      "INSERT INTO public.ledger_journals(tenant_id,journal_id,source_event_id,status) VALUES($1,$2,$3,'posted')",
+      [TENANT_A, journalId, randomUUID()]
+    );
+    await assert.rejects(
+      client.query(
+        "INSERT INTO public.ledger_outbox(tenant_id,event_id,journal_id,event_type,payload) VALUES($1,$2,$3,'ledger.journal.posted',$4::jsonb)",
+        [TENANT_A, eventId, journalId, JSON.stringify({ journal_id: journalId })]
+      ),
+      (error) => error.code === "42501" && error.message.includes("tenant context mismatch")
+    );
+  } finally {
+    await client.query("ROLLBACK");
+    client.release();
+  }
+  const counts = await adminPool.query(
+    "SELECT (SELECT count(*)::int FROM public.ledger_outbox WHERE tenant_id=$1 AND event_id=$2) AS events,(SELECT count(*)::int FROM public.outbox_delivery_state WHERE tenant_id=$1 AND event_id=$2) AS delivery_rows",
+    [TENANT_A, eventId]
   );
+  assert.deepEqual(counts.rows[0], { events: 0, delivery_rows: 0 });
 });
