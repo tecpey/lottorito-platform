@@ -134,3 +134,8 @@ P-05A روی PR تطبیق‌یافته شماره ۶۲ در P-04 بازپخش �
 ## نتیجه Regression تطبیق‌یافته P-05A — ۲۰۲۶-۱۱-۲۵
 
 Regression ترکیبی P-03C/P-03D روی Head کد جایگزین P-05A با SHA 76650b0c799e2f2a5b2f3ae4831bb55d3a3811a6 موفق شد: [اجرای 45609220468](https://github.com/tecpey/lottorito-platform/actions/runs/45609220468)، P-03C برابر ۱۵/۱۵ و P-03D برابر ۱۹/۱۹؛ صفر شکست و صفر Skip. P-05A جایگزین یا تغییردهنده یکپارچه‌سازی Provider-to-Ledger نیست.
+
+
+## دروازه Regression پایین‌دستی P-05B — ۲۰۲۶-۱۱-۲۵
+
+Replay رویداد در P-05B یک Projection ساختگی برای بازیابی است، نه جایگزین Provider Inbox در P-03D یا وضعیت Delivery در P-03C. مجموعه ۳۴ تست P-03C/P-03D باید روی Head جایگزین P-05B دوباره اجرا شود تا پل Provider-to-Ledger و جداسازی Tenant/Product حفظ شوند.
