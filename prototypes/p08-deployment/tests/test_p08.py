@@ -16,7 +16,7 @@ from pipeline import (
     Approval, DeploymentConflict, DeploymentController, DeploymentState,
     GateRejected, HealthSnapshot, ImmutableArtifactStore, RuntimeSecret,
     run_artifact,
-    verify_artifact_bytes, verify_provenance,
+    verify_artifact_bytes, verify_provenance, read_release_metadata,
 )
 
 SOURCE = "a" * 40
@@ -35,8 +35,8 @@ class ArtifactBuildTests(unittest.TestCase):
     def tearDown(self):
         self.temp.cleanup()
 
-    def build_fixture(self, version: str, folder: str):
-        return build(version, self.root / folder, SOURCE)
+    def build_fixture(self, version: str, folder: str, product_id: str = "affiliate_agent"):
+        return build(version, self.root / folder, SOURCE, product_id)
 
     def test_build_is_deterministic_for_same_inputs(self):
         first, _, first_digest = self.build_fixture("v1", "one")
@@ -59,6 +59,25 @@ class ArtifactBuildTests(unittest.TestCase):
     def test_build_rejects_invalid_source_revision(self):
         with self.assertRaises(ValueError):
             build("v1", self.root / "bad", "not-a-commit")
+
+    def test_build_rejects_unknown_product(self):
+        with self.assertRaisesRegex(ValueError, "unknown_product_id"):
+            build("v1", self.root / "unknown-product", SOURCE, "sportsbook")
+
+    def test_lottery_artifact_and_provenance_are_product_bound(self):
+        affiliate, affiliate_provenance_path, affiliate_digest = self.build_fixture("v1", "affiliate")
+        lottery, lottery_provenance_path, lottery_digest = self.build_fixture("v1", "lottery", "lottery")
+        self.assertEqual(affiliate.name, "affiliate-agent-v1.pyz")
+        self.assertEqual(lottery.name, "lottery-v1.pyz")
+        self.assertNotEqual(affiliate_digest, lottery_digest)
+        self.assertEqual(read_release_metadata(affiliate.read_bytes())["product"], "affiliate_agent")
+        self.assertEqual(read_release_metadata(lottery.read_bytes())["product"], "lottery")
+        lottery_provenance = json.loads(lottery_provenance_path.read_text())
+        self.assertEqual(lottery_provenance["predicate"]["buildDefinition"]["externalParameters"]["product"], "lottery")
+        self.assertTrue(verify_provenance(lottery.read_bytes(), lottery_provenance, f"sha256:{lottery_digest}", SOURCE, "lottery"))
+        self.assertFalse(verify_provenance(lottery.read_bytes(), lottery_provenance, f"sha256:{lottery_digest}", SOURCE, "affiliate_agent"))
+        self.assertIn('"product": "lottery"', run_artifact(lottery))
+
 
     def test_artifact_digest_detects_tampering(self):
         artifact, _, digest = self.build_fixture("v1", "one")
