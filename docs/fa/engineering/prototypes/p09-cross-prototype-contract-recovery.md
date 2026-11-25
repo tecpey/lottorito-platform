@@ -160,3 +160,8 @@ Workflow یکپارچه‌سازی P-03C/P-03D با شناسه [45637659485](htt
 
 
 پیاده‌سازی Node.js قرارداد اکنون یک مجموعه تست مستقیم و مستقل در Runner تست P-03D دارد که Envelope معتبر، تاریخ‌های RFC 3339 خراب، خطاهای URI-reference، شناسه‌های صفر Trace، UUID غیرCanonical، نسخه‌های Schema خارج از محدوده امن و رد Scope پلتفرم برای رویداد مالی را پوشش می‌دهد. این مجموعه مکمل تست‌های واحد Python در P-09 و تست‌های End-to-End مربوط به Ingress امضاشده است، نه جایگزین آن‌ها.
+
+
+### P-09I — هویت Observability و Release Provenance (۲۰۲۶-۱۱-۲۵)
+
+فهرست قراردادها با Schemaهای واقعی P-06 و P-07B تطبیق داده شد: P-06 از قبل Tenant، Scope Kind، Scope ID و Source Event Identity را در کلید ترکیبی Correlation نگه می‌دارد؛ P-07B نیز از قبل Source Event Identity و Trace Context را enforce می‌کند. ادعاهای قدیمی و نادرست فهرست حذف شدند و اتصال اجرایی افزوده شد. P-06 Validator مربوط به P-09 را Import می‌کند و هویت Correlation را از CloudEvent اعتبارسنجی‌شده استخراج می‌کند؛ P-08 نیز Registry محصولات P-09 را وارد کرده و Product Scope استاندارد را هم در Metadata مربوط به Artifact و هم در Detached Provenance ثبت می‌کند. Gate مربوط به P-08 جایگزینی Product/Scope را رد می‌کند. پذیرش این مرحله به ماتریس کامل CI روی Head نهایی P-09I وابسته است.
