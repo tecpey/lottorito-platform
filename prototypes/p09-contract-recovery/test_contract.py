@@ -10,6 +10,7 @@ EVENT = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb"
 EFFECT = "cccccccc-cccc-4ccc-8ccc-cccccccccccc"
 JOURNAL = "dddddddd-dddd-4ddd-8ddd-dddddddddddd"
 TRACE = "0123456789abcdef0123456789abcdef"
+TRACEPARENT = "00-" + TRACE + "-0123456789abcdef-01"
 
 
 def event(scope, source_event_id=EVENT):
@@ -18,7 +19,7 @@ def event(scope, source_event_id=EVENT):
         "source": "urn:lottorito:synthetic:provider", "type": "ledger.journal.posted",
         "time": "2026-11-25T00:00:00Z", "dataschema": "urn:lottorito:event:ledger-posted:1",
         "tenantid": TENANT, "scope": scope, "sourceeventid": source_event_id,
-        "schemaversion": 1,
+        "schemaversion": 1, "traceparent": TRACEPARENT,
     }
 
 
@@ -81,10 +82,34 @@ class ScopeContractTests(unittest.TestCase):
         valid = validate_event(event({"kind": "product", "id": "lottery"}))
         self.assertEqual(valid["identity"], (TENANT, "product", "lottery", EVENT))
         self.assertEqual(valid["schema_version"], 1)
+        self.assertEqual(valid["trace_id"], TRACE)
         missing = event({"kind": "product", "id": "lottery"})
         del missing["scope"]
         with self.assertRaisesRegex(ContractViolation, "event_required_attribute_missing"):
             validate_event(missing)
+        missing_trace = event({"kind": "product", "id": "lottery"})
+        del missing_trace["traceparent"]
+        with self.assertRaisesRegex(ContractViolation, "event_required_attribute_missing"):
+            validate_event(missing_trace)
+
+    def test_event_rejects_malformed_or_invalid_w3c_traceparent(self):
+        invalid_values = (
+            "00-" + "0" * 32 + "-0123456789abcdef-01",
+            "00-" + TRACE + "-" + "0" * 16 + "-01",
+            "00-" + TRACE.upper() + "-0123456789abcdef-01",
+            "ff-" + TRACE + "-0123456789abcdef-01",
+            "00-" + TRACE + "-0123456789abcdef-0g",
+            "00-" + TRACE + "-0123456789abcde-01",
+        )
+        for value in invalid_values:
+            candidate = event({"kind": "product", "id": "lottery"})
+            candidate["traceparent"] = value
+            with self.subTest(value=value), self.assertRaisesRegex(ContractViolation, "traceparent_invalid"):
+                validate_event(candidate)
+
+    def test_correlation_rejects_all_zero_trace_id(self):
+        with self.assertRaisesRegex(ContractViolation, "trace_id_invalid"):
+            correlation_identity(TENANT, {"kind": "product", "id": "lottery"}, EVENT, "0" * 32)
 
     def test_event_rejects_non_integer_or_boolean_schema_version(self):
         for value in (0, -1, True, "1"):
