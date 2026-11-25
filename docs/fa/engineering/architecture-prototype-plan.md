@@ -381,3 +381,7 @@ Prototype فقط زمانی **Pass** است که تمام معیارهای اج�
 ### به‌روزرسانی اجرای P-09B (۲۰۲۶-۱۱-۲۵)
 
 Correlation Map، Grant دسترسی Forensic و View مربوط به P-06 اکنون به Tenant + Scope Kind + Scope ID + Source Event ID + Trace ID مقیدند. Regression ساختگی یک Source UUID و Trace ID یکسان را برای Affiliate و Lottery در یک Tenant تکرار می‌کند و جداسازی متقابل دسترسی Forensic را اثبات می‌کند. CI مربوط به P-06 با شناسه [45628562800](https://github.com/tecpey/lottorito-platform/actions/runs/45628562800) روی Head شاخه `109530985a00bd158866e45a8c11e3bb5f520f53` موفق شد. این فقط Slice مربوط به P-06 در P-09B را می‌بندد؛ P-05B/P-07B/P-08 همچنان باز هستند.
+
+## P-09C — Artifact و Provenance استقرار محصول‌محور (۲۰۲۶-۱۱-۲۵)
+
+مسیر Build ساختگی P-08 دیگر فقط به Affiliate محدود نیست. Product ورودی صریح و Allow-listشده است؛ Product انتخاب‌شده در بایت‌های Artifact، Release Metadata، External Parameterهای Provenance و کنترل‌های چرخه عمر Deployment مقید می‌شود. CI با شناسه [45629980686](https://github.com/tecpey/lottorito-platform/actions/runs/45629980686) با ۵۳ تست از ۵۳ تست موفق شد؛ شامل Buildهای مقید به Product و رد Promotion/Rollback بین دو Product. P-09C فقط Slice مربوط به P-08 را می‌بندد. Recovery در P-05B و نگاشت Canonical Event در P-07B همچنان باقی است.
