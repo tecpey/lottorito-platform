@@ -71,3 +71,8 @@ All data and credentials are synthetic. P-02 run [45465421133](https://github.co
 - [AWS Prescriptive Guidance — Transactional outbox](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html): atomically persist business state and outbox events; consumers must tolerate duplicate delivery.
 - [AWS Well-Architected — Make mutating operations idempotent](https://docs.aws.amazon.com/wellarchitected/latest/framework/rel04-bp04.html): stable idempotency tokens, atomic state tracking, retries and duplicate event handling.
 - [Microsoft Architecture Center — Idempotent consumer](https://learn.microsoft.com/azure/architecture/patterns/idempotent-consumer): use a stable business-operation identity, not a broad correlation ID, to deduplicate redelivered events.
+
+
+## Downstream P-04 stack regression — 2026-11-25
+
+P-04 is being carried onto a clean branch based on the verified synthetic P-03D head so that P-04–P-08 do not silently omit the P-03C/P-03D ledger/outbox bridge. P-04's own schema-evolution fixture is independent and does not mutate this P-02 schema. The P-02 integration workflow is intentionally re-run as a regression gate on the new P-04 stack head; this does not change the P-02 acceptance scope or approve production accounting.
