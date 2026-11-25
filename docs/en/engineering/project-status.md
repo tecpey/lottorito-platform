@@ -1,8 +1,21 @@
 # Verified Project Status and Continuation Point
 
-**Document ID:** LOT-OPS-001 | **Version:** 1.30.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-24
+**Document ID:** LOT-OPS-001 | **Version:** 1.31.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-24
 
 ## Verified repository state
+
+## Latest continuation update — 2026-11-25 (P-05A negative recovery + P-05B)
+
+- P-05B remains Draft PR #53, open and unmerged, stacked on P-05A PR #52; P-05A remains Draft/open/unmerged on P-04 PR #51. The validated branch head for the combined executable tests is 0a6b8f992161cd9f9d760698b1c9d0c8e30867a9. Re-fetch PR metadata for the post-documentation current head before relying on it.
+- Combined P-05A/P-05B Integration [run 45532382323](https://github.com/tecpey/lottorito-platform/actions/runs/45532382323), branch-push Integration [run 45532372804](https://github.com/tecpey/lottorito-platform/actions/runs/45532372804), and Documentation Governance [run 45532382310](https://github.com/tecpey/lottorito-platform/actions/runs/45532382310) passed on the validated head.
+- P-05A positive PITR, PostgreSQL 18.7 base-backup manifest verification/tamper rejection, named restore point, pre/post-target assertions, tenant RLS and synthetic ledger/source reconciliation passed.
+- P-05A negative drills passed: an incomplete restore staging directory was rejected by pg_verifybackup and PostgreSQL startup; the exact target WAL segment was removed from isolated archive and base-backup copies, and the recovery server did not become ready at the requested target. The absent segment was found in the recovery log. This is a synthetic incomplete-staging/missing-WAL drill, not a live production restore interruption.
+- P-05B recovered a 4,409-byte synthetic object and matched SHA-256 2db4a9b021abba0ce01480ceda665284f023310ce909c0b0b9bcb084f771eaca to the restored PostgreSQL reference. Missing key, corrupted ciphertext and corrupted wrapped DEK failed closed. Ordered replay, duplicate collapse, sequence-gap blocking, atomic rollback/retry, exactly two balanced effects, no-op replay, source-to-ledger reconciliation and tenant isolation passed.
+- Still unproven: production KMS/HSM and key custody/rotation, external object-store/broker/provider recovery, immutable/off-site retention, regional recovery, high-concurrency behavior, RPO/RTO, and P-05C failover/writer fencing/failback. RPO/RTO remain TBD; no production data, live secrets, real funds, merge or deployment was used.
+- Next proposed experiment: P-05C, with explicit writer-epoch fencing, lease expiry, stale-writer rejection, split-brain fault injection, controlled promotion and failback. It must remain synthetic and must not define production RPO/RTO or vendor choices without owner/domain approval.
+- This update supersedes earlier P-04/P-05 continuation statements below where they conflict; older entries remain historical snapshots. Do not merge or deploy without explicit owner approval.
+
+
 
 ## Continuation update — 2026-11-25
 
