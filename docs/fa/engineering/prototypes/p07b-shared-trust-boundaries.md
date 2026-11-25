@@ -113,3 +113,8 @@ python3 -m unittest discover -s prototypes/p07-shared-trust-boundaries/tests -v
 ## الحاقیه P-09D — هویت Canonical رویداد و Trace Context (۲۰۲۶-۱۱-۲۵)
 
 P-07B اکنون Envelope محصول‌محور هم‌راستا با ADR-009 را الزامی می‌کند: هویت Canonical و UUID برای Tenant، `scope={kind: product, id: source_product}` صریح، UUID استاندارد `sourceeventid`، `schemaversion` عدد صحیح مثبت و W3C Trace Context با فیلد `traceparent`. Registry قرارداد، Source Scope، Schema Version و فیلدهای ضروری Envelope را مقید می‌کند. خروجی Dispatch، Tuple استاندارد Source Event و Trace ID را برای نگاشت به Correlation در P-06 ارائه می‌دهد. Fixtureهای Tenant ساختگی از Label به UUID تبدیل شدند تا نوع هویت Tenant در P-02/P-03D/P-06/P-07B یکسان باشد. CI مربوط به P-07B با شناسه [45631269584](https://github.com/tecpey/lottorito-platform/actions/runs/45631269584) با **۴۲ تست از ۴۲ تست** موفق شد. رویدادهای فعلی P-07B که از Product تولید می‌شوند، فعلاً فقط Product Scope می‌پذیرند؛ رویدادهای Platform-originated توسعه‌ای مستقل با حاکمیت جداگانه خواهند بود.
+
+
+### P-09H — اعمال قرارداد مشترک (۲۰۲۶-۱۱-۲۵)
+
+Dispatch رویداد در P-07B اکنون پس از احراز هویت Principal و بررسی Tenant/Product Scope و کنترل‌های دقیق Deny موجود، Validator استاندارد Python در P-09 را اجرا می‌کند. به این ترتیب، Reasonهای قبلی P-07B برای موارد Authorization موجود حفظ می‌شوند و در عین حال دروازه مشترک انطباق CloudEvents، URI-reference و RFC 3339 نیز افزوده می‌شود. Fixture رویداد ساختگی اکنون ویژگی الزامی `time` را دارد. سیاست Runtime همچنان صرفاً Prototype است.
