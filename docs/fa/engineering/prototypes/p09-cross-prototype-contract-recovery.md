@@ -1,0 +1,86 @@
+# P-09 — یکپارچه‌سازی قرارداد و بازیابی بین Prototypeها
+
+**وضعیت:** خط مبنای قرارداد پیشنهادی؛ پیاده‌سازی کامل و تصویب مالک همچنان باز است.  
+**مبنای بررسی:** شاخه `integration/p03d-p04-p08-candidate` با Head برابر `c7f9ffa1f499fbd34d260b2aa6d3122d32e1ac7f`.  
+**شاخه اجرا:** `spike/p09-cross-prototype-contract-recovery`.  
+**ایمنی:** فقط Fixture ساختگی؛ بدون Merge، تغییر Main، اتصال Production، Migration مخرب یا Deploy.
+
+## ۱. مسئله
+
+P-02/P-03D برای هویت مالی و Provider از محدوده Tenant/Product استفاده می‌کنند، اما کلیدهای Replay در P-05B و Ledger ساده‌شده آن، بعد Product را ندارند. کلید Correlation در P-06 فقط Tenant/Source Event است و مقدار `platform` را کنار نام محصولات قرار می‌دهد. P-07B قرارداد Producer/Consumer را مجازسنجی می‌کند، اما هویت Source Event در P-03D و Trace Context در P-06 را حمل نمی‌کند. نام Artifact، Metadata و بررسی Provenance در P-08 نیز به Affiliate & Agent محدود و Hard-code شده است.
+
+موفقیت Workflowهای جداگانه روی یک Commit مشترک فقط اجرای همان مجموعه تست‌های تعریف‌شده را اثبات می‌کند؛ اثبات‌کننده هویت Canonical، مسیر Recovery مشترک یا Pipeline مستقل از محصول نیست.
+
+## ۲. ADR-009 — تفکیک Product Scope از Platform Scope
+
+### تصمیم پیشنهادی
+
+۱. شناسه‌های Canonical محصولات فعلی دقیقاً `affiliate_agent` و `lottery` هستند.  
+۲. مقدار `shared` محصول نیست؛ یک مقدار Legacy/مبهم است و نباید بی‌صدا به شناسه دیگری ترجمه شود.  
+۳. `platform` نوع Scope است، نه شناسه محصول. شناسه پایدار آن `lottorito` است.  
+۴. هر Event باید Scope تفکیک‌شده و صریح داشته باشد:
+   - محصول: `{ "kind": "product", "id": "affiliate_agent" | "lottery" }`
+   - پلتفرم: `{ "kind": "platform", "id": "lottorito" }`
+۵. Economic Effect و Journal فقط به یک Product تعلق دارند. Event با Scope پلتفرم نمی‌تواند Journal مالی ثبت کند.  
+۶. هویت Source Event در محدوده Tenant برابر Tuple زیر است: `(tenant_id, scope_kind, scope_id, source_event_id)`. UUID به‌تنهایی هویت سراسری و یکتا نیست.  
+۷. هویت Economic Effect و Journal به‌ترتیب `(tenant_id, product_id, economic_effect_id)` و `(tenant_id, product_id, journal_id)` است.  
+۸. هویت Correlation شامل `(tenant_id, scope_kind, scope_id, source_event_id, trace_id)` است. Trace ID استاندارد W3C کار توزیع‌شده را هم‌بسته می‌کند؛ جایگزین هویت تجاری یا مجوزدهی نیست.
+
+### منطق تصمیم
+
+Affiliate & Agent و Lottery باید مستقل قابل‌استفاده باشند. قابلیت‌های Platform زیرساخت مشترک با مالکیت صریح‌اند، نه محصول سوم مشتری‌محور. یکی‌گرفتن `shared`، `platform` و Product باعث ابهام در یکتایی، مجوزدهی، Telemetry و Provenance Artifact می‌شود. Scope صریح مانع برخورد UUID یکسان در دو محصول و Correlation ناخواسته بین آن‌هاست.
+
+### گزینه‌های بررسی‌شده
+
+- **تعریف `shared` به‌عنوان Product:** رد؛ مالکیت زیرساخت را با مرز محصول اشتباه می‌گیرد.
+- **تعریف `platform` به‌عنوان Alias برای `shared`:** رد؛ داده تاریخی ناسازگار را پنهان می‌کند و مسئله هویت را حل نمی‌کند.
+- **کلید UUID صرفاً در سطح Tenant:** رد؛ Source ID ممکن است در یک Tenant بین چند محصول تکرار شود.
+- **استنتاج Product از Payload یا Consumer:** رد؛ هویت باید از Context مورد اعتماد Producer/Installation و Contract معتبر حاصل شود.
+
+### سازگاری و مهاجرت
+
+Schemaهای فعلی P-02/P-03D آزمایش هستند، نه مقصد Migration Production. در P-02 هنوز مقدار Legacy `shared` مجاز است و چند Primary/Unique Key فقط Tenant را پوشش می‌دهند؛ P-03D در کلید Inbox مربوط به Provider صریح‌تر است. در این Slice نخست P-09 هیچ تغییر مخرب Schema انجام نمی‌شود.
+
+پیش از Migration باید تمام ردیف‌ها و Producerهای موجود Inventory شوند. Product Scope باید از Database Role/Installation مورد اعتماد استخراج و با Source Record تطبیق داده شود. ردیف‌های مبهم `shared` برای تصمیم مالک و Reconciliation قرنطینه می‌شوند؛ نگاشت انبوه و حدسی به Affiliate، Lottery یا Platform ممنوع است. Schema مقصد باید Composite FK و Unique Constraintهایی با همان ابعاد Scope داشته باشد.
+
+## ۳. Event Envelope استاندارد
+
+خط مبنای ماشین‌خوان در `prototypes/p09-contract-recovery/contract.json` قرار دارد. Eventها از Context Attributeهای CloudEvents 1.0 همراه با `tenantid`، `scope`، `sourceeventid` و `schemaversion` عدد صحیح مثبت استفاده می‌کنند. `sourceeventid` هویت پایدار Source تجاری است و با `id` در CloudEvents (هویت Envelope/Delivery) تفاوت دارد. `dataschema` Schema Payload را مشخص می‌کند. W3C `traceparent` جداگانه Propagate می‌شود.
+
+Event مالی باید Product Scope داشته باشد. Event پلتفرمی می‌تواند Platform Scope داشته باشد، اما نباید به‌عنوان فرمان ثبت Ledger استفاده شود. Tenant، Scope محصول/پلتفرم، Provider Installation، Schema و مجوز باید از Context مورد اعتماد اعتبارسنجی شوند؛ مقادیر Payload غیرقابل‌اعتماد مرجع اختیار نیستند.
+
+## ۴. نقشه انطباق بین Prototypeها
+
+| Prototype | وضعیت فعلی | هدف P-09 / شکاف |
+|---|---|---|
+| P-02 | برخی Identity و Unique Constraintها فقط Tenant را دارند؛ `shared` مجاز است | هویت مرکب Tenant/Product؛ Economic Effect و Journal فقط Product |
+| P-03D | Provider Inbox شامل Tenant + Product + Provider + Provider Event است | حفظ این مرز و نگاشت به Tupleهای Canonical |
+| P-05B | Inbox و Replay Cursor بعد Product ندارند و به Fixture ساده‌شده Ledger می‌نویسد | Replay همان Recordهای P-02/P-03D پس از Restore؛ Inbox/Cursor محصول‌محور |
+| P-06 | کلید `correlation_map` برابر Tenant + Source Event است؛ Product Domain شامل `platform` است | افزودن Scope Kind/ID به کلید Correlation؛ نگاشت Platform به Platform Scope |
+| P-07B | Productهای Producer/Consumer و Schema Version بررسی می‌شوند؛ هویت Canonical Source و Trace Mapping وجود ندارد | اتصال مجوز Event به Envelope، هویت Source و Trace Context |
+| P-08 | Build و Verifier به Affiliate & Agent محدودند | Product ورودی صریح و Allow-list شده Build و بخشی از Artifact Metadata/Provenance باشد |
+
+## ۵. توالی اجرای P-09
+
+- **P-09A — خط مبنای Contract:** مدل Scope، Tupleهای هویت، Envelope، Validator بدون Dependency خارجی و تست‌های مثبت/منفی. این PR نخستین Slice را پیاده می‌کند.
+- **P-09B — Correlation در P-06:** کلید Correlation محصول/پلتفرم‌محور؛ تست برخورد UUID یکسان Source در Affiliate و Lottery و منع خواندن بین Scopeها.
+- **P-09C — Artifactهای Product-aware در P-08:** Build پارامتری Affiliate و Lottery، اتصال Product به Metadata/Provenance، تست Compatibility و Promotion/Rollback.
+- **P-09D — نگاشت Event Contract در P-07B:** اتصال Producer Contract، مجوز Consumer، هویت Canonical Source، Schema Version و W3C Trace Context.
+- **P-09E — اتصال Recovery در P-05B:** Restore/Replay همان Schema و Recordهای P-02/P-03D؛ اثبات ترتیب، Idempotency، Fencing، Reconciliation و جداسازی Product.
+- **P-09F — مجموعه یکپارچه Failure/Concurrency:** Candidate ایزوله، Delivery تکراری، Sequence Gap، Product ID متعارض، قطع Replay، شکست Restore، Correlation قدیمی، دستکاری Artifact و Rollback.
+
+## ۶. دروازه‌های پذیرش
+
+- UUID یکسان Source Event در Affiliate و Lottery برای یک Tenant، دو Identity متمایز باقی بماند.
+- `shared` به‌عنوان Product پذیرفته نشود؛ Platform Scope نتواند Economic Effect یا Journal مالی بسازد.
+- Event Envelope به Tenant، Scope، Source Identity، Schema و Context مربوط به CloudEvents نیاز داشته باشد.
+- Lookup در P-06 نتواند Source Event محصول دیگر را افشا کند یا به‌صورت مبهم resolve کند.
+- P-07B Eventی را که Producer Identity، Tenant، Scope، Schema یا Trace Contract ناسازگار دارد مجاز نکند.
+- P-08 بتواند Artifact جداگانه Affiliate و Lottery بسازد و Verify کند؛ Provenance باید Product انتخاب‌شده و Digest دقیق Artifact را مقید کند.
+- P-05 Recovery همان Recordهای Ledger/Outbox/Provider Inbox را بازیابی و Replay کند، نه مدل حسابداری موازی.
+- تست‌های مثبت، منفی، هم‌زمانی و Failure Injection روی SHA نهایی Candidate موفق شوند؛ هیچ Check ردشده/Skipشده Pass محسوب نشود.
+- اسناد فارسی و انگلیسی در یک تغییر به‌روز و از نظر معنایی بازبینی شوند.
+
+## ۷. خارج از محدوده
+
+هیچ Provider واقعی، KMS/HSM Production، Broker، Object Store، داده مشتری، Database Production، جابه‌جایی پول، سیاست حسابداری، تعهد RPO/RTO، Deploy Production یا مجوز Release در این کار نیست. هیچ PR Merge نمی‌شود و Ref شاخه Main تغییر نمی‌کند.
