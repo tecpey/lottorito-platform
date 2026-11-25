@@ -1,0 +1,46 @@
+name: P-05 Backup Restore, Object, Key and Event Recovery
+on:
+  push:
+    branches:
+      - spike/p05b-object-key-event-recovery
+    paths:
+      - "prototypes/p05-recovery/**"
+      - "docs/en/engineering/prototypes/p05-backup-restore-recovery.md"
+      - "docs/fa/engineering/prototypes/p05-backup-restore-recovery.md"
+      - "docs/en/engineering/prototypes/p05b-object-key-event-recovery.md"
+      - "docs/fa/engineering/prototypes/p05b-object-key-event-recovery.md"
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "prototypes/p05-recovery/**"
+      - "docs/en/engineering/prototypes/p05-backup-restore-recovery.md"
+      - "docs/fa/engineering/prototypes/p05-backup-restore-recovery.md"
+      - "docs/en/engineering/prototypes/p05b-object-key-event-recovery.md"
+      - "docs/fa/engineering/prototypes/p05b-object-key-event-recovery.md"
+permissions:
+  contents: read
+concurrency:
+  group: p05-backup-restore-recovery-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  recovery:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Build and start isolated PostgreSQL with WAL archiving
+        run: docker compose -f prototypes/p05-recovery/compose.yaml up -d --build --wait --wait-timeout 90
+      - name: Run backup verification, PITR and integrity assertions
+        run: docker compose -f prototypes/p05-recovery/compose.yaml exec -T postgres bash /workspace/scripts/run-p05.sh
+      - name: Run P-05B object, key and event recovery assertions
+        run: docker compose -f prototypes/p05-recovery/compose.yaml exec -T postgres bash /workspace/p05b/run-p05b.sh
+      - name: Run P-05A missing-WAL and incomplete-restore negative drills
+        run: docker compose -f prototypes/p05-recovery/compose.yaml exec -T postgres bash /workspace/scripts/run-p05a-negative.sh
+      - name: Capture PostgreSQL logs on failure
+        if: failure()
+        run: docker compose -f prototypes/p05-recovery/compose.yaml logs --no-color
+      - name: Destroy disposable database
+        if: always()
+        run: docker compose -f prototypes/p05-recovery/compose.yaml down --volumes --remove-orphans

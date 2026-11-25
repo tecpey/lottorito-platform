@@ -1,0 +1,42 @@
+name: P-07C Independent Product Lifecycle
+on:
+  push:
+    branches:
+      - spike/p07c-independent-lifecycle
+    paths:
+      - ".github/workflows/p07c-independent-lifecycle.yml"
+      - "prototypes/p07-independent-lifecycle/**"
+      - "docs/en/engineering/prototypes/p07c-independent-lifecycle.md"
+      - "docs/fa/engineering/prototypes/p07c-independent-lifecycle.md"
+  pull_request:
+    paths:
+      - ".github/workflows/p07c-independent-lifecycle.yml"
+      - "prototypes/p07-independent-lifecycle/**"
+      - "docs/en/engineering/prototypes/p07c-independent-lifecycle.md"
+      - "docs/fa/engineering/prototypes/p07c-independent-lifecycle.md"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: p07c-independent-lifecycle-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  independent-lifecycle:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Validate lifecycle registries
+        run: |
+          python3 -m json.tool prototypes/p07-independent-lifecycle/registry/products.json > /dev/null
+          python3 -m json.tool prototypes/p07-independent-lifecycle/registry/config-schemas.json > /dev/null
+          python3 -m json.tool prototypes/p07-independent-lifecycle/registry/tenant-state.json > /dev/null
+          python3 -m json.tool prototypes/p07-independent-lifecycle/registry/releases.json > /dev/null
+          python3 -m json.tool prototypes/p07-independent-lifecycle/registry/migrations.json > /dev/null
+          python3 -m json.tool prototypes/p07-independent-lifecycle/registry/actors.json > /dev/null
+      - name: Verify Python syntax
+        run: python3 -m compileall -q prototypes/p07-independent-lifecycle
+      - name: Exercise independent lifecycle and tenant traceability
+        run: python3 -m unittest discover -s prototypes/p07-independent-lifecycle/tests -v

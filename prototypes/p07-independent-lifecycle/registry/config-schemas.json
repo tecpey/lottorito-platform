@@ -1,0 +1,11 @@
+{
+  "affiliate_agent": {
+    "portal_title": {"type": "string", "max_length": 40},
+    "commission_rate_bps": {"type": "integer", "minimum": 0, "maximum": 10000},
+    "payout_secret_ref": {"type": "secret_ref"}
+  },
+  "lottery": {
+    "display_label": {"type": "string", "max_length": 40},
+    "notification_secret_ref": {"type": "secret_ref"}
+  }
+}

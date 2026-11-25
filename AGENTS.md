@@ -41,11 +41,18 @@ Continue Lottorito from the repository's verified state. Do not restart planning
 ## Definition of done
 A task is done only when implementation exists, relevant tests pass, documentation is synchronized in both languages, security and tenant implications are reviewed, and commit/PR/CI evidence is linked.
 
+## P-04 continuation — 2026-11-25
+- Draft PR #51 remains based on P-03 PR #50. Current head 016695c0b8b6f06fb91c563338f1e0fd6d928f72; P-04 Integration run 45620775017 passed 8/8 tests and Documentation Governance run 45620774995 passed on that head.
+- Read both docs/en/engineering/prototypes/p04-schema-evolution.md and its Persian counterpart before editing.
+- The compatibility trigger rejects updates that would leave both legacy and canonical payload columns NULL; regression tests prove prior values remain intact.
+- Synthetic data and credentials only. PostgreSQL 18.7 / Node.js 26.13.0 / pg 8.23.1 are experiment inputs, not approved platform choices.
+- Contract rehearsal is non-destructive. Do not drop/rename legacy columns or run migrations against production; destructive steps require explicit owner approval.
+- P-04 uses an isolated disposable schema/database and does not import P-02/P-03 schema. The P-04–P-08 stack is not yet ancestry-reconciled with P-03C/P-03D. Do not blindly retarget/rebase or merge.
+- Do not merge or alter main without explicit owner approval.
+
 ## P-03D continuation — 2026-11-25
-- Read both `docs/en/engineering/prototypes/p03-provider-ledger-integration.md` and `docs/fa/engineering/prototypes/p03-provider-ledger-integration.md`, plus the P-02, P-03C and LOT-FIN-POST-001 contracts before changing this integration.
-- Current working branch: `spike/p03d-provider-ledger-integration`, based on P-03C PR #60 head `32b34f4c7c67b12874cdf6a14a2788d9a2f4c6dc`. Keep it stacked on P-03C; do not retarget to main.
-- PR #41 is an older provider fixture based on an older P-02 branch and uses shared custom-GUC tenant/product scope. Reuse its signature/duplicate/conflict ideas only after review; do not cherry-pick its database model into the session_user-derived tenant/product identity design.
-- P-03D's atomic processing transaction must include P-02 `post_journal`, inbox processed state and the P-03C after-insert delivery-state trigger. The simulated HTTP 202 is allowed only after durable inbox commit.
-- Tenant and product must be derived from trusted installation configuration and the database LOGIN role mapping. Never trust payload tenant/product/account IDs. Product identity must remain present in ledger and delivery records; current tenant-wide unique constraints are conservative and must not be silently relaxed.
-- Run P-02, P-03C and P-03D integration workflows and bilingual Documentation Governance on the exact final branch head. Report each run, exact test count, failures/skips and synthetic limitations.
-- Do not add real provider credentials, live HTTP/network calls, commission/NGR formulas, payout rules or legal/accounting policy. No merge, main update, destructive migration or deployment without explicit owner approval.
+- Read both docs/en/engineering/prototypes/p03-provider-ledger-integration.md and docs/fa/engineering/prototypes/p03-provider-ledger-integration.md, plus the P-02, P-03C and LOT-FIN-POST-001 contracts before changing this integration.
+- PR #61 remains stacked on P-03C PR #60; exact current head b75a2e128c4289f18366a52bbb50c07f6b62c136. P-02 run 45620428866 passed 25 tests; combined P-03C/P-03D run 45620428553 passed 15/15 and 22/22 tests (37 total, zero failures/skips); Documentation Governance 45620428404 passed.
+- Database constraints reject partial processed markers and attempt_count above max_attempts. Webhook verification rejects non-canonical Base64 and invalid replay/body-size configuration.
+- Tenant and product must be derived from trusted installation configuration and database LOGIN role mapping. Never trust payload tenant/product/account IDs. Product identity must remain present in ledger and delivery records; current tenant-wide unique constraints are conservative and must not be silently relaxed.
+- No real provider credentials, live HTTP/network calls, commission/NGR formulas, payout rules or legal/accounting policy. No merge, main update, destructive migration or deployment without explicit owner approval.

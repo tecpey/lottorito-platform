@@ -1,0 +1,76 @@
+{
+  "tenants": {
+    "tenant-alpha": {
+      "operator_id": "operator-alpha",
+      "brand_id": "brand-alpha",
+      "environment": "staging",
+      "white_label_config_version": 1,
+      "products": {
+        "affiliate_agent": {
+          "enabled": true,
+          "active_release": "affiliate-v1",
+          "previous_release": null,
+          "config_version": 1,
+          "config": {
+            "portal_title": "Affiliate Alpha",
+            "commission_rate_bps": 250,
+            "payout_secret_ref": "secret://vault/alpha/payout"
+          },
+          "records_count": 12,
+          "ledger_entry_count": 7
+        },
+        "lottery": {
+          "enabled": false,
+          "active_release": "lottery-v1",
+          "previous_release": null,
+          "config_version": 1,
+          "config": {
+            "display_label": "Lottery Alpha",
+            "notification_secret_ref": "secret://vault/alpha/lottery"
+          },
+          "records_count": 3,
+          "ledger_entry_count": 0
+        }
+      },
+      "schemas": {"affiliate_agent": 1, "lottery": 1, "platform": 1},
+      "applied_migrations": {"affiliate_agent": [], "lottery": [], "platform": []},
+      "shared_services": {"identity": true, "tenant": true, "finance": true, "notifications": true, "audit": true}
+    },
+    "tenant-beta": {
+      "operator_id": "operator-beta",
+      "brand_id": "brand-beta",
+      "environment": "staging",
+      "white_label_config_version": 2,
+      "products": {
+        "affiliate_agent": {
+          "enabled": true,
+          "active_release": "affiliate-v1",
+          "previous_release": null,
+          "config_version": 1,
+          "config": {
+            "portal_title": "Affiliate Beta",
+            "commission_rate_bps": 400,
+            "payout_secret_ref": "secret://vault/beta/payout"
+          },
+          "records_count": 25,
+          "ledger_entry_count": 14
+        },
+        "lottery": {
+          "enabled": true,
+          "active_release": "lottery-v1",
+          "previous_release": null,
+          "config_version": 1,
+          "config": {
+            "display_label": "Lottery Beta",
+            "notification_secret_ref": "secret://vault/beta/lottery"
+          },
+          "records_count": 8,
+          "ledger_entry_count": 0
+        }
+      },
+      "schemas": {"affiliate_agent": 1, "lottery": 1, "platform": 1},
+      "applied_migrations": {"affiliate_agent": [], "lottery": [], "platform": []},
+      "shared_services": {"identity": true, "tenant": true, "finance": true, "notifications": true, "audit": true}
+    }
+  }
+}

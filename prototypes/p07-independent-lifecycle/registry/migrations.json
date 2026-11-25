@@ -1,0 +1,33 @@
+{
+  "migrations": {
+    "affiliate-expand-v2": {
+      "owner": "affiliate_agent",
+      "schema": "affiliate_agent",
+      "from_version": 1,
+      "to_version": 2,
+      "phase": "expand"
+    },
+    "affiliate-contract-v3": {
+      "owner": "affiliate_agent",
+      "schema": "affiliate_agent",
+      "from_version": 2,
+      "to_version": 3,
+      "phase": "contract",
+      "required_active_release": "affiliate-v2"
+    },
+    "lottery-expand-v2": {
+      "owner": "lottery",
+      "schema": "lottery",
+      "from_version": 1,
+      "to_version": 2,
+      "phase": "expand"
+    },
+    "platform-expand-v2": {
+      "owner": "platform",
+      "schema": "platform",
+      "from_version": 1,
+      "to_version": 2,
+      "phase": "expand"
+    }
+  }
+}
