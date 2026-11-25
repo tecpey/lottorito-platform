@@ -99,3 +99,6 @@ P-09E passed again in P-05 workflow [45637659268](https://github.com/tecpey/lott
 ### P-09H — Replay contract gate (2026-11-25)
 
 The P-05E recovery helper now verifies the persisted canonical event against the restored provider inbox row before calling journal posting. It checks CloudEvents version/id/source/type, tenant, product scope, source-event UUID, schema version, traceparent shape and parseable timestamp. Recovery fixtures now carry the full P-09 envelope. A mismatch aborts the replay transaction before a financial effect is committed. This remains a disposable synthetic recovery drill, not a production recovery service.
+
+
+P-09H adds a negative replay case that tampers with the restored event's product scope, requires the replay helper to fail closed, verifies the claim transaction rolls back to `accepted`, and confirms no financial effect was created. The recovery workflow for the corrected shell fixture is being re-run; do not treat the earlier failed run (which exposed a shell/JSON quoting error in the test fixture) as acceptance evidence.
