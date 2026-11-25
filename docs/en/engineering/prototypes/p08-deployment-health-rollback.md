@@ -1,6 +1,6 @@
 # P-08 — Deployment, Health Gates and Rollback Safety
 
-**Document ID:** LOT-PROT-P08-001 | **Version:** 0.1.0 | **Status:** Synthetic deployment-control implementation; CI validation pending; no deployment platform or production release approved
+**Document ID:** LOT-PROT-P08-001 | **Version:** 0.1.0 | **Status:** Synthetic deployment-control implementation; CI evidence tracked on Draft PR #59; no deployment platform or production release approved
 
 ## 1. Decision question and boundary
 
