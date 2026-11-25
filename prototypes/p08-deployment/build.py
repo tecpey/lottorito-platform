@@ -70,7 +70,7 @@ def build(version_key: str, output_dir: Path, source_revision: str, product_id: 
             "buildDefinition": {
                 "buildType": BUILD_TYPE,
                 "externalParameters": {
-                    "product": "affiliate_agent",
+                    "product": product_id,
                     "version": metadata["version"],
                     "source_revision": source_revision,
                 },
