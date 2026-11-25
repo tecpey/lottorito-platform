@@ -66,6 +66,7 @@ LOT-FIN-POST-001 کنترل‌های پیشنهادی ثبت مالی و تطب�
 | مهندسی | [تحویل Outbox محدود به Tenant در P-03](engineering/prototypes/p03-outbox-delivery.md) | LOT-PROT-P03-001؛ Relay مبتنی بر Lease، Retry محدود/Dead-letter، Fence کردن Worker قدیمی و Inbox تغییرناپذیر Consumer؛ ۱۰ تست CI موفق در PR شماره ۵۰، فقط آزمایش ساختگی |
 | مهندسی | [یکپارچه‌سازی Ledger Outbox در P-03C](engineering/prototypes/p03-ledger-outbox-integration.md) | LOT-PROT-P03C-001؛ اتصال Ledger Outbox تغییرناپذیر P-02 به وضعیت تحویل محدود به Tenant در P-03؛ ۱۵ تست CI موفق در PR شماره ۶۰، فقط آزمایش ساختگی |
 | مهندسی | [اتصال Provider Inbox به Ledger در P-03D](engineering/prototypes/p03-provider-ledger-integration.md) | LOT-PROT-P03D-001؛ Inbox امضاشده Provider و Posting اتمیک محصول‌محور در P-02 همراه Outbox در P-03C؛ ۱۹ تست P-03D، ۱۵ تست P-03C و ۲۵ تست P-02 روی Head `40d002a2` در PR شماره ۶۱ موفق؛ فقط آزمایش ساختگی |
+| مهندسی | [تکامل Schema و سازگاری در P-04](engineering/prototypes/p04-schema-evolution.md) | LOT-PROT-P04-001؛ Expand افزایشی، سازگاری App/Worker قدیم و جدید، Backfill قابل ادامه و محدود به Tenant، Checksum Migration، Lock Timeout و بازیابی Index Concurrent؛ ۷ تست CI روی Head اصلی PR شماره ۵۱ با SHA `15c536e5` موفق؛ اعتبارسنجی مجدد روی زنجیره P-03D در انتظار |
 | مهندسی | [راهنمای عملیاتی ایجنت‌ها](engineering/agent-operating-manual.md) | مسیریابی کم‌هزینه و تحویل کار |
 | مهندسی | [دفتر ثبت تصمیم‌ها](engineering/decision-register.md) | دستور مالک، پیشنهاد و تصمیم باز |
 | مهندسی | [وضعیت پروژه](engineering/project-status.md) | وضعیت تأییدشده و نقطه ادامه |
