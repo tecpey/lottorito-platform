@@ -1,6 +1,6 @@
 # Lottorito Architecture Prototype and Evidence Plan
 
-**Document ID:** LOT-PROT-001 | **Version:** 1.17.0 | **Status:** Proposed experiment plan; execution and technology choices not approved
+**Document ID:** LOT-PROT-001 | **Version:** 1.18.0 | **Status:** Proposed experiment plan; execution and technology choices not approved
 
 ## 1. Purpose and authority
 
@@ -241,7 +241,7 @@ A prototype may be **Pass**, **Fail**, **Inconclusive** or **Not run**. “Pass�
 
 **References:** W3C Trace Context; OpenTelemetry context propagation and messaging conventions; OWASP Logging Cheat Sheet; Prometheus instrumentation/cardinality guidance; NIST SP 800-92 (published guide; Rev. 1 is not treated as final); OpenTelemetry Collector redaction processor maturity.
 
-**Status:** Synthetic implementation is on Draft PR #55, stacked on P-05C PR #54. Integration and Documentation Governance are pending. No production instrumentation, vendor, retention policy, legal basis or production readiness is approved.
+**Status:** P-06 PR Integration [45535315659](https://github.com/tecpey/lottorito-platform/actions/runs/45535315659) and Documentation Governance [45535315503](https://github.com/tecpey/lottorito-platform/actions/runs/45535315503) passed on PR head `9f30a2966ce77aca8a7df6acf8e803733bd723dd`. Nine spans linked the actual P-02 journal; 500 unique synthetic tenants produced four metric series; privacy, RLS, forensic audit and alert assertions passed. PR #55 remains Draft and stacked on P-05C PR #54. No production instrumentation, vendor, retention policy, legal basis or production readiness is approved.
 
 ### P-07 — Independent product composition
 
