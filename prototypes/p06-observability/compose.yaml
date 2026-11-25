@@ -8,8 +8,8 @@ services:
       POSTGRES_PASSWORD: p06-admin-only-not-production
       POSTGRES_DB: lottorito_p06
     volumes:
-      - ./prototypes/p06-observability:/workspace/p06:ro
-      - ./prototypes/p02-ledger-posting:/workspace/p02:ro
+      - ../../prototypes/p06-observability:/workspace/p06:ro
+      - ../../prototypes/p02-ledger-posting:/workspace/p02:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d lottorito_p06"]
       interval: 2s
