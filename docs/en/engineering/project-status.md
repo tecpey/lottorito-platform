@@ -1,8 +1,19 @@
 # Verified Project Status and Continuation Point
 
-**Document ID:** LOT-OPS-001 | **Version:** 1.35.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-25
+**Document ID:** LOT-OPS-001 | **Version:** 1.36.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-25
 
 ## Verified repository state
+
+## Latest continuation update — 2026-11-25 (P-06)
+
+- P-06 is Draft PR #55, stacked on P-05C PR #54. It remains open and unmerged. P-05C #54, P-05B #53, P-05A #52 and P-04 #51 remain open Draft/unmerged.
+- P-06 reuses the existing P-02 ledger schema and posts one real synthetic balanced journal under Tenant A's runtime role. Nine linked W3C Trace Context-compatible spans correlate partner ingress, authentication, inbox, attribution, commission, outbox, worker, ledger and reconciliation.
+- The experiment adds HMAC-derived opaque references, tenant-scoped RLS for spans/logs, audited forensic access to raw correlation mapping, append-only privileged audit, secret/PII canary scans, CR/LF log-injection normalization, sensitive-baggage rejection, bounded metrics across 500 synthetic tenants, and alert owner/severity/runbook checks.
+- Initial P-06 CI exposed a harness assertion bug: PostgreSQL boolean-to-text output is "false", not the psql display form "f". The assertion was corrected. Latest PR Integration and Documentation Governance must pass on the final documentation head before the phase is closed.
+- The harness does not integrate an OpenTelemetry SDK/Collector and does not prove production retention, encryption, residency, sampling, alert delivery, legal/privacy compliance or production authorization. Telemetry is not the ledger.
+- No production data, real credentials, real funds, merge or deployment are involved. No production instrumentation or vendor is approved.
+
+
 
 ## Final P-05C validation update — 2026-11-25
 
