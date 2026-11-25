@@ -39,6 +39,17 @@ class SharedCapabilityPolicyTests(unittest.TestCase):
         result = enforce_capability(AFFILIATE_TOKEN, "tenant-alpha", "identity", "resolve_subject")
         self.assertEqual(result["status"], "accepted")
 
+    def test_lottery_can_use_only_its_explicit_shared_platform_grants(self):
+        for capability, operation in (
+            ("identity", "resolve_subject"),
+            ("tenant", "resolve_membership"),
+            ("notifications", "request_delivery"),
+            ("audit", "append_event"),
+        ):
+            with self.subTest(capability=capability):
+                result = enforce_capability(LOTTERY_TOKEN, "tenant-beta", capability, operation)
+                self.assertEqual(result["status"], "accepted")
+
     def test_affiliate_can_post_through_shared_finance_capability(self):
         result = enforce_capability(AFFILIATE_TOKEN, "tenant-alpha", "finance", "post_journal")
         self.assertEqual(result["status"], "accepted")
@@ -141,6 +152,10 @@ class CrossProductEventContractTests(unittest.TestCase):
         result = dispatch_event(event(data={}), AFFILIATE_TOKEN, LOTTERY_TOKEN)
         self.assertEqual(result["reason"], "event_payload_missing_required_field")
 
+    def test_invalid_cloudevents_attribute_type_is_denied(self):
+        result = dispatch_event(event(id=123), AFFILIATE_TOKEN, LOTTERY_TOKEN)
+        self.assertEqual(result["reason"], "invalid_event_envelope")
+
     def test_missing_cloudevents_required_attribute_is_denied(self):
         value = event()
         del value["id"]
@@ -162,6 +177,10 @@ class CrossProductEventContractTests(unittest.TestCase):
     def test_tenant_identifier_cannot_be_reintroduced_in_payload(self):
         result = dispatch_event(event(data={"reference": "x", "tenant_id": "tenant-alpha"}), AFFILIATE_TOKEN, LOTTERY_TOKEN)
         self.assertEqual(result["reason"], "sensitive_data_key_forbidden")
+
+    def test_event_registry_without_matching_contract_fails_closed(self):
+        result = dispatch_event(event(), AFFILIATE_TOKEN, LOTTERY_TOKEN, contract_registry={"contracts": []})
+        self.assertEqual(result["reason"], "missing_event_contract")
 
     def test_unregistered_sensitive_extension_is_denied(self):
         result = dispatch_event(event(email="person@example.invalid"), AFFILIATE_TOKEN, LOTTERY_TOKEN)
