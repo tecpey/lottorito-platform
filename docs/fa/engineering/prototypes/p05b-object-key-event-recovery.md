@@ -84,3 +84,10 @@ RPO/RTO طبق LOT-QA-001 همچنان TBD است. زمان CI فقط مشاهد
 - https://csrc.nist.gov/pubs/sp/800/57/pt1/r6/ipd
 - https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html
 - https://docs.aws.amazon.com/lambda/latest/dg/best-practices.html
+
+
+## ادامه روی زنجیره تطبیق‌یافته و سخت‌سازی — ۲۰۲۶-۱۱-۲۵
+
+شاخه جایگزین `spike/p05b-object-key-event-recovery-p03d` بر مبنای Head مربوط به PR شماره ۶۳ در P-05A با SHA `481a0ab2ac15ee982745e0a3b48d4d93cc829431` است. علاوه بر آزمون‌های اصلی P-05B، قرارداد ساختگی سخت‌گیرانه‌تر شده است: Context مربوط به Tenant/Object/Key/Format/Version در Manifest پیش از Decryption بررسی می‌شود؛ AAD مربوط به Wrapped-DEK، Tenant و Key ID و Object ID را به هم متصل می‌کند؛ Nonce/Base64/Size اعتبارسنجی می‌شوند؛ اندازه و SHA-256 متن بازیابی‌شده باید با Manifest و مرجع دیتابیس تطبیق داشته باشد؛ هر Sequence در Aggregate یکتا است؛ و تابع Replay از نوع SECURITY DEFINER، مسیر pg_temp را در انتهای search_path قرار می‌دهد. یک Fixture منفی نیز رد Manifest با Context متعلق به Tenant دیگر را اثبات می‌کند.
+
+شواهد CI اصلی PR شماره ۵۳ تاریخی‌اند. پیش از پذیرش، آزمون‌های مثبت و منفی P-05A، تست‌های Object/Key/Event در P-05B، Regressionهای P-02/P-03C/P-03D/P-04 و Documentation Governance دوزبانه باید روی Head جایگزین دوباره اجرا شوند.
