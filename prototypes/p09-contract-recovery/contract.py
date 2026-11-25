@@ -13,7 +13,7 @@ TRACE_ID = re.compile(r"^[0-9a-f]{32}$")
 TRACEPARENT_V00 = re.compile(r"^00-([0-9a-f]{32})-([0-9a-f]{16})-([0-9a-f]{2})$")
 SCHEMA_VERSION_MIN = 1
 FINANCIAL_PRODUCT_ONLY_TYPES = frozenset({"ledger.journal.posted"})
-URI_CHARS = re.compile(r"^[A-Za-z0-9\\-._~:/?#\\[\\]@!SCHEMA_VERSION_MIN = 1'()*+,;=%]*$")
+URI_CHARS = re.compile(r"""^[A-Za-z0-9._~:/?#@!$&'()*+,;=%\\[\\]\\-]*$""")
 BAD_PERCENT = re.compile(r"%(?![0-9A-Fa-f]{2})")
 
 
@@ -30,7 +30,7 @@ def _validate_uri_reference(value: Any, field: str) -> str:
 def _validate_rfc3339(value: Any) -> str:
     if not isinstance(value, str):
         raise ContractViolation("event_time_invalid")
-    match = re.fullmatch(r"(\\d{4})-(\\d{2})-(\\d{2})[Tt](\\d{2}):(\\d{2}):(\\d{2})(?:\\.\\d+)?(?:[Zz]|([+-])(\\d{2}):(\\d{2}))", value)
+    match = re.fullmatch(r"(\d{4})-(\d{2})-(\d{2})[Tt](\d{2}):(\d{2}):(\d{2})(?:\.\d+)?(?:[Zz]|([+-])(\d{2}):(\d{2}))", value)
     if match is None:
         raise ContractViolation("event_time_invalid")
     _year, _month, _day, hour, minute, second = map(int, match.groups()[:6])
