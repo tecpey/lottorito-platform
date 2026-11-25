@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import sys
 import tempfile
 import unittest
@@ -47,6 +48,13 @@ class ArtifactBuildTests(unittest.TestCase):
         self.build_fixture("v1", "one")
         with self.assertRaises(FileExistsError):
             build("v1", self.root / "one", SOURCE)
+
+    def test_build_rejects_unrelated_existing_output_files(self):
+        output = self.root / "preexisting"
+        output.mkdir()
+        (output / "keep.txt").write_text("do not overwrite")
+        with self.assertRaises(FileExistsError):
+            build("v1", output, SOURCE)
 
     def test_build_rejects_invalid_source_revision(self):
         with self.assertRaises(ValueError):
@@ -99,6 +107,20 @@ class RuntimeSecretTests(unittest.TestCase):
     def test_runtime_output_never_contains_secret_value(self):
         sentinel = "SYNTHETIC-SECRET-DO-NOT-LEAK-8d1a"
         output = run_artifact(self.artifact, RuntimeSecret("secret://test/affiliate/runtime", sentinel))
+        self.assertNotIn(sentinel, output)
+
+    def test_host_environment_secrets_are_not_inherited(self):
+        sentinel = "HOST-ENV-SECRET-CANARY-91af"
+        previous = os.environ.get("P08_HOST_ENV_CANARY")
+        os.environ["P08_HOST_ENV_CANARY"] = sentinel
+        try:
+            output = run_artifact(self.artifact)
+        finally:
+            if previous is None:
+                os.environ.pop("P08_HOST_ENV_CANARY", None)
+            else:
+                os.environ["P08_HOST_ENV_CANARY"] = previous
+        self.assertIn('"host_canary_present": false', output)
         self.assertNotIn(sentinel, output)
 
     def test_invalid_secret_reference_fails_closed(self):
