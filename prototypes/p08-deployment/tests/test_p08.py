@@ -250,6 +250,13 @@ class PromotionAndRollbackTests(unittest.TestCase):
                 before, GOOD_API, GOOD_WORKER, provenance, SOURCE)
         self.assertEqual(self.stage_state.current_digest, before)
 
+    def test_missing_approver_identity_fails_closed(self):
+        digest = self.built["v2"][0]
+        missing_identity = Approval(REQUEST_ACTOR, "", "release_approver", "staging", digest)
+        with self.assertRaisesRegex(GateRejected, "approval_identity_invalid"):
+            self.controller.promote(self.stage_state, digest, missing_identity, DEPLOY_ACTOR,
+                self.stage_state.current_digest, GOOD_API, GOOD_WORKER, self.built["v2"][1], SOURCE)
+
     def test_non_release_approver_cannot_promote(self):
         digest = self.built["v2"][0]
         wrong_role = Approval(REQUEST_ACTOR, APPROVAL_ACTOR, "tenant_admin", "staging", digest)
@@ -324,6 +331,12 @@ class PromotionAndRollbackTests(unittest.TestCase):
         with self.assertRaisesRegex(GateRejected, "rollback_schema_incompatible"):
             self.controller.rollback(self.stage_state, old_digest, self.stage_state.current_digest, DEPLOY_ACTOR,
                 self.approval(old_digest), GOOD_API, GOOD_WORKER)
+
+    def test_schema_transition_requires_nonempty_actor_identity(self):
+        self.promote(self.stage_state, "v2")
+        with self.assertRaisesRegex(GateRejected, "actor_identity_invalid"):
+            self.controller.migrate_schema(self.stage_state, 2, "expand", "")
+        self.assertEqual(self.stage_state.schema_version, 1)
 
     def test_schema_transition_is_attributed_in_audit(self):
         self.promote(self.stage_state, "v2")
