@@ -265,10 +265,8 @@ class PromotionAndRollbackTests(unittest.TestCase):
         before_financial_state = self.stage_state.financial_state_digest
         self.promote(self.stage_state, "v2")
         self.controller.migrate_schema(self.stage_state, 2, "expand")
-        update_state_artifact_binding(self.stage_state, self.store, self.stage_state.current_digest, self.stage_state.previous_digest)
         self.controller.retire_rollback_target(self.stage_state, "RETIRE_ROLLBACK_TARGET", DEPLOY_ACTOR)
         self.controller.migrate_schema(self.stage_state, 3, "contract")
-        update_state_artifact_binding(self.stage_state, self.store, self.stage_state.current_digest)
         self.promote(self.stage_state, "v3")
         self.assertEqual(self.stage_state.current_digest, self.built["v3"][0])
         self.assertEqual(self.stage_state.schema_version, 3)
