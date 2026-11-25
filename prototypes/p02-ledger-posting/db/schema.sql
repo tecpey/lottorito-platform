@@ -9,6 +9,10 @@ BEGIN
     CREATE ROLE tenant_b_ledger_runtime LOGIN PASSWORD 'p02-tenant-b-not-for-production'
       NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
   END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'tenant_a_lottery_runtime') THEN
+    CREATE ROLE tenant_a_lottery_runtime LOGIN PASSWORD 'p02-tenant-a-lottery-not-for-production'
+      NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
+  END IF;
   IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'tenant_identity_owner') THEN
     CREATE ROLE tenant_identity_owner NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
   END IF;
@@ -24,6 +28,8 @@ $roles$;
 ALTER ROLE tenant_a_ledger_runtime LOGIN PASSWORD 'p02-tenant-a-not-for-production'
   NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
 ALTER ROLE tenant_b_ledger_runtime LOGIN PASSWORD 'p02-tenant-b-not-for-production'
+  NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
+ALTER ROLE tenant_a_lottery_runtime LOGIN PASSWORD 'p02-tenant-a-lottery-not-for-production'
   NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
 ALTER ROLE tenant_identity_owner NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
 ALTER ROLE ledger_owner NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
@@ -45,7 +51,9 @@ GRANT USAGE ON SCHEMA private TO ledger_executor;
 
 CREATE TABLE private.tenant_role_map (
   database_role name PRIMARY KEY,
-  tenant_id uuid NOT NULL UNIQUE
+  tenant_id uuid NOT NULL,
+  product_id text NOT NULL DEFAULT 'affiliate_agent'
+    CHECK (product_id IN ('affiliate_agent', 'lottery', 'shared'))
 );
 ALTER TABLE private.tenant_role_map OWNER TO tenant_identity_owner;
 
@@ -64,8 +72,25 @@ ALTER FUNCTION private.current_tenant_id() OWNER TO tenant_identity_owner;
 REVOKE ALL ON FUNCTION private.current_tenant_id() FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION private.current_tenant_id() TO ledger_executor;
 
+CREATE OR REPLACE FUNCTION private.current_product_id()
+RETURNS text
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = pg_catalog, private, pg_temp
+AS $function$
+  SELECT product_id
+    FROM private.tenant_role_map
+   WHERE database_role = session_user::name
+$function$;
+ALTER FUNCTION private.current_product_id() OWNER TO tenant_identity_owner;
+REVOKE ALL ON FUNCTION private.current_product_id() FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION private.current_product_id() TO ledger_executor;
+
 CREATE TABLE public.ledger_accounts (
   tenant_id uuid NOT NULL,
+  product_id text NOT NULL DEFAULT 'affiliate_agent'
+    CHECK (product_id IN ('affiliate_agent', 'lottery', 'shared')),
   account_id uuid NOT NULL,
   account_code text NOT NULL,
   currency_code text NOT NULL CHECK (currency_code ~ '^[A-Z]{3}$'),
@@ -80,6 +105,8 @@ CREATE TABLE public.ledger_accounts (
 
 CREATE TABLE public.financial_effects (
   tenant_id uuid NOT NULL,
+  product_id text NOT NULL DEFAULT 'affiliate_agent'
+    CHECK (product_id IN ('affiliate_agent', 'lottery', 'shared')),
   effect_id uuid NOT NULL,
   request_fingerprint jsonb NOT NULL,
   journal_id uuid NOT NULL,
@@ -91,6 +118,8 @@ CREATE TABLE public.financial_effects (
 
 CREATE TABLE public.posting_requests (
   tenant_id uuid NOT NULL,
+  product_id text NOT NULL DEFAULT 'affiliate_agent'
+    CHECK (product_id IN ('affiliate_agent', 'lottery', 'shared')),
   idempotency_key text NOT NULL,
   effect_id uuid NOT NULL,
   journal_id uuid NOT NULL,
@@ -103,6 +132,8 @@ CREATE TABLE public.posting_requests (
 
 CREATE TABLE public.ledger_journals (
   tenant_id uuid NOT NULL,
+  product_id text NOT NULL DEFAULT 'affiliate_agent'
+    CHECK (product_id IN ('affiliate_agent', 'lottery', 'shared')),
   journal_id uuid NOT NULL,
   source_event_id uuid NOT NULL,
   status text NOT NULL CHECK (status = 'posted'),
@@ -114,6 +145,8 @@ CREATE TABLE public.ledger_journals (
 
 CREATE TABLE public.ledger_lines (
   tenant_id uuid NOT NULL,
+  product_id text NOT NULL DEFAULT 'affiliate_agent'
+    CHECK (product_id IN ('affiliate_agent', 'lottery', 'shared')),
   journal_id uuid NOT NULL,
   line_no integer NOT NULL CHECK (line_no BETWEEN 1 AND 100),
   account_id uuid NOT NULL,
@@ -130,6 +163,8 @@ CREATE TABLE public.ledger_lines (
 
 CREATE TABLE public.ledger_outbox (
   tenant_id uuid NOT NULL,
+  product_id text NOT NULL DEFAULT 'affiliate_agent'
+    CHECK (product_id IN ('affiliate_agent', 'lottery', 'shared')),
   event_id uuid NOT NULL,
   journal_id uuid NOT NULL,
   event_type text NOT NULL CHECK (event_type = 'ledger.journal.posted'),
@@ -146,7 +181,10 @@ CREATE INDEX ledger_outbox_tenant_created_idx
 
 REVOKE CREATE ON SCHEMA public FROM PUBLIC;
 GRANT USAGE ON SCHEMA public TO ledger_owner, ledger_executor,
-  tenant_a_ledger_runtime, tenant_b_ledger_runtime;
+  tenant_a_ledger_runtime, tenant_b_ledger_runtime, tenant_a_lottery_runtime;
+GRANT USAGE ON SCHEMA private TO tenant_a_ledger_runtime, tenant_b_ledger_runtime, tenant_a_lottery_runtime;
+GRANT EXECUTE ON FUNCTION private.current_tenant_id() TO tenant_a_ledger_runtime, tenant_b_ledger_runtime, tenant_a_lottery_runtime;
+GRANT EXECUTE ON FUNCTION private.current_product_id() TO tenant_a_ledger_runtime, tenant_b_ledger_runtime, tenant_a_lottery_runtime;
 
 ALTER TABLE public.ledger_accounts OWNER TO ledger_owner;
 ALTER TABLE public.financial_effects OWNER TO ledger_owner;
@@ -198,27 +236,38 @@ ALTER TABLE public.ledger_outbox FORCE ROW LEVEL SECURITY;
 
 CREATE POLICY ledger_accounts_executor_tenant
   ON public.ledger_accounts FOR SELECT TO ledger_executor
-  USING (tenant_id = private.current_tenant_id());
+  USING (tenant_id = private.current_tenant_id()
+     AND product_id = private.current_product_id());
 CREATE POLICY financial_effects_executor_tenant
   ON public.financial_effects FOR ALL TO ledger_executor
-  USING (tenant_id = private.current_tenant_id())
-  WITH CHECK (tenant_id = private.current_tenant_id());
+  USING (tenant_id = private.current_tenant_id()
+     AND product_id = private.current_product_id())
+  WITH CHECK (tenant_id = private.current_tenant_id()
+     AND product_id = private.current_product_id());
 CREATE POLICY posting_requests_executor_tenant
   ON public.posting_requests FOR ALL TO ledger_executor
-  USING (tenant_id = private.current_tenant_id())
-  WITH CHECK (tenant_id = private.current_tenant_id());
+  USING (tenant_id = private.current_tenant_id()
+     AND product_id = private.current_product_id())
+  WITH CHECK (tenant_id = private.current_tenant_id()
+     AND product_id = private.current_product_id());
 CREATE POLICY ledger_journals_executor_tenant
   ON public.ledger_journals FOR ALL TO ledger_executor
-  USING (tenant_id = private.current_tenant_id())
-  WITH CHECK (tenant_id = private.current_tenant_id());
+  USING (tenant_id = private.current_tenant_id()
+     AND product_id = private.current_product_id())
+  WITH CHECK (tenant_id = private.current_tenant_id()
+     AND product_id = private.current_product_id());
 CREATE POLICY ledger_lines_executor_tenant
   ON public.ledger_lines FOR ALL TO ledger_executor
-  USING (tenant_id = private.current_tenant_id())
-  WITH CHECK (tenant_id = private.current_tenant_id());
+  USING (tenant_id = private.current_tenant_id()
+     AND product_id = private.current_product_id())
+  WITH CHECK (tenant_id = private.current_tenant_id()
+     AND product_id = private.current_product_id());
 CREATE POLICY ledger_outbox_executor_tenant
   ON public.ledger_outbox FOR ALL TO ledger_executor
-  USING (tenant_id = private.current_tenant_id())
-  WITH CHECK (tenant_id = private.current_tenant_id());
+  USING (tenant_id = private.current_tenant_id()
+     AND product_id = private.current_product_id())
+  WITH CHECK (tenant_id = private.current_tenant_id()
+     AND product_id = private.current_product_id());
 
 GRANT SELECT ON public.ledger_accounts TO ledger_executor;
 GRANT SELECT, INSERT ON public.financial_effects TO ledger_executor;
@@ -240,6 +289,7 @@ SET search_path = pg_catalog, public, private, pg_temp
 AS $function$
 DECLARE
   v_tenant_id uuid;
+  v_product_id text;
   v_line_count integer;
   v_normalized_lines jsonb;
   v_fingerprint jsonb;
@@ -251,8 +301,9 @@ DECLARE
   v_effect_inserted integer;
 BEGIN
   v_tenant_id := private.current_tenant_id();
-  IF v_tenant_id IS NULL THEN
-    RAISE EXCEPTION 'database identity is not mapped to a tenant' USING ERRCODE = '42501';
+  v_product_id := private.current_product_id();
+  IF v_tenant_id IS NULL OR v_product_id IS NULL THEN
+    RAISE EXCEPTION 'database identity is not mapped to a tenant/product' USING ERRCODE = '42501';
   END IF;
 
   IF p_idempotency_key IS NULL
@@ -358,6 +409,7 @@ BEGIN
         ON a.tenant_id = v_tenant_id
        AND a.account_id = x.account_id::uuid
        AND a.currency_code = x.currency_code
+       AND a.product_id = v_product_id
        AND a.active = true
      WHERE a.account_id IS NULL
   ) THEN
@@ -365,6 +417,7 @@ BEGIN
   END IF;
 
   v_fingerprint := jsonb_build_object(
+    'product_id', v_product_id,
     'effect_id', p_effect_id,
     'source_event_id', p_source_event_id,
     'lines', v_normalized_lines
@@ -379,6 +432,7 @@ BEGIN
      AND f.effect_id = r.effect_id
      AND f.journal_id = r.journal_id
    WHERE r.tenant_id = v_tenant_id
+     AND r.product_id = v_product_id
      AND r.idempotency_key = p_idempotency_key;
 
   IF FOUND THEN
@@ -395,9 +449,9 @@ BEGIN
 
   -- The effect identity is unique independently of any transport/request key.
   INSERT INTO public.financial_effects (
-    tenant_id, effect_id, request_fingerprint, journal_id
+    tenant_id, product_id, effect_id, request_fingerprint, journal_id
   ) VALUES (
-    v_tenant_id, p_effect_id, v_fingerprint, v_new_journal_id
+    v_tenant_id, v_product_id, p_effect_id, v_fingerprint, v_new_journal_id
   )
   ON CONFLICT (tenant_id, effect_id) DO NOTHING;
 
@@ -407,6 +461,7 @@ BEGIN
       INTO v_existing_fingerprint, v_existing_journal_id
       FROM public.financial_effects AS f
      WHERE f.tenant_id = v_tenant_id
+       AND f.product_id = v_product_id
        AND f.effect_id = p_effect_id;
 
     IF NOT FOUND THEN
@@ -419,16 +474,17 @@ BEGIN
     v_new_journal_id := v_existing_journal_id;
   ELSE
     INSERT INTO public.ledger_journals (
-      tenant_id, journal_id, source_event_id, status
+      tenant_id, product_id, journal_id, source_event_id, status
     ) VALUES (
-      v_tenant_id, v_new_journal_id, p_source_event_id, 'posted'
+      v_tenant_id, v_product_id, v_new_journal_id, p_source_event_id, 'posted'
     );
 
     INSERT INTO public.ledger_lines (
-      tenant_id, journal_id, line_no, account_id, currency_code, direction, amount_minor
+      tenant_id, product_id, journal_id, line_no, account_id, currency_code, direction, amount_minor
     )
     SELECT
       v_tenant_id,
+      v_product_id,
       v_new_journal_id,
       line_no,
       account_id::uuid,
@@ -444,9 +500,10 @@ BEGIN
     );
 
     INSERT INTO public.ledger_outbox (
-      tenant_id, event_id, journal_id, event_type, payload
+      tenant_id, product_id, event_id, journal_id, event_type, payload
     ) VALUES (
       v_tenant_id,
+      v_product_id,
       gen_random_uuid(),
       v_new_journal_id,
       'ledger.journal.posted',
@@ -460,9 +517,9 @@ BEGIN
 
   -- Persist every request token, including aliases that redeliver an existing financial effect.
   INSERT INTO public.posting_requests (
-    tenant_id, idempotency_key, effect_id, journal_id
+    tenant_id, product_id, idempotency_key, effect_id, journal_id
   ) VALUES (
-    v_tenant_id, p_idempotency_key, p_effect_id, v_new_journal_id
+    v_tenant_id, v_product_id, p_idempotency_key, p_effect_id, v_new_journal_id
   )
   ON CONFLICT DO NOTHING;
 
@@ -476,6 +533,7 @@ BEGIN
        AND f.effect_id = r.effect_id
        AND f.journal_id = r.journal_id
      WHERE r.tenant_id = v_tenant_id
+       AND r.product_id = v_product_id
        AND r.idempotency_key = p_idempotency_key;
     IF NOT FOUND THEN
       RAISE EXCEPTION 'idempotency state is unavailable' USING ERRCODE = '40001';
@@ -499,9 +557,10 @@ GRANT EXECUTE ON FUNCTION public.post_journal(text, uuid, uuid, jsonb)
   TO tenant_a_ledger_runtime, tenant_b_ledger_runtime;
 REVOKE CREATE ON SCHEMA public FROM ledger_owner, ledger_executor;
 
-INSERT INTO private.tenant_role_map (database_role, tenant_id) VALUES
-  ('tenant_a_ledger_runtime', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'),
-  ('tenant_b_ledger_runtime', 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb');
+INSERT INTO private.tenant_role_map (database_role, tenant_id, product_id) VALUES
+  ('tenant_a_ledger_runtime', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'affiliate_agent'),
+  ('tenant_b_ledger_runtime', 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', 'affiliate_agent'),
+  ('tenant_a_lottery_runtime', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'lottery');
 
 INSERT INTO public.ledger_accounts (tenant_id, account_id, account_code, currency_code, account_type) VALUES
   ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', '11111111-1111-4111-8111-111111111101', 'A-USD-CASH', 'USD', 'asset'),
@@ -509,4 +568,6 @@ INSERT INTO public.ledger_accounts (tenant_id, account_id, account_code, currenc
   ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', '11111111-1111-4111-8111-111111111103', 'A-JPY-CASH', 'JPY', 'asset'),
   ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', '11111111-1111-4111-8111-111111111104', 'A-JPY-CLEARING', 'JPY', 'clearing'),
   ('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', '22222222-2222-4222-8222-222222222201', 'B-USD-CASH', 'USD', 'asset'),
-  ('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', '22222222-2222-4222-8222-222222222202', 'B-USD-CLEARING', 'USD', 'clearing');
+  ('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', '22222222-2222-4222-8222-222222222202', 'B-USD-CLEARING', 'USD', 'clearing'),
+  ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', '33333333-3333-4333-8333-333333333301', 'A-LOTTERY-USD-CASH', 'USD', 'asset', 'lottery'),
+  ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', '33333333-3333-4333-8333-333333333302', 'A-LOTTERY-USD-CLEARING', 'USD', 'clearing', 'lottery');
