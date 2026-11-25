@@ -1,6 +1,6 @@
 # P-07B — مالکیت پلتفرم مشترک و مرزهای اعتماد
 
-**شناسه سند:** LOT-PROT-P07B-001 | **نسخه:** ۰.۱.۰ | **وضعیت:** Fixture ساختگی در CI روی Head شماره 42083a2 اعتبارسنجی شده است
+**شناسه سند:** LOT-PROT-P07B-001 | **نسخه:** ۰.۲.۰ | **وضعیت:** Fixture ساختگی در CI روی Head شماره 42083a2 اعتبارسنجی شده است
 
 ## پرسش تصمیم
 
@@ -109,3 +109,7 @@ python3 -m unittest discover -s prototypes/p07-shared-trust-boundaries/tests -v
 - اجرای Push با شناسه [45570199339](https://github.com/tecpey/lottorito-platform/actions/runs/45570037120): موفق.
 - Documentation Governance با شناسه [45570485718](https://github.com/tecpey/lottorito-platform/actions/runs/45570055148): روی همان Head PR موفق.
 - PR شماره [۵۷](https://github.com/tecpey/lottorito-platform/pull/57) همچنان Draft، باز و Mergeنشده است.
+
+## الحاقیه P-09D — هویت Canonical رویداد و Trace Context (۲۰۲۶-۱۱-۲۵)
+
+P-07B اکنون Envelope محصول‌محور هم‌راستا با ADR-009 را الزامی می‌کند: هویت Canonical و UUID برای Tenant، `scope={kind: product, id: source_product}` صریح، UUID استاندارد `sourceeventid`، `schemaversion` عدد صحیح مثبت و W3C Trace Context با فیلد `traceparent`. Registry قرارداد، Source Scope، Schema Version و فیلدهای ضروری Envelope را مقید می‌کند. خروجی Dispatch، Tuple استاندارد Source Event و Trace ID را برای نگاشت به Correlation در P-06 ارائه می‌دهد. Fixtureهای Tenant ساختگی از Label به UUID تبدیل شدند تا نوع هویت Tenant در P-02/P-03D/P-06/P-07B یکسان باشد. CI مربوط به P-07B با شناسه [45631269584](https://github.com/tecpey/lottorito-platform/actions/runs/45631269584) با **۴۲ تست از ۴۲ تست** موفق شد. رویدادهای فعلی P-07B که از Product تولید می‌شوند، فعلاً فقط Product Scope می‌پذیرند؛ رویدادهای Platform-originated توسعه‌ای مستقل با حاکمیت جداگانه خواهند بود.
