@@ -190,8 +190,9 @@ export async function ingestProviderWebhook(pool, {
   try { payload = JSON.parse(body.toString("utf8")); }
   catch { return { http_status: 400, outcome: "invalid_json" }; }
 
+  const sourceEventId = randomUUID();
   let canonicalEvent;
-  try { canonicalEvent = canonicalize(payload, installation, verification.eventId); }
+  try { canonicalEvent = canonicalize(payload, installation, verification.eventId, sourceEventId); }
   catch (error) { return { http_status: 400, outcome: "invalid_event", reason: error.code ?? "invalid_event" }; }
 
   await assertInstallationScope(pool, installation);
@@ -202,13 +203,13 @@ export async function ingestProviderWebhook(pool, {
     const inserted = await client.query(
       `INSERT INTO public.provider_event_inbox
         (tenant_id, product_id, provider_id, provider_event_id, event_type, event_source,
-         payload_hash, signature_key_id, canonical_event)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9::jsonb)
+         payload_hash, signature_key_id, canonical_event, source_event_id)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9::jsonb,$10)
        ON CONFLICT DO NOTHING
        RETURNING provider_event_id`,
       [installation.tenant_id, installation.product_id, installation.provider_id,
        verification.eventId, canonicalEvent.type, canonicalEvent.source,
-       payloadHash, verification.keyId, JSON.stringify(canonicalEvent)]
+       payloadHash, verification.keyId, JSON.stringify(canonicalEvent), sourceEventId]
     );
     if (inserted.rowCount === 1) {
       await client.query("COMMIT");
