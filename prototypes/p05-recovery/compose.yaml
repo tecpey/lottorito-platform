@@ -17,6 +17,9 @@ services:
       - archive_command=test ! -f /var/lib/postgresql/wal-archive/%f && cp %p /var/lib/postgresql/wal-archive/%f
     volumes:
       - ./:/workspace:ro
+      - ../p02-ledger-posting:/workspace-p02:ro
+      - ../p03-ledger-outbox-integration:/workspace-p03c:ro
+      - ../p03-provider-ledger-integration:/workspace-p03d:ro
     healthcheck:
       test: [CMD-SHELL, "pg_isready -U postgres -d lottorito_p05"]
       interval: 2s
