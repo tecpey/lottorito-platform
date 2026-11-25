@@ -79,10 +79,6 @@ def dispatch_event(
         return _deny("unsupported_event_extension", producer["product_id"], event.get("tenantid"))
     if event["specversion"] != "1.0" or not isinstance(event["data"], dict) or not isinstance(event["scope"], dict):
         return _deny("invalid_event_envelope", producer["product_id"], event.get("tenantid"))
-    try:
-        validate_event(event)
-    except ContractViolation:
-        return _deny("invalid_event_contract", producer["product_id"], event.get("tenantid"))
     if set(event["scope"]) != {"kind", "id"}:
         return _deny("invalid_event_scope", producer["product_id"], event.get("tenantid"))
     try:
@@ -112,6 +108,11 @@ def dispatch_event(
 
     if event["source"] != PRODUCT_SOURCES.get(source_product):
         return _deny("producer_source_mismatch", source_product, tenant_id)
+
+    try:
+        validate_event(event)
+    except ContractViolation:
+        return _deny("invalid_event_contract", source_product, tenant_id)
     if tenant_id not in producer["allowed_tenants"] or tenant_id not in consumer["allowed_tenants"]:
         return _deny("service_tenant_scope_denied", source_product, tenant_id)
 
