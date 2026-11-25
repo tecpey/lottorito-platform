@@ -88,6 +88,7 @@ def verify_provenance(data: bytes, provenance: Mapping[str, Any], expected_diges
         source_revision = build_definition["externalParameters"]["source_revision"]
         product = build_definition["externalParameters"]["product"]
         scope = build_definition["externalParameters"]["scope"]
+        scope_identity = normalize_scope(scope)
         build_type = build_definition["buildType"]
         builder_id = run_details["builder"]["id"]
         dependency_digest = build_definition["resolvedDependencies"][0]["digest"]["sha256"]
@@ -114,7 +115,7 @@ def verify_provenance(data: bytes, provenance: Mapping[str, Any], expected_diges
         and product == expected_product
         and metadata["product"] == expected_product
         and scope == metadata["scope"]
-        and normalize_scope(scope) == ("product", expected_product)
+        and scope_identity == ("product", expected_product)
         and build_type == BUILD_TYPE
         and builder_id == BUILDER_ID
         and dependency_digest == entrypoint_digest
