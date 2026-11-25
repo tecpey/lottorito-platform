@@ -118,3 +118,8 @@ This verifies the synthetic acceptance matrix on the cited branch head only. PR 
 ## P-09F concurrency and cross-scope regression (2026-11-25)
 
 On candidate head 2b393cc8c41226a20333f34559ac6952883901a3, P-03C/P-03D workflow [45637659485](https://github.com/tecpey/lottorito-platform/actions/runs/45637659485) passed: P-03C **15/15**, P-03D **25/25**. Three added tests run the real Node.js provider worker against PostgreSQL 18.7: one-winner concurrent inbox claim and process race; stale/current lease-token fencing under concurrent processing; and same provider event ID/source-event UUID processed independently across Affiliate, Lottery and a second tenant. Each scope receives exactly one journal, immutable outbox event and delivery-state row, with zero reconciliation exceptions. Synthetic evidence only; aggregate ordering and Node-worker replay on the P-09E restored cluster remain open.
+
+
+### P-09H — Canonical contract enforcement (2026-11-25)
+
+The signed ingress path now builds its canonical CloudEvent from the trusted installation and approved event mapping. Tenant/product scope is not accepted from provider payload fields. The provider event ID remains the CloudEvents `id`; a distinct UUID `sourceeventid` is generated and persisted in both the canonical envelope and inbox row, with a fresh W3C trace context. Unknown schema mappings and non-RFC3339 timestamps are rejected before inbox persistence. The worker revalidates the stored envelope and its tenant/product/source-event identity before posting; a tampered scope is quarantined before journal/outbox effects. This is synthetic integration evidence only; final P-03D acceptance depends on CI for the final head.
