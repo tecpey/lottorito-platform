@@ -136,3 +136,10 @@ Workflow یکپارچه‌سازی P-03C/P-03D با شناسه [45637659485](htt
 پوشش Regression اکنون شامل traceparent مفقود، مقادیر دارای ساختار یا نسخه نامعتبر، trace-id/parent-id صفر و شناسه Correlation تماماً صفر است. انتظار می‌رود مجموعه تست P-09A شامل ۱۵ تست باشد؛ پذیرش نهایی منوط به موفقیت CI روی Head دقیق جدید PR است. این اصلاح هنوز اعتبارسنجی معنایی Timestamp با RFC 3339 یا URI-reference را اضافه نمی‌کند و Validator را به P-02 تا P-08 متصل نمی‌سازد.
 
 مبنای تحقیق: [توصیه‌نامه W3C Trace Context](https://www.w3.org/TR/trace-context/) (ساختار traceparent نسخه ۰۰ و شناسه‌های صفر نامعتبر)؛ [مشخصات اصلی CloudEvents](https://github.com/cloudevents/spec/blob/main/cloudevents/spec.md) (ویژگی‌های اصلی اجباری و مدل Extension Attribute).
+
+
+### P-09G — انطباق معنایی رویداد (۲۰۲۶-۱۱-۲۵)
+
+در P-09 اکنون `id` و `type` در CloudEvents باید رشته غیرخالی باشند؛ `source` و `dataschema` باید URI-reference غیرخالی مطابق RFC 3986 باشند؛ و `time` باید از نظر نحو RFC 3339 و محدوده تاریخ تقویمی، ساعت و Offset معتبر باشد. Extension Attributeهای CloudEvents همچنان مجازند. فیلدهای اختصاصی و الزامی Lottorito در `contract.json` تعریف شده‌اند.
+
+نوع رویداد `ledger.journal.posted` صراحتاً فقط به Product Scope تعلق دارد: رویداد مالی با Scope از نوع `platform` رد می‌شود، درحالی‌که رویداد غیرمالی پلتفرم از نظر ساختاری معتبر می‌ماند. این فقط یک قاعده محدود است و به معنای تکمیل Registry تمام Event Typeها نیست؛ مجوزدهی وابسته به Producer همچنان در P-07B انجام می‌شود. اتصال Validator به مسیرهای واقعی Ingress و Dispatch دروازه مستقل P-09H است.
