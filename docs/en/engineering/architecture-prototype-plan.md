@@ -1,6 +1,6 @@
 # Lottorito Architecture Prototype and Evidence Plan
 
-**Document ID:** LOT-PROT-001 | **Version:** 1.16.0 | **Status:** Proposed experiment plan; execution and technology choices not approved
+**Document ID:** LOT-PROT-001 | **Version:** 1.17.0 | **Status:** Proposed experiment plan; execution and technology choices not approved
 
 ## 1. Purpose and authority
 
@@ -221,27 +221,27 @@ A prototype may be **Pass**, **Fail**, **Inconclusive** or **Not run**. “Pass�
 
 ### P-06 — End-to-end observability and privacy
 
-**Question:** Can operators trace a synthetic partner event through attribution, commission decision and journal reference while preventing secrets and unnecessary personal/financial data from entering telemetry?
+**Question:** Can a synthetic affiliate/agent event be reconstructed from partner ingress through authentication, inbox, attribution, commission, outbox, worker, the real P-02 journal and reconciliation, without leaking secrets/PII or creating unbounded metric cardinality?
 
-**Minimum fixture:** Synthetic event and tenant identities, generated credentials, fake personal data and controlled secret canaries.
+**Synthetic fixture:** PostgreSQL 18.7 with the existing P-02 ledger schema; one real balanced synthetic journal; nine W3C Trace Context-compatible spans; HMAC-derived opaque references; structured logs; 500 synthetic tenant identities aggregated into bounded metrics; tenant-scoped telemetry readers; audited forensic mapping; append-only privileged audit.
 
 **Experiments:**
-1. Trace ingress through validation, inbox, domain processing, outbox, worker and ledger reference.
-2. Correlate request, actor, tenant, product, source event, economic effect and journal entry.
-3. Inspect logs, traces, metrics, exceptions, dashboards and alert payloads for canary secrets and sensitive fields.
-4. Test high-cardinality identifiers and tenant/customer labels in metrics.
-5. Trigger authorization denial, provider outage, queue backlog, reconciliation drift and ledger invariant violation.
-6. Verify privileged audit events and access to telemetry.
+1. Post a real P-02 journal using Tenant A's runtime role and link the journal to the event/economic-effect trace references.
+2. Build a parent-linked trace across ingress, authentication, inbox, attribution, commission, outbox, worker, ledger and reconciliation. Preserve trace context across the asynchronous boundary; do not put PII or credentials in traceparent/tracestate/baggage.
+3. Keep raw tenant/actor/event/effect/journal identifiers out of general telemetry. Store HMAC-derived opaque references in spans/logs and raw mapping in a restricted forensic table.
+4. Plant secret and PII canaries in in-memory event/exception input; assert they do not appear in spans, logs, metrics, alerts or audit. Normalize CR/LF event-name injection to a bounded validation failure.
+5. Enforce RLS for spans/logs using authenticated database-role-to-tenant mapping. Prove cross-tenant reads return no rows and telemetry readers cannot access raw correlation mapping.
+6. Require reason-coded forensic access in the same DB session before revealing raw mapping; record actor/action/target/reason/outcome in append-only audit.
+7. Simulate 500 tenant identities while aggregating metrics only on bounded operation/outcome/product/reason labels; assert metric series count remains bounded and schema has no tenant/user/event/actor/journal identifier labels.
+8. Seed five alert classes with severity, owner and stable runbook identifiers.
 
-**Pass criteria:**
-- Critical journey can be reconstructed from authorized telemetry without treating logs as the ledger.
-- Correlation is consistent across synchronous and asynchronous boundaries.
-- Secret canaries and prohibited fields do not appear in telemetry.
-- Metrics avoid unbounded tenant/customer cardinality; detailed identifiers remain access-controlled.
-- Alerts have an owner, severity, actionable runbook and bounded noise.
-- Telemetry access and privileged actions are auditable.
+**Pass criteria:** actual P-02 journal is linked to nine spans; trace parent graph and async context are valid; source/effect/journal references correlate; all canaries/raw identifiers are absent from telemetry; baggage and log injection are neutralized; RLS enforces tenant scope; raw forensic mapping requires reason-coded audited access; audit is append-only; 500 tenants do not increase cardinality; all alert classes have owners/severity/runbook identifiers.
 
-**Evidence:** redacted trace, metric/label inventory, log-field policy, secret-canary scan, alert/runbook mapping and access audit.
+**Critical limitations:** The harness uses W3C-compatible IDs and OTel-style spans but does not integrate an OpenTelemetry SDK or send OTLP to a Collector. HMAC key is ephemeral CI material. No production retention, encryption, residency, sampling, collector hardening, export policy, alert delivery, SLO, legal/privacy approval or full telemetry-platform authorization is tested. Logs/traces/metrics/audit are not the financial ledger.
+
+**References:** W3C Trace Context; OpenTelemetry context propagation and messaging conventions; OWASP Logging Cheat Sheet; Prometheus instrumentation/cardinality guidance; NIST SP 800-92 (published guide; Rev. 1 is not treated as final); OpenTelemetry Collector redaction processor maturity.
+
+**Status:** Synthetic implementation is on Draft PR #55, stacked on P-05C PR #54. Integration and Documentation Governance are pending. No production instrumentation, vendor, retention policy, legal basis or production readiness is approved.
 
 ### P-07 — Independent product composition
 
