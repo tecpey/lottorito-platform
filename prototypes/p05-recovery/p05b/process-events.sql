@@ -1,5 +1,5 @@
 CREATE OR REPLACE FUNCTION public.p05_process_pending(p_tenant uuid,p_consumer text,p_aggregate uuid)
-RETURNS integer LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public,pg_temp AS $
+RETURNS integer LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public,pg_temp AS $$
 DECLARE v_last bigint; v_event public.p05_inbox%ROWTYPE; v_count integer:=0; v_amount bigint; v_currency text;
 BEGIN
  SELECT last_sequence INTO v_last FROM public.p05_replay_cursor
