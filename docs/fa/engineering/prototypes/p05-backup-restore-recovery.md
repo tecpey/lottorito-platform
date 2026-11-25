@@ -84,3 +84,8 @@ Workflow ترکیبی P-05 دو کنترل Fail-closed را علاوه بر مس
 - تست، Verification و رد Manifest دست‌کاری‌شده، وجود WAL آرشیوشده، Log نقطه بازیابی نام‌گذاری‌شده، حضور نشانگر پیش از Target و نبود نشانگر پس از Target، خواندن محدود به Tenant و رد Insert بین Tenantها، توازن Journal، تطبیق مجموع Source-to-Ledger، یکتایی Economic Effect و فرمت معتبر Hash ارجاع Object را بررسی کرد.
 - آزمون‌های منفی روی Head کد اجرایی ترکیبی `146a9bc635e3b03db568c423fb0958b62bc31c7b` موفق شدند: Staging ناقص Restore هم توسط `pg_verifybackup` و هم راه‌اندازی PostgreSQL رد شد؛ حذف Segment دقیق WAL هدف باعث شد راه‌اندازی Recovery پیش از Target نام‌گذاری‌شده به‌صورت Fail-closed متوقف شود. Log مربوط به WAL مفقود، نبود Segment هدف را ثبت کرد. بازیابی بایت Object/کلید در P-05B پوشش داده شده است؛ Failover/Fencing/Failback در P-05C همچنان اجرا نشده است.
 - موفقیت ساختگی به‌معنای آمادگی Production، تصمیم فناوری یا تصویب RPO/RTO نیست.
+
+
+## ادامه P-05B روی زنجیره تطبیق‌یافته — ۲۰۲۶-۱۱-۲۵
+
+P-05B به شاخه جایگزین `spike/p05b-object-key-event-recovery-p03d` منتقل می‌شود که بر مبنای آخرین Head همگام‌شده PR شماره ۶۳ در P-05A یعنی `481a0ab2ac15ee982745e0a3b48d4d93cc829431` است. این شاخه دروازه Recovery-complete در P-05A و هر دو آزمون منفی WAL مفقود و Restore ناقص را پیش از مجموعه تست Object/Key/Event در P-05B اجرا می‌کند. شواهد PR اصلی شماره ۵۳ تاریخی‌اند؛ شاخه جایگزین باید Workflow کامل P-05 و Regressionهای بالادستی P-02/P-03C/P-03D/P-04 را خودش بگذراند.
