@@ -84,3 +84,10 @@ RPO/RTO remain TBD under LOT-QA-001. CI timings are observations only. A success
 - https://csrc.nist.gov/pubs/sp/800/57/pt1/r6/ipd
 - https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html
 - https://docs.aws.amazon.com/lambda/latest/dg/best-practices.html
+
+
+## Reconciled-stack continuation and hardening — 2026-11-25
+
+The replacement branch `spike/p05b-object-key-event-recovery-p03d` is based on P-05A PR #63 head `481a0ab2ac15ee982745e0a3b48d4d93cc829431`. In addition to the original P-05B drills, this continuation hardens the synthetic contract: manifest tenant/object/key/format/version context is checked before decryption; wrapped-DEK AAD binds tenant + key ID + object ID; nonce/base64/size fields are validated; restored plaintext size and SHA-256 must match the manifest and database reference; each aggregate sequence is unique; and the SECURITY DEFINER replay function places pg_temp last in its search_path. A negative fixture now proves a cross-tenant manifest context is rejected.
+
+The original PR #53 CI evidence is historical. Re-run the combined P-05A positive and negative drills, P-05B object/key/event tests, P-02/P-03C/P-03D/P-04 regressions and bilingual Documentation Governance on the replacement head before acceptance.
