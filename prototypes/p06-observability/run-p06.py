@@ -125,7 +125,9 @@ def main():
       "traceparent": f"00-{trace_id}-{span_ids[0]}-01",
       "data": {"synthetic": True}
     }
-    canonical_identity = validate_event(canonical_event)["identity"]
+    canonical_validation = validate_event(canonical_event)
+    canonical_identity = canonical_validation["identity"]
+    trace_id = canonical_validation["trace_id"]
     if canonical_identity != (TENANT_A, "product", "affiliate_agent", source_event_id):
         raise AssertionError("P-09 canonical event identity did not survive into P-06")
     lottery_event = {**canonical_event, "id": "p06-lottery-" + source_event_id,
