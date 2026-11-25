@@ -23,7 +23,7 @@ def event(**overrides):
         "specversion": "1.0",
         "type": "com.lottorito.p07b.demo.signal.v1",
         "tenantid": "tenant-beta",
-        "schemaversion": "1",
+        "dataschema": "urn:lottorito:schema:affiliate.demo.signal:1",
         "classification": "internal",
         "data": {"reference": "synthetic-ref-001"},
     }
@@ -106,7 +106,7 @@ class CrossProductEventContractTests(unittest.TestCase):
         self.assertEqual(result["reason"], "product_not_entitled_for_tenant")
 
     def test_unsupported_event_schema_version_is_denied(self):
-        result = dispatch_event(event(schemaversion="2"), AFFILIATE_TOKEN, LOTTERY_TOKEN)
+        result = dispatch_event(event(dataschema="urn:lottorito:schema:affiliate.demo.signal:2"), AFFILIATE_TOKEN, LOTTERY_TOKEN)
         self.assertEqual(result["reason"], "unsupported_schema_version")
 
     def test_financial_classification_exceeding_contract_is_denied(self):
@@ -134,6 +134,10 @@ class CrossProductEventContractTests(unittest.TestCase):
     def test_unknown_consumer_identity_is_denied(self):
         result = dispatch_event(event(), AFFILIATE_TOKEN, "unknown-service")
         self.assertEqual(result["reason"], "unknown_service_identity")
+
+    def test_unregistered_sensitive_extension_is_denied(self):
+        result = dispatch_event(event(email="person@example.invalid"), AFFILIATE_TOKEN, LOTTERY_TOKEN)
+        self.assertEqual(result["reason"], "unsupported_event_extension")
 
     def test_authorization_audit_does_not_store_credentials_or_payload(self):
         dispatch_event(event(), AFFILIATE_TOKEN, LOTTERY_TOKEN)
