@@ -18,11 +18,14 @@ ALTER ROLE outbox_executor NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT
 GRANT USAGE ON SCHEMA public TO outbox_owner, outbox_executor;
 GRANT USAGE ON SCHEMA private TO outbox_executor;
 GRANT EXECUTE ON FUNCTION private.current_tenant_id() TO outbox_executor;
+GRANT EXECUTE ON FUNCTION private.current_product_id() TO outbox_executor;
 GRANT CREATE ON SCHEMA public TO outbox_owner, outbox_executor;
 GRANT CREATE ON SCHEMA private TO outbox_owner, outbox_executor;
 
 CREATE TABLE public.outbox_delivery_state (
   tenant_id uuid NOT NULL,
+  product_id text NOT NULL DEFAULT 'affiliate_agent'
+    CHECK (product_id IN ('affiliate_agent', 'lottery', 'shared')),
   event_id uuid NOT NULL,
   status text NOT NULL DEFAULT 'pending'
     CHECK (status IN ('pending', 'leased', 'published', 'dead')),
@@ -37,6 +40,8 @@ CREATE TABLE public.outbox_delivery_state (
   PRIMARY KEY (tenant_id, event_id),
   FOREIGN KEY (tenant_id, event_id)
     REFERENCES public.ledger_outbox (tenant_id, event_id),
+  FOREIGN KEY (tenant_id, product_id, event_id)
+    REFERENCES public.ledger_outbox (tenant_id, product_id, event_id),
   CHECK (attempts <= max_attempts),
   CHECK (
     (status = 'leased' AND lease_owner IS NOT NULL AND lease_token IS NOT NULL AND lease_until IS NOT NULL)
@@ -46,21 +51,30 @@ CREATE TABLE public.outbox_delivery_state (
   CHECK ((status = 'published') = (published_at IS NOT NULL))
 );
 
+CREATE UNIQUE INDEX ledger_outbox_tenant_product_event_uidx
+  ON public.ledger_outbox (tenant_id, product_id, event_id);
+
 CREATE INDEX outbox_delivery_claim_idx
-  ON public.outbox_delivery_state (tenant_id, status, available_at, event_id);
+  ON public.outbox_delivery_state (tenant_id, product_id, status, available_at, event_id);
 
 CREATE TABLE public.consumer_inbox (
   tenant_id uuid NOT NULL,
+  product_id text NOT NULL DEFAULT 'affiliate_agent'
+    CHECK (product_id IN ('affiliate_agent', 'lottery', 'shared')),
   consumer_name text NOT NULL CHECK (consumer_name ~ '^[A-Za-z0-9._:-]{1,80}$'),
   event_id uuid NOT NULL,
   processed_at timestamptz NOT NULL DEFAULT clock_timestamp(),
   PRIMARY KEY (tenant_id, consumer_name, event_id),
   FOREIGN KEY (tenant_id, event_id)
-    REFERENCES public.ledger_outbox (tenant_id, event_id)
+    REFERENCES public.ledger_outbox (tenant_id, event_id),
+  FOREIGN KEY (tenant_id, product_id, event_id)
+    REFERENCES public.ledger_outbox (tenant_id, product_id, event_id)
 );
 
 CREATE TABLE public.consumer_effects (
   tenant_id uuid NOT NULL,
+  product_id text NOT NULL DEFAULT 'affiliate_agent'
+    CHECK (product_id IN ('affiliate_agent', 'lottery', 'shared')),
   consumer_name text NOT NULL,
   event_id uuid NOT NULL,
   payload jsonb NOT NULL,
@@ -83,22 +97,29 @@ ALTER TABLE public.consumer_effects FORCE ROW LEVEL SECURITY;
 
 CREATE POLICY ledger_outbox_delivery_executor_tenant
   ON public.ledger_outbox FOR SELECT TO outbox_executor
-  USING (tenant_id = private.current_tenant_id());
+  USING (tenant_id = private.current_tenant_id()
+     AND product_id = private.current_product_id());
 
 CREATE POLICY outbox_delivery_executor_tenant
   ON public.outbox_delivery_state FOR ALL TO outbox_executor
-  USING (tenant_id = private.current_tenant_id())
-  WITH CHECK (tenant_id = private.current_tenant_id());
+  USING (tenant_id = private.current_tenant_id()
+     AND product_id = private.current_product_id())
+  WITH CHECK (tenant_id = private.current_tenant_id()
+     AND product_id = private.current_product_id());
 
 CREATE POLICY consumer_inbox_executor_tenant
   ON public.consumer_inbox FOR ALL TO outbox_executor
-  USING (tenant_id = private.current_tenant_id())
-  WITH CHECK (tenant_id = private.current_tenant_id());
+  USING (tenant_id = private.current_tenant_id()
+     AND product_id = private.current_product_id())
+  WITH CHECK (tenant_id = private.current_tenant_id()
+     AND product_id = private.current_product_id());
 
 CREATE POLICY consumer_effects_executor_tenant
   ON public.consumer_effects FOR ALL TO outbox_executor
-  USING (tenant_id = private.current_tenant_id())
-  WITH CHECK (tenant_id = private.current_tenant_id());
+  USING (tenant_id = private.current_tenant_id()
+     AND product_id = private.current_product_id())
+  WITH CHECK (tenant_id = private.current_tenant_id()
+     AND product_id = private.current_product_id());
 
 GRANT SELECT ON public.ledger_outbox TO outbox_executor;
 GRANT SELECT, INSERT, UPDATE ON public.outbox_delivery_state TO outbox_executor;
@@ -134,11 +155,12 @@ SECURITY DEFINER
 SET search_path = pg_catalog, public, private, pg_temp
 AS $function$
 BEGIN
-  IF NEW.tenant_id IS DISTINCT FROM private.current_tenant_id() THEN
-    RAISE EXCEPTION 'outbox tenant context mismatch' USING ERRCODE = '42501';
+  IF NEW.tenant_id IS DISTINCT FROM private.current_tenant_id()
+     OR NEW.product_id IS DISTINCT FROM private.current_product_id() THEN
+    RAISE EXCEPTION 'outbox tenant/product context mismatch' USING ERRCODE = '42501';
   END IF;
-  INSERT INTO public.outbox_delivery_state (tenant_id, event_id)
-  VALUES (NEW.tenant_id, NEW.event_id);
+  INSERT INTO public.outbox_delivery_state (tenant_id, product_id, event_id)
+  VALUES (NEW.tenant_id, NEW.product_id, NEW.event_id);
   RETURN NEW;
 END
 $function$;
@@ -169,10 +191,12 @@ SET search_path = pg_catalog, public, private, pg_temp
 AS $function$
 DECLARE
   v_tenant uuid;
+  v_product text;
 BEGIN
   v_tenant := private.current_tenant_id();
-  IF v_tenant IS NULL THEN
-    RAISE EXCEPTION 'database identity is not mapped to a tenant' USING ERRCODE = '42501';
+  v_product := private.current_product_id();
+  IF v_tenant IS NULL OR v_product IS NULL THEN
+    RAISE EXCEPTION 'database identity is not mapped to a tenant/product' USING ERRCODE = '42501';
   END IF;
   IF p_batch_size IS NULL OR p_batch_size < 1 OR p_batch_size > 100
      OR p_lease_seconds IS NULL OR p_lease_seconds < 1 OR p_lease_seconds > 300
@@ -191,6 +215,7 @@ BEGIN
     SELECT d.tenant_id, d.event_id
       FROM public.outbox_delivery_state d
      WHERE d.tenant_id = v_tenant
+       AND d.product_id = v_product
        AND d.attempts < d.max_attempts
        AND (
          (d.status = 'pending' AND d.available_at <= clock_timestamp())
@@ -215,7 +240,7 @@ BEGIN
   SELECT e.event_id, e.journal_id AS aggregate_id, e.event_type, e.payload,
          c.attempts, c.lease_token, c.lease_until
     FROM claimed c
-    JOIN public.ledger_outbox e USING (tenant_id, event_id)
+    JOIN public.ledger_outbox e USING (tenant_id, product_id, event_id)
    ORDER BY e.created_at, e.event_id;
 END
 $function$;
@@ -228,16 +253,18 @@ SET search_path = pg_catalog, public, private, pg_temp
 AS $function$
 DECLARE
   v_tenant uuid;
+  v_product text;
   v_count integer;
 BEGIN
   v_tenant := private.current_tenant_id();
-  IF v_tenant IS NULL OR p_event_id IS NULL OR p_lease_token IS NULL THEN
+  v_product := private.current_product_id();
+  IF v_tenant IS NULL OR v_product IS NULL OR p_event_id IS NULL OR p_lease_token IS NULL THEN
     RAISE EXCEPTION 'invalid acknowledgement' USING ERRCODE = '22023';
   END IF;
   UPDATE public.outbox_delivery_state
      SET status = 'published', published_at = clock_timestamp(),
          lease_owner = NULL, lease_token = NULL, lease_until = NULL, last_error = NULL
-   WHERE tenant_id = v_tenant AND event_id = p_event_id
+   WHERE tenant_id = v_tenant AND product_id = v_product AND event_id = p_event_id
      AND status = 'leased' AND lease_token = p_lease_token
      AND lease_until > clock_timestamp();
   GET DIAGNOSTICS v_count = ROW_COUNT;
@@ -255,19 +282,21 @@ SET search_path = pg_catalog, public, private, pg_temp
 AS $function$
 DECLARE
   v_tenant uuid;
+  v_product text;
   v_status text;
   v_attempts integer;
   v_max integer;
 BEGIN
   v_tenant := private.current_tenant_id();
-  IF v_tenant IS NULL OR p_event_id IS NULL OR p_lease_token IS NULL
+  v_product := private.current_product_id();
+  IF v_tenant IS NULL OR v_product IS NULL OR p_event_id IS NULL OR p_lease_token IS NULL
      OR p_retry_seconds IS NULL OR p_retry_seconds < 0 OR p_retry_seconds > 86400 THEN
     RAISE EXCEPTION 'invalid negative acknowledgement' USING ERRCODE = '22023';
   END IF;
   SELECT attempts, max_attempts
     INTO v_attempts, v_max
     FROM public.outbox_delivery_state
-   WHERE tenant_id = v_tenant AND event_id = p_event_id
+   WHERE tenant_id = v_tenant AND product_id = v_product AND event_id = p_event_id
      AND status = 'leased' AND lease_token = p_lease_token
      AND lease_until > clock_timestamp()
    FOR UPDATE;
@@ -280,7 +309,7 @@ BEGIN
          available_at = clock_timestamp() + make_interval(secs => p_retry_seconds),
          lease_owner = NULL, lease_token = NULL, lease_until = NULL,
          last_error = left(COALESCE(p_error, 'delivery failed'), 1000)
-   WHERE tenant_id = v_tenant AND event_id = p_event_id;
+   WHERE tenant_id = v_tenant AND product_id = v_product AND event_id = p_event_id;
   RETURN v_status;
 END
 $function$;
@@ -293,29 +322,31 @@ SET search_path = pg_catalog, public, private, pg_temp
 AS $function$
 DECLARE
   v_tenant uuid;
+  v_product text;
   v_payload jsonb;
   v_inserted integer;
 BEGIN
   v_tenant := private.current_tenant_id();
-  IF v_tenant IS NULL OR p_consumer_name IS NULL
+  v_product := private.current_product_id();
+  IF v_tenant IS NULL OR v_product IS NULL OR p_consumer_name IS NULL
      OR p_consumer_name !~ '^[A-Za-z0-9._:-]{1,80}$' OR p_event_id IS NULL THEN
     RAISE EXCEPTION 'invalid consumer receipt' USING ERRCODE = '22023';
   END IF;
   SELECT payload INTO v_payload
     FROM public.ledger_outbox
-   WHERE tenant_id = v_tenant AND event_id = p_event_id;
+   WHERE tenant_id = v_tenant AND product_id = v_product AND event_id = p_event_id;
   IF NOT FOUND THEN
     RAISE EXCEPTION 'ledger outbox event is unavailable' USING ERRCODE = 'P0002';
   END IF;
-  INSERT INTO public.consumer_inbox (tenant_id, consumer_name, event_id)
-  VALUES (v_tenant, p_consumer_name, p_event_id)
+  INSERT INTO public.consumer_inbox (tenant_id, product_id, consumer_name, event_id)
+  VALUES (v_tenant, v_product, p_consumer_name, p_event_id)
   ON CONFLICT DO NOTHING;
   GET DIAGNOSTICS v_inserted = ROW_COUNT;
   IF v_inserted = 0 THEN
     RETURN false;
   END IF;
-  INSERT INTO public.consumer_effects (tenant_id, consumer_name, event_id, payload)
-  VALUES (v_tenant, p_consumer_name, p_event_id, v_payload);
+  INSERT INTO public.consumer_effects (tenant_id, product_id, consumer_name, event_id, payload)
+  VALUES (v_tenant, v_product, p_consumer_name, p_event_id, v_payload);
   RETURN true;
 END
 $function$;
@@ -331,13 +362,13 @@ REVOKE ALL ON FUNCTION public.nack_outbox_event(uuid, uuid, text, integer) FROM 
 REVOKE ALL ON FUNCTION public.consume_outbox_event(text, uuid) FROM PUBLIC;
 
 GRANT EXECUTE ON FUNCTION public.claim_outbox_events(integer, integer, text)
-  TO tenant_a_ledger_runtime, tenant_b_ledger_runtime;
+  TO tenant_a_ledger_runtime, tenant_b_ledger_runtime, tenant_a_lottery_runtime;
 GRANT EXECUTE ON FUNCTION public.ack_outbox_event(uuid, uuid)
-  TO tenant_a_ledger_runtime, tenant_b_ledger_runtime;
+  TO tenant_a_ledger_runtime, tenant_b_ledger_runtime, tenant_a_lottery_runtime;
 GRANT EXECUTE ON FUNCTION public.nack_outbox_event(uuid, uuid, text, integer)
-  TO tenant_a_ledger_runtime, tenant_b_ledger_runtime;
+  TO tenant_a_ledger_runtime, tenant_b_ledger_runtime, tenant_a_lottery_runtime;
 GRANT EXECUTE ON FUNCTION public.consume_outbox_event(text, uuid)
-  TO tenant_a_ledger_runtime, tenant_b_ledger_runtime;
+  TO tenant_a_ledger_runtime, tenant_b_ledger_runtime, tenant_a_lottery_runtime;
 
 REVOKE CREATE ON SCHEMA public FROM outbox_owner, outbox_executor;
 REVOKE CREATE ON SCHEMA private FROM outbox_owner, outbox_executor;
