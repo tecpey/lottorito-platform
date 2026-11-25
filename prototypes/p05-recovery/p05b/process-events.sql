@@ -44,3 +44,15 @@ INSERT INTO public.p05_inbox(tenant_id,product_id,consumer_name,source_event_id,
 ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','lottery','ledger-projection','30000000-0000-4000-8000-000000000102','20000000-0000-4000-8000-000000000102','50000000-0000-4000-8000-000000000001',2,'pending'),
 ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','lottery','ledger-projection','30000000-0000-4000-8000-000000000199','20000000-0000-4000-8000-000000000101','50000000-0000-4000-8000-000000000001',1,'pending')
 ON CONFLICT DO NOTHING;
+
+-- A sequence number is unique inside one product-qualified aggregate stream.
+DO $$
+BEGIN
+ BEGIN
+  INSERT INTO public.p05_inbox(tenant_id,product_id,consumer_name,source_event_id,economic_effect_id,aggregate_id,aggregate_seq,status)
+  VALUES('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','affiliate_agent','ledger-projection','30000000-0000-4000-8000-000000000201','20000000-0000-4000-8000-000000000201','50000000-0000-4000-8000-000000000001',1,'pending');
+  RAISE EXCEPTION 'duplicate aggregate sequence unexpectedly accepted';
+ EXCEPTION WHEN unique_violation THEN
+  NULL;
+ END;
+END $$;

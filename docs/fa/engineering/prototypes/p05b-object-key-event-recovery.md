@@ -92,3 +92,5 @@ RPO/RTO طبق LOT-QA-001 همچنان TBD است. زمان CI فقط مشاهد
 تابع Replay ردیف Cursor دارای Scope محصول را با `FOR UPDATE` قفل می‌کند. دو Worker هم‌زمان روی Cursor مربوط به Affiliate در مجموع دقیقاً دو اثر را پردازش می‌کنند؛ در همان زمان Worker مربوط به همان Aggregate در Lottery، Cursor مستقل خود را جلو می‌برد. تست‌ها همچنین توقف در شکاف Sequence، Rollback پس از وقفه تزریق‌شده، Retry/No-op، توازن Journal، تطبیق Source-to-Ledger به تفکیک محصول و رد RLS بین Tenant/Product را بررسی می‌کنند.
 
 اعتبارسنجی CI مربوط به P-09J هنوز روی Head حاصل در انتظار اجراست. این موارد همچنان Fixtureهای ساختگی و دورریختنی هستند، نه طراحی بازیابی Production. تست Canonical Token در P-02 مقدار جدید `shared` را رد می‌کند؛ ردیف‌های Legacy همچنان باید بدون تخصیص خودکار، شناسایی و قرنطینه شوند.
+
+Inbox محصول‌محور همچنین یکتایی هر رویداد را در محدوده `(tenant, product, consumer, aggregate, sequence)` تضمین می‌کند تا دو اثر متفاوت نتوانند برای یک جایگاه Sequence رقابت کنند. Assertionهای RLS علاوه بر Inbox، جدول‌های Source Event، Journal و Line را نیز پوشش می‌دهند.

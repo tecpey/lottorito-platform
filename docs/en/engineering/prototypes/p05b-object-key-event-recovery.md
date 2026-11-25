@@ -92,3 +92,5 @@ P-05B's inbox and replay cursor now include `product_id` in their primary/unique
 The replay function locks the product-qualified cursor row with `FOR UPDATE`. Two concurrent workers against the same Affiliate cursor serialize to exactly two effects in total, while a worker for the same aggregate in Lottery advances its independent cursor. The tests also verify sequence-gap blocking, rollback after injected interruption, retry/no-op behavior, balanced journals, per-product source-to-ledger reconciliation, and cross-tenant/cross-product RLS denial.
 
 P-09J CI validation is pending on the resulting PR head. These remain synthetic disposable fixtures, not a production recovery design. The P-02 canonical-token test rejects new `shared` values; any legacy rows still require explicit inventory/quarantine rather than automatic reassignment.
+
+The product-qualified Inbox also enforces one event per `(tenant, product, consumer, aggregate, sequence)`, preventing two distinct effects from competing for the same sequence slot. RLS assertions cover the Inbox, source events, journals and lines—not only the Inbox.

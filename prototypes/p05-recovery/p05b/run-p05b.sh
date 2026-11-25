@@ -32,6 +32,11 @@ echo "[P05B] Verify tenant/product RLS"
 test "$(tenant_psql p05_tenant_a p05-tenant-a-not-production -At -c "SELECT count(*) FROM public.p05_inbox")" = "2"
 test "$(tenant_psql p05_tenant_a_lottery p05-tenant-a-lottery-not-for-production -At -c "SELECT count(*) FROM public.p05_inbox")" = "2"
 test "$(tenant_psql p05_tenant_a p05-tenant-a-not-production -At -c "SELECT count(*) FROM public.p05_inbox WHERE product_id='lottery'")" = "0"
+test "$(tenant_psql p05_tenant_a p05-tenant-a-not-production -At -c "SELECT count(*) FROM public.source_events WHERE product_id='lottery'")" = "0"
+test "$(tenant_psql p05_tenant_a p05-tenant-a-not-production -At -c "SELECT count(*) FROM public.ledger_journals WHERE product_id='lottery'")" = "0"
+test "$(tenant_psql p05_tenant_a_lottery p05-tenant-a-lottery-not-for-production -At -c "SELECT count(*) FROM public.source_events WHERE product_id='lottery'")" = "2"
+test "$(tenant_psql p05_tenant_a_lottery p05-tenant-a-lottery-not-for-production -At -c "SELECT count(*) FROM public.ledger_journals WHERE product_id='lottery'")" = "2"
+test "$(tenant_psql p05_tenant_a_lottery p05-tenant-a-lottery-not-for-production -At -c "SELECT count(*) FROM public.ledger_lines WHERE product_id='lottery'")" = "4"
 if tenant_psql p05_tenant_a p05-tenant-a-not-production -c "INSERT INTO public.p05_inbox(tenant_id,product_id,consumer_name,source_event_id,economic_effect_id,aggregate_id,aggregate_seq) VALUES ('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb','affiliate_agent','ledger-projection',gen_random_uuid(),gen_random_uuid(),gen_random_uuid(),1)" >/tmp/p05b-cross-tenant.log 2>&1; then exit 1; fi
 grep -qi "row-level security" /tmp/p05b-cross-tenant.log
 if tenant_psql p05_tenant_a p05-tenant-a-not-production -c "INSERT INTO public.p05_inbox(tenant_id,product_id,consumer_name,source_event_id,economic_effect_id,aggregate_id,aggregate_seq) VALUES ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','lottery','ledger-projection',gen_random_uuid(),gen_random_uuid(),gen_random_uuid(),1)" >/tmp/p05b-cross-product.log 2>&1; then exit 1; fi

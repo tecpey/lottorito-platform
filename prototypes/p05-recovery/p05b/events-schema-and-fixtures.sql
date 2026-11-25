@@ -5,7 +5,8 @@ CREATE TABLE public.p05_inbox (
  aggregate_seq bigint NOT NULL CHECK(aggregate_seq>0),
  status text NOT NULL DEFAULT 'pending' CHECK(status IN('pending','processed')),
  PRIMARY KEY(tenant_id,product_id,consumer_name,source_event_id),
- UNIQUE(tenant_id,product_id,consumer_name,economic_effect_id)
+ UNIQUE(tenant_id,product_id,consumer_name,economic_effect_id),
+ UNIQUE(tenant_id,product_id,consumer_name,aggregate_id,aggregate_seq)
 );
 CREATE TABLE public.p05_replay_cursor (
  tenant_id uuid NOT NULL, product_id text NOT NULL CHECK(product_id IN('affiliate_agent','lottery')), consumer_name text NOT NULL, aggregate_id uuid NOT NULL,
