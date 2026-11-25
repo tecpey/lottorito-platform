@@ -7,6 +7,7 @@ on:
     paths:
       - ".github/workflows/p08-deployment-health-rollback.yml"
       - "prototypes/p08-deployment/**"
+      - "prototypes/p09-contract-recovery/**"
       - "docs/en/engineering/prototypes/p08-deployment-health-rollback.md"
       - "docs/fa/engineering/prototypes/p08-deployment-health-rollback.md"
       - "docs/en/engineering/project-status.md"
