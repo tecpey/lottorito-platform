@@ -68,8 +68,12 @@ class SharedCapabilityPolicyTests(unittest.TestCase):
         self.assertEqual(result["reason"], "unknown_capability")
 
     def test_policy_unavailability_fails_closed(self):
-        result = evaluate_capability(AFFILIATE_TOKEN, "tenant-beta", "identity", "resolve_subject", capability_registry=None, entitlements={"tenants": {}})
-        self.assertEqual(result["decision"], "deny")
+        result = evaluate_capability(AFFILIATE_TOKEN, "tenant-beta", "identity", "resolve_subject", policy_available=False)
+        self.assertEqual(result["reason"], "policy_unavailable")
+
+    def test_service_identity_is_scoped_to_approved_tenants(self):
+        result = evaluate_capability(AFFILIATE_TOKEN, "tenant-gamma", "identity", "resolve_subject")
+        self.assertEqual(result["reason"], "service_tenant_scope_denied")
 
     def test_product_cannot_use_an_operation_not_in_its_grant(self):
         result = evaluate_capability(AFFILIATE_TOKEN, "tenant-beta", "identity", "delete_subject")
@@ -120,8 +124,12 @@ class CrossProductEventContractTests(unittest.TestCase):
         self.assertEqual(result["reason"], "invalid_event_envelope")
 
     def test_sensitive_payload_keys_are_denied(self):
-        result = dispatch_event(event(data={"reference": "x", "email": "person@example.invalid"}), AFFILIATE_TOKEN, LOTTERY_TOKEN)
+        result = dispatch_event(event(data={"reference": "x", "profile": {"email": "person@example.invalid"}}), AFFILIATE_TOKEN, LOTTERY_TOKEN)
         self.assertEqual(result["reason"], "sensitive_data_key_forbidden")
+
+    def test_event_consumer_service_scope_is_enforced(self):
+        result = dispatch_event(event(tenantid="tenant-gamma"), AFFILIATE_TOKEN, LOTTERY_TOKEN)
+        self.assertEqual(result["reason"], "service_tenant_scope_denied")
 
     def test_unknown_consumer_identity_is_denied(self):
         result = dispatch_event(event(), AFFILIATE_TOKEN, "unknown-service")
