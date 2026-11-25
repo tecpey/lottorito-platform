@@ -2,9 +2,12 @@
 from __future__ import annotations
 import json
 import re
+import sys
 import uuid
 from pathlib import Path
 from typing import Any
+sys.path.insert(0, str(ROOT.parent / "p09-contract-recovery"))
+from contract import ContractViolation, validate_event
 from policy import AUDIT_DECISIONS, resolve_principal
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -60,7 +63,7 @@ def dispatch_event(
         return _deny("unknown_service_identity")
 
     required = (
-        "id", "source", "specversion", "type", "tenantid", "dataschema",
+        "id", "source", "specversion", "type", "time", "tenantid", "dataschema",
         "classification", "data", "scope", "sourceeventid", "schemaversion", "traceparent",
     )
     if any(key not in event for key in required):
@@ -76,6 +79,10 @@ def dispatch_event(
         return _deny("unsupported_event_extension", producer["product_id"], event.get("tenantid"))
     if event["specversion"] != "1.0" or not isinstance(event["data"], dict) or not isinstance(event["scope"], dict):
         return _deny("invalid_event_envelope", producer["product_id"], event.get("tenantid"))
+    try:
+        validate_event(event)
+    except ContractViolation:
+        return _deny("invalid_event_contract", producer["product_id"], event.get("tenantid"))
     if set(event["scope"]) != {"kind", "id"}:
         return _deny("invalid_event_scope", producer["product_id"], event.get("tenantid"))
     try:
