@@ -1,8 +1,19 @@
 # Verified Project Status and Continuation Point
 
-**Document ID:** LOT-OPS-001 | **Version:** 1.37.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-25
+**Document ID:** LOT-OPS-001 | **Version:** 1.40.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-25
 
 ## Verified repository state
+
+## P-07A initial validation — 2026-11-25
+
+- P-07A is open as Draft PR [#56](https://github.com/tecpey/lottorito-platform/pull/56), stacked on P-06 PR #55. It is not merged. PR #55 and the preceding P-04/P-05 chain remain unmerged.
+- Exact validated P-07A head: `6e57296b88a1394d25d282f50ad0f02c410811fe`.
+- P-07A Integration [run 45569492121](https://github.com/tecpey/lottorito-platform/actions/runs/45569336694) passed on that exact PR head. Python syntax validation passed and all 11 tests passed.
+- Documentation Governance [run 45569492139](https://github.com/tecpey/lottorito-platform/actions/runs/45569336699) also passed on the same PR head.
+- The synthetic fixture independently built and launched Affiliate & Agent and Lottery artifacts in fresh processes. Each artifact contained only the selected product entrypoint, the synthetic shared-platform port, its manifest and runner. Negative tests rejected direct, package-qualified, relative and dynamic sibling imports; manifests rejected product dependencies; stale/non-empty output directories were rejected; synthetic audit attribution remained product-scoped.
+- This proves only the P-07A composition/build/runtime fixture. It does not prove actual Affiliate referral/commission journeys, Lottery ticket/draw/prize workflows, shared-capability authorization, tenant RLS, event contracts, product disablement, independent migrations/deployments or production readiness. Shared identity/tenant/audit ports are synthetic stubs.
+- P-07 is now explicitly split into P-07A (product isolation), P-07B (shared platform and trust boundaries) and P-07C (independent lifecycle). P-07B and P-07C are not yet implemented.
+- No merge, deployment, production data, real credentials or real funds were used. No production architecture or microservice/database topology is approved.
 
 ## Final P-06 validation update — 2026-11-25
 

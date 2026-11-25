@@ -1,0 +1,1 @@
+{"product_id":"affiliate_agent","display_name":"Affiliate & Agent","entrypoint":"products.affiliate_agent:run","required_platform_capabilities":["identity_context","tenant_context","audit_sink"],"product_owned_capabilities":["affiliate_agent.composition_smoke"],"product_dependencies":[],"forbidden_product_dependencies":["lottery"]}
