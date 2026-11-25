@@ -196,7 +196,7 @@ BEGIN
   v_tenant := private.current_tenant_id();
   v_product := private.current_product_id();
   IF v_tenant IS NULL OR v_product IS NULL THEN
-    RAISE EXCEPTION 'database identity is not mapped to a tenant/product' USING ERRCODE = '42501';
+    RAISE EXCEPTION 'database identity is not mapped to a tenant' USING ERRCODE = '42501';
   END IF;
   IF p_batch_size IS NULL OR p_batch_size < 1 OR p_batch_size > 100
      OR p_lease_seconds IS NULL OR p_lease_seconds < 1 OR p_lease_seconds > 300
