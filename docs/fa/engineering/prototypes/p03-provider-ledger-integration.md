@@ -1,0 +1,92 @@
+# P-03D — اتصال Provider Inbox به ثبت مالی محصول‌محور و Outbox
+
+**شناسه سند:** LOT-PROT-P03D-001 | **نسخه:** ۰.۱.۰ | **وضعیت:** Prototype یکپارچه‌سازی ساختگی؛ اعتبارسنجی CI در انتظار اجرا | **تاریخ بازبینی:** ۲۰۲۶-۱۱-۲۵
+
+## هدف
+
+P-03D شکاف ورودی باقی‌مانده در P-03 را می‌بندد و رویداد احرازشده Provider را به مرز ثبت مالی P-02 و پل Outbox تراکنشی P-03C متصل می‌کند. این آزمایش بر Ancestry فعلی P-02/P-03C ساخته شده است، نه شاخه قدیمی P-02 که PR شماره ۴۱ بر مبنای آن ایجاد شده بود.
+
+آزمایش باید اثبات کند پذیرش پایدار Provider، یک اثر مالی Idempotent، سند/سطرهای/Outbox تغییرناپذیر و وضعیت اولیه Delivery در P-03C همگی با هم Commit یا Rollback می‌شوند.
+
+## محدوده
+
+- پیکربندی مورداعتماد سمت سرور، Provider و Tenant و Product را به هم متصل می‌کند. فیلدهای Payload درخواست هرگز Tenant، Product یا حساب دفترکل را انتخاب نمی‌کنند.
+- هویت Session دیتابیس هم Tenant و هم Product را تعیین می‌کند. RLS از توابع مبتنی بر `session_user` استفاده می‌کند؛ به Custom GUC قابل‌کنترل توسط Caller اعتماد نمی‌شود.
+- HMAC-SHA-256 روی بایت‌های دقیق Raw Request، شناسه و Timestamp امضاشده، مقایسه Constant-time، پنجره تازگی محدود و چرخش کلید فعلی/قبلی را بررسی می‌کند. این فقط Adapter ساختگی به سبک Standard Webhooks است، نه پروتکل عمومی همه Providerها.
+- شناسه Provider Event همراه SHA-256 بدنه خام، مبنای Duplicate/Conflict در Inbox است. شناسه یکسان و Hash یکسان Idempotent است؛ شناسه یکسان با بدنه متفاوت، مدرک تعارض تغییرناپذیر ایجاد می‌کند و رویداد پذیرفته‌شده را بازنویسی نمی‌کند.
+- پاسخ شبیه‌سازی‌شده HTTP 202 فقط پس از Commit تراکنش Inbox با Scope Tenant/Product برگردانده می‌شود.
+- نگاشت Provider Event از پیکربندی مورداعتماد انجام می‌شود. Payload Provider نمی‌تواند شناسه حساب، جهت Debit/Credit یا Policy ثبت مالی را تعیین کند.
+- Lease محدود Worker و Fencing Token از پردازش هم‌زمان و Worker منقضی‌شده محافظت می‌کنند.
+- Worker، تابع `post_journal` در P-02 را روی همان Connection/Transactionای فراخوانی می‌کند که Inbox را Processed می‌کند. P-02 سند، سطرها و Ledger Outbox تغییرناپذیر را درج می‌کند؛ Trigger مربوط به P-03C وضعیت Delivery را در همان تراکنش می‌سازد.
+- شکست پیش از Commit باید تکمیل Inbox، سند، سطرها، Outbox و وضعیت Delivery را Rollback کند. وضعیت Retry/Dead-letter/Quarantine پس از Rollback و با Fencing جداگانه ثبت می‌شود.
+- Product ID در ردیف‌های دفترکل P-02 و ردیف‌های Delivery/Consumer در P-03C ثبت و با RLS اعمال می‌شود. یک Role ساختگی برای Product دوم اثبات می‌کند داده Affiliate & Agent و Lottery یک Tenant برای یکدیگر قابل مشاهده نیست.
+- Reconciliation رویدادهای موردانتظار مستقل را با وضعیت Inbox، سند، Outbox و Delivery مقایسه می‌کند.
+
+## مرز تراکنش
+
+۱. امضا و تازگی را روی بایت‌های دقیق Raw بررسی کن.
+۲. Installation مورداعتماد را Resolve کن و تطبیق Role دیتابیس با همان Tenant/Product را اثبات کن.
+۳. رکورد پایدار Inbox را Commit کن؛ فقط پس از آن پاسخ شبیه‌سازی‌شده 202 بده.
+۴. ردیف Inbox را با `FOR UPDATE SKIP LOCKED`، Lease محدود و Fencing Token جدید Claim کن.
+۵. در یک تراکنش پردازش: Claim را اعتبارسنجی کن، Event canonical را با Account Mapping مورداعتماد نگاشت کن، `post_journal` در P-02 را فراخوانی کن، Inbox را Processed کن و Commit کن.
+۶. Trigger پس از Insert در P-03C، وضعیت Delivery را از Ledger Outbox تغییرناپذیر در همان تراکنش می‌سازد.
+۷. تراکنش شکست‌خورده به‌طور کامل Rollback می‌شود؛ سپس Inbox هنوز Claimشده با Fencing معتبر به Retry/Dead-letter/Quarantine منتقل می‌شود.
+
+قرارداد تحویل همچنان At-least-once است. هویت اثر مالی Idempotent و Inbox مصرف‌کننده از اثر تکراری محافظت می‌کنند؛ این آزمایش ادعای تحویل شبکه‌ای Exactly-once ندارد.
+
+## مرز Product و هویت
+
+Role Map ساختگی P-02 اکنون هر Role از نوع Database LOGIN را به Tenant و Product متصل می‌کند. فیلد Product دفترکل با RLS و تابع Posting بررسی می‌شود و حساب انتخاب‌شده باید متعلق به Product جاری باشد. وضعیت Delivery و Inbox/Effects مصرف‌کننده در P-03C نیز همین بُعد Product را نگه می‌دارند.
+
+برای سازگاری محافظه‌کارانه، برخی Constraintهای یکتایی موجود P-02 همچنان در سطح Tenant هستند، نه Product. این محدودیت سخت‌گیرانه‌تر است؛ ممکن است استفاده مستقل از یک شناسه در دو Product را رد کند، اما دسترسی بین Productها را مجاز نمی‌کند. معنای کلیدهای مرکب و کاملاً Product-scoped نیازمند بازبینی بعدی است؛ این Prototype هیچ Schema عملیاتی را تصویب نمی‌کند.
+
+## ماتریس پذیرش
+
+| شناسه | سناریو | نتیجه مورد انتظار |
+|---|---|---|
+| P03D-01 | امضای معتبر Raw Body | Commit پایدار Inbox پیش از پاسخ شبیه‌سازی‌شده 202 |
+| P03D-02 | دستکاری Raw Body | رد؛ بدون ردیف Inbox |
+| P03D-03 | Timestamp قدیمی/آینده | رد |
+| P03D-04 | چرخش کلید فعلی/قبلی | فقط کلیدهای پیکربندی‌شده پذیرفته شوند |
+| P03D-05 | شناسه Event و بدنه یکسان | Duplicate به‌شکل Idempotent |
+| P03D-06 | شناسه یکسان با بدنه متفاوت | Conflict تغییرناپذیر؛ حفظ رکورد اصلی |
+| P03D-07 | Tenant/Product ارسالی Caller | نادیده گرفته شود؛ Installation و هویت دیتابیس مرجع باشند |
+| P03D-08 | RLS Tenant/Product | عدم مشاهده Inbox سایر Tenantها و Productها |
+| P03D-09 | پردازش موفق | یک Journal، یک Outbox Event و یک Delivery State |
+| P03D-10 | شکست پیش از Commit | Rollback همه آثار Posting/Outbox و باقی‌ماندن Inbox در وضعیت Retry |
+| P03D-11 | Duplicate پس از پردازش | بدون Journal یا Outbox دوم |
+| P03D-12 | انقضای Lease | Claim با Token جدید؛ Fencing Worker قدیمی |
+| P03D-13 | اتمام Retry | انتقال به Dead-letter |
+| P03D-14 | Event بدون Mapping | Quarantine؛ بدون Posting |
+| P03D-15 | Account Mapping محصولی | Posting Lottery نتواند از حساب Affiliate & Agent استفاده کند |
+| P03D-16 | تغییر مستقیم Ledger | رد Role عملیاتی |
+| P03D-17 | Reconciliation | رویداد مفقود آشکار و مسیر کامل از فهرست استثنا خارج شود |
+| P03D-18 | هویت دیتابیس بدون Mapping | رد امن Posting |
+
+## CI و بازتولید
+
+Workflow اختصاصی از PostgreSQL 18.7، Node.js 26.13.0، Lockfile ثبت‌شده npm و GitHub Actions دارای SHA ثابت استفاده می‌کند. Workflowهای P-02 و P-03C نیز دوباره اجرا می‌شوند؛ چون Schema/Functionهای آن‌ها در شاخه یکپارچه‌سازی توسعه یافته‌اند.
+
+اجرای محلی فقط باید از دیتابیس موقت موجود در `compose.yaml` استفاده کند. اسکریپت Setup، Schema مربوط به P-02، SQL یکپارچه‌سازی P-03C و Schema مربوط به P-03D را به‌ترتیب اعمال می‌کند. این Setup نسبت به دیتابیس هدف مخرب است؛ هرگز آن را به دیتابیس مشترک، Staging یا Production متصل نکن.
+
+## محدودیت‌های صریح
+
+- فقط هویت، کلید امضا، رویداد Provider، Account Mapping و مبلغ ساختگی.
+- بدون HTTP Server واقعی، API Gateway، WAF، قرارداد Provider، Sandbox شریک، انتقال شبکه خارجی، Broker، KMS/Secret Manager، mTLS، کنترل SSRF مقصد یا چرخش کلید عملیاتی.
+- بدون قاعده واقعی Commission، NGR، سلسله‌مراتب Affiliate، بلیت Lottery، Payout، نگهداری وجه، FX، شناسایی درآمد یا حسابداری قانونی.
+- فیلدهای Product و Role Mapping در P-02 آزمایشی‌اند. کلیدهای یکتای Tenant-wide فعلی محافظه‌کارانه باقی مانده‌اند؛ کلید مرکب Product-local و سیاست Migration فیزیکی نیازمند بازبینی مستقل‌اند.
+- هیچ ادعایی درباره Load، Chaos، Failover، PITR، Disaster Recovery، تطبیق صورت‌حساب Provider یا آمادگی Production وجود ندارد.
+- سبز شدن CI فقط همین سناریوهای ساختگی را اثبات می‌کند؛ به معنی تکمیل تمام معیارهای P-03 یا تصویب Provider، دیتابیس، Stack، Merge یا Deploy نیست.
+
+## مبنای تحقیق
+
+- OWASP — [Webhook Security Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Webhook_Security_Cheat_Sheet.html).
+- Standard Webhooks — [مشخصات امضای Webhook](https://github.com/standard-webhooks/standard-webhooks/blob/main/spec/standard-webhooks.md).
+- IETF — [RFC 9421 HTTP Message Signatures](https://www.rfc-editor.org/rfc/rfc9421.html)؛ این Prototype ادعای انطباق با RFC 9421 ندارد.
+- CloudEvents — [مشخصات Core](https://github.com/cloudevents/spec/blob/main/cloudevents/spec.md).
+- AWS Prescriptive Guidance — [الگوی Transactional Outbox](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html).
+- PostgreSQL 18 — [Row Security Policies](https://www.postgresql.org/docs/18/ddl-rowsecurity.html) و [SELECT Locking Clause](https://www.postgresql.org/docs/18/sql-select.html).
+
+## شاخه و اختیار
+
+این یک شاخه آزمایشی Draft بر مبنای Head مربوط به PR شماره ۶۰ در P-03C یعنی `32b34f4c7c67b12874cdf6a14a2788d9a2f4c6dc` است. PR شماره ۴۱ یک Fixture قدیمی Provider Delivery بر مبنای شاخه قدیمی P-02 است؛ منطق Raw-body Verification و Duplicate/Conflict آن فقط ورودی تحقیق است و نباید بدون مدل هویت Session و Product Scope فعلی Cherry-pick شود. هیچ PRی Merge نشده و هیچ Deploy یا عملیات مخرب Production مجاز نیست.
