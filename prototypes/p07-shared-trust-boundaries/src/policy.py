@@ -81,8 +81,15 @@ def evaluate_capability(
     owner = definition.get("owner", "")
     consumers = definition.get("consumers", {})
     permitted_operations = consumers.get(product_id, [])
-    if not (owner.startswith("platform.") or owner == product_id):
+    valid_platform_owners = {
+        "platform.identity", "platform.tenant", "platform.finance",
+        "platform.notifications", "platform.audit",
+    }
+    valid_product_owners = {"affiliate_agent", "lottery"}
+    if owner not in valid_platform_owners | valid_product_owners:
         return _record({"decision": "deny", "reason": "invalid_capability_owner", "product_id": product_id, "tenant_id": tenant_id, "capability": capability, "operation": operation})
+    if owner in valid_product_owners and owner != product_id:
+        return _record({"decision": "deny", "reason": "cross_product_capability_owner", "product_id": product_id, "tenant_id": tenant_id, "capability": capability, "operation": operation})
     if operation not in definition.get("operations", []) or operation not in permitted_operations:
         return _record({"decision": "deny", "reason": "operation_not_granted", "product_id": product_id, "tenant_id": tenant_id, "capability": capability, "operation": operation})
 
