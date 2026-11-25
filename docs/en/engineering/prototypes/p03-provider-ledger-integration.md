@@ -115,3 +115,6 @@ Exact current validated PR head: `14d69ec5be1a9285049c1f88529f375782f2de51`.
 
 This verifies the synthetic acceptance matrix on the cited branch head only. PR #61 remains Draft/open and stacked on PR #60; no merge, production provider integration, production database migration, technology approval or deployment is implied.
 
+## Cross-stack regression candidate — 2026-11-25
+
+PR #66 (integration/p03d-p04-p08-regression) combines the current P-03D implementation with the P-04–P-08 prototype family on one candidate commit. P-02 and P-03C/P-03D workflows must pass on that exact candidate head; earlier branch-specific green runs do not substitute for this integrated rerun. This section is an execution gate, not a production approval.

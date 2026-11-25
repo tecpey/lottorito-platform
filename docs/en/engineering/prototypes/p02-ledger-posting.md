@@ -71,3 +71,7 @@ All data and credentials are synthetic. P-02 run [45465421133](https://github.co
 - [AWS Prescriptive Guidance — Transactional outbox](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html): atomically persist business state and outbox events; consumers must tolerate duplicate delivery.
 - [AWS Well-Architected — Make mutating operations idempotent](https://docs.aws.amazon.com/wellarchitected/latest/framework/rel04-bp04.html): stable idempotency tokens, atomic state tracking, retries and duplicate event handling.
 - [Microsoft Architecture Center — Idempotent consumer](https://learn.microsoft.com/azure/architecture/patterns/idempotent-consumer): use a stable business-operation identity, not a broad correlation ID, to deduplicate redelivered events.
+
+## Cross-stack regression candidate — 2026-11-25
+
+PR #66 (integration/p03d-p04-p08-regression) places the P-02 ledger fixture on the same candidate commit as P-03C/P-03D and P-04–P-08. The P-02 workflow must pass on the exact candidate head before the integrated prototype stack is considered validated. This section is an execution gate, not a test result or production approval.

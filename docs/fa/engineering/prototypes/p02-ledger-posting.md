@@ -71,3 +71,7 @@
 - [AWS Prescriptive Guidance — Transactional outbox](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html): ذخیره اتمیک وضعیت کسب‌وکار و Outbox؛ Consumer باید تحویل تکراری را تحمل کند.
 - [AWS Well-Architected — Make mutating operations idempotent](https://docs.aws.amazon.com/wellarchitected/latest/framework/rel04-bp04.html): شناسه پایدار Idempotency، ثبت اتمیک وضعیت، Retry و مدیریت رویدادهای تکراری.
 - [Microsoft Architecture Center — Idempotent consumer](https://learn.microsoft.com/azure/architecture/patterns/idempotent-consumer): استفاده از هویت پایدار عملیات کسب‌وکار، نه Correlation ID عمومی، برای Deduplicate کردن تحویل مجدد.
+
+## دروازه Regression یکپارچه — ۲۰۲۶-۱۱-۲۵
+
+PR شماره ۶۶ با شاخه integration/p03d-p04-p08-regression، Fixture مربوط به P-02 را روی همان Commit یکپارچه با P-03C/P-03D و P-04 تا P-08 قرار می‌دهد. Workflow مربوط به P-02 باید روی Head دقیق Candidate موفق شود تا زنجیره یکپارچه Prototypeها معتبر تلقی شود. این بخش صرفاً دروازه اجراست، نه نتیجه تست یا تأیید Production.
