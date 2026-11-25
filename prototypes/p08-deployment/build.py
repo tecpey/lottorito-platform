@@ -33,10 +33,10 @@ def build(version_key: str, output_dir: Path, source_revision: str) -> tuple[Pat
     if len(source_revision) != SOURCE_REVISION_LENGTH or any(ch not in "0123456789abcdef" for ch in source_revision):
         raise ValueError("source_revision_must_be_40_lowercase_hex")
     output_dir.mkdir(parents=True, exist_ok=True)
+    if any(output_dir.iterdir()):
+        raise FileExistsError("build_output_directory_must_be_empty")
     artifact_path = output_dir / f"affiliate-agent-{version_key}.pyz"
     provenance_path = output_dir / f"affiliate-agent-{version_key}.provenance.json"
-    if artifact_path.exists() or provenance_path.exists():
-        raise FileExistsError("build_output_must_be_new_and_empty")
 
     entrypoint = (ROOT / "fixtures" / version_key / "__main__.py").read_bytes()
     metadata = {
