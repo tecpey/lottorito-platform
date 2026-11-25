@@ -86,3 +86,7 @@ A financial event must carry product scope. A platform event may carry platform 
 ## 7. Explicit non-goals
 
 No real provider, production KMS/HSM, broker, object store, customer data, production database, money movement, accounting policy, RPO/RTO commitment, production deployment or release approval. No PR is merged and no main-branch ref is modified.
+
+## P-09B — Product-scoped observability correlation
+
+The P-06 implementation now uses the canonical tenant/scope/source-event tuple for correlation uniqueness, forensic access grants and view filtering. A deterministic adversarial case reuses one source-event UUID and trace ID across Affiliate and Lottery within the same tenant; each product's audited forensic grant must reveal exactly its own row. This closes the prior tenant-only correlation ambiguity in the synthetic P-06 slice. It does not yet make P-05 recovery, P-07B event authorization or P-08 artifact provenance conformant; those remain separate P-09 slices.
