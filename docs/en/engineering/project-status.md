@@ -1,8 +1,20 @@
 # Verified Project Status and Continuation Point
 
-**Document ID:** LOT-OPS-001 | **Version:** 1.33.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-25
+**Document ID:** LOT-OPS-001 | **Version:** 1.34.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-25
 
 ## Verified repository state
+
+## Latest continuation update — 2026-11-25 (P-05C execution)
+
+- P-05C remains Draft PR #54, stacked on P-05B PR #53; it is open and unmerged. PR #53 is stacked on #52; #52 is stacked on #51. No PR in this recovery chain has been merged.
+- The P-05C executable integration passed on branch-push [run 45533778752](https://github.com/tecpey/lottorito-platform/actions/runs/45533778752) at code head 4884a3c38d2da8ea9ab9961dc095eb0ddd469f4d.
+- The test ran two PostgreSQL 18.7 clusters, physical streaming replication, promotion refusal while the old primary was alive, local process fencing, epoch 1→2, stale-writer rejection, expired-lease rejection and a concurrent epoch-3 compare-and-swap with exactly one winner.
+- The first real pg_rewind copied 35 MB and rejoined the former primary as a read-only standby; the intentionally unreplicated first tail was absent.
+- Controlled failback created a second intentionally unreplicated tail, promoted the returning node, and performed a second real pg_rewind that copied 67 MB. The second tail was absent, the failback marker was present, and epoch 4/active writer node A was confirmed on both nodes.
+- The PR-head Integration and Documentation Governance for the latest documentation commit are still required before calling P-05C closed. The experiment is not production fencing: process stop is local CI simulation, and the epoch row is not an independent quorum-backed DCS. Both intentionally unreplicated tails demonstrate asynchronous replication loss exposure; RPO/RTO remain TBD.
+- No production data, real credentials, real funds, cloud resources, merge or deployment were involved. No HA vendor, topology or production readiness is approved.
+
+
 
 ## Latest continuation update — 2026-11-25 (P-05C)
 
