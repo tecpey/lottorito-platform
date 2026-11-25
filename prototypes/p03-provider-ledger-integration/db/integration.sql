@@ -9,6 +9,7 @@ BEGIN
 END
 $roles$;
 ALTER ROLE provider_event_owner NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
+GRANT CREATE ON SCHEMA public TO provider_event_owner;
 GRANT CREATE ON SCHEMA private TO provider_event_owner;
 
 CREATE UNIQUE INDEX IF NOT EXISTS ledger_journals_tenant_product_journal_uidx
@@ -74,6 +75,7 @@ CREATE TABLE public.provider_event_expectations (
   PRIMARY KEY (tenant_id, product_id, provider_id, provider_event_id)
 );
 ALTER TABLE public.provider_event_expectations OWNER TO provider_event_owner;
+REVOKE CREATE ON SCHEMA public FROM provider_event_owner;
 
 CREATE INDEX provider_event_inbox_claim_idx
   ON public.provider_event_inbox (tenant_id, product_id, status, available_at, received_at);
