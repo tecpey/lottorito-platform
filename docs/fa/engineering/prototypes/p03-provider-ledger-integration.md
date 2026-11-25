@@ -90,3 +90,16 @@ Workflow اختصاصی از PostgreSQL 18.7، Node.js 26.13.0، Lockfile ثبت
 ## شاخه و اختیار
 
 این یک شاخه آزمایشی Draft بر مبنای Head مربوط به PR شماره ۶۰ در P-03C یعنی `32b34f4c7c67b12874cdf6a14a2788d9a2f4c6dc` است. PR شماره ۴۱ یک Fixture قدیمی Provider Delivery بر مبنای شاخه قدیمی P-02 است؛ منطق Raw-body Verification و Duplicate/Conflict آن فقط ورودی تحقیق است و نباید بدون مدل هویت Session و Product Scope فعلی Cherry-pick شود. هیچ PRی Merge نشده و هیچ Deploy یا عملیات مخرب Production مجاز نیست.
+
+
+## تحلیل شکست CI و دور اصلاحی — ۲۰۲۶-۱۱-۲۵
+
+اولین اجرای CI ترکیبی، پیش از رسیدن به فایل تست اختصاصی P-03D، سه مشکل در Setup و قراردادها را آشکار کرد:
+
+۱. Assertion امنیتی P-02 به‌جای جدول خصوصی نگاشت هویت، Helper از نوع SECURITY DEFINER را Query می‌کرد. اکنون تست، منع SELECT مستقیم از `private.tenant_role_map` را بررسی می‌کند که همان شیء محافظت‌شده است؛ Helper برای Policyهای RLS و مرزهای مورداعتماد SECURITY DEFINER در دسترس باقی می‌ماند.
+۲. P-03C ایندکس یکتای مرکب روی `ledger_outbox(tenant_id, product_id, event_id)` را پس از تعریف Foreign Keyهایی می‌ساخت که به آن ارجاع می‌دهند. اکنون ایندکس پیش از جدول‌های ارجاع‌دهنده ساخته می‌شود.
+۳. Schema مربوط به P-03D دارای CHECK ناقص برای شناسه Provider Event و انتهای تکراری SQL بود. Schema اکنون یک تعریف کامل دارد، Constraint شناسه از نظر نحوی کامل است و مجوز CREATE برای Role بدون LOGIN مربوط به Provider فقط هنگام تنظیم مالکیت اعطا و بلافاصله پس گرفته می‌شود.
+
+مسیر Secret متنی نیز اکنون حداقل طول ۱۲۸ بیت را مانند ورودی‌های Buffer و `whsec_` اعمال می‌کند؛ یک تست Regression برای Secret کوتاه اضافه شده است.
+
+**وضعیت اعتبارسنجی:** این موارد فقط اصلاح کد هستند. پیش از هرگونه ادعای پذیرش، Workflowهای Integration مربوط به P-02، P-03C و P-03D باید همگی روی Commit دقیق نهایی موفق شوند.
