@@ -49,7 +49,7 @@ The artifact store and deployment controller are in-memory test doubles. The zip
 | P08-09 | Rollback is accepted only when the target artifact supports the current schema. |
 | P08-10 | Schema expansion/contraction is blocked if the active or retained rollback release cannot read the target schema; rollback-target retirement requires two-person approval and explicit target-schema confirmation; after retirement, unsafe rollback is denied and compatible forward repair succeeds. |
 | P08-11 | Promotion, rollback and schema transitions preserve the synthetic financial-state fingerprint. |
-| P08-12 | Audit records for promotion, rollback, rollback-target retirement and schema transitions identify actor, environment, artifact digest, action, outcome and schema version without recording runtime secret values. |
+| P08-12 | Audit records for promotion, rollback, rollback-target retirement and schema transitions require a non-empty actor identity and identify environment, artifact digest, action, outcome and schema version without recording runtime secret values. |
 | P08-13 | CI performs deterministic double-build comparison and runs every positive/adversarial test with zero skips. |
 | P08-14 | Persian and English documents preserve the same scope, constraints, acceptance IDs and limitations. |
 
