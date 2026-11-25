@@ -1,8 +1,21 @@
 # وضعیت واقعی پروژه و نقطه ادامه کار
 
-**شناسه:** LOT-OPS-001 | **نسخه:** ۱.۳۰.۰ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۴
+**شناسه:** LOT-OPS-001 | **نسخه:** ۱.۳۱.۰ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۴
 
 ## وضعیت تأییدشده مخزن
+
+## آخرین به‌روزرسانی نقطه ادامه — ۲۰۲۶-۱۱-۲۵ (آزمون‌های منفی P-05A و P-05B)
+
+- P-05B همچنان PR شماره ۵۳، باز، Draft و Mergeنشده است و روی PR شماره ۵۲ مربوط به P-05A قرار دارد؛ P-05A نیز روی PR شماره ۵۱ مربوط به P-04، باز، Draft و Mergeنشده است. Head اعتبارسنجی‌شده آزمون‌های اجرایی ترکیبی 0a6b8f992161cd9f9d760698b1c9d0c8e30867a9 است. پیش از اتکا به SHA فعلی پس از تغییرات مستندات، Metadata زنده PR را دوباره دریافت کن.
+- Integration ترکیبی P-05A/P-05B با شناسه [45532382323](https://github.com/tecpey/lottorito-platform/actions/runs/45532382323)، Integration شاخه با شناسه [45532372804](https://github.com/tecpey/lottorito-platform/actions/runs/45532372804) و Documentation Governance با شناسه [45532382310](https://github.com/tecpey/lottorito-platform/actions/runs/45532382310) روی Head اعتبارسنجی‌شده موفق شدند.
+- مسیر مثبت P-05A شامل Backup فیزیکی PostgreSQL 18.7، Verification و رد Manifest دست‌کاری‌شده، Restore Point نام‌گذاری‌شده، Assertionهای قبل/بعد Target، RLS مربوط به Tenant و تطبیق مالی Source/Ledger موفق شد.
+- آزمون‌های منفی P-05A موفق شدند: Staging ناقص Restore توسط pg_verifybackup و راه‌اندازی PostgreSQL رد شد؛ Segment دقیق WAL هدف از کپی‌های ایزوله Archive و Base Backup حذف شد و سرور بازیابی در Target درخواستی Ready نشد. Segment مفقود در Recovery Log پیدا شد. این فقط آزمایش ساختگی Staging ناقص/WAL مفقود است، نه قطع فرایند Restore زنده Production.
+- P-05B یک Object ساختگی ۴٬۴۰۹ بایتی را بازیابی کرد و SHA-256 برابر 2db4a9b021abba0ce01480ceda665284f023310ce909c0b0b9bcb084f771eaca را با مرجع PostgreSQL بازیابی‌شده تطبیق داد. نبود کلید، Ciphertext خراب و DEK بسته‌بندی‌شده خراب Fail-closed شدند. Replay مرتب، ادغام Duplicate، توقف در شکاف Sequence، Rollback/Retry اتمیک، دقیقاً دو اثر متوازن، No-op بودن Replay، تطبیق Source-to-Ledger و جداسازی Tenant موفق شدند.
+- موارد اثبات‌نشده: KMS/HSM و Custody/Rotation کلید Production، بازیابی Object Store/Broker/Provider خارجی، نگهداری Immutable/Off-site، بازیابی منطقه‌ای، رفتار هم‌زمانی بالا، RPO/RTO و Failover/Writer Fencing/Failback در P-05C. RPO/RTO همچنان TBD است؛ هیچ داده Production، Secret زنده، وجه واقعی، Merge یا Deploy استفاده نشد.
+- آزمایش پیشنهادی بعدی P-05C است: Writer Epoch Fencing صریح، انقضای Lease، رد Writer قدیمی، Fault Injection برای Split-brain، Promotion کنترل‌شده و Failback. این کار باید ساختگی بماند و بدون تأیید مالک/متخصص دامنه، RPO/RTO یا انتخاب فروشنده Production را تعریف نکند.
+- این به‌روزرسانی در صورت تعارض، اظهارات قدیمی‌تر P-04/P-05 در ادامه را جایگزین می‌کند؛ موارد قدیمی‌تر Snapshot تاریخی باقی می‌مانند. بدون تأیید صریح مالک Merge یا Deploy انجام نشود.
+
+
 
 ## به‌روزرسانی نقطه ادامه — ۲۰۲۶-۱۱-۲۵
 
