@@ -1,6 +1,6 @@
 # P-09 — Cross-Prototype Contract & Recovery Integration
 
-**Document ID:** LOT-PROT-P09-001 | **Version:** 0.1.0 | **Status:** Proposed cross-prototype contract; synthetic P-09A baseline only; no production approval
+**Document ID:** LOT-PROT-P09-001 | **Version:** 0.2.0 | **Status:** Proposed cross-prototype contract; P-09A passed and P-09B scope-aware P-06 correlation passed on synthetic CI; no production approval
 
 **Status:** Proposed contract baseline; implementation and owner approval remain open.  
 **Baseline:** `integration/p03d-p04-p08-candidate` at `c7f9ffa1f499fbd34d260b2aa6d3122d32e1ac7f`.  
@@ -90,3 +90,12 @@ No real provider, production KMS/HSM, broker, object store, customer data, produ
 ## P-09B — Product-scoped observability correlation
 
 The P-06 implementation now uses the canonical tenant/scope/source-event tuple for correlation uniqueness, forensic access grants and view filtering. A deterministic adversarial case reuses one source-event UUID and trace ID across Affiliate and Lottery within the same tenant; each product's audited forensic grant must reveal exactly its own row. This closes the prior tenant-only correlation ambiguity in the synthetic P-06 slice. It does not yet make P-05 recovery, P-07B event authorization or P-08 artifact provenance conformant; those remain separate P-09 slices.
+
+
+### P-09B acceptance evidence
+
+- P-09A contract workflow: [45628562955](https://github.com/tecpey/lottorito-platform/actions/runs/45628562955) passed, including JSON validation, compilation and 13/13 tests.
+- P-06 scope-aware correlation: [45628562800](https://github.com/tecpey/lottorito-platform/actions/runs/45628562800) passed on exact branch head `109530985a00bd158866e45a8c11e3bb5f520f53`.
+- Documentation Governance: [45628562765](https://github.com/tecpey/lottorito-platform/actions/runs/45628562765) passed (58 bilingual pairs, 136 local links).
+
+The P-06 fixture now proves product-scoped uniqueness and forensic filtering for colliding source-event UUIDs. P-05B, P-07B and P-08 remain open integration gates.
