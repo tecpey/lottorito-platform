@@ -1,6 +1,6 @@
 # برنامه Prototype معماری و تولید شواهد Lottorito
 
-**شناسه سند:** LOT-PROT-001 | **نسخه:** ۱.۱۰.۰ | **وضعیت:** برنامه آزمایش پیشنهادی؛ اجرا و انتخاب فناوری تصویب نشده است
+**شناسه سند:** LOT-PROT-001 | **نسخه:** ۱.۱۱.۰ | **وضعیت:** برنامه آزمایش پیشنهادی؛ اجرا و انتخاب فناوری تصویب نشده است
 
 ## ۱. هدف و اعتبار
 
@@ -194,7 +194,7 @@
 
 **منابع:** صحت Checksum در AWS S3؛ اعتبارسنجی داده و Versioning در Google Cloud Storage؛ NIST SP 800-57 Part 1 Rev. 5 (Rev. 6 هنوز پیش‌نویس است)؛ راهنمای Transactional Outbox و تحویل At-least-once در AWS.
 
-**وضعیت:** CI ساختگی P-05B روی Head با شناسه 99ac76a68817116d05441a8165609252e7cd8ee9 موفق شد. اجرای Integration مربوط به Pull Request با شناسه [45526169535](https://github.com/tecpey/lottorito-platform/actions/runs/45526169535)، اجرای Integration شاخه با شناسه [45526158154](https://github.com/tecpey/lottorito-platform/actions/runs/45526158154) و Documentation Governance با شناسه [45526171881](https://github.com/tecpey/lottorito-platform/actions/runs/45526171881) موفق شدند. Object بازیابی‌شده ۴٬۴۰۹ بایتی با مرجع SHA-256 دیتابیس تطبیق داشت؛ حالت‌های کلید/Object مفقود یا خراب Fail-closed شدند؛ Assertionهای Duplicate/ترتیب Replay، قطع تراکنش و Retry، تطبیق Ledger و جداسازی Tenant موفق شدند. هیچ فناوری، فروشنده، آمادگی Production، RPO/RTO یا مجوز انتشار تصویب نشده است.
+**وضعیت:** CI ساختگی P-05B روی Head اعتبارسنجی‌شده شاخه با شناسه e4820884194ecf1ab3acd539d77145904f14ab73 موفق شد. اجرای Integration ترکیبی P-05A/P-05B در Pull Request با شناسه [45526975173](https://github.com/tecpey/lottorito-platform/actions/runs/45526975173) و Documentation Governance با شناسه [45526975222](https://github.com/tecpey/lottorito-platform/actions/runs/45526975222) موفق شدند. Object بازیابی‌شده ۴٬۴۰۹ بایتی با مرجع SHA-256 دیتابیس تطبیق داشت؛ حالت‌های کلید/Object مفقود یا خراب Fail-closed شدند؛ Assertionهای Duplicate/ترتیب Replay، قطع تراکنش و Retry، تطبیق Ledger و جداسازی Tenant موفق شدند. هیچ فناوری، فروشنده، آمادگی Production، RPO/RTO یا مجوز انتشار تصویب نشده است.
 
 ### P-06 — Observability سرتاسری و حریم خصوصی
 

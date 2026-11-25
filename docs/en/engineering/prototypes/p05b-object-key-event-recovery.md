@@ -1,6 +1,6 @@
 # P-05B — Object, Key and Event Recovery
 
-**Document ID:** LOT-PROT-P05B-001 | **Version:** 0.2.0 | **Status:** Synthetic CI experiment passed on validated executable-code head 99ac76a68817116d05441a8165609252e7cd8ee9
+**Document ID:** LOT-PROT-P05B-001 | **Version:** 0.3.0 | **Status:** Synthetic CI experiment passed on validated executable-code head 99ac76a68817116d05441a8165609252e7cd8ee9
 
 ## Authority and boundary
 
@@ -55,9 +55,8 @@ The experiment demonstrates database-transaction atomicity for this fixture, not
 
 ## Final CI evidence
 
-- P-05B Integration (pull request) [run 45526169535](https://github.com/tecpey/lottorito-platform/actions/runs/45526169535): passed on final head 99ac76a68817116d05441a8165609252e7cd8ee9.
-- P-05B Integration (branch push) [run 45526158154](https://github.com/tecpey/lottorito-platform/actions/runs/45526158154): passed on the same head.
-- Documentation Governance [run 45526171881](https://github.com/tecpey/lottorito-platform/actions/runs/45526171881): passed on the same head.
+- P-05A + P-05B Integration (pull request) [run 45526975173](https://github.com/tecpey/lottorito-platform/actions/runs/45526975173): passed on validated branch head e4820884194ecf1ab3acd539d77145904f14ab73.
+- Documentation Governance [run 45526975222](https://github.com/tecpey/lottorito-platform/actions/runs/45526975222): passed on the same head.
 - Restored object payload: 4,409 bytes; SHA-256 `2db4a9b021abba0ce01480ceda665284f023310ce909c0b0b9bcb084f771eaca`, matched against the restored PostgreSQL object reference.
 - Object/key assertions passed: independent backup recovery, missing-key fail-closed, modified ciphertext rejection, modified wrapped-DEK rejection and tenant object-reference isolation.
 - Event assertions passed: out-of-order delivery (2, then 1), duplicate delivery/economic-effect collapse, sequence-gap block, interrupted transaction rollback, retry with exactly two effects, balanced ledger, source-to-ledger reconciliation, no-op replay and tenant inbox isolation.

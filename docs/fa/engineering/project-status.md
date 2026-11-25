@@ -1,6 +1,6 @@
 # وضعیت واقعی پروژه و نقطه ادامه کار
 
-**شناسه:** LOT-OPS-001 | **نسخه:** ۱.۲۹.۰ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۴
+**شناسه:** LOT-OPS-001 | **نسخه:** ۱.۳۰.۰ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۴
 
 ## وضعیت تأییدشده مخزن
 
@@ -14,8 +14,8 @@
 
 ## به‌روزرسانی نقطه ادامه — ۲۰۲۶-۱۱-۲۵ (P-05B)
 
-- PR شماره ۵۳ مربوط به P-05B باز، Draft و Mergeنشده است و به‌صورت Stacked روی PR شماره ۵۲ مربوط به P-05A قرار دارد. شاخه پس از Head آزموده‌شده کد اجرایی، Commitهای دوزبانه صرفاً مستنداتی و شواهدی بیشتری دارد؛ برای SHA فعلی، Metadata زنده PR/شاخه دریافت شود. کد اجرایی و مشخصات/برنامه دوزبانه P-05B روی Head کد با شناسه `58991acc42dc3c43d4877ab87b399196f3e00ac3` اعتبارسنجی شدند؛ اجرای Integration ترکیبی P-05A و P-05B با شناسه [45526760672](https://github.com/tecpey/lottorito-platform/actions/runs/45526760672) و Documentation Governance با شناسه [45526760518](https://github.com/tecpey/lottorito-platform/actions/runs/45526760518) روی همان Head موفق شدند. Commitهای بعدی این شاخه فقط شواهد همین سند وضعیت دوزبانه را به‌روز می‌کنند.
-- آخرین اجرای موفق Integration ترکیبی P-05A/P-05B در Pull Request با شناسه [45526760672](https://github.com/tecpey/lottorito-platform/actions/runs/45526760672) و Documentation Governance با شناسه [45526760518](https://github.com/tecpey/lottorito-platform/actions/runs/45526760518) روی Head آزموده‌شده کد/مشخصات ثبت شده است.
+- PR شماره ۵۳ مربوط به P-05B باز، Draft و Mergeنشده است و به‌صورت Stacked روی PR شماره ۵۲ مربوط به P-05A قرار دارد. شاخه پس از Head آزموده‌شده کد اجرایی، Commitهای دوزبانه صرفاً مستنداتی و شواهدی بیشتری دارد؛ برای SHA فعلی، Metadata زنده PR/شاخه دریافت شود. Head اعتبارسنجی‌شده فعلی شاخه `e4820884194ecf1ab3acd539d77145904f14ab73` است؛ اجرای Integration ترکیبی P-05A و P-05B با شناسه [45526975173](https://github.com/tecpey/lottorito-platform/actions/runs/45526975173) و Documentation Governance با شناسه [45526975222](https://github.com/tecpey/lottorito-platform/actions/runs/45526975222) روی همان Head موفق شدند.
+- آخرین اجرای موفق Integration ترکیبی P-05A/P-05B در Pull Request با شناسه [45526975173](https://github.com/tecpey/lottorito-platform/actions/runs/45526975173) و Documentation Governance با شناسه [45526975222](https://github.com/tecpey/lottorito-platform/actions/runs/45526975222) روی Head اعتبارسنجی‌شده شاخه ثبت شده است.
 - Job یکپارچه CI دورریختنی ابتدا Base Backup، بررسی Manifest، PITR نام‌گذاری‌شده، RLS و Assertionهای مالی PostgreSQL 18.7 در P-05A را دوباره اجرا کرد و سپس P-05B را روی دیتابیس بازیابی‌شده اجرا کرد. بازیابی Object، ۴٬۴۰۹ بایت را برگرداند و SHA-256 برابر `2db4a9b021abba0ce01480ceda665284f023310ce909c0b0b9bcb084f771eaca` را با مرجع دیتابیس تطبیق داد. نبود کلید، Ciphertext خراب و DEK بسته‌بندی‌شده خراب رد شدند؛ جداسازی Object بین Tenantها موفق بود.
 - Replay رویداد، Sequence شماره ۲ را پیش از ۱ تحویل داد، شکاف Sequence، تحویل تکراری Source Event و Economic Effect ID تکراری را آزمود، پیش از Commit خطای تراکنش تزریق کرد، Rollback کامل Journal/Inbox/Cursor را بررسی کرد، دو اثر متوازن را Retry و مجموع Source را با Cash در Ledger تطبیق داد، No-op بودن Replay بعدی را اثبات و خواندن/نوشتن Inbox بین Tenantها را رد کرد.
 - آزمون‌های منفی WAL مفقود/Restore قطع‌شده در P-05A همچنان باز هستند. KMS/HSM زنده، Custody/Rotation کلید Production، بازیابی Object Store/Broker/Provider خارجی، بازیابی منطقه‌ای و Failover/Fencing/Failback در P-05C هنوز آزموده نشده‌اند. RPO/RTO همچنان TBD است. هیچ داده Production، Credential زنده، Provider، وجه واقعی، Merge یا Deploy استفاده نشد.

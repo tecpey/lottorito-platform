@@ -1,6 +1,6 @@
 # P-05B — بازیابی Object، کلید و رویداد
 
-**شناسه سند:** LOT-PROT-P05B-001 | **نسخه:** ۰.۲.۰ | **وضعیت:** آزمایش ساختگی CI روی Head اعتبارسنجی‌شده کد اجرایی 99ac76a68817116d05441a8165609252e7cd8ee9 موفق شد
+**شناسه سند:** LOT-PROT-P05B-001 | **نسخه:** ۰.۳.۰ | **وضعیت:** آزمایش ساختگی CI روی Head اعتبارسنجی‌شده کد اجرایی 99ac76a68817116d05441a8165609252e7cd8ee9 موفق شد
 
 ## اعتبار و مرز
 
@@ -55,9 +55,8 @@ P-05B آزمایش PITR دیتابیس در P-05A را با بازیابی مس�
 
 ## شواهد نهایی CI
 
-- اجرای Integration مربوط به P-05B (Pull Request) با شناسه [45526169535](https://github.com/tecpey/lottorito-platform/actions/runs/45526169535) روی Head نهایی 99ac76a68817116d05441a8165609252e7cd8ee9 موفق شد.
-- اجرای Integration مربوط به P-05B (Branch Push) با شناسه [45526158154](https://github.com/tecpey/lottorito-platform/actions/runs/45526158154) روی همان Head موفق شد.
-- اجرای Documentation Governance با شناسه [45526171881](https://github.com/tecpey/lottorito-platform/actions/runs/45526171881) روی همان Head موفق شد.
+- اجرای Integration ترکیبی P-05A و P-05B در Pull Request با شناسه [45526975173](https://github.com/tecpey/lottorito-platform/actions/runs/45526975173) روی Head اعتبارسنجی‌شده شاخه e4820884194ecf1ab3acd539d77145904f14ab73 موفق شد.
+- اجرای Documentation Governance با شناسه [45526975222](https://github.com/tecpey/lottorito-platform/actions/runs/45526975222) روی همان Head موفق شد.
 - Payload بازیابی‌شده ۴٬۴۰۹ بایت بود؛ SHA-256 آن `2db4a9b021abba0ce01480ceda665284f023310ce909c0b0b9bcb084f771eaca` با مرجع Object در PostgreSQL بازیابی‌شده تطبیق داشت.
 - Assertionهای Object/Key موفق بودند: بازیابی از Backupهای مستقل، Fail-closed در نبود کلید، رد Ciphertext تغییرکرده، رد DEK بسته‌بندی‌شده تغییرکرده و جداسازی مرجع Object بین Tenantها.
 - Assertionهای Event موفق بودند: تحویل نامرتب (ابتدا ۲ سپس ۱)، تقلیل Duplicate تحویل/Economic Effect، توقف در شکاف Sequence، Rollback تراکنش قطع‌شده، Retry با دقیقاً دو اثر، توازن Ledger، تطبیق Source-to-Ledger، No-op بودن Replay بعدی و جداسازی Inbox بین Tenantها.

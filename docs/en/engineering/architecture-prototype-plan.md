@@ -1,6 +1,6 @@
 # Lottorito Architecture Prototype and Evidence Plan
 
-**Document ID:** LOT-PROT-001 | **Version:** 1.10.0 | **Status:** Proposed experiment plan; execution and technology choices not approved
+**Document ID:** LOT-PROT-001 | **Version:** 1.11.0 | **Status:** Proposed experiment plan; execution and technology choices not approved
 
 ## 1. Purpose and authority
 
@@ -194,7 +194,7 @@ A prototype may be **Pass**, **Fail**, **Inconclusive** or **Not run**. “Pass�
 
 **References:** AWS S3 checksum validation; Google Cloud Storage data validation/versioning; NIST SP 800-57 Part 1 Rev. 5 (Rev. 6 remains a draft); AWS transactional outbox and at-least-once event processing guidance.
 
-**Status:** P-05B synthetic CI passed on head 99ac76a68817116d05441a8165609252e7cd8ee9. Pull-request Integration [45526169535](https://github.com/tecpey/lottorito-platform/actions/runs/45526169535), branch Integration [45526158154](https://github.com/tecpey/lottorito-platform/actions/runs/45526158154), and Documentation Governance [45526171881](https://github.com/tecpey/lottorito-platform/actions/runs/45526171881) passed. The restored 4,409-byte object matched its database SHA-256 reference; missing/corrupt key and object cases failed closed; duplicate/out-of-order replay, transaction interruption/retry, ledger reconciliation and tenant isolation assertions passed. No technology, vendor, production readiness, RPO/RTO or release approval is implied.
+**Status:** P-05B synthetic CI passed on validated branch head e4820884194ecf1ab3acd539d77145904f14ab73. Combined P-05A/P-05B Pull-request Integration [45526975173](https://github.com/tecpey/lottorito-platform/actions/runs/45526975173) and Documentation Governance [45526975222](https://github.com/tecpey/lottorito-platform/actions/runs/45526975222) passed. The restored 4,409-byte object matched its database SHA-256 reference; missing/corrupt key and object cases failed closed; duplicate/out-of-order replay, transaction interruption/retry, ledger reconciliation and tenant isolation assertions passed. No technology, vendor, production readiness, RPO/RTO or release approval is implied.
 
 ### P-06 — End-to-end observability and privacy
 

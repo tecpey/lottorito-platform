@@ -1,6 +1,6 @@
 # Verified Project Status and Continuation Point
 
-**Document ID:** LOT-OPS-001 | **Version:** 1.29.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-24
+**Document ID:** LOT-OPS-001 | **Version:** 1.30.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-24
 
 ## Verified repository state
 
@@ -14,8 +14,8 @@
 
 ## Continuation update — 2026-11-25 (P-05B)
 
-- P-05B PR #53 is open, Draft and unmerged; it is stacked on P-05A PR #52. The branch contains further bilingual evidence/status-only commits after the executable-code test head; fetch live PR/branch metadata for the current SHA. The executable code and bilingual P-05B specification/plan were validated on code head `58991acc42dc3c43d4877ab87b399196f3e00ac3`; P-05A+P-05B Integration [45526760672](https://github.com/tecpey/lottorito-platform/actions/runs/45526760672) and Documentation Governance [45526760518](https://github.com/tecpey/lottorito-platform/actions/runs/45526760518) passed on that head. Subsequent commits in this branch update only this bilingual project-status evidence.
-- P-05B Integration (PR) [45526760672](https://github.com/tecpey/lottorito-platform/actions/runs/45526760672) and Documentation Governance [45526760518](https://github.com/tecpey/lottorito-platform/actions/runs/45526760518) are the latest successful validations on the tested code/specification head.
+- P-05B PR #53 is open, Draft and unmerged; it is stacked on P-05A PR #52. The branch contains further bilingual evidence/status-only commits after the executable-code test head; fetch live PR/branch metadata for the current SHA. The current validated branch head is `e4820884194ecf1ab3acd539d77145904f14ab73`; combined P-05A+P-05B Integration [45526975173](https://github.com/tecpey/lottorito-platform/actions/runs/45526975173) and Documentation Governance [45526975222](https://github.com/tecpey/lottorito-platform/actions/runs/45526975222) passed on that head.
+- Combined P-05A/P-05B Integration (PR) [45526975173](https://github.com/tecpey/lottorito-platform/actions/runs/45526975173) and Documentation Governance [45526975222](https://github.com/tecpey/lottorito-platform/actions/runs/45526975222) are the latest successful validations on the tested branch head.
 - The combined disposable CI job first reran P-05A PostgreSQL 18.7 base backup, manifest verification, named PITR, RLS and financial assertions, then ran P-05B against the restored database. Object restore recovered 4,409 bytes and matched SHA-256 `2db4a9b021abba0ce01480ceda665284f023310ce909c0b0b9bcb084f771eaca` to the database reference. Missing key, corrupt ciphertext and corrupt wrapped DEK were rejected; tenant object isolation passed.
 - Event replay delivered sequence 2 before 1, tested a sequence gap, duplicate source-event delivery and duplicate economic-effect identity, injected a transaction failure before commit, verified rollback of journal/inbox/cursor, retried exactly two balanced effects, reconciled source totals to ledger cash, proved a subsequent replay was a no-op and denied cross-tenant inbox access/write.
 - P-05A missing-WAL/interrupted-restore negative drills remain open. Live KMS/HSM, production key custody/rotation, external object-store/broker/provider recovery, regional recovery and P-05C failover/fencing/failback remain untested. RPO/RTO remain TBD. No production data, live credentials, provider, real funds, merge or deployment was involved.
