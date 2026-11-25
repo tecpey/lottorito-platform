@@ -1,0 +1,43 @@
+name: P-06 End-to-End Observability and Privacy
+on:
+  push:
+    branches:
+      - spike/p06-observability-privacy
+    paths:
+      - ".github/workflows/p06-observability-privacy.yml"
+      - "prototypes/p06-observability/**"
+      - "prototypes/p02-ledger-posting/db/schema.sql"
+      - "docs/en/engineering/prototypes/p06-observability-privacy.md"
+      - "docs/fa/engineering/prototypes/p06-observability-privacy.md"
+  pull_request:
+    paths:
+      - "prototypes/p06-observability/**"
+      - "prototypes/p02-ledger-posting/db/schema.sql"
+      - "docs/en/engineering/prototypes/p06-observability-privacy.md"
+      - "docs/fa/engineering/prototypes/p06-observability-privacy.md"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: p06-observability-privacy-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  observability:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Build isolated PostgreSQL 18.7 fixture
+        run: docker compose -f prototypes/p06-observability/compose.yaml build
+      - name: Start disposable ledger and telemetry database
+        run: docker compose -f prototypes/p06-observability/compose.yaml up -d --wait --wait-timeout 90
+      - name: Run P-06 end-to-end trace, privacy and access-control assertions
+        run: docker compose -f prototypes/p06-observability/compose.yaml exec -T postgres python3 /workspace/p06/run-p06.py
+      - name: Capture PostgreSQL logs on failure
+        if: failure()
+        run: docker compose -f prototypes/p06-observability/compose.yaml logs --no-color
+      - name: Destroy disposable fixture
+        if: always()
+        run: docker compose -f prototypes/p06-observability/compose.yaml down --volumes --remove-orphans
