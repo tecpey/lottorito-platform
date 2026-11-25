@@ -1,6 +1,6 @@
 # P-05C — Failover, Writer Fencing and Failback
 
-**Document ID:** LOT-PROT-P05C-001 | **Version:** 0.2.0 | **Status:** Synthetic implementation; CI validation pending
+**Document ID:** LOT-PROT-P05C-001 | **Version:** 0.3.0 | **Status:** Synthetic CI passed on PR head 194c565c1471474a1d908efb3dfda89035d9d4cc; production HA not approved
 
 ## Authority and boundary
 
@@ -76,12 +76,16 @@ This demonstrates a transactional epoch-checking primitive only. The row is repl
 
 
 
-## Initial CI evidence
+## Final CI evidence
+
+- P-05C PR Integration [run 45533992674](https://github.com/tecpey/lottorito-platform/actions/runs/45533992674), P-05B regression Integration [run 45533992779](https://github.com/tecpey/lottorito-platform/actions/runs/45533992779), and Documentation Governance [run 45533992863](https://github.com/tecpey/lottorito-platform/actions/runs/45533992863) passed on PR head `194c565c1471474a1d908efb3dfda89035d9d4cc`.
+- The first pg_rewind found divergence on timeline 1 and copied 35 MB. The second pg_rewind found divergence on timeline 2 and copied 67 MB; this verifies a real divergent failback path, not merely a no-op rewind.
+- Final PR assertions passed: physical standby, promotion gate, process fence, epoch advance, stale-writer and expired-lease rejection, exactly one concurrent epoch claimant, both divergent tails discarded, both rewind/rejoin cycles, read-only standby, controlled failback and final epoch 4/active writer node A.
 
 - P-05C isolated integration [run 45533778752](https://github.com/tecpey/lottorito-platform/actions/runs/45533778752) passed on executable-code head `4884a3c38d2da8ea9ab9961dc095eb0ddd469f4d`.
 - The test completed two real timeline divergences and two pg_rewind operations. The second rewind copied 67 MB and proved the controlled failback path was not merely a no-op rewind.
 - Assertions passed for physical standby, promotion refusal while old primary was alive, process fence, epoch 1→2, stale-writer and expired-lease rejection, single CAS winner for epoch 3, first divergent tail discarded, rewound standby read-only, second divergent tail discarded, actual second rewind, and final epoch 4/active writer node A.
-- PR-head Integration and Documentation Governance are still required before final phase status is recorded.
+- All results are synthetic CI evidence only; production fencing, quorum behavior and RPO/RTO remain unproven.
 
 ## References
 
