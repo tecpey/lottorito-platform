@@ -1,6 +1,6 @@
 # P-05A — PostgreSQL Backup, PITR and Financial Integrity
 
-**Document ID:** LOT-PROT-P05-001 | **Version:** 0.2.0 | **Status:** Synthetic CI experiment passed; production recovery not approved
+**Document ID:** LOT-PROT-P05-001 | **Version:** 0.5.0 | **Status:** Synthetic CI experiment passed; production recovery not approved
 
 ## Authority and decision boundary
 
@@ -38,6 +38,19 @@ The restored database is started and checked for:
 - P05-OBJECT-REF: synthetic object-reference metadata remains structurally valid; object payload bytes are outside P-05A.
 - P05-TIMING: backup/verification/restore durations and achieved recovery point are recorded without target-compliance claims.
 
+## Negative recovery drills (P-05A continuation)
+
+The combined P-05 workflow adds two fail-closed checks beyond the original positive PITR path:
+
+1. **Incomplete restore staging:** create a disposable copy of the physical backup, remove the required `global/pg_control` file, and require both `pg_verifybackup` and PostgreSQL startup to reject the incomplete staging directory. This is an interrupted/incomplete restore-artifact simulation; it does not claim to kill a live production restore process mid-write.
+2. **Missing target WAL:** create independent copies of the base backup and WAL archive, remove the exact WAL segment containing the named restore target from both the copied archive and copied `pg_wal`, and attempt targeted recovery. PostgreSQL may fail startup or may expose a valid earlier recovery state depending on the available WAL. Either way, the drill must reject the result as a successful named-target recovery unless the expected post-target marker is present. The negative test checks the requested segment in the recovery log and never alters the positive fixture or source archive.
+
+The positive path also polls `pg_is_in_recovery()` until it returns `false` before running writable financial/RLS assertions. `pg_ctl` reporting readiness alone is insufficient because a server may accept read-only connections while recovery is still in progress. The missing-WAL negative path explicitly rejects a server that becomes writable before the requested target.
+
+The distinction matters: a server that starts after exhausting available WAL is not, by that fact alone, proof that it reached the requested recovery target. The recovery acceptance gate must validate the expected business marker/control state before accepting traffic. PostgreSQL documents that `restore_command` must return nonzero for absent archive files and that interrupted recovery can be restarted; `pg_verifybackup` detects missing files but does not replace a real restore and content validation.
+
+**Status:** Negative-drill implementation is in the combined CI workflow; validation is pending until the final branch head completes Integration and Documentation Governance.
+
 ## Safety and limits
 
 No production data, credentials, partner secrets, real funds or live endpoints. No cloud resources or external services are provisioned. The test uses disposable container storage and synthetic passwords. It does not prove off-site/immutable retention, encryption/key custody, object-byte restoration, application/worker recovery, event replay, provider reconciliation, regional recovery, failover, split-brain fencing, failback, production-scale throughput or legal/compliance readiness. These require P-05B/P-05C and later review. RPO/RTO remain TBD pending owner/domain approval.
@@ -47,6 +60,8 @@ No production data, credentials, partner secrets, real funds or live endpoints. 
 - https://www.postgresql.org/docs/18/continuous-archiving.html
 - https://www.postgresql.org/docs/18/app-pgbasebackup.html
 - https://www.postgresql.org/docs/18/app-pgverifybackup.html
+- https://www.postgresql.org/docs/18/runtime-config-wal.html
+- https://www.postgresql.org/docs/18/functions-admin.html
 - https://www.postgresql.org/docs/18/app-pgrewind.html
 - https://sre.google/sre-book/data-integrity/
 - https://docs.cloud.google.com/architecture/framework/reliability/perform-testing-for-recovery-from-data-loss
@@ -54,9 +69,17 @@ No production data, credentials, partner secrets, real funds or live endpoints. 
 
 ## Evidence
 
+- Latest combined Integration [run 45532825694](https://github.com/tecpey/lottorito-platform/actions/runs/45532825694) and Documentation Governance [run 45532825916](https://github.com/tecpey/lottorito-platform/actions/runs/45532825916) passed on executable-code head `146a9bc635e3b03db568c423fb0958b62bc31c7b`.
+- The positive PITR path now waits for `pg_is_in_recovery() = false` before writable financial/RLS assertions (`pitr_recovery_complete=PASS`); `pg_ctl` readiness alone is not treated as proof that recovery has finished.
+- Final negative assertions: `incomplete_restore_manifest_rejected=PASS`, `incomplete_restore_server_start_rejected=PASS`, `missing_wal_startup_failed_closed=PASS`, `missing_wal_target_segment_absence_detected=PASS`, `P05A_NEGATIVE_RESULT=PASS`.
+
+- Combined P-05A/P-05B Integration: [run 45532382323](https://github.com/tecpey/lottorito-platform/actions/runs/45532382323), passed on final branch head `0a6b8f992161cd9f9d760698b1c9d0c8e30867a9`.
+- Documentation Governance: [run 45532382310](https://github.com/tecpey/lottorito-platform/actions/runs/45532382310), passed on the same head.
+- Negative assertions: `incomplete_restore_manifest_rejected=PASS`, `incomplete_restore_server_start_rejected=PASS`, `missing_wal_startup_not_ready=PASS`, `missing_wal_target_segment_absence_detected=PASS`, `P05A_NEGATIVE_RESULT=PASS`.
+
 - Integration: [run 45524388676](https://github.com/tecpey/lottorito-platform/actions/runs/45524388676), passed on head f2303a647aefd5bd8d48ba9d2e1830c881f60041.
 - Documentation Governance: [run 45524388734](https://github.com/tecpey/lottorito-platform/actions/runs/45524388734), passed on the same head.
 - PostgreSQL 18.7; base backup plus verification: 12–13 seconds (latest final-head run: 13 seconds); restored server startup: 1 second in this disposable GitHub-hosted runner. These are observations, not production RTO targets.
 - The run asserted manifest verification and tamper rejection, archived WAL presence, the named PITR log entry, pre-target marker present/post-target marker absent, tenant-scoped reads and denied cross-tenant insert, balanced journals, source-to-ledger totals, unique economic effects and valid object-reference hash format.
-- Missing-WAL and interrupted-restore negative drills remain open. Object-byte/key recovery and failover/fencing/failback are P-05B/P-05C and have not run.
+- Negative drills passed on combined executable-code head `146a9bc635e3b03db568c423fb0958b62bc31c7b`: an incomplete restore staging directory was rejected by both `pg_verifybackup` and PostgreSQL startup; removal of the exact target WAL segment caused the recovery startup to fail closed before the requested named target. The missing-WAL log recorded the absent target segment. Object-byte/key recovery is covered by P-05B; failover/fencing/failback remains P-05C and has not run.
 - Synthetic success is not production readiness, a technology decision or RPO/RTO approval.

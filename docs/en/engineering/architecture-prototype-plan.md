@@ -1,6 +1,6 @@
 # Lottorito Architecture Prototype and Evidence Plan
 
-**Document ID:** LOT-PROT-001 | **Version:** 1.8.0 | **Status:** Proposed experiment plan; execution and technology choices not approved
+**Document ID:** LOT-PROT-001 | **Version:** 1.13.0 | **Status:** Proposed experiment plan; execution and technology choices not approved
 
 ## 1. Purpose and authority
 
@@ -169,7 +169,32 @@ A prototype may be **Pass**, **Fail**, **Inconclusive** or **Not run**. “Pass�
 
 **Evidence:** backup manifest and verification output, tamper-negative result, archived WAL inventory, restore-point LSN/timeline, restore logs and timing, pre/post-target assertions, tenant-isolation results, journal/reconciliation report, exact versions, runbook and limitations.
 
-**Status:** P-05A synthetic CI verification passed on head f2303a647aefd5bd8d48ba9d2e1830c881f60041. Integration run [45524388676](https://github.com/tecpey/lottorito-platform/actions/runs/45524388676) and Documentation Governance run [45524388734](https://github.com/tecpey/lottorito-platform/actions/runs/45524388734) passed. PostgreSQL 18.7 was used; CI measured 12–13 seconds (latest final-head run: 13 seconds) for backup plus verification and 1 second for restore startup in this disposable runner only. The named restore-point log was asserted, the pre-target marker was present, the post-target marker absent, tenant RLS read/write denial held, and synthetic ledger/source totals reconciled. Missing-WAL and interrupted-restore negative drills remain untested; object-byte/key recovery and failover/fencing/failback are P-05B/P-05C and not run. This is not production readiness, an RPO/RTO commitment or technology approval.
+**Status:** P-05A positive PITR and negative recovery drills passed in combined synthetic CI on executable-code head `146a9bc635e3b03db568c423fb0958b62bc31c7b`. Integration run [45532825694](https://github.com/tecpey/lottorito-platform/actions/runs/45532825694) and Documentation Governance run [45532825916](https://github.com/tecpey/lottorito-platform/actions/runs/45532825916) passed on that head. PostgreSQL 18.7 was used. Before writable assertions, the positive path explicitly waited for `pg_is_in_recovery() = false`; `pg_ctl` readiness alone was not treated as completed recovery. The negative path rejected an incomplete restore staging directory via `pg_verifybackup` and server startup, and removed the exact target WAL segment from isolated copies; recovery startup failed closed before the requested target and the missing segment was identified in the log. P-05B object-byte/key recovery and ordered idempotent replay also passed in the same job. P-05C failover/fencing/failback remains not run. This is not production readiness, an RPO/RTO commitment or technology approval.
+
+
+### P-05B — Object, key and event recovery
+
+**Question:** After P-05A restores the database, can the platform recover the exact object bytes and the independent key material needed to decrypt them, then replay pending events without losing or duplicating economic effects?
+
+**Synthetic fixture:** A binary object owned by Tenant A, SHA-256 reference stored in the restored database, AES-256-GCM encrypted payload with a random DEK, separately wrapped DEK and a synthetic recovery KEK stored in a separate backup set; tenant-scoped inbox, aggregate sequence cursor and two independent synthetic source events. No cloud, live KMS/HSM, broker, provider, production secret or real data.
+
+**Experiments:**
+1. Encrypt the full object payload with AES-256-GCM and AAD bound to tenant/object/version; wrap the DEK with a separate KEK and AAD bound to key/object identity.
+2. Back up object bytes/manifest/envelope and synthetic key-recovery material independently; remove active copies; restore both sets and compare full plaintext byte count and SHA-256 to the trusted PostgreSQL object reference.
+3. Inject missing-key, modified-ciphertext and modified-wrapped-DEK faults; every path must fail closed. Verify plaintext is absent from the object backup.
+4. Deliver aggregate sequence 2 before 1, duplicate sequence 2 and submit a different event ID with a duplicate economic-effect ID. Sequence gaps must block cursor advancement; duplicate identities must collapse.
+5. Inject failure after the replay function's writes but before transaction commit; verify journal, lines, inbox status and cursor all roll back. Retry and assert exactly one balanced journal per effect, correct sequence cursor, source-to-ledger reconciliation and no-op subsequent replay.
+6. Verify Tenant B cannot read Tenant A object/inbox metadata and cannot write cross-tenant inbox rows.
+
+**Pass criteria:** exact object byte/hash match; missing/corrupt key or object rejected; tenant isolation enforced; duplicate event/economic-effect IDs deduplicated; no sequence-gap advancement; interrupted replay fully rolled back; retry yields exactly two effects and no duplicates; journals balance; source and ledger control totals reconcile; second replay is a no-op.
+
+**Key custody limitation:** The raw KEK file is synthetic CI-only recovery material. It is not a production KMS/HSM design, exportable root-key recommendation, split-knowledge process, key ceremony or authorization model. AES-GCM is an experiment primitive, not a selected platform standard.
+
+**Not proven:** KMS/HSM outage/rotation/revocation/compromise, IAM and dual control, immutable/versioned object retention, legal hold, multipart/large objects, regional replication, external broker durability, provider reconciliation, cross-service saga, high concurrency, production throughput, RPO/RTO or compliance. P-05A missing-WAL and incomplete-restore negative drills passed only in the synthetic CI fixture; production restore orchestration and recovery acceptance controls remain unproven. The positive path now gates writable checks on `pg_is_in_recovery() = false`. P-05C failover/fencing/failback is separate.
+
+**References:** AWS S3 checksum validation; Google Cloud Storage data validation/versioning; NIST SP 800-57 Part 1 Rev. 5 (Rev. 6 remains a draft); AWS transactional outbox and at-least-once event processing guidance.
+
+**Status:** P-05B synthetic CI passed on validated branch head e4820884194ecf1ab3acd539d77145904f14ab73. Combined P-05A/P-05B Pull-request Integration [45526975173](https://github.com/tecpey/lottorito-platform/actions/runs/45526975173) and Documentation Governance [45526975222](https://github.com/tecpey/lottorito-platform/actions/runs/45526975222) passed. The restored 4,409-byte object matched its database SHA-256 reference; missing/corrupt key and object cases failed closed; duplicate/out-of-order replay, transaction interruption/retry, ledger reconciliation and tenant isolation assertions passed. No technology, vendor, production readiness, RPO/RTO or release approval is implied.
 
 ### P-06 — End-to-end observability and privacy
 

@@ -1,8 +1,22 @@
 # Verified Project Status and Continuation Point
 
-**Document ID:** LOT-OPS-001 | **Version:** 1.28.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-24
+**Document ID:** LOT-OPS-001 | **Version:** 1.32.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-25
 
 ## Verified repository state
+
+## Latest continuation update — 2026-11-25 (P-05A negative recovery + P-05B)
+- The positive PITR path now waits until `pg_is_in_recovery()` returns `false` before writable financial/RLS assertions. This fixes a CI race where `pg_ctl` readiness occurred while PostgreSQL still accepted only read-only recovery connections; that earlier run was not counted as an RLS pass. The missing-WAL test now also rejects any writable startup before the requested target.
+
+- P-05B remains Draft PR #53, open and unmerged, stacked on P-05A PR #52; P-05A remains Draft/open/unmerged on P-04 PR #51. The validated executable-code head for the combined recovery tests is 146a9bc635e3b03db568c423fb0958b62bc31c7b. Re-fetch PR metadata for the current documentation head before relying on it.
+- Final combined P-05A/P-05B Integration [run 45532825694](https://github.com/tecpey/lottorito-platform/actions/runs/45532825694) and Documentation Governance [run 45532825916](https://github.com/tecpey/lottorito-platform/actions/runs/45532825916) passed on executable-code head 146a9bc635e3b03db568c423fb0958b62bc31c7b.
+- P-05A positive PITR, PostgreSQL 18.7 base-backup manifest verification/tamper rejection, named restore point, pre/post-target assertions, tenant RLS and synthetic ledger/source reconciliation passed.
+- P-05A negative drills passed: an incomplete restore staging directory was rejected by pg_verifybackup and PostgreSQL startup; the exact target WAL segment was removed from isolated archive and base-backup copies, and the recovery server did not become ready at the requested target. The absent segment was found in the recovery log. This is a synthetic incomplete-staging/missing-WAL drill, not a live production restore interruption.
+- P-05B recovered a 4,409-byte synthetic object and matched SHA-256 2db4a9b021abba0ce01480ceda665284f023310ce909c0b0b9bcb084f771eaca to the restored PostgreSQL reference. Missing key, corrupted ciphertext and corrupted wrapped DEK failed closed. Ordered replay, duplicate collapse, sequence-gap blocking, atomic rollback/retry, exactly two balanced effects, no-op replay, source-to-ledger reconciliation and tenant isolation passed.
+- Still unproven: production KMS/HSM and key custody/rotation, external object-store/broker/provider recovery, immutable/off-site retention, regional recovery, high-concurrency behavior, RPO/RTO, and P-05C failover/writer fencing/failback. RPO/RTO remain TBD; no production data, live secrets, real funds, merge or deployment was used.
+- Next proposed experiment: P-05C, with explicit writer-epoch fencing, lease expiry, stale-writer rejection, split-brain fault injection, controlled promotion and failback. It must remain synthetic and must not define production RPO/RTO or vendor choices without owner/domain approval.
+- This update supersedes earlier P-04/P-05 continuation statements below where they conflict; older entries remain historical snapshots. Do not merge or deploy without explicit owner approval.
+
+
 
 ## Continuation update — 2026-11-25
 
@@ -11,6 +25,15 @@
 - P-05A used a disposable PostgreSQL 18.7 container. The run verified physical base backup, pg_verifybackup, rejection of a tampered manifest, archived WAL, named PITR with pre/post-target assertions, tenant RLS read/write isolation and synthetic journal/source reconciliation. Observed CI backup+verification time was 12–13 seconds (latest final-head run: 13 seconds) and restore startup was 1 second; these are not production RPO/RTO targets.
 - P-05A does not yet test missing-WAL/interrupted-restore negative drills, object-byte/key recovery, event replay, regional recovery, failover, split-brain fencing or failback. P-05B/P-05C remain not run. RPO/RTO remain TBD; no production data, credentials, funds, deployment or merge was involved.
 - Earlier project-status entries below are dated historical snapshots; this continuation update supersedes their P-04/P-05 status statements where they conflict. Re-fetch live PR/run metadata before any merge decision.
+
+## Continuation update — 2026-11-25 (P-05B)
+
+- P-05B PR #53 is open, Draft and unmerged; it is stacked on P-05A PR #52. The branch contains further bilingual evidence/status-only commits after the executable-code test head; fetch live PR/branch metadata for the current SHA. The current validated branch head is `e4820884194ecf1ab3acd539d77145904f14ab73`; combined P-05A+P-05B Integration [45526975173](https://github.com/tecpey/lottorito-platform/actions/runs/45526975173) and Documentation Governance [45526975222](https://github.com/tecpey/lottorito-platform/actions/runs/45526975222) passed on that head.
+- Combined P-05A/P-05B Integration (PR) [45526975173](https://github.com/tecpey/lottorito-platform/actions/runs/45526975173) and Documentation Governance [45526975222](https://github.com/tecpey/lottorito-platform/actions/runs/45526975222) are the latest successful validations on the tested branch head.
+- The combined disposable CI job first reran P-05A PostgreSQL 18.7 base backup, manifest verification, named PITR, RLS and financial assertions, then ran P-05B against the restored database. Object restore recovered 4,409 bytes and matched SHA-256 `2db4a9b021abba0ce01480ceda665284f023310ce909c0b0b9bcb084f771eaca` to the database reference. Missing key, corrupt ciphertext and corrupt wrapped DEK were rejected; tenant object isolation passed.
+- Event replay delivered sequence 2 before 1, tested a sequence gap, duplicate source-event delivery and duplicate economic-effect identity, injected a transaction failure before commit, verified rollback of journal/inbox/cursor, retried exactly two balanced effects, reconciled source totals to ledger cash, proved a subsequent replay was a no-op and denied cross-tenant inbox access/write.
+- P-05A missing-WAL/interrupted-restore negative drills remain open. Live KMS/HSM, production key custody/rotation, external object-store/broker/provider recovery, regional recovery and P-05C failover/fencing/failback remain untested. RPO/RTO remain TBD. No production data, live credentials, provider, real funds, merge or deployment was involved.
+- This update supersedes earlier P-05 status statements below where they conflict; older entries remain dated historical snapshots. Re-fetch live PR/run metadata before any merge decision.
 
 - Repository: tecpey/lottorito-platform; default branch main; public visibility by owner decision.
 - Current engineering stack: P-01 PR #45 → P-02 PR #46 → P-03 PR #50 → P-04 PR #51. All remain open Draft/unmerged. P-01 run [45425284220](https://github.com/tecpey/lottorito-platform/actions/runs/45425284220) passed 40 tests; P-02 run [45466918625](https://github.com/tecpey/lottorito-platform/actions/runs/45466918625) passed 25; P-03 run [45469172124](https://github.com/tecpey/lottorito-platform/actions/runs/45469172124) passed 10. P-04 integration run [45471750215](https://github.com/tecpey/lottorito-platform/actions/runs/45471750215) passed 7 tests (0 failed, 0 skipped) on head 15c536e5be2f61b1805191f5977a46b17eaf1971; push-triggered duplicate run [45471737779](https://github.com/tecpey/lottorito-platform/actions/runs/45471737779) also passed. Documentation Governance run [45471750133](https://github.com/tecpey/lottorito-platform/actions/runs/45471750133) passed on the same head. PR #51 is stacked on #50. PRs #48/#49 remain separate P-01 export/pool candidates requiring ancestry and CI reconciliation before integration. Re-fetch live PR metadata before merge planning.

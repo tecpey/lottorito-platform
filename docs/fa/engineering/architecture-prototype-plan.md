@@ -1,6 +1,6 @@
 # برنامه Prototype معماری و تولید شواهد Lottorito
 
-**شناسه سند:** LOT-PROT-001 | **نسخه:** ۱.۸.۰ | **وضعیت:** برنامه آزمایش پیشنهادی؛ اجرا و انتخاب فناوری تصویب نشده است
+**شناسه سند:** LOT-PROT-001 | **نسخه:** ۱.۱۳.۰ | **وضعیت:** برنامه آزمایش پیشنهادی؛ اجرا و انتخاب فناوری تصویب نشده است
 
 ## ۱. هدف و اعتبار
 
@@ -169,7 +169,32 @@
 
 **شواهد:** Manifest و خروجی صحت‌سنجی Backup، نتیجه تست منفی دست‌کاری، فهرست WAL آرشیوشده، LSN/Timeline نقطه بازیابی، Log و زمان Restore، Assertions قبل/بعد از Target، نتایج جداسازی Tenant، گزارش Ledger/Reconciliation، نسخه دقیق نرم‌افزار، Runbook و محدودیت‌ها.
 
-**وضعیت:** راستی‌آزمایی ساختگی P-05A در CI روی Head با شناسه f2303a647aefd5bd8d48ba9d2e1830c881f60041 موفق شد. اجرای Integration با شناسه [45524388676](https://github.com/tecpey/lottorito-platform/actions/runs/45524388676) و Documentation Governance با شناسه [45524388734](https://github.com/tecpey/lottorito-platform/actions/runs/45524388734) موفق بودند. PostgreSQL 18.7 استفاده شد؛ در Runner دورریختنی CI، زمان Backup به‌همراه Verification برابر ۱۲ تا ۱۳ ثانیه (اجرای نهایی روی Head فعلی: ۱۳ ثانیه) و زمان راه‌اندازی Restore برابر ۱ ثانیه اندازه‌گیری شد. Log رسیدن به Restore Point نام‌گذاری‌شده بررسی شد، نشانگر قبل از Target حاضر و نشانگر بعد از Target غایب بود، RLS خواندن/نوشتن بین Tenantها را رد کرد و مجموع ساختگی Ledger/Source تطبیق داشت. آزمون منفی WAL مفقود و Restore قطع‌شده هنوز اجرا نشده‌اند؛ بازیابی بایت Object/کلید و Failover/Fencing/Failback در P-05B/P-05C قرار دارند و اجرا نشده‌اند. این نتیجه آمادگی Production، تعهد RPO/RTO یا تصویب فناوری نیست.
+**وضعیت:** مسیر مثبت PITR و آزمون‌های منفی بازیابی P-05A در CI ساختگی ترکیبی روی Head کد اجرایی `146a9bc635e3b03db568c423fb0958b62bc31c7b` موفق شدند. Integration با شناسه [45532825694](https://github.com/tecpey/lottorito-platform/actions/runs/45532825694) و Documentation Governance با شناسه [45532825916](https://github.com/tecpey/lottorito-platform/actions/runs/45532825916) روی همان Head موفق بودند. PostgreSQL 18.7 استفاده شد. مسیر مثبت پیش از Assertionهای نوشتنی صریحاً منتظر `pg_is_in_recovery() = false` ماند؛ Ready شدن توسط `pg_ctl` به‌تنهایی پایان Recovery محسوب نشد. مسیر منفی، Staging ناقص Restore را با `pg_verifybackup` و راه‌اندازی سرور رد کرد و Segment دقیق WAL هدف را از کپی‌های ایزوله حذف کرد؛ راه‌اندازی Recovery پیش از Target درخواستی Fail-closed شد و Segment مفقود در Log شناسایی شد. بازیابی بایت Object/کلید و Replay مرتب و Idempotent در P-05B نیز در همان Job موفق شدند. Failover/Fencing/Failback در P-05C هنوز اجرا نشده است. این نتیجه آمادگی Production، تعهد RPO/RTO یا تصویب فناوری نیست.
+
+
+### P-05B — بازیابی Object، کلید و رویداد
+
+**پرسش:** پس از بازیابی دیتابیس در P-05A، آیا پلتفرم می‌تواند بایت‌های دقیق Object و مواد مستقل کلید لازم برای رمزگشایی را بازیابی کند و سپس رویدادهای Pending را بدون فقدان یا تکرار اثر اقتصادی Replay کند؟
+
+**Fixture ساختگی:** یک Object باینری متعلق به Tenant A، مرجع SHA-256 ثبت‌شده در دیتابیس بازیابی‌شده، Payload رمز‌شده با AES-256-GCM و DEK تصادفی، DEK بسته‌بندی‌شده مستقل و KEK بازیابی ساختگی در مجموعه Backup جداگانه؛ Inbox محدود به Tenant، Cursor توالی Aggregate و دو Source Event ساختگی مستقل. بدون Cloud، KMS/HSM زنده، Broker، Provider، Secret Production یا داده واقعی.
+
+**آزمایش‌ها:**
+۱. کل Payload را با AES-256-GCM و AAD مقید به Tenant/Object/Version رمز کنید؛ DEK را با KEK مستقل و AAD مقید به هویت Key/Object Wrap کنید.
+۲. بایت Object/Manifest/Envelope و مواد بازیابی کلید ساختگی را مستقل Backup کنید؛ نسخه فعال را حذف کنید؛ هر دو مجموعه را Restore و تعداد بایت و SHA-256 کامل Plaintext را با مرجع قابل اعتماد PostgreSQL مقایسه کنید.
+۳. خطای نبود کلید، Ciphertext تغییرکرده و DEK بسته‌بندی‌شده تغییرکرده تزریق کنید؛ همه مسیرها باید Fail-closed باشند. نبود Plaintext در Backup مربوط به Object را بررسی کنید.
+۴. ابتدا Sequence شماره ۲ را تحویل دهید، سپس ۱، Sequence شماره ۲ را تکرار و Event ID متفاوت با Economic Effect ID تکراری ارسال کنید. شکاف Sequence باید Cursor را متوقف و هویت‌های تکراری باید ادغام شوند.
+۵. پیش از Commit تراکنش و پس از نوشتن‌های تابع Replay خطا تزریق کنید؛ Rollback کامل Journal، Line، وضعیت Inbox و Cursor را اثبات کنید. Retry باید دقیقاً یک Journal متوازن برای هر Effect، Cursor صحیح، تطبیق Source-to-Ledger و Replay بعدی بدون اثر داشته باشد.
+۶. ثابت کنید Tenant B نمی‌تواند Metadata مربوط به Object/Inbox متعلق به Tenant A را بخواند و نمی‌تواند ردیف Inbox بین Tenantها بنویسد.
+
+**معیار Pass:** تطبیق دقیق بایت/Hash Object؛ رد کلید یا Object خراب/مفقود؛ اعمال جداسازی Tenant؛ Deduplication شناسه Event و Economic Effect؛ جلوگیری از عبور از شکاف Sequence؛ Rollback کامل Replay قطع‌شده؛ Retry با دقیقاً دو اثر و بدون Duplicate؛ توازن Journal؛ تطبیق مجموع Source و Ledger؛ و No-op بودن Replay دوم.
+
+**محدودیت Custody کلید:** فایل خام KEK صرفاً مواد بازیابی ساختگی CI است. این فایل طراحی Production برای KMS/HSM، توصیه به Export کلید ریشه، Split-Knowledge، مراسم کلید یا مدل مجوزدهی نیست. AES-GCM Primitive آزمایشی است، نه استاندارد منتخب پلتفرم.
+
+**اثبات‌نشده:** قطعی/Rotation/Revocation/Compromise در KMS/HSM، IAM و کنترل دوگانه، نگهداری Immutable/Versioned Object، Legal Hold، فایل بزرگ/Multipart، Replication منطقه‌ای، دوام Broker خارجی، تطبیق Provider، Saga بین سرویس‌ها، هم‌زمانی بالا، Throughput Production، RPO/RTO یا انطباق. آزمون‌های منفی WAL مفقود و Staging ناقص Restore در P-05A فقط در Fixture ساختگی CI موفق شده‌اند؛ Orchestration بازیابی Production و کنترل پذیرش نتیجه بازیابی هنوز اثبات نشده‌اند. مسیر مثبت اکنون بررسی‌های نوشتنی را به `pg_is_in_recovery() = false` مشروط می‌کند. Failover/Fencing/Failback در P-05C مستقل است.
+
+**منابع:** صحت Checksum در AWS S3؛ اعتبارسنجی داده و Versioning در Google Cloud Storage؛ NIST SP 800-57 Part 1 Rev. 5 (Rev. 6 هنوز پیش‌نویس است)؛ راهنمای Transactional Outbox و تحویل At-least-once در AWS.
+
+**وضعیت:** CI ساختگی P-05B روی Head اعتبارسنجی‌شده شاخه با شناسه e4820884194ecf1ab3acd539d77145904f14ab73 موفق شد. اجرای Integration ترکیبی P-05A/P-05B در Pull Request با شناسه [45526975173](https://github.com/tecpey/lottorito-platform/actions/runs/45526975173) و Documentation Governance با شناسه [45526975222](https://github.com/tecpey/lottorito-platform/actions/runs/45526975222) موفق شدند. Object بازیابی‌شده ۴٬۴۰۹ بایتی با مرجع SHA-256 دیتابیس تطبیق داشت؛ حالت‌های کلید/Object مفقود یا خراب Fail-closed شدند؛ Assertionهای Duplicate/ترتیب Replay، قطع تراکنش و Retry، تطبیق Ledger و جداسازی Tenant موفق شدند. هیچ فناوری، فروشنده، آمادگی Production، RPO/RTO یا مجوز انتشار تصویب نشده است.
 
 ### P-06 — Observability سرتاسری و حریم خصوصی
 
