@@ -230,14 +230,46 @@ test("same event ID with a changed payload is quarantined as immutable conflict 
   assert.equal((await inboxRow(affiliateA, affiliateInstallation.provider_id, eventId)).payload_hash.length, 64);
 });
 
-test("caller-controlled tenant/product fields cannot override database and installation scope", async () => {
+test("caller-controlled tenant/product and envelope fields cannot override trusted installation scope", async () => {
   const fixture = webhook(affiliateInstallation, {
-    payloadScope: { tenant_id: TENANT_B, product_id: PRODUCT_LOTTERY }
+    payloadScope: {
+      tenant_id: TENANT_B, product_id: PRODUCT_LOTTERY,
+      tenantid: TENANT_B, scope: { kind: "product", id: PRODUCT_LOTTERY },
+      sourceeventid: randomUUID(), traceparent: "00-" + "0".repeat(32) + "-0000000000000000-01",
+      dataschema: "urn:attacker:schema", schemaversion: 999
+    }
   });
   assert.equal((await ingest(affiliateA, fixture)).http_status, 202);
-  assert.equal((await inboxRow(affiliateA, affiliateInstallation.provider_id, fixture.eventId)).tenant_id, TENANT_A);
+  const stored = await inboxRow(affiliateA, affiliateInstallation.provider_id, fixture.eventId);
+  assert.equal(stored.tenant_id, TENANT_A);
+  assert.equal(stored.canonical_event.tenantid, TENANT_A);
+  assert.deepEqual(stored.canonical_event.scope, { kind: "product", id: PRODUCT_AFFILIATE });
+  assert.equal(stored.canonical_event.sourceeventid, stored.source_event_id);
+  assert.notEqual(stored.canonical_event.sourceeventid, JSON.parse(fixture.rawBody.toString("utf8")).sourceeventid);
+  assert.notEqual(stored.canonical_event.traceparent, JSON.parse(fixture.rawBody.toString("utf8")).traceparent);
+  assert.equal(stored.canonical_event.dataschema, "urn:lottorito:schema:synthetic-settlement:1");
+  assert.equal(stored.canonical_event.schemaversion, 1);
   assert.equal(await inboxRow(affiliateB, affiliateInstallation.provider_id, fixture.eventId), null);
   assert.equal(await inboxRow(lotteryA, affiliateInstallation.provider_id, fixture.eventId), null);
+});
+
+test("identical provider event IDs are independently accepted across tenant and product ingress scopes", async () => {
+  const eventId = "evt-cross-ingress-" + randomUUID();
+  const fixtures = [
+    [affiliateA, webhook(affiliateInstallation, { eventId }), affiliateInstallation],
+    [lotteryA, webhook(lotteryInstallation, { eventId }), lotteryInstallation],
+    [affiliateB, webhook(tenantBInstallation, { eventId }), tenantBInstallation]
+  ];
+  for (const [pool, fixture] of fixtures) {
+    assert.equal((await ingest(pool, fixture)).http_status, 202);
+  }
+  const rows = await Promise.all(fixtures.map(([pool, fixture, installation]) =>
+    inboxRow(pool, installation.provider_id, fixture.eventId)));
+  assert.deepEqual(rows.map(row => [row.tenant_id, row.product_id]), [
+    [TENANT_A, PRODUCT_AFFILIATE], [TENANT_A, PRODUCT_LOTTERY], [TENANT_B, PRODUCT_AFFILIATE]
+  ]);
+  assert.equal(new Set(rows.map(row => row.source_event_id)).size, 3);
+  assert.deepEqual(rows.map(row => row.canonical_event.sourceeventid), rows.map(row => row.source_event_id));
 });
 
 test("tenant and product identities cannot read each other's provider inbox", async () => {
