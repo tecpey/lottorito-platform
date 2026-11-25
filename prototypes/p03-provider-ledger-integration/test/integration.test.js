@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { Pool } from "pg";
 import {
-  claimNextProviderEvent, ingestProviderWebhook, makeWebhook,
+  claimNextProviderEvent, ingestProviderWebhook, makeWebhook, signWebhook,
   processProviderEvent, reconcileProviderEvents
 } from "../src/provider.js";
 import { claimOutboxEvents } from "../../p03-ledger-outbox-integration/src/relay.js";
@@ -137,6 +137,18 @@ test("raw-body tampering is rejected before inbox persistence", async () => {
   });
   assert.equal(result.http_status, 401);
   assert.equal(await inboxRow(affiliateA, affiliateInstallation.provider_id, fixture.eventId), null);
+});
+
+test("webhook signing rejects secrets shorter than 128 bits", () => {
+  assert.throws(
+    () => signWebhook({
+      eventId: "evt-short-secret",
+      rawBody: Buffer.from("{}"),
+      secret: "too-short",
+      timestamp: Math.floor(Date.now() / 1000)
+    }),
+    /at least 128 bits/
+  );
 });
 
 test("stale and future signature timestamps are rejected", async () => {
