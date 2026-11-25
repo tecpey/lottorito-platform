@@ -143,3 +143,14 @@ Workflow یکپارچه‌سازی P-03C/P-03D با شناسه [45637659485](htt
 در P-09 اکنون `id` و `type` در CloudEvents باید رشته غیرخالی باشند؛ `source` و `dataschema` باید URI-reference غیرخالی مطابق RFC 3986 باشند؛ و `time` باید از نظر نحو RFC 3339 و محدوده تاریخ تقویمی، ساعت و Offset معتبر باشد. Extension Attributeهای CloudEvents همچنان مجازند. فیلدهای اختصاصی و الزامی Lottorito در `contract.json` تعریف شده‌اند.
 
 نوع رویداد `ledger.journal.posted` صراحتاً فقط به Product Scope تعلق دارد: رویداد مالی با Scope از نوع `platform` رد می‌شود، درحالی‌که رویداد غیرمالی پلتفرم از نظر ساختاری معتبر می‌ماند. این فقط یک قاعده محدود است و به معنای تکمیل Registry تمام Event Typeها نیست؛ مجوزدهی وابسته به Producer همچنان در P-07B انجام می‌شود. اتصال Validator به مسیرهای واقعی Ingress و Dispatch دروازه مستقل P-09H است.
+
+
+### P-09H — اعمال قرارداد در Ingress، Dispatch و Replay واقعی Prototypeها (۲۰۲۶-۱۱-۲۵)
+
+اعتبارسنج Canonical اکنون پیاده‌سازی Node.js نیز در مسیر `prototypes/p09-contract-recovery/contract.mjs` دارد که از نظر شکل UUID، Scope، ویژگی‌های CloudEvents، نویسه‌های URI-reference مطابق RFC 3986، زمان RFC 3339، نسخه Schema و W3C Trace Context v00 با نسخه Python هم‌راستا شده است. Worker مربوط به Provider مستقیماً از همین پیاده‌سازی استفاده می‌کند تا مجموعه قانون سومی و مستقل ایجاد نشود.
+
+در P-03D، Envelope استاندارد فقط با استفاده از اطلاعات Installation مورد اعتماد و Event Mapping تأییدشده ساخته می‌شود. پس از تأیید امضای Raw Body، Tenant و Product از Installation استخراج می‌شوند؛ شناسه رویداد Provider به‌عنوان CloudEvents `id` استفاده می‌شود؛ یک `sourceeventid` مستقل و Trace Context جدید تولید می‌شود؛ و UUID مربوط به Source Event هم در Envelope و هم در ردیف Inbox ذخیره می‌شود. فیلدهای Tenant/Product ارسالی Provider قادر به بازنویسی این مقادیر نیستند. نبود Schema Mapping یا زمان غیرمنطبق با RFC 3339 پیش از ثبت در Inbox رد می‌شود. پیش از ثبت Journal نیز Envelope ذخیره‌شده و تطابق هویت آن با Tenant/Product/Source Event دوباره اعتبارسنجی می‌شود؛ هویت خراب پیش از هر اثر اقتصادی به قرنطینه می‌رود.
+
+در Dispatch مربوط به P-07B، Validator مشترک Python پس از کنترل‌های فعلی احراز هویت، Scope مربوط به Producer و کدهای دلیل Deny اجرا می‌شود. مسیر Recovery/Replay در P-05E نیز Envelope ذخیره‌شده را با ردیف Inbox تطبیق می‌دهد و در صورت مغایرت Tenant، Product، Provider Event، Source Event، Schema یا Trace از Posting جلوگیری می‌کند. Fixtureهای بازیابی ساختگی نیز اکنون Envelope کامل الزامی را دارند.
+
+این تغییرات اتصال Prototypeهای ساختگی هستند و شواهد استقرار Production محسوب نمی‌شوند. پذیرش P-09H منوط به موفقیت ماتریس کامل CI روی Head نهایی PR است؛ اتصال زنده Providerها، نگهداری کلیدهای Production و سیم‌کشی Runtime محیط واقعی خارج از محدوده این مرحله‌اند.
