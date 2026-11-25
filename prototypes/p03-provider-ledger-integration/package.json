@@ -1,0 +1,10 @@
+{
+  "name": "lottorito-p03-provider-ledger-integration",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Synthetic proof connecting signed provider inbox events to product-scoped P-02 posting and P-03C outbox delivery.",
+  "engines": { "node": "26.13.x" },
+  "scripts": { "test": "node scripts/setup-db.js && node --test" },
+  "dependencies": { "pg": "8.23.1" }
+}
