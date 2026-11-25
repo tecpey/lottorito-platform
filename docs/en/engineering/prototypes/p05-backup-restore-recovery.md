@@ -1,6 +1,6 @@
 # P-05A — PostgreSQL Backup, PITR and Financial Integrity
 
-**Document ID:** LOT-PROT-P05-001 | **Version:** 0.3.0 | **Status:** Synthetic CI experiment passed; production recovery not approved
+**Document ID:** LOT-PROT-P05-001 | **Version:** 0.4.0 | **Status:** Synthetic CI experiment passed; production recovery not approved
 
 ## Authority and decision boundary
 
@@ -65,9 +65,13 @@ No production data, credentials, partner secrets, real funds or live endpoints. 
 
 ## Evidence
 
+- Combined P-05A/P-05B Integration: [run 45532382323](https://github.com/tecpey/lottorito-platform/actions/runs/45532382323), passed on final branch head `0a6b8f992161cd9f9d760698b1c9d0c8e30867a9`.
+- Documentation Governance: [run 45532382310](https://github.com/tecpey/lottorito-platform/actions/runs/45532382310), passed on the same head.
+- Negative assertions: `incomplete_restore_manifest_rejected=PASS`, `incomplete_restore_server_start_rejected=PASS`, `missing_wal_startup_not_ready=PASS`, `missing_wal_target_segment_absence_detected=PASS`, `P05A_NEGATIVE_RESULT=PASS`.
+
 - Integration: [run 45524388676](https://github.com/tecpey/lottorito-platform/actions/runs/45524388676), passed on head f2303a647aefd5bd8d48ba9d2e1830c881f60041.
 - Documentation Governance: [run 45524388734](https://github.com/tecpey/lottorito-platform/actions/runs/45524388734), passed on the same head.
 - PostgreSQL 18.7; base backup plus verification: 12–13 seconds (latest final-head run: 13 seconds); restored server startup: 1 second in this disposable GitHub-hosted runner. These are observations, not production RTO targets.
 - The run asserted manifest verification and tamper rejection, archived WAL presence, the named PITR log entry, pre-target marker present/post-target marker absent, tenant-scoped reads and denied cross-tenant insert, balanced journals, source-to-ledger totals, unique economic effects and valid object-reference hash format.
-- Missing-WAL and interrupted-restore negative drills remain open. Object-byte/key recovery and failover/fencing/failback are P-05B/P-05C and have not run.
+- Negative drills passed on the combined P-05A/P-05B head: an incomplete restore staging directory was rejected by both `pg_verifybackup` and PostgreSQL startup; removal of the exact target WAL segment prevented readiness at the requested named restore point. The missing-WAL log recorded the absent target segment. Object-byte/key recovery is covered by P-05B; failover/fencing/failback remains P-05C and has not run.
 - Synthetic success is not production readiness, a technology decision or RPO/RTO approval.
