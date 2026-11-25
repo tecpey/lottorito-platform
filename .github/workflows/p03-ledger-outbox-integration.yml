@@ -15,6 +15,8 @@ on:
     paths:
       - "prototypes/p03-ledger-outbox-integration/**"
       - "prototypes/p02-ledger-posting/**"
+      - "docs/en/engineering/prototypes/p03-ledger-outbox-integration.md"
+      - "docs/fa/engineering/prototypes/p03-ledger-outbox-integration.md"
       - ".github/workflows/p03-ledger-outbox-integration.yml"
 
 permissions:
