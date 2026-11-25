@@ -14,7 +14,7 @@ P-08 هشتمین آزمایش الزامی در LOT-PROT-001 است. این م�
 
 - **هویت Artifact:** یک Archive قطعی ساخته می‌شود، SHA-256 آن محاسبه و دقیقاً همان بایت‌ها ارتقا داده می‌شوند. تنظیمات محیط و Secretهای Runtime داخل Artifact قرار نمی‌گیرند.
 - **Provenance:** یک رکورد جداگانه و هم‌شکل با in-toto Statement v1 و URI مربوط به Predicate استاندارد SLSA یعنی https://slsa.dev/provenance/v1 ساخته می‌شود. Digest واقعی Artifact در Subject ثبت می‌شود و Source Revision، هویت Builder، Build Type و Digest فایل Entry Point بررسی می‌شوند. مشخصات فعلی SLSA نسخه ۱.۲ است. این Fixture فقط سازگاری فیلدها را بررسی می‌کند؛ امضای رمزنگاری‌شده تولید یا اعتبارسنجی نمی‌کند، Builder قابل‌اعتماد را اثبات نمی‌کند و ادعای انطباق SLSA ندارد.
-- **جداسازی Secret:** مرحله Build هیچ Secret برنامه‌ای دریافت نمی‌کند. یک Secret ساختگی فقط از طریق تابع تزریق مخصوص تست به فرایند Runtime جدید داده می‌شود. Artifact، Provenance جداگانه و خروجی ثبت‌شده فرایند از نظر مقدار Canary یکتا بررسی می‌شوند. این روش Secret Scanner عمومی یا Secret Manager عملیاتی نیست.
+- **جداسازی Secret:** مرحله Build هیچ Secret برنامه‌ای دریافت نمی‌کند. یک Secret ساختگی فقط از طریق تابع تزریق مخصوص تست به فرایند Runtime جدید داده می‌شود و Process فرزند فقط Environment مجازشده را دریافت می‌کند، نه متغیرهای محیطی میزبان/CI را. Artifact، Provenance جداگانه و خروجی ثبت‌شده فرایند از نظر مقدار Canary یکتا بررسی می‌شوند. این روش Secret Scanner عمومی یا Secret Manager عملیاتی نیست.
 - **معنای Health:** تکمیل Startup، زنده‌بودن Process، آمادگی API و آمادگی Worker سیگنال‌های جداگانه‌اند. Liveness به سلامت Process وابسته است، نه در دسترس‌بودن Dependencyهای پایین‌دستی؛ Readiness به تکمیل Startup و سلامت تمام Dependencyهای طبقه‌بندی‌شده به‌عنوان Critical نیاز دارد. فعال‌سازی Worker نیز دروازه Readiness مستقل دارد. این جداسازی از تبدیل قطعی یک اختلال Dependency به چرخه Restart غیرضروری جلوگیری می‌کند.
 - **Rollout ایمن:** Candidate ابتدا برای API آماده می‌شود، درحالی‌که Traffic بسته است. پیش از فعال‌سازی Traffic API یا پردازش Worker، Worker نیز باید آماده باشد. اگر Gate مربوط به Worker پس از آماده‌سازی API شکست بخورد، Pointer ناقص API به وضعیت قبلی برگردانده می‌شود.
 - **بازیابی آگاه از Schema:** فقط زمانی می‌توان Artifact قدیمی را Rollback کرد که قادر به خواندن Schema فعلی باشد. انتقال Schema فقط زمانی مجاز است که Release فعال و هر Rollback Target باقی‌مانده، هر دو از Schema مقصد پشتیبانی کنند. Contract تا زمانی که Rollback Target ناسازگار باقی مانده باشد متوقف می‌شود. خود بازنشستگی نیز به Approval متصل به Environment و Digest دقیق، تأییدکننده مستقل با نقش Release Approver و تأیید صریح Schema مقصد نیاز دارد. پس از بازنشستگی Target، Rollback ناسازگار رد می‌شود و باید از Forward Repair سازگار با Schema استفاده کرد.
@@ -39,9 +39,9 @@ Artifact Store و Deployment Controller، Test Doubleهای In-memory هستند
 | شناسه | نتیجه الزامی |
 |---|---|
 | P08-01 | ورودی یکسان Build باید Artifact بایت‌به‌بایت یکسان و SHA-256 یکسان تولید کند. |
-| P08-02 | خروجی Build موجود نباید بی‌صدا بازنویسی شود؛ دستکاری Artifact باید با بررسی Digest تشخیص داده شود. |
+| P08-02 | هر محتوای ازپیش‌موجود در پوشه خروجی Build باید به‌جای بازنویسی رد شود؛ دستکاری Artifact باید با بررسی Digest تشخیص داده شود. |
 | P08-03 | Subject Digest، Source Revision، Product، Build Type، Builder و Entry Point Digest در Provenance جداگانه باید با Artifact و ورودی‌های Build تطبیق داشته باشند. |
-| P08-04 | Canary Secret تزریق‌شده در Runtime نباید در بایت‌های Artifact، Provenance یا خروجی ثبت‌شده فرایند ظاهر شود. |
+| P08-04 | Canary Secret تزریق‌شده در Runtime نباید در بایت‌های Artifact، Provenance یا خروجی ثبت‌شده فرایند ظاهر شود؛ متغیرهای Secret محیط میزبان/CI نباید به Process فرزند منتقل شوند. |
 | P08-05 | Startup، Liveness، API Readiness و Worker Readiness معنای مجزا داشته باشند؛ خرابی Dependency حیاتی Readiness را متوقف کند، بدون آنکه Liveness فرایند به‌اشتباه Fail شود. |
 | P08-06 | همان Digest دقیق Artifact از Test به Staging ارتقا یابد؛ وضعیت قدیمی Compare-and-Swap رد شود. |
 | P08-07 | Approval باید با Digest و Environment دقیق تطبیق داشته باشد؛ تفکیک Requester، Approver و Deployer اعمال و مقصد Production رد شود. |
