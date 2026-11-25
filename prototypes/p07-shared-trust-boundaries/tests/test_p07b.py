@@ -22,6 +22,7 @@ def event(**overrides):
         "source": "urn:lottorito:product:affiliate_agent",
         "specversion": "1.0",
         "type": "com.lottorito.p07b.demo.signal.v1",
+        "time": "2026-11-25T12:00:00Z",
         "tenantid": "22222222-2222-4222-8222-222222222222",
         "scope": {"kind": "product", "id": "affiliate_agent"},
         "sourceeventid": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
