@@ -40,3 +40,10 @@ Continue Lottorito from the repository's verified state. Do not restart planning
 
 ## Definition of done
 A task is done only when implementation exists, relevant tests pass, documentation is synchronized in both languages, security and tenant implications are reviewed, and commit/PR/CI evidence is linked.
+
+## P-04 continuation — 2026-11-24
+- Draft PR #51: spike/p04-schema-evolution, based on P-03 head 45b37700cb2b9ad633158ba8d5f00b8c7f0553d5; integration run 45471750215 passed 7 tests on head 15c536e5be2f61b1805191f5977a46b17eaf1971; Documentation Governance run 45471750133 passed.
+- Read both docs/en/engineering/prototypes/p04-schema-evolution.md and its Persian counterpart before editing.
+- Synthetic data and credentials only. PostgreSQL 18.7 / Node.js 26.13.0 / pg 8.23.1 are experiment inputs, not approved platform choices.
+- Contract rehearsal is non-destructive. Do not drop/rename legacy columns or run migrations against production; destructive steps require explicit owner approval.
+- Preserve P-01 → P-02 → P-03 → P-04 ancestry. Do not merge or alter main without explicit approval.
