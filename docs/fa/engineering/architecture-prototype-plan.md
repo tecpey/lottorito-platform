@@ -1,6 +1,6 @@
 # برنامه Prototype معماری و تولید شواهد Lottorito
 
-**شناسه سند:** LOT-PROT-001 | **نسخه:** ۱.۱۷.۰ | **وضعیت:** برنامه آزمایش پیشنهادی؛ اجرا و انتخاب فناوری تصویب نشده است
+**شناسه سند:** LOT-PROT-001 | **نسخه:** ۱.۱۸.۰ | **وضعیت:** برنامه آزمایش پیشنهادی؛ اجرا و انتخاب فناوری تصویب نشده است
 
 ## ۱. هدف و اعتبار
 
@@ -241,7 +241,7 @@
 
 **منابع:** W3C Trace Context؛ Context Propagation و Messaging Convention در OpenTelemetry؛ OWASP Logging Cheat Sheet؛ راهنمای Cardinality در Prometheus؛ NIST SP 800-92 (راهنمای منتشرشده؛ Rev. 1 نهایی فرض نمی‌شود)؛ وضعیت بلوغ Redaction Processor در OpenTelemetry Collector.
 
-**وضعیت:** پیاده‌سازی ساختگی در PR شماره ۵۵ به‌صورت Draft و Stacked روی P-05C PR شماره ۵۴ قرار دارد. Integration و Documentation Governance در انتظارند. هیچ Instrumentation Production، فروشنده، سیاست Retention، مبنای قانونی یا آمادگی Production تصویب نشده است.
+**وضعیت:** Integration مربوط به P-06 با شناسه [45535315659](https://github.com/tecpey/lottorito-platform/actions/runs/45535315659) و Documentation Governance با شناسه [45535315503](https://github.com/tecpey/lottorito-platform/actions/runs/45535315503) روی Head PR با شناسه `9f30a2966ce77aca8a7df6acf8e803733bd723dd` موفق شدند. نه Span، Journal واقعی P-02 را متصل کردند؛ ۵۰۰ Tenant ساختگی یکتا فقط چهار Metric Series ساختند؛ Assertionهای حریم خصوصی، RLS، Forensic Audit و Alert موفق شدند. PR شماره ۵۵ همچنان Draft و Stacked روی P-05C PR شماره ۵۴ است. هیچ Instrumentation Production، فروشنده، سیاست Retention، مبنای قانونی یا آمادگی Production تصویب نشده است.
 
 ### P-07 — ترکیب مستقل محصولات
 
