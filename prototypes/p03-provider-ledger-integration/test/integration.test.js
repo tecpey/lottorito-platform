@@ -40,21 +40,21 @@ const affiliateInstallation = {
   active: true, tenant_id: TENANT_A, product_id: PRODUCT_AFFILIATE,
   provider_id: "synthetic-provider", provider_source: "urn:synthetic:provider:affiliate",
   event_mappings: {
-    [EVENT_TYPE]: { currency_code: "USD", debit_account_id: A_CASH, credit_account_id: A_CLEARING }
+    [EVENT_TYPE]: { currency_code: "USD", dataschema: "urn:lottorito:schema:synthetic-settlement:1", schema_version: 1, debit_account_id: A_CASH, credit_account_id: A_CLEARING }
   }
 };
 const lotteryInstallation = {
   active: true, tenant_id: TENANT_A, product_id: PRODUCT_LOTTERY,
   provider_id: "synthetic-provider", provider_source: "urn:synthetic:provider:lottery",
   event_mappings: {
-    [EVENT_TYPE]: { currency_code: "USD", debit_account_id: LOTTERY_CASH, credit_account_id: LOTTERY_CLEARING }
+    [EVENT_TYPE]: { currency_code: "USD", dataschema: "urn:lottorito:schema:synthetic-settlement:1", schema_version: 1, debit_account_id: LOTTERY_CASH, credit_account_id: LOTTERY_CLEARING }
   }
 };
 const tenantBInstallation = {
   active: true, tenant_id: TENANT_B, product_id: PRODUCT_AFFILIATE,
   provider_id: "synthetic-provider", provider_source: "urn:synthetic:provider:tenant-b",
   event_mappings: {
-    [EVENT_TYPE]: { currency_code: "USD", debit_account_id: B_CASH, credit_account_id: B_CLEARING }
+    [EVENT_TYPE]: { currency_code: "USD", dataschema: "urn:lottorito:schema:synthetic-settlement:1", schema_version: 1, debit_account_id: B_CASH, credit_account_id: B_CLEARING }
   }
 };
 
@@ -127,6 +127,12 @@ test("valid raw-body signature is durably accepted before the simulated HTTP 202
   assert.equal(stored.product_id, PRODUCT_AFFILIATE);
   assert.equal(stored.payload_hash.length, 64);
   assert.ok(stored.effect_id && stored.source_event_id);
+  assert.equal(stored.canonical_event.tenantid, TENANT_A);
+  assert.deepEqual(stored.canonical_event.scope, { kind: "product", id: PRODUCT_AFFILIATE });
+  assert.equal(stored.canonical_event.sourceeventid, stored.source_event_id);
+  assert.equal(stored.canonical_event.schemaversion, 1);
+  assert.match(stored.canonical_event.traceparent, /^00-[0-9a-f]{32}-[0-9a-f]{16}-00$/);
+  assert.equal(stored.canonical_event.dataschema, "urn:lottorito:schema:synthetic-settlement:1");
 });
 
 test("raw-body tampering is rejected before inbox persistence", async () => {
