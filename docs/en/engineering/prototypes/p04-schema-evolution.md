@@ -36,3 +36,8 @@ No zero-downtime, production-scale lock/backfill, CDC, partitioned-table, multi-
 ## Evidence
 
 Integration run [45471750215](https://github.com/tecpey/lottorito-platform/actions/runs/45471750215) passed 7 tests (0 failed, 0 skipped) on code head 15c536e5be2f61b1805191f5977a46b17eaf1971; duplicate push run [45471737779](https://github.com/tecpey/lottorito-platform/actions/runs/45471737779) also passed. Documentation Governance run [45471750133](https://github.com/tecpey/lottorito-platform/actions/runs/45471750133) passed on the same head. PostgreSQL 18.7, Node.js 26.13.0, npm ci and pg 8.23.1 were used. Synthetic test success is not production readiness or technology approval.
+
+
+## Rebased-stack validation — 2026-11-25
+
+The original PR #51 code head passed its seven-test P-04 suite, but that branch was a sibling of P-03C/P-03D. This prototype has been copied onto `spike/p04-schema-evolution-p03d`, whose parent is P-03D PR #61. Re-run P-04 plus P-02/P-03C/P-03D regression and bilingual Documentation Governance on the new PR head. Until then, the original seven-test run is historical evidence only; the rebased P-04 status is pending verification.
