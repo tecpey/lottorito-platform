@@ -53,3 +53,8 @@ Head دقیق کد آزمایش‌شده: `dca0762678ed45da122ba109276c54ce61ac0
 - Documentation Governance دوزبانه: [اجرای ۷۰۷](https://github.com/tecpey/lottorito-platform/actions/runs/45608274060) — موفق.
 
 هر چهار Workflow روی یک Head دقیق کد با موفقیت کامل شدند. این نتیجه فقط آزمایش ساختگی P-04 را در زنجیره تطبیق‌یافته P-03D راستی‌آزمایی می‌کند؛ ایمنی Migration عملیاتی، Zero Downtime یا تصویب فناوری را اثبات نمی‌کند.
+
+
+## تحویل به P-05A — ۲۰۲۶-۱۱-۲۵
+
+PR اصلی P-05A با شماره ۵۲ بر مبنای شاخه اصلی P-04 ساخته شده بود. شاخه جایگزین آن با نام `spike/p05-backup-restore-recovery-p03d` بر مبنای Head تطبیق‌یافته PR شماره ۶۲ در P-04 یعنی `1013f3b93b55b2cb0859b371db58e1e17ec4ad5e` است. P-05A باید Workflow بازیابی اختصاصی و زنجیره کامل Regression مربوط به P-02/P-03C/P-03D/P-04 را روی Head جدید با موفقیت بگذراند.
