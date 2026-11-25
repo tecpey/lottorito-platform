@@ -15,6 +15,9 @@ $roles$;
 ALTER ROLE outbox_owner NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
 ALTER ROLE outbox_executor NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
 
+CREATE UNIQUE INDEX ledger_outbox_tenant_product_event_uidx
+  ON public.ledger_outbox (tenant_id, product_id, event_id);
+
 GRANT USAGE ON SCHEMA public TO outbox_owner, outbox_executor;
 GRANT USAGE ON SCHEMA private TO outbox_executor;
 GRANT EXECUTE ON FUNCTION private.current_tenant_id() TO outbox_executor;
@@ -50,9 +53,6 @@ CREATE TABLE public.outbox_delivery_state (
   ),
   CHECK ((status = 'published') = (published_at IS NOT NULL))
 );
-
-CREATE UNIQUE INDEX ledger_outbox_tenant_product_event_uidx
-  ON public.ledger_outbox (tenant_id, product_id, event_id);
 
 CREATE INDEX outbox_delivery_claim_idx
   ON public.outbox_delivery_state (tenant_id, product_id, status, available_at, event_id);
