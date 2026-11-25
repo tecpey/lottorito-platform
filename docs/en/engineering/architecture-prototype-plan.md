@@ -309,3 +309,14 @@ The prototype phase is complete only when all eight experiments have reproducibl
 - P-03D branch `spike/p03d-provider-ledger-integration` is based on P-03C head `32b34f4c7c67b12874cdf6a14a2788d9a2f4c6dc`. CI passed on exact head `40d002a2af5875a6ead178604b90dc92aa678dc5`: P-02 25/25, P-03C 15/15, P-03D 19/19, and Documentation Governance passed (runs 45607187120, 45607186885 and 45607186745). Tenant-wide uniqueness constraints remain conservative pending key-model review.
 **Next sequencing gate:** PR #51 (P-04) is a sibling of PR #60 (P-03C) on the P-03 base, not a descendant. Before treating P-04–P-08 as a coherent stack, reconcile their base/head ancestry against P-03C, inspect diffs for duplicated or incompatible schema changes, and run the complete P-02/P-03C/P-04–P-08 regression chain on the reconciled head. Keep PRs Draft/open; no merge or deployment is authorized.
 - No provider, broker, transport, accounting rule, commission/NGR formula, legal entity, production schema, technology stack, merge or deployment is approved by these synthetic experiments.
+
+
+
+## P-04 continuation on the reconciled P-03D stack — 2026-11-25
+
+- Original P-04 PR #51 (branch spike/p04-schema-evolution) was built on P-03 PR #50 head 45b37700cb2b9ad633158ba8d5f00b8c7f0553d5, the same parent as P-03C PR #60. It is therefore a sibling, not a descendant of P-03C/P-03D.
+- A clean continuation branch spike/p04-schema-evolution-p03d has been created from P-03D PR #61's latest docs-synchronized head 11f2069b537d4cf74175fd7b628a331650c45f52. The P-04-only prototype files and bilingual report have been carried forward; shared docs were merged semantically rather than overwritten from the older branch.
+- The original P-04 integration evidence is run [45471750215](https://github.com/tecpey/lottorito-platform/actions/runs/45471750215): 7 tests passed on original code head 15c536e5be2f61b1805191f5977a46b17eaf1971; Documentation Governance [45471750133](https://github.com/tecpey/lottorito-platform/actions/runs/45471750133) passed. This is historical evidence for the original P-04 branch only.
+- **Revalidation required:** run the P-04 suite and the P-02/P-03C/P-03D regression chain on the new P-03D-based branch before considering P-04 accepted in the reconciled stack. The P-04 experiment remains isolated and synthetic; it does not modify the P-02/P-03 schemas.
+- Do not retarget or merge the original PR #51. Keep it as the historical review source until the replacement branch has passing CI and review. PR #62 will target P-03D PR #61 if created; both remain Draft/open.
+- Only after P-04's reconciled head is verified should P-05A–P-08 be replayed/rebased in dependency order. No destructive migrations, merges, main updates or deployments are authorized.
