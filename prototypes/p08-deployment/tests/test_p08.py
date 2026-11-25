@@ -1,17 +1,19 @@
 from __future__ import annotations
 
+import io
 import json
 import os
 import sys
 import tempfile
 import unittest
+import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "src"))
 
-from build import build
+from build import PRODUCT_IDS, PRODUCT_SLUGS, build
 from pipeline import (
     Approval, DeploymentConflict, DeploymentController, DeploymentState,
     GateRejected, HealthSnapshot, ImmutableArtifactStore, RuntimeSecret,
@@ -70,14 +72,47 @@ class ArtifactBuildTests(unittest.TestCase):
         self.assertEqual(affiliate.name, "affiliate-agent-v1.pyz")
         self.assertEqual(lottery.name, "lottery-v1.pyz")
         self.assertNotEqual(affiliate_digest, lottery_digest)
-        self.assertEqual(read_release_metadata(affiliate.read_bytes())["product"], "affiliate_agent")
-        self.assertEqual(read_release_metadata(lottery.read_bytes())["product"], "lottery")
+        affiliate_metadata = read_release_metadata(affiliate.read_bytes())
+        lottery_metadata = read_release_metadata(lottery.read_bytes())
+        self.assertEqual(affiliate_metadata["product"], "affiliate_agent")
+        self.assertEqual(lottery_metadata["product"], "lottery")
+        self.assertEqual(affiliate_metadata["scope"], {"kind": "product", "id": "affiliate_agent"})
+        self.assertEqual(lottery_metadata["scope"], {"kind": "product", "id": "lottery"})
         lottery_provenance = json.loads(lottery_provenance_path.read_text())
-        self.assertEqual(lottery_provenance["predicate"]["buildDefinition"]["externalParameters"]["product"], "lottery")
+        external = lottery_provenance["predicate"]["buildDefinition"]["externalParameters"]
+        self.assertEqual(external["product"], "lottery")
+        self.assertEqual(external["scope"], {"kind": "product", "id": "lottery"})
         self.assertTrue(verify_provenance(lottery.read_bytes(), lottery_provenance, f"sha256:{lottery_digest}", SOURCE, "lottery"))
         self.assertFalse(verify_provenance(lottery.read_bytes(), lottery_provenance, f"sha256:{lottery_digest}", SOURCE, "affiliate_agent"))
         self.assertIn('"product": "lottery"', run_artifact(lottery))
 
+
+    def test_p08_product_registry_is_imported_from_p09_contract(self):
+        self.assertEqual(set(PRODUCT_IDS), {"affiliate_agent", "lottery"})
+        self.assertEqual(set(PRODUCT_SLUGS), set(PRODUCT_IDS))
+
+    def test_release_metadata_rejects_scope_product_mismatch(self):
+        artifact, _, _ = self.build_fixture("v1", "scope-tamper")
+        with zipfile.ZipFile(artifact, "r") as source:
+            files = {name: source.read(name) for name in source.namelist()}
+        metadata = json.loads(files["release.json"])
+        metadata["scope"] = {"kind": "platform", "id": "lottorito"}
+        files["release.json"] = json.dumps(metadata, sort_keys=True, separators=(",", ":")).encode()
+        tampered = io.BytesIO()
+        with zipfile.ZipFile(tampered, "w", compression=zipfile.ZIP_STORED) as target:
+            for name, data in files.items():
+                target.writestr(name, data)
+        with self.assertRaisesRegex(GateRejected, "artifact_scope_product_mismatch"):
+            read_release_metadata(tampered.getvalue())
+
+    def test_provenance_rejects_product_scope_substitution(self):
+        artifact, provenance_path, digest = self.build_fixture("v1", "scope-provenance")
+        provenance = json.loads(provenance_path.read_text())
+        provenance["predicate"]["buildDefinition"]["externalParameters"]["scope"] = {
+            "kind": "platform", "id": "lottorito"
+        }
+        self.assertFalse(verify_provenance(artifact.read_bytes(), provenance,
+            f"sha256:{digest}", SOURCE, "affiliate_agent"))
 
     def test_artifact_digest_detects_tampering(self):
         artifact, _, digest = self.build_fixture("v1", "one")
