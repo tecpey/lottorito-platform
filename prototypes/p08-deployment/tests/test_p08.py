@@ -212,6 +212,14 @@ class PromotionAndRollbackTests(unittest.TestCase):
         with self.assertRaisesRegex(GateRejected, "stored_artifact_digest_mismatch"):
             self.store.get(digest)
 
+    def test_promote_rejects_api_or_worker_release_drift(self):
+        digest = self.built["v2"][0]
+        self.stage_state.api_digest = "sha256:" + "0" * 64
+        with self.assertRaisesRegex(DeploymentConflict, "active_component_release_drift"):
+            self.controller.promote(self.stage_state, digest, self.approval(digest), DEPLOY_ACTOR,
+                self.stage_state.current_digest, GOOD_API, GOOD_WORKER, self.built["v2"][1], SOURCE)
+        self.assertEqual(self.stage_state.current_digest, self.built["v1"][0])
+
     def test_stale_compare_and_swap_is_rejected(self):
         digest = self.built["v2"][0]
         with self.assertRaisesRegex(DeploymentConflict, "stale_current_release"):
@@ -331,6 +339,14 @@ class PromotionAndRollbackTests(unittest.TestCase):
         with self.assertRaisesRegex(GateRejected, "approval_invalid_or_wrong_environment"):
             self.controller.promote(self.stage_state, digest, invalid, DEPLOY_ACTOR,
                 self.stage_state.current_digest, GOOD_API, GOOD_WORKER, self.built["v2"][1], SOURCE)
+
+    def test_rollback_rejects_component_release_drift(self):
+        self.promote(self.stage_state, "v2")
+        target = self.stage_state.previous_digest
+        self.stage_state.worker_digest = target
+        with self.assertRaisesRegex(DeploymentConflict, "active_component_release_drift"):
+            self.controller.rollback(self.stage_state, target, self.stage_state.current_digest,
+                DEPLOY_ACTOR, self.approval(target), GOOD_API, GOOD_WORKER)
 
     def test_rollback_rejects_stale_current_release_pointer(self):
         self.promote(self.stage_state, "v2")
