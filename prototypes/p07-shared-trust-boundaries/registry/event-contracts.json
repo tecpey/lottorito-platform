@@ -6,7 +6,7 @@
       "event_type": "com.lottorito.p07b.demo.signal.v1",
       "dataschema": "urn:lottorito:schema:affiliate.demo.signal:1",
       "allowed_consumers": ["lottery"],
-      "max_data_classification": "internal",
+      "data_classification": "internal",
       "required_data_fields": ["reference"],
       "test_only": true
     }
