@@ -1,6 +1,6 @@
 # Lottorito Architecture Prototype and Evidence Plan
 
-**Document ID:** LOT-PROT-001 | **Version:** 1.24.0 | **Status:** Proposed experiment plan; execution and technology choices not approved
+**Document ID:** LOT-PROT-001 | **Version:** 1.25.0 | **Status:** Proposed experiment plan; execution and technology choices not approved
 
 ## 1. Purpose and authority
 
@@ -116,6 +116,12 @@ A prototype may be **Pass**, **Fail**, **Inconclusive** or **Not run**. “Pass�
 - Reconciliation identifies missing, duplicate, late and mismatched records.
 
 **Evidence:** simulator configuration, delivery timeline, inbox/outbox records, retry/dead-letter history, reconciliation exceptions and recovery runbook draft.
+
+**Execution evidence (2026-11-25):**
+- PR #41, [Provider Event Delivery](https://github.com/tecpey/lottorito-platform/pull/41), head 42ffdadb...: Integration [45418733151](https://github.com/tecpey/lottorito-platform/actions/runs/45418733151) and Documentation Governance [45418733003](https://github.com/tecpey/lottorito-platform/actions/runs/45418733003) passed; the PR reports 22 synthetic tests. It remains Draft and is based on an older P-02 branch.
+- PR #50, [Tenant-scoped Outbox Delivery](https://github.com/tecpey/lottorito-platform/pull/50), head 45b37700...: Integration [45469172124](https://github.com/tecpey/lottorito-platform/actions/runs/45469172124) and Documentation Governance [45469171778](https://github.com/tecpey/lottorito-platform/actions/runs/45469171778) passed; 10 synthetic tests. It remains Draft and is the base of the P-04–P-08 stack.
+- PR #60, [P-03C Ledger Outbox Integration](https://github.com/tecpey/lottorito-platform/pull/60), head 32b34f4c...: Integration [45576594884](https://github.com/tecpey/lottorito-platform/actions/runs/45576594884) passed 15/15 tests; Documentation Governance [45576594868](https://github.com/tecpey/lottorito-platform/actions/runs/45576594868) passed. It connects P-02 ledger_outbox to P-03 delivery state in one PostgreSQL database and remains Draft.
+- **P-03 is still Partial:** PR #41 provider ingress and PR #50 delivery were separate fixtures; P-03C closes the P-02-to-P-03 outbound outbox bridge, but inbound provider callbacks are not yet connected to P-02 posting. A proposed P-03D should integrate signed provider inbox events with idempotent P-02 posting and the P-03C outbox path. No provider, broker or production transport is approved.
 
 ### P-04 — Schema evolution and compatibility
 
@@ -267,11 +273,11 @@ A prototype may be **Pass**, **Fail**, **Inconclusive** or **Not run**. “Pass�
 
 **Evidence:** separate build/run records, dependency graph, configuration matrix, negative authorization tests, migration inventory and independent-product operational checklist.
 
-**Execution slices (2026-11-25):**
-- **P-07A — Product isolation:** independently build and boot each product without its sibling runtime/package dependency. Initial synthetic evidence is specified in [LOT-PROT-P07A-001](prototypes/p07a-product-isolation.md); this is not a core business-journey proof.
-- **P-07B — Shared platform and trust boundaries:** establish ownership and interfaces for Identity, Tenant, Finance, Notifications and Audit; test authorization, entitlements, cross-product data access and event contracts, including default-deny behavior. Initial synthetic evidence is documented in [LOT-PROT-P07B-001](prototypes/p07b-shared-trust-boundaries.md); CI passed on the recorded PR head 42083a2, but production trust controls are not proven.
-- **P-07C — Independent lifecycle:** test product disablement, configuration and migration isolation, independent artifact promotion/rollback, operational ownership and white-label traceability. Initial synthetic evidence is documented in [LOT-PROT-P07C-001](prototypes/p07c-independent-lifecycle.md); 41 CI tests passed on the recorded PR head, but no production lifecycle is proven.
-- P-07A does not close P-07. P-07B and P-07C remain gated on review of the preceding evidence and explicit scope; no production architecture is pre-approved.
+**Execution evidence (2026-11-25):**
+- **P-07A — Product boundaries:** [PR #56](https://github.com/tecpey/lottorito-platform/pull/56), head 3932c1fa...; Integration [45569616972](https://github.com/tecpey/lottorito-platform/actions/runs/45569616972) and Documentation Governance [45569616782](https://github.com/tecpey/lottorito-platform/actions/runs/45569616782) passed. The synthetic manifest/validator proves logical dependency constraints, not real application import/build isolation.
+- **P-07B — Shared platform and trust boundaries:** [PR #57](https://github.com/tecpey/lottorito-platform/pull/57), head a29bb2c5...; Integration [45570609387](https://github.com/tecpey/lottorito-platform/actions/runs/45570609387) and Documentation Governance [45570609463](https://github.com/tecpey/lottorito-platform/actions/runs/45570609463) passed. The synthetic contract/authorization fixtures do not prove production IAM, RLS or event-broker authorization.
+- **P-07C — Independent lifecycle:** [PR #58](https://github.com/tecpey/lottorito-platform/pull/58), head 7d349789...; Integration [45571662643](https://github.com/tecpey/lottorito-platform/actions/runs/45571662643) and Documentation Governance [45571662650](https://github.com/tecpey/lottorito-platform/actions/runs/45571662650) passed; 41 tests passed. The lifecycle fixture does not prove independent production binaries, deployment units or migrations.
+- All three PRs remain Draft, open and unmerged. P-07 has passed its three stated synthetic slices; this is not a production architecture approval or proof of live product independence.
 
 ### P-08 — Deployment, health gate and rollback
 
@@ -297,6 +303,7 @@ A prototype may be **Pass**, **Fail**, **Inconclusive** or **Not run**. “Pass�
 
 **Evidence:** artifact digest, deployment manifest, secret scan, health-check timeline, failure/rollback transcript, audit record and operator runbook.
 
+**Execution evidence (2026-11-25):** [PR #59](https://github.com/tecpey/lottorito-platform/pull/59), head cdbab2b5... remains Draft and unmerged. Integration [45575334450](https://github.com/tecpey/lottorito-platform/actions/runs/45575334450) and repeated Integration [45575326966](https://github.com/tecpey/lottorito-platform/actions/runs/45575326966) passed 45/45 tests; Documentation Governance [45575334480](https://github.com/tecpey/lottorito-platform/actions/runs/45575334480) passed. Identical deterministic builds produced SHA-256 f02fe8ad957ab9cf6b19c64d7f57cdac66edc86744b01dd9c5c2384c3c1c076c. The fixture is not a production deployment, signed SLSA attestation, real secret manager, database migration or financial-ledger proof.
 ## 5. Cross-prototype acceptance rules
 
 All prototypes must:
@@ -322,6 +329,9 @@ A prototype is **Pass** only if all mandatory criteria for its stated scope pass
 
 The sequence may be adjusted when dependencies require it, but every prototype remains required unless the owner records an explicit waiver.
 
+**Current evidence reconciliation (2026-11-25):** P-01 and P-02 have passing synthetic slices but remain partial against their broader acceptance scope. P-03 has passing provider-delivery and outbox slices plus the new P-03C integrated bridge; P-03 remains partial until inbound provider events are connected to P-02 posting and reconciliation. P-04, P-05A/B/C, P-06, P-07A/B/C and P-08 have passing synthetic evidence within their explicitly stated scopes. PRs #41 and #50–#60 remain open Draft/unmerged as applicable; no merge or production deployment is implied.
+
+**Recommended next experiment:** P-03D — provider inbox to idempotent P-02 posting and P-03C outbox. It should validate signature/timestamp/replay controls, durable inbox acceptance before HTTP acknowledgement, provider-event-to-canonical-effect mapping, one financial posting per provider event, atomic inbox-processing/posting/outbox state, retry/dead-letter/replay and reconciliation. It must not introduce commission/NGR rules or real provider credentials; those require separate owner decisions.
 ## 7. Experiment report template
 
 For each P-0x record:
