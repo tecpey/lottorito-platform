@@ -1,6 +1,6 @@
 # Lottorito Architecture Prototype and Evidence Plan
 
-**Document ID:** LOT-PROT-001 | **Version:** 1.11.0 | **Status:** Proposed experiment plan; execution and technology choices not approved
+**Document ID:** LOT-PROT-001 | **Version:** 1.12.0 | **Status:** Proposed experiment plan; execution and technology choices not approved
 
 ## 1. Purpose and authority
 
@@ -169,7 +169,7 @@ A prototype may be **Pass**, **Fail**, **Inconclusive** or **Not run**. “Pass�
 
 **Evidence:** backup manifest and verification output, tamper-negative result, archived WAL inventory, restore-point LSN/timeline, restore logs and timing, pre/post-target assertions, tenant-isolation results, journal/reconciliation report, exact versions, runbook and limitations.
 
-**Status:** P-05A synthetic CI verification passed on head f2303a647aefd5bd8d48ba9d2e1830c881f60041. Integration run [45524388676](https://github.com/tecpey/lottorito-platform/actions/runs/45524388676) and Documentation Governance run [45524388734](https://github.com/tecpey/lottorito-platform/actions/runs/45524388734) passed. PostgreSQL 18.7 was used; CI measured 12–13 seconds (latest final-head run: 13 seconds) for backup plus verification and 1 second for restore startup in this disposable runner only. The named restore-point log was asserted, the pre-target marker was present, the post-target marker absent, tenant RLS read/write denial held, and synthetic ledger/source totals reconciled. Missing-WAL and interrupted-restore negative drills remain untested. P-05B object-byte/key recovery and ordered idempotent replay have now passed synthetic CI (PR #53); P-05C failover/fencing/failback remains not run. This is not production readiness, an RPO/RTO commitment or technology approval.
+**Status:** P-05A positive PITR and negative recovery drills passed in combined synthetic CI on branch head `0a6b8f992161cd9f9d760698b1c9d0c8e30867a9`. Integration run [45532382323](https://github.com/tecpey/lottorito-platform/actions/runs/45532382323) and Documentation Governance run [45532382310](https://github.com/tecpey/lottorito-platform/actions/runs/45532382310) passed on the same head. PostgreSQL 18.7 was used; the positive path asserted the named restore point, pre/post-target markers, tenant RLS and financial reconciliation. The negative path rejected an incomplete restore staging directory via `pg_verifybackup` and server startup, and removed the exact target WAL segment from isolated copies; the server did not become ready at the requested recovery target and the missing segment was identified in the log. P-05B object-byte/key recovery and ordered idempotent replay also passed in the same job. P-05C failover/fencing/failback remains not run. This is not production readiness, an RPO/RTO commitment or technology approval.
 
 
 ### P-05B — Object, key and event recovery
@@ -190,7 +190,7 @@ A prototype may be **Pass**, **Fail**, **Inconclusive** or **Not run**. “Pass�
 
 **Key custody limitation:** The raw KEK file is synthetic CI-only recovery material. It is not a production KMS/HSM design, exportable root-key recommendation, split-knowledge process, key ceremony or authorization model. AES-GCM is an experiment primitive, not a selected platform standard.
 
-**Not proven:** KMS/HSM outage/rotation/revocation/compromise, IAM and dual control, immutable/versioned object retention, legal hold, multipart/large objects, regional replication, external broker durability, provider reconciliation, cross-service saga, high concurrency, production throughput, RPO/RTO or compliance. P-05A missing-WAL/interrupted-restore drills remain open; P-05C failover/fencing/failback is separate.
+**Not proven:** KMS/HSM outage/rotation/revocation/compromise, IAM and dual control, immutable/versioned object retention, legal hold, multipart/large objects, regional replication, external broker durability, provider reconciliation, cross-service saga, high concurrency, production throughput, RPO/RTO or compliance. P-05A missing-WAL and incomplete-restore negative drills have passed only in the synthetic CI fixture; production restore orchestration and recovery acceptance controls remain unproven. P-05C failover/fencing/failback is separate.
 
 **References:** AWS S3 checksum validation; Google Cloud Storage data validation/versioning; NIST SP 800-57 Part 1 Rev. 5 (Rev. 6 remains a draft); AWS transactional outbox and at-least-once event processing guidance.
 
