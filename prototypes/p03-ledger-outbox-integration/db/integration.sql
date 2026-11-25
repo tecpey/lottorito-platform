@@ -64,7 +64,7 @@ CREATE TABLE public.consumer_inbox (
   consumer_name text NOT NULL CHECK (consumer_name ~ '^[A-Za-z0-9._:-]{1,80}$'),
   event_id uuid NOT NULL,
   processed_at timestamptz NOT NULL DEFAULT clock_timestamp(),
-  PRIMARY KEY (tenant_id, consumer_name, event_id),
+  PRIMARY KEY (tenant_id, product_id, consumer_name, event_id),
   FOREIGN KEY (tenant_id, event_id)
     REFERENCES public.ledger_outbox (tenant_id, event_id),
   FOREIGN KEY (tenant_id, product_id, event_id)
@@ -79,9 +79,9 @@ CREATE TABLE public.consumer_effects (
   event_id uuid NOT NULL,
   payload jsonb NOT NULL,
   applied_at timestamptz NOT NULL DEFAULT clock_timestamp(),
-  PRIMARY KEY (tenant_id, consumer_name, event_id),
-  FOREIGN KEY (tenant_id, consumer_name, event_id)
-    REFERENCES public.consumer_inbox (tenant_id, consumer_name, event_id)
+  PRIMARY KEY (tenant_id, product_id, consumer_name, event_id),
+  FOREIGN KEY (tenant_id, product_id, consumer_name, event_id)
+    REFERENCES public.consumer_inbox (tenant_id, product_id, consumer_name, event_id)
 );
 
 ALTER TABLE public.outbox_delivery_state OWNER TO outbox_owner;
