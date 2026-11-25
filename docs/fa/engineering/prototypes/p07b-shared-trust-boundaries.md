@@ -1,6 +1,6 @@
 # P-07B — مالکیت پلتفرم مشترک و مرزهای اعتماد
 
-**شناسه سند:** LOT-PROT-P07B-001 | **نسخه:** ۰.۱.۰ | **وضعیت:** پیاده‌سازی ساختگی؛ اعتبارسنجی CI در انتظار اجرا
+**شناسه سند:** LOT-PROT-P07B-001 | **نسخه:** ۰.۱.۰ | **وضعیت:** Fixture ساختگی در CI روی Head شماره 78c69234 اعتبارسنجی شده است
 
 ## پرسش تصمیم
 
@@ -101,3 +101,11 @@ python3 -m unittest discover -s prototypes/p07-shared-trust-boundaries/tests -v
 - OpenID Foundation، [AuthZEN Authorization API 1.0](https://openid.net/wg/authzen/specifications/).
 - CNCF، [CloudEvents Specification 1.0.2](https://github.com/cloudevents/spec/tree/v1.0.2).
 - Pact، [Contract Testing](https://docs.pact.io/).
+
+
+## شواهد CI
+
+- Integration با شناسه [45570055150](https://github.com/tecpey/lottorito-platform/actions/runs/45570055150): موفق روی Head شماره 78c69234؛ هر ۳۳ تست قبول شدند.
+- اجرای Push با شناسه [45570037120](https://github.com/tecpey/lottorito-platform/actions/runs/45570037120): موفق.
+- Documentation Governance با شناسه [45570055148](https://github.com/tecpey/lottorito-platform/actions/runs/45570055148): روی همان Head PR موفق.
+- PR شماره [۵۷](https://github.com/tecpey/lottorito-platform/pull/57) همچنان Draft، باز و Mergeنشده است.
