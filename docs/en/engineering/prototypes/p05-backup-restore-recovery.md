@@ -94,3 +94,8 @@ This does not replace the simplified P-05B fixture or establish production backu
 ## P-09E latest exact-head confirmation (2026-11-25)
 
 P-09E passed again in P-05 workflow [45637659268](https://github.com/tecpey/lottorito-platform/actions/runs/45637659268) on 2b393cc8c41226a20333f34559ac6952883901a3. Physical backup, pg_verifybackup, isolated restore, actual P-02/P-03C/P-03D records, atomic rollback under injected failure, inbox replay, idempotency, tenant/product RLS, balanced journals, outbox delivery-state atomicity and zero provider-ledger reconciliation exceptions all emitted PASS. P-05A PITR, P-05B and negative-WAL/incomplete-restore drills also passed. Documentation Governance [45637659297](https://github.com/tecpey/lottorito-platform/actions/runs/45637659297) passed on the same head.
+
+
+### P-09H — Replay contract gate (2026-11-25)
+
+The P-05E recovery helper now verifies the persisted canonical event against the restored provider inbox row before calling journal posting. It checks CloudEvents version/id/source/type, tenant, product scope, source-event UUID, schema version, traceparent shape and parseable timestamp. Recovery fixtures now carry the full P-09 envelope. A mismatch aborts the replay transaction before a financial effect is committed. This remains a disposable synthetic recovery drill, not a production recovery service.
