@@ -82,13 +82,13 @@ def build_product(product_id: str, output: Path) -> Path:
     shutil.copy2(ROOT / "src" / "platform_core.py", output / "platform_core.py")
     shutil.copy2(source_path, output / "product.py")
     (output / "manifest.json").write_text(
-        json.dumps(manifest, indent=2, sort_keys=True) + "\\n", encoding="utf-8"
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
     runner = (
-        "import json\\n"
-        "import product\\n\\n"
-        "if __name__ == '__main__':\\n"
-        "    print(json.dumps(product.run(), sort_keys=True))\\n"
+        "import json\n"
+        "import product\n\n"
+        "if __name__ == '__main__':\n"
+        "    print(json.dumps(product.run(), sort_keys=True))\n"
     )
     (output / "run.py").write_text(runner, encoding="utf-8")
     return output
