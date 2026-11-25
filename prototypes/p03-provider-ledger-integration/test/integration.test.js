@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { Pool } from "pg";
 import {
-  claimNextProviderEvent, ingestProviderWebhook, makeWebhook, signWebhook,
+  claimNextProviderEvent, ingestProviderWebhook, makeWebhook, signWebhook, verifyWebhook,
   processProviderEvent, reconcileProviderEvents
 } from "../src/provider.js";
 import { claimOutboxEvents } from "../../p03-ledger-outbox-integration/src/relay.js";
@@ -148,6 +148,36 @@ test("webhook signing rejects secrets shorter than 128 bits", () => {
       timestamp: Math.floor(Date.now() / 1000)
     }),
     /at least 128 bits/
+  );
+});
+
+test("non-canonical base64 signature bytes are rejected", () => {
+  const fixture = webhook(affiliateInstallation);
+  const headers = {
+    ...fixture.headers,
+    "webhook-signature": fixture.headers["webhook-signature"] + "!"
+  };
+  const result = verifyWebhook({ headers, rawBody: fixture.rawBody, keys });
+  assert.equal(result.valid, false);
+  assert.equal(result.reason, "signature_mismatch");
+});
+
+test("invalid replay-window and body-size configuration fails closed", async () => {
+  const fixture = webhook(affiliateInstallation);
+  assert.throws(
+    () => verifyWebhook({ headers: fixture.headers, rawBody: fixture.rawBody, keys, maxAgeSeconds: Number.NaN }),
+    RangeError
+  );
+  assert.throws(
+    () => verifyWebhook({ headers: fixture.headers, rawBody: fixture.rawBody, keys, now: Number.NaN }),
+    RangeError
+  );
+  await assert.rejects(
+    ingestProviderWebhook(affiliateA, {
+      installation: affiliateInstallation, keys, headers: fixture.headers,
+      rawBody: fixture.rawBody, maxBodyBytes: Number.NaN
+    }),
+    RangeError
   );
 });
 

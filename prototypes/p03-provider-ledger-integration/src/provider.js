@@ -1,12 +1,20 @@
-import { createHash, createHmac, randomUUID, timingSafeEqual } from "node:crypto";
+import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 import { postJournal } from "../../p02-ledger-posting/src/posting.js";
 
-const SHA256 = /^[0-9a-f]{64}$/;
 const AMOUNT = /^[1-9][0-9]{0,37}$/;
 const SAFE_ID = /^[A-Za-z0-9._:-]{1,80}$/;
 
 function digest(value) {
   return createHash("sha256").update(value).digest("hex");
+}
+
+function decodeCanonicalBase64(value, field) {
+  if (typeof value !== "string" || value.length === 0) throw new TypeError(field + " must be base64");
+  const decoded = Buffer.from(value, "base64");
+  if (decoded.length === 0 || decoded.toString("base64") !== value) {
+    throw new TypeError(field + " must use canonical base64 encoding");
+  }
+  return decoded;
 }
 
 function secretBytes(secret) {
@@ -16,7 +24,7 @@ function secretBytes(secret) {
   }
   if (typeof secret !== "string" || secret.length === 0) throw new TypeError("webhook secret is required");
   if (secret.startsWith("whsec_")) {
-    const decoded = Buffer.from(secret.slice(6), "base64");
+    const decoded = decodeCanonicalBase64(secret.slice(6), "webhook secret");
     if (decoded.length < 16) throw new TypeError("webhook secret must contain at least 128 bits");
     return decoded;
   }
@@ -46,17 +54,32 @@ export function signWebhook({ eventId, rawBody, secret, timestamp }) {
 }
 
 export function verifyWebhook({ headers, rawBody, keys, now = Date.now(), maxAgeSeconds = 300 }) {
+  if (!Number.isSafeInteger(now) || now < 0) throw new RangeError("now must be a non-negative safe integer in milliseconds");
+  if (!Number.isSafeInteger(maxAgeSeconds) || maxAgeSeconds < 1 || maxAgeSeconds > 900) {
+    throw new RangeError("maxAgeSeconds must be 1..900");
+  }
+  if (!Array.isArray(keys) || keys.length === 0 || keys.length > 10) {
+    return { valid: false, reason: "no_verification_keys" };
+  }
+  const keyIds = new Set();
+  for (const key of keys) {
+    if (!key || typeof key.id !== "string" || !SAFE_ID.test(key.id) || keyIds.has(key.id)) {
+      throw new TypeError("verification key IDs must be unique safe identifiers");
+    }
+    keyIds.add(key.id);
+    secretBytes(key.secret);
+  }
   const eventId = headers?.["webhook-id"];
   const timestampText = headers?.["webhook-timestamp"];
   const signatureHeader = headers?.["webhook-signature"];
   if (typeof eventId !== "string" || !SAFE_ID.test(eventId)) return { valid: false, reason: "invalid_event_id" };
   if (typeof timestampText !== "string" || !/^[0-9]+$/.test(timestampText)) return { valid: false, reason: "invalid_timestamp" };
   if (typeof signatureHeader !== "string" || signatureHeader.length === 0) return { valid: false, reason: "missing_signature" };
+  if (signatureHeader.length > 1024) return { valid: false, reason: "signature_header_too_large" };
   const timestamp = Number(timestampText);
   if (!Number.isSafeInteger(timestamp) || Math.abs(Math.floor(now / 1000) - timestamp) > maxAgeSeconds) {
     return { valid: false, reason: "stale_signature" };
   }
-  if (!Array.isArray(keys) || keys.length === 0) return { valid: false, reason: "no_verification_keys" };
   const body = Buffer.isBuffer(rawBody) ? rawBody : Buffer.from(rawBody ?? "");
   const signed = Buffer.concat([Buffer.from(eventId + "." + timestampText + ".", "utf8"), body]);
   const candidates = signatureHeader.split(/\s+/).map((part) => {
@@ -67,8 +90,10 @@ export function verifyWebhook({ headers, rawBody, keys, now = Date.now(), maxAge
     const expected = createHmac("sha256", secretBytes(key.secret)).update(signed).digest();
     for (const candidate of candidates) {
       let supplied;
-      try { supplied = Buffer.from(candidate.value, "base64"); } catch { continue; }
-      if (constantTimeEqual(expected, supplied)) return { valid: true, eventId, timestamp, keyId: key.id };
+      try { supplied = decodeCanonicalBase64(candidate.value, "webhook signature"); } catch { continue; }
+      if (supplied.length === 32 && constantTimeEqual(expected, supplied)) {
+        return { valid: true, eventId, timestamp, keyId: key.id };
+      }
     }
   }
   return { valid: false, reason: "signature_mismatch" };
@@ -125,6 +150,9 @@ export async function ingestProviderWebhook(pool, {
       !installation.tenant_id || !installation.product_id || !installation.provider_id ||
       !installation.provider_source) {
     return { http_status: 404, outcome: "unknown_installation" };
+  }
+  if (!Number.isSafeInteger(maxBodyBytes) || maxBodyBytes < 1 || maxBodyBytes > 1024 * 1024) {
+    throw new RangeError("maxBodyBytes must be 1..1048576");
   }
   const body = Buffer.isBuffer(rawBody) ? rawBody : Buffer.from(rawBody ?? "", "utf8");
   if (body.length > maxBodyBytes) return { http_status: 413, outcome: "payload_too_large" };
