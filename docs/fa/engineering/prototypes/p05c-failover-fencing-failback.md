@@ -1,6 +1,6 @@
 # P-05C — Failover، Writer Fencing و Failback
 
-**شناسه سند:** LOT-PROT-P05C-001 | **نسخه:** ۰.۱.۰ | **وضعیت:** پیاده‌سازی آزمایش ساختگی؛ اعتبارسنجی CI در انتظار
+**شناسه سند:** LOT-PROT-P05C-001 | **نسخه:** ۰.۲.۰ | **وضعیت:** پیاده‌سازی آزمایش ساختگی؛ اعتبارسنجی CI در انتظار
 
 ## اعتبار و مرز
 
@@ -47,7 +47,8 @@ P-05C یک آزمایش دورریختنی PostgreSQL 18.7 است که چرخه 
 - Primary قبلیِ متوقف‌شده را با pg_rewind --write-recovery-conf به Node ارتقایافته Rewind کنید.
 - آن را به‌عنوان Standby دوباره Join کنید و ثابت کنید Read-only می‌ماند، Event مربوط به Node ارتقایافته را دریافت می‌کند و Tail واگرای Replicateنشده را دیگر ندارد.
 - منتظر بمانید Standby موقعیت WAL فعلی Primary جدید را Replay کند.
-- Switchover کنترل‌شده به Node اولیه انجام دهید، Writer Epoch را به ۴ افزایش دهید، Marker مربوط به Failback را بنویسید، Primary قبلی را Rewind و به‌عنوان Standby دوباره Join کنید.
+- منتظر بمانید Standby بازگشته Catch up شود، آن را متوقف کنید، یک Tail ساختگی دوم و صریحاً Replicateنشده روی Primary جاری بسازید، سپس Primary جاری را متوقف و گره بازگشته را Promote کنید. نبود Tail دوم را بررسی کنید، Writer Epoch را به ۴ افزایش دهید و Marker مربوط به Failback را بنویسید.
+- روی Timeline واگرای دوم pg_rewind اجرا کنید؛ Primary قبلی را به‌عنوان Standby دوباره Join و حضور Marker مربوط به Failback و غیبت Tail دوم را بررسی کنید.
 - دقیقاً یک Primary قابل نوشتن، یک Standby فقط‌خواندنی، Epoch شماره ۴ و Active Writer برابر Node A روی هر دو گره، و مشاهده Marker مربوط به Failback را بررسی کنید.
 
 ## معیارهای پذیرش
@@ -61,17 +62,26 @@ P-05C یک آزمایش دورریختنی PostgreSQL 18.7 است که چرخه 
 - P05C-CAS: دو Claimant هم‌زمان دقیقاً یک برنده برای Epoch شماره ۳ داشته باشند.
 - P05C-REWIND: Primary قبلی Rewind و در حالت Recovery دوباره Join شود؛ Event مربوط به Primary ارتقایافته حاضر و Tail عمداً Replicateنشده غایب باشد.
 - P05C-READONLY: Standby Rewindشده نوشتن را رد کند.
-- P05C-FAILBACK: Switchover کنترل‌شده نقش Primary را به Node A برگرداند؛ Epoch به ۴ برسد؛ Primary قبلی Rewind و به‌عنوان Standby Join شود.
+- P05C-FAILBACK: Switchover کنترل‌شده نقش Primary را به Node A برگرداند؛ Epoch به ۴ برسد؛ Tail واگرای دوم با اجرای واقعی pg_rewind حذف و Primary قبلی به‌عنوان Standby Join شود.
 - P05C-SINGLE-WRITER: پس از Failback دقیقاً یک گره Writable و گره دیگر در Recovery باقی بماند.
 
 ## ایمنی و محدودیت‌ها
 
 - توقف فرایند فقط شبیه‌سازی Local CI برای Fence است؛ Fencing سخت‌افزاری/خاموش‌کردن Host، ایزوله‌سازی Instance ابری، Storage Fencing، Watchdog یا اثبات مقاومت در برابر Network Partition نیست.
 - ردیف Epoch/Lease وضعیت برنامه‌ای در PostgreSQL محلی است، نه سامانه Consensus. هیچ etcd/Consul/Kubernetes DCS یا Patroni Controller اجرا نمی‌شود.
-- آزمایش عمداً یک Event قدیمی Primary را که هنگام قطع بودن Standby Commit شده بود از دست می‌دهد. این موضوع پنجره فقدان داده در Replication غیرهم‌زمان را نشان می‌دهد و RPO عملیاتی را تعیین نمی‌کند.
+- آزمایش عمداً دو Event ساختگی را از دست می‌دهد؛ یکی در Failover و دیگری در Failback، که هر دو هنگام قطع بودن Standby دریافت‌کننده Commit شده‌اند. این موضوع پنجره فقدان داده در Replication غیرهم‌زمان را نشان می‌دهد و RPO عملیاتی را تعیین نمی‌کند.
 - از دست‌رفتن Quorum، Writerهای هم‌زمان در Partition، Crash کنترلر، خرابی Watchdog، Split-brain در Storage، Failover چندمنطقه‌ای، Fencing سمت Provider، بار تراکنش هم‌زمان، ترافیک واقعی یا RTO Production آزمایش نمی‌شوند.
 - پیش‌نیازهای pg_rewind و محدودیت‌های نگهداری WAL فقط با Clusterهای کوچک ساختگی آزمایش می‌شوند. شکست حین Rewind می‌تواند Target را غیرقابل استفاده کند و ممکن است Backup کامل تازه لازم باشد.
 - RPO/RTO طبق LOT-QA-001 همچنان TBD هستند. موفقیت این آزمایش به معنی تصویب فناوری HA، توپولوژی، Provider، Runbook عملیاتی یا Rollout Production نیست.
+
+
+
+## شواهد اولیه CI
+
+- Integration ایزوله P-05C با شناسه [45533778752](https://github.com/tecpey/lottorito-platform/actions/runs/45533778752) روی Head کد اجرایی `4884a3c38d2da8ea9ab9961dc095eb0ddd469f4d` موفق شد.
+- آزمون دو Timeline واگرای واقعی و دو عملیات pg_rewind را کامل کرد. Rewind دوم ۶۷ مگابایت کپی کرد و ثابت کرد مسیر Failback کنترل‌شده صرفاً Rewind بدون تغییر نبوده است.
+- Assertionهای Physical Standby، رد Promotion در زمان فعال بودن Primary قدیمی، Process Fence، Epoch از ۱ به ۲، رد Writer قدیمی و Lease منقضی، یک برنده CAS برای Epoch شماره ۳، حذف Tail واگرای اول، Read-only بودن Standby بازگشته، حذف Tail واگرای دوم، Rewind واقعی دوم و Epoch نهایی ۴ با Active Writer برابر Node A موفق شدند.
+- Integration روی Head نهایی PR و Documentation Governance همچنان برای ثبت وضعیت نهایی فاز لازم‌اند.
 
 ## منابع
 
