@@ -41,3 +41,15 @@ Zero Downtime، رفتار Lock/Backfill در مقیاس Production، CDC، جد
 ## اعتبارسنجی روی زنجیره Rebaseشده — ۲۰۲۶-۱۱-۲۵
 
 Head کد PR اصلی شماره ۵۱، مجموعه هفت‌تستی P-04 را با موفقیت گذرانده بود؛ اما آن شاخه هم‌سطح P-03C/P-03D بود. این Prototype به شاخه `spike/p04-schema-evolution-p03d` منتقل شده که والد آن PR شماره ۶۱ در P-03D است. تست P-04 همراه Regression مربوط به P-02/P-03C/P-03D و Documentation Governance دوزبانه باید روی Head جدید PR دوباره اجرا شوند. تا آن زمان اجرای هفت‌تستی اصلی فقط شاهد تاریخی است و وضعیت P-04 در زنجیره Rebaseشده در انتظار راستی‌آزمایی باقی می‌ماند.
+
+
+## CI تأییدشده روی زنجیره تطبیق‌یافته — ۲۰۲۶-۱۱-۲۵
+
+Head دقیق کد آزمایش‌شده: `dca0762678ed45da122ba109276c54ce61ac0846`.
+
+- Regression مربوط به P-02: [اجرای ۱۱۹](https://github.com/tecpey/lottorito-platform/actions/runs/45608274029) — ۲۵ موفق، صفر شکست و صفر Skip.
+- Regression مربوط به P-03C/P-03D: [اجرای ۳۸](https://github.com/tecpey/lottorito-platform/actions/runs/45608274098) — ۱۵ تست P-03C و ۱۹ تست P-03D موفق؛ در مجموع ۳۴ تست، صفر شکست و صفر Skip.
+- تکامل Schema در P-04: [اجرای ۲۲](https://github.com/tecpey/lottorito-platform/actions/runs/45608274118) — ۷ موفق، صفر شکست و صفر Skip.
+- Documentation Governance دوزبانه: [اجرای ۷۰۷](https://github.com/tecpey/lottorito-platform/actions/runs/45608274060) — موفق.
+
+هر چهار Workflow روی یک Head دقیق کد با موفقیت کامل شدند. این نتیجه فقط آزمایش ساختگی P-04 را در زنجیره تطبیق‌یافته P-03D راستی‌آزمایی می‌کند؛ ایمنی Migration عملیاتی، Zero Downtime یا تصویب فناوری را اثبات نمی‌کند.
