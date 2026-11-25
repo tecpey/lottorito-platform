@@ -91,7 +91,7 @@ def verify_provenance(data: bytes, provenance: Mapping[str, Any], expected_diges
         build_type = build_definition["buildType"]
         builder_id = run_details["builder"]["id"]
         dependency_digest = build_definition["resolvedDependencies"][0]["digest"]["sha256"]
-    except (KeyError, IndexError, TypeError):
+    except (KeyError, IndexError, TypeError, ContractViolation):
         return False
     try:
         metadata = read_release_metadata(data)
