@@ -97,3 +97,7 @@ This is not an implemented application instrumentation layer, deployed OpenTelem
 - https://prometheus.io/docs/practices/naming/
 - https://csrc.nist.gov/pubs/sp/800/92/final
 - https://csrc.nist.gov/Projects/log-management
+
+## P-09B scope-aware correlation addendum (2026-11-25)
+
+The P-09 continuation extends the synthetic correlation key from `(tenant_id, source_event_id)` to `(tenant_id, scope_kind, scope_id, source_event_id)`. The forensic access session and grant are bound to the same tuple plus `trace_id`; the forensic view matches every dimension rather than trace ID alone. The P-06 runner inserts the same tenant/source-event UUID for Affiliate and Lottery and proves that an Affiliate forensic grant returns only the Affiliate row, while a separate Lottery grant returns only the Lottery row. The P-06 workflow on the current P-09 candidate is the acceptance gate; this remains a synthetic fixture, not production telemetry authorization.
