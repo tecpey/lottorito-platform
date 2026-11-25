@@ -354,3 +354,10 @@ Prototype فقط زمانی **Pass** است که تمام معیارهای اج�
 - Head مربوط به PR شماره ۶۴ با SHA bbad5969fc3c952ebafdaed3c8d2306dbd018ad4، P-02 با ۲۵ تست، P-03C با ۱۵ تست، P-03D با ۱۹ تست، P-04 با ۷ تست، بازیابی مثبت/منفی ترکیبی P-05A/P-05B و Documentation Governance را با موفقیت گذراند. اجراها: 45611209596، 45611209613، 45611209559، 45611209642 و 45611209546.
 - سخت‌سازی P-05B شامل Context سخت‌گیرانه Manifest، AAD محدود به Tenant برای Wrapped-DEK، کنترل Nonce/Base64/Size، اندازه و Hash متن بازیابی‌شده، یکتایی Aggregate Sequence و پردازش قطعی Event با Lock است. آزمون‌های منفی بازیابی P-05A نیز موفق‌اند.
 - P-05B فقط ساختگی باقی می‌ماند. آزمایش بعدی P-05C برای Failover/Fencing/Failback با ایمنی Lease/Fencing، آمادگی Promotion و سازگاری مالی است؛ RPO/RTO همچنان TBD است. PR اصلی شماره ۵۳ به‌عنوان سابقه بازبینی باز و Draft می‌ماند؛ PR شماره ۶۴ نیز Draft و باز است. هیچ Merge یا Deploy انجام نمی‌شود.
+
+
+## P-05C روی زنجیره تطبیق‌یافته P-05B — ۲۰۲۶-۱۱-۲۵
+
+- PR اصلی شماره ۵۴ بر مبنای PR اصلی شماره ۵۳ در P-05B بود. شاخه جایگزین spike/p05c-failover-fencing-failback-p03d بر مبنای Head تطبیق‌یافته PR شماره ۶۴ در P-05B با SHA eff4176b4d2ea0c25591c76173c3ec28753e1dc8 است.
+- اجرای اصلی P-05C با شناسه [45534242728](https://github.com/tecpey/lottorito-platform/actions/runs/45534242728)، اجرای ترکیبی P-05A/B با شناسه [45534242739](https://github.com/tecpey/lottorito-platform/actions/runs/45534242739) و Documentation Governance با شناسه [45534242653](https://github.com/tecpey/lottorito-platform/actions/runs/45534242653) روی شاخه اصلی موفق بودند؛ این شواهد تاریخی‌اند.
+- P-05C همراه P-02/P-03C/P-03D/P-04/P-05A/P-05B و Documentation Governance دوزبانه باید روی Head جایگزین دوباره اجرا شود. P-05C فقط ساختگی است؛ هیچ STONITH واقعی، Quorum/DCS، Watchdog، Failover ابری، Fencing عملیاتی، RPO/RTO یا طراحی HA تصویب نمی‌شود.

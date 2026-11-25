@@ -102,3 +102,8 @@ Exact tested PR #64 head: bbad5969fc3c952ebafdaed3c8d2306dbd018ad4.
 - Documentation Governance [run 45611209546](https://github.com/tecpey/lottorito-platform/actions/runs/45611209546): passed.
 
 All five workflows passed on the same exact PR head. The P-02 through P-04 automated suites total 66 tests, all passed with zero skips; P-05 assertions also passed. This is synthetic-only recovery evidence, not production readiness or RPO/RTO approval.
+
+
+## P-05C downstream regression gate — 2026-11-25
+
+P-05C's synthetic HA drill is stacked on the reconciled P-05A/P-05B branch. The combined P-05A/P-05B recovery workflow must be rerun on the P-05C replacement head, proving PITR, object/key/event recovery and negative restore/WAL drills remain intact before the independent failover/fencing workflow is accepted.

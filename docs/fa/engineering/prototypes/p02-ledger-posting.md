@@ -106,3 +106,8 @@ Fixture بازیابی Object/Key/Event در P-05B مستقل از Schema دفت
 ## نتیجه Regression تطبیق‌یافته P-05B — ۲۰۲۶-۱۱-۲۵
 
 P-02 روی Head مربوط به PR شماره ۶۴ با SHA bbad5969fc3c952ebafdaed3c8d2306dbd018ad4 موفق شد: [اجرای 45611209596](https://github.com/tecpey/lottorito-platform/actions/runs/45611209596)، ۲۵/۲۵، بدون شکست و Skip. P-05B از Schema مربوط به P-02 مستقل است و نباید از Invariantهای Posting دفترکل عبور کند.
+
+
+## دروازه Regression پایین‌دستی P-05C — ۲۰۲۶-۱۱-۲۵
+
+آزمایش Writer Fencing در P-05C نباید از Invariantهای دفترکل P-02 عبور کند. مجموعه ۲۵ تست Integration مربوط به P-02 روی Head جایگزین دوباره اجرا شود؛ Fixture مربوط به HA مستقل و ساختگی است و Schema یا معنای عملیاتی دفترکل P-02 را تغییر نمی‌دهد.

@@ -95,3 +95,11 @@ A task is done only when implementation exists, relevant tests pass, documentati
 - PR #64 code head bbad5969fc3c952ebafdaed3c8d2306dbd018ad4 passed P-02 (25), P-03C (15), P-03D (19), P-04 (7), combined P-05A/P-05B positive and negative recovery, and Documentation Governance. Runs: 45611209596, 45611209613, 45611209559, 45611209642 and 45611209546.
 - P-05B hardening includes strict manifest context, tenant-bound wrapped-DEK AAD, nonce/base64/size checks, plaintext size/hash verification, unique aggregate sequence and pg_temp-last SECURITY DEFINER search_path. P-05A negative restore/WAL drills passed.
 - Next: P-05C failover/fencing/failback. Keep PR #64 Draft/open and original PR #53 open/Draft. RPO/RTO remain TBD; no production recovery claim, merge, main update, destructive migration or deployment.
+
+
+## P-05C reconciled continuation — 2026-11-25
+- Original P-05C PR #54 is based on original P-05B PR #53. Work on replacement branch `spike/p05c-failover-fencing-failback-p03d`, based on reconciled P-05B PR #64 head `eff4176b4d2ea0c25591c76173c3ec28753e1dc8`.
+- Carry only P-05C-specific workflow, schema, failover script and bilingual report; merge shared docs semantically.
+- Re-run P-02, P-03C/P-03D, P-04, P-05A/P-05B combined recovery, P-05C and Documentation Governance on the exact final head.
+- Preserve synthetic-only boundaries: no real STONITH, quorum/DCS, watchdog, cloud HA, production fencing or RPO/RTO claim. Original PR #54 remains open/Draft; replacement PR #65 remains Draft until all gates pass.
+- No merge, main update, destructive operation or deployment without explicit owner approval.

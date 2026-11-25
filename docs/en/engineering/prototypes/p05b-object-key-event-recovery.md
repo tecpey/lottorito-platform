@@ -96,3 +96,8 @@ The original PR #53 CI evidence is historical. Re-run the combined P-05A positiv
 ## Verified reconciled-stack result — 2026-11-25
 
 Exact PR #64 head: bbad5969fc3c952ebafdaed3c8d2306dbd018ad4. P-05A/P-05B combined workflow [45611209642](https://github.com/tecpey/lottorito-platform/actions/runs/45611209642) passed: independent object/key recovery, missing-key fail-closed, wrong-tenant manifest rejection, corrupt ciphertext and wrapped-DEK rejection, plaintext size/hash verification, tenant object-reference isolation, ordered event replay, duplicate/economic-effect collapse, sequence-gap blocking, interrupted-transaction rollback, exactly two effects after retry, balanced ledger and tenant inbox isolation. P-05A incomplete-restore and missing-WAL negative drills also passed. Upstream P-02/P-03C/P-03D/P-04 regressions and Documentation Governance passed on the same head (runs 45611209596, 45611209613, 45611209559 and 45611209546). No production key custody, KMS/HSM, object-store selection, RPO/RTO or production recovery is approved.
+
+
+## P-05C downstream regression gate — 2026-11-25
+
+P-05C must preserve P-05B's independent object/key recovery, manifest binding and ordered idempotent event replay. Re-run the combined P-05A/P-05B workflow on the P-05C replacement head; the P-05C failover fixture does not replace object/key/event recovery.

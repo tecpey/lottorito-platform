@@ -165,3 +165,11 @@ PR شماره ۵۰ مربوط به تحویل Outbox در P-03، به‌صورت
 - PITR مثبت P-05A، دروازه Recovery-complete، رد Restore ناقص و Fail-closed در WAL مفقود موفق شدند. Assertionهای بازیابی Object/Key و Replay مرتب Event در P-05B نیز موفق بودند.
 - هر پنج Workflow روی یک Head دقیق یکسان موفق شدند. پوشش خودکار P-02 تا P-04 شامل ۶۶ تست با صفر شکست و صفر Skip است. Assertionهای Shell مربوط به P-05A/P-05B نیز موفق‌اند.
 - قدم بعدی: آزمایش P-05C برای Failover/Fencing/Failback. RPO/RTO همچنان TBD است و هیچ تصمیم بازیابی Production تصویب نشده است. PR شماره ۶۴ Draft و باز می‌ماند؛ PR اصلی شماره ۵۳ دست‌نخورده باقی می‌ماند.
+
+
+## تطبیق Ancestry مربوط به P-05C — ۲۰۲۶-۱۱-۲۵
+
+- PR اصلی P-05C با شماره ۵۴ روی PR اصلی P-05B با شماره ۵۳ قرار داشت. شاخه جایگزین `spike/p05c-failover-fencing-failback-p03d` بر مبنای Head تطبیق‌یافته PR شماره ۶۴ در P-05B با SHA `eff4176b4d2ea0c25591c76173c3ec28753e1dc8` است.
+- Integration اصلی P-05C با شناسه [45534242728](https://github.com/tecpey/lottorito-platform/actions/runs/45534242728)، P-05A/B با شناسه [45534242739](https://github.com/tecpey/lottorito-platform/actions/runs/45534242739) و Documentation Governance با شناسه [45534242653](https://github.com/tecpey/lottorito-platform/actions/runs/45534242653) روی شاخه اصلی موفق بودند؛ این‌ها شاخه جایگزین را تأیید نمی‌کنند.
+- PR جایگزین شماره ۶۵ باید P-02، P-03C/P-03D، P-04، P-05A/B، P-05C و Documentation Governance دوزبانه را روی Head دقیق نهایی موفق بگذراند. PR اصلی شماره ۵۴ باز، Draft و دست‌نخورده باقی می‌ماند.
+- P-05C فقط ساختگی است؛ Quorum، STONITH، Watchdog، Fencing، HA، RPO/RTO و ایمنی Failover عملیاتی تصویب نمی‌شوند. هیچ Merge یا Deploy مجاز نیست.

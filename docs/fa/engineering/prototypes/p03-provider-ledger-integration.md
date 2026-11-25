@@ -149,3 +149,8 @@ Replay رویداد در P-05B یک Projection ساختگی برای بازیا�
 ## نتیجه Regression تطبیق‌یافته P-05B — ۲۰۲۶-۱۱-۲۵
 
 P-03C/P-03D روی Head مربوط به PR شماره ۶۴ با SHA bbad5969fc3c952ebafdaed3c8d2306dbd018ad4 موفق شدند: [اجرای 45611209613](https://github.com/tecpey/lottorito-platform/actions/runs/45611209613)، ۱۵ + ۱۹ تست موفق، بدون شکست و Skip. Replay بازیابی P-05B جایگزین Provider Inbox یا Delivery State نمی‌شود.
+
+
+## دروازه Regression پایین‌دستی P-05C — ۲۰۲۶-۱۱-۲۵
+
+P-05C یک آزمایش Failover مستقل و ساختگی PostgreSQL دوگرهی است. مجموعه ۳۴ تست P-03C/P-03D روی Head جایگزین دوباره اجرا شود تا پل Provider-to-Ledger و مرزهای Tenant/Product حفظ شوند؛ هیچ Provider واقعی یا اتصال Failover عملیاتی اضافه نمی‌شود.

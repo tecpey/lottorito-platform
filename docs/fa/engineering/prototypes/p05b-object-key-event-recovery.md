@@ -96,3 +96,8 @@ RPO/RTO طبق LOT-QA-001 همچنان TBD است. زمان CI فقط مشاهد
 ## نتیجه تأییدشده روی زنجیره تطبیق‌یافته — ۲۰۲۶-۱۱-۲۵
 
 Head دقیق PR شماره ۶۴: bbad5969fc3c952ebafdaed3c8d2306dbd018ad4. Workflow ترکیبی P-05A/P-05B با شناسه [45611209642](https://github.com/tecpey/lottorito-platform/actions/runs/45611209642) موفق شد: بازیابی مستقل Object/Key، Fail-closed در نبود کلید، رد Manifest با Tenant اشتباه، رد Ciphertext و Wrapped-DEK خراب، تطبیق اندازه و Hash متن بازیابی‌شده، جداسازی مرجع Object بین Tenantها، Replay مرتب رویداد، حذف اثر تکراری، توقف Sequence Gap، Rollback تراکنش قطع‌شده، دقیقاً دو اثر پس از Retry، توازن Ledger و جداسازی Inbox بین Tenantها. آزمون‌های منفی Restore ناقص و WAL مفقود در P-05A نیز موفق شدند. Regressionهای بالادستی P-02/P-03C/P-03D/P-04 و Documentation Governance روی همان Head موفق بودند (اجراهای 45611209596، 45611209613، 45611209559 و 45611209546). هیچ Custody کلید Production، KMS/HSM، انتخاب Object Store، RPO/RTO یا بازیابی Production تصویب نمی‌شود.
+
+
+## دروازه Regression پایین‌دستی P-05C — ۲۰۲۶-۱۱-۲۵
+
+P-05C باید بازیابی مستقل Object/Key، اتصال Manifest و Replay مرتب و Idempotent رویداد در P-05B را حفظ کند. Workflow ترکیبی P-05A/P-05B روی Head جایگزین P-05C دوباره اجرا شود؛ Fixture مربوط به Failover در P-05C جایگزین بازیابی Object/Key/Event نیست.
