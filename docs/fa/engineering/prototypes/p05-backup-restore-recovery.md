@@ -46,6 +46,8 @@ Workflow ترکیبی P-05 دو کنترل Fail-closed را علاوه بر مس
 
 ۲. **WAL هدفِ مفقود:** از Base Backup و WAL Archive کپی‌های مستقل ساخته می‌شود؛ Segment دقیق WAL که Restore Target نام‌گذاری‌شده در آن قرار دارد، هم از Archive کپی‌شده و هم از `pg_wal` کپی‌شده حذف می‌شود و بازیابی هدفمند آزمایش می‌شود. بسته به WAL موجود، PostgreSQL ممکن است از راه‌اندازی بازبماند یا فقط به وضعیت بازیابی معتبرِ قدیمی‌تری برسد. در هر دو حالت، نتیجه نباید به‌عنوان بازیابی موفق تا Target نام‌گذاری‌شده پذیرفته شود، مگر اینکه نشانگر مورد انتظار پس از Target حاضر باشد. آزمون، Segment درخواست‌شده را در Log بررسی می‌کند و Fixture مثبت یا Archive اصلی را تغییر نمی‌دهد.
 
+مسیر مثبت نیز پیش از اجرای Assertionهای مالی/RLS که به نوشتن نیاز دارند، تا زمانی Poll می‌کند که `pg_is_in_recovery()` مقدار `false` برگرداند. صرف Ready اعلام‌شدن توسط `pg_ctl` کافی نیست؛ چون ممکن است سرور در حالی اتصال Read-only بپذیرد که Recovery هنوز ادامه دارد. مسیر منفی WAL مفقود، Writable شدن سرور پیش از Target درخواستی را صریحاً رد می‌کند.
+
 این تمایز مهم است: صرف اینکه سرور پس از تمام شدن WAL موجود Start شود، اثبات نمی‌کند که به Recovery Target درخواستی رسیده است. دروازه پذیرش بازیابی باید پیش از پذیرش ترافیک، Marker/Control State مورد انتظار کسب‌وکار را اعتبارسنجی کند. مستندات PostgreSQL تصریح می‌کنند که `restore_command` برای فایل غایب باید خروجی غیرصفر برگرداند و Recovery قطع‌شده قابل Restart است؛ `pg_verifybackup` فایل‌های مفقود را تشخیص می‌دهد اما جایگزین Restore واقعی و اعتبارسنجی محتوا نیست.
 
 **وضعیت:** پیاده‌سازی آزمون‌های منفی به Workflow ترکیبی CI افزوده شده است؛ تا تکمیل Integration و Documentation Governance روی Head نهایی شاخه، اعتبارسنجی در انتظار است.
@@ -59,6 +61,8 @@ Workflow ترکیبی P-05 دو کنترل Fail-closed را علاوه بر مس
 - https://www.postgresql.org/docs/18/continuous-archiving.html
 - https://www.postgresql.org/docs/18/app-pgbasebackup.html
 - https://www.postgresql.org/docs/18/app-pgverifybackup.html
+- https://www.postgresql.org/docs/18/runtime-config-wal.html
+- https://www.postgresql.org/docs/18/functions-admin.html
 - https://www.postgresql.org/docs/18/app-pgrewind.html
 - https://sre.google/sre-book/data-integrity/
 - https://docs.cloud.google.com/architecture/framework/reliability/perform-testing-for-recovery-from-data-loss
