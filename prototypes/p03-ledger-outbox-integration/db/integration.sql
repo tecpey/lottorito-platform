@@ -157,7 +157,7 @@ AS $function$
 BEGIN
   IF NEW.tenant_id IS DISTINCT FROM private.current_tenant_id()
      OR NEW.product_id IS DISTINCT FROM private.current_product_id() THEN
-    RAISE EXCEPTION 'outbox tenant/product context mismatch' USING ERRCODE = '42501';
+    RAISE EXCEPTION 'outbox tenant context mismatch' USING ERRCODE = '42501';
   END IF;
   INSERT INTO public.outbox_delivery_state (tenant_id, product_id, event_id)
   VALUES (NEW.tenant_id, NEW.product_id, NEW.event_id);
