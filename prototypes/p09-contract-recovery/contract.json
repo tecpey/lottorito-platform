@@ -1,24 +1,62 @@
 {
   "contract_version": "1.0.0",
   "status": "proposed_for_review",
-  "product_ids": ["affiliate_agent", "lottery"],
+  "product_ids": [
+    "affiliate_agent",
+    "lottery"
+  ],
   "platform_id": "lottorito",
-  "scope_kinds": ["product", "platform"],
+  "scope_kinds": [
+    "product",
+    "platform"
+  ],
   "identity_tuples": {
-    "source_event": ["tenant_id", "scope_kind", "scope_id", "source_event_id"],
-    "economic_effect": ["tenant_id", "product_id", "economic_effect_id"],
-    "journal": ["tenant_id", "product_id", "journal_id"],
-    "trace_correlation": ["tenant_id", "scope_kind", "scope_id", "source_event_id", "trace_id"]
+    "source_event": [
+      "tenant_id",
+      "scope_kind",
+      "scope_id",
+      "source_event_id"
+    ],
+    "economic_effect": [
+      "tenant_id",
+      "product_id",
+      "economic_effect_id"
+    ],
+    "journal": [
+      "tenant_id",
+      "product_id",
+      "journal_id"
+    ],
+    "trace_correlation": [
+      "tenant_id",
+      "scope_kind",
+      "scope_id",
+      "source_event_id",
+      "trace_id"
+    ]
   },
   "financial_identity_scope": "product_only",
   "event_envelope": {
     "specversion": "1.0",
-    "required": ["specversion", "id", "source", "type", "time", "dataschema", "tenantid", "scope", "sourceeventid", "schemaversion"],
+    "required": [
+      "specversion",
+      "id",
+      "source",
+      "type",
+      "time",
+      "dataschema",
+      "tenantid",
+      "scope",
+      "sourceeventid",
+      "schemaversion",
+      "traceparent"
+    ],
     "extensions": {
       "tenantid": "UUID string identifying the tenant",
       "scope": "Discriminated object: {kind: product, id: affiliate_agent|lottery} or {kind: platform, id: lottorito}",
       "sourceeventid": "UUID string; identity is composite with tenant and scope",
-      "schemaversion": "Positive integer schema version"
+      "schemaversion": "Positive integer schema version",
+      "traceparent": "W3C Trace Context version 00; trace and parent-span identifiers are validated"
     },
     "trace_context": "W3C Trace Context traceparent; trace_id is 32 lowercase hexadecimal characters"
   },
