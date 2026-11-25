@@ -320,3 +320,20 @@ The prototype phase is complete only when all eight experiments have reproducibl
 - **Revalidation passed:** on reconciled PR #62 code head `dca0762678ed45da122ba109276c54ce61ac0846`, P-02 run [45608274029](https://github.com/tecpey/lottorito-platform/actions/runs/45608274029) passed 25 tests, P-03C/P-03D run [45608274098](https://github.com/tecpey/lottorito-platform/actions/runs/45608274098) passed 15 + 19 tests, P-04 run [45608274118](https://github.com/tecpey/lottorito-platform/actions/runs/45608274118) passed 7 tests, and Documentation Governance [45608274060](https://github.com/tecpey/lottorito-platform/actions/runs/45608274060) passed. All had zero failures and zero skips. The P-04 experiment remains isolated and synthetic; it does not modify the P-02/P-03 schemas.
 - Do not retarget or merge original PR #51. Keep it as historical review context. Replacement PR #62 targets P-03D PR #61 and remains Draft/open pending review; PR #51 remains open/Draft and untouched.
 - P-04 is now verified in the reconciled synthetic stack. Next: replay/rebase P-05A, P-05B, P-05C, P-06, P-07A, P-07B, P-07C and P-08 in dependency order, preserving each experiment's boundaries and re-running the full regression chain. No destructive migrations, merges, main updates or deployments are authorized.
+
+
+## P-05A on reconciled P-03D/P-04 stack — 2026-11-25
+
+- Original P-05A PR #52 was stacked on original P-04 PR #51, whose parent was the old P-03 base. It therefore inherited the missing P-03C/P-03D ancestry.
+- Replacement branch `spike/p05-backup-restore-recovery-p03d` starts from reconciled P-04 PR #62 head `1013f3b93b55b2cb0859b371db58e1e17ec4ad5e`. It carries the P-05A-specific recovery workflow, disposable PostgreSQL Docker fixture, setup SQL, recovery script and bilingual report.
+- Original P-05A evidence: run [45524797849](https://github.com/tecpey/lottorito-platform/actions/runs/45524797849) passed; Documentation Governance [45524797818](https://github.com/tecpey/lottorito-platform/actions/runs/45524797818) passed. This remains historical evidence for original PR #52 only.
+- Revalidate the replacement on one exact head: P-02, P-03C/P-03D, P-04, P-05A and bilingual Documentation Governance. Preserve the limits in LOT-PROT-P05A-001: no off-site/immutable retention, key custody, object-byte recovery, missing-WAL/interrupted-restore negative drills, application/worker recovery, provider reconciliation, regional failover, RPO/RTO approval or production readiness.
+- Original PR #52 remains open/Draft and untouched. Replacement PR #63 will stack on PR #62 and remain Draft until full regression passes. No merge, main update, destructive operation or deployment.
+
+
+## P-05A verified on reconciled stack — 2026-11-25
+
+- Replacement PR #63 branch spike/p05-backup-restore-recovery-p03d is based on reconciled P-04 PR #62 head 1013f3b93b55b2cb0859b371db58e1e17ec4ad5e. Original PR #52 remains open/Draft as historical context.
+- Exact tested code head 76650b0c799e2f2a5b2f3ae4831bb55d3a3811a6 passed P-02 25, P-03C 15, P-03D 19, P-04 7, P-05A recovery P05A_RESULT=PASS and Documentation Governance. Runs: 45609220358, 45609220468, 45609220377, 45609220359 and 45609220328. All workflows succeeded; automated suite count 66, zero failures/skips.
+- P-05A is synthetic only. Missing-WAL/interrupted-restore negative drills, off-site immutable retention, key custody, object-byte recovery, app/worker recovery, provider reconciliation, regional recovery and RPO/RTO approval remain open.
+- Next: P-05B object/key/idempotent-event recovery. Replay it onto PR #63 in a new branch and run the complete P-02/P-03C/P-03D/P-04/P-05A/P-05B regression chain. Keep original PR #52 open/Draft and do not merge or deploy.

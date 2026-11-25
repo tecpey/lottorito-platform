@@ -127,3 +127,24 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 - Documentation Governance run [45608274060](https://github.com/tecpey/lottorito-platform/actions/runs/45608274060): passed.
 - All four workflows completed successfully with zero failures and zero skipped tests on the same head. Total integration coverage: 66 tests (25 + 15 + 19 + 7). This is synthetic acceptance only.
 - Next: rebase/replay P-05A, P-05B, P-05C, P-06, P-07A, P-07B, P-07C and P-08 onto the reconciled stack in dependency order; preserve original PRs as historical review references until replacements pass full CI. No merge, main update, destructive migration or deployment is authorized.
+
+
+## P-05A ancestry reconciliation — 2026-11-25
+
+- Original P-05A PR #52 was based on original P-04 PR #51, which was a sibling of P-03C/P-03D. It did not contain the reconciled P-03C/P-03D bridge.
+- New branch `spike/p05-backup-restore-recovery-p03d` is based on reconciled P-04 PR #62 head `1013f3b93b55b2cb0859b371db58e1e17ec4ad5e`. It carries P-05A's workflow, Dockerfile, compose fixture, setup SQL, recovery script and bilingual prototype report.
+- Original P-05A CI run [45524797849](https://github.com/tecpey/lottorito-platform/actions/runs/45524797849) and Documentation Governance [45524797818](https://github.com/tecpey/lottorito-platform/actions/runs/45524797818) passed on the original branch. These are historical only.
+- Replacement PR #63 will target PR #62 and must pass P-02, P-03C/P-03D, P-04, P-05A and Documentation Governance on its exact final head. Original PR #52 remains open/Draft and untouched.
+- P-05A remains synthetic and does not prove off-site immutable backup, key custody, object-byte recovery, negative missing-WAL/interrupted-restore drills, application/worker recovery, provider reconciliation, regional failover or RPO/RTO. No production readiness is claimed.
+
+
+## P-05A reconciled verification — 2026-11-25
+
+- PR #63 replacement branch is stacked on reconciled P-04 PR #62; original PR #52 remains open/Draft and untouched.
+- Tested code head: 76650b0c799e2f2a5b2f3ae4831bb55d3a3811a6.
+- P-02 [run 45609220358](https://github.com/tecpey/lottorito-platform/actions/runs/45609220358): 25/25 passed.
+- P-03C/P-03D [run 45609220468](https://github.com/tecpey/lottorito-platform/actions/runs/45609220468): 15/15 + 19/19 passed.
+- P-04 [run 45609220377](https://github.com/tecpey/lottorito-platform/actions/runs/45609220377): 7/7 passed.
+- P-05A [run 45609220359](https://github.com/tecpey/lottorito-platform/actions/runs/45609220359): P05A_RESULT=PASS.
+- Documentation Governance [run 45609220328](https://github.com/tecpey/lottorito-platform/actions/runs/45609220328): passed.
+- All five workflows succeeded on the same head. Next: rebase/replay P-05B onto PR #63 and preserve the complete regression chain. Synthetic-only; no merge, main update, destructive migration or deployment.

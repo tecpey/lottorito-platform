@@ -127,3 +127,24 @@ PR شماره ۵۰ مربوط به تحویل Outbox در P-03، به‌صورت
 - Documentation Governance با شناسه [45608274060](https://github.com/tecpey/lottorito-platform/actions/runs/45608274060): موفق.
 - هر چهار Workflow روی یک Head با موفقیت کامل شدند و هیچ تست شکست‌خورده یا Skip وجود نداشت. پوشش Integration در مجموع ۶۶ تست است (۲۵ + ۱۵ + ۱۹ + ۷). این فقط پذیرش ساختگی است.
 - قدم بعدی: مراحل P-05A، P-05B، P-05C، P-06، P-07A، P-07B، P-07C و P-08 به‌ترتیب وابستگی روی زنجیره تطبیق‌یافته Rebase/Replay شوند؛ PRهای اصلی تا زمان موفقیت CI کامل، به‌عنوان سابقه بازبینی حفظ شوند. هیچ Merge، تغییر main، Migration مخرب یا Deploy مجاز نیست.
+
+
+## تطبیق Ancestry مربوط به P-05A — ۲۰۲۶-۱۱-۲۵
+
+- PR اصلی P-05A با شماره ۵۲ بر مبنای PR اصلی P-04 با شماره ۵۱ ساخته شده بود که شاخه‌ای هم‌سطح P-03C/P-03D بود؛ بنابراین پل تطبیق‌یافته P-03C/P-03D را شامل نمی‌شد.
+- شاخه جدید `spike/p05-backup-restore-recovery-p03d` بر مبنای Head تطبیق‌یافته PR شماره ۶۲ در P-04 یعنی `1013f3b93b55b2cb0859b371db58e1e17ec4ad5e` است. Workflow، Dockerfile، Fixture مربوط به Compose، SQL راه‌اندازی، اسکریپت بازیابی و گزارش Prototype دوزبانه P-05A منتقل شده‌اند.
+- اجرای اصلی CI مربوط به P-05A با شناسه [45524797849](https://github.com/tecpey/lottorito-platform/actions/runs/45524797849) و Documentation Governance با شناسه [45524797818](https://github.com/tecpey/lottorito-platform/actions/runs/45524797818) روی شاخه اصلی موفق بوده‌اند؛ این شواهد فقط تاریخی‌اند.
+- PR جایگزین شماره ۶۳ به PR شماره ۶۲ متصل می‌شود و باید P-02، P-03C/P-03D، P-04، P-05A و Documentation Governance را روی Head دقیق نهایی موفق بگذراند. PR اصلی شماره ۵۲ باز، Draft و دست‌نخورده باقی می‌ماند.
+- P-05A ساختگی است و Backup تغییرناپذیر Off-site، مالکیت کلید، بازیابی بایت Object، آزمون منفی WAL مفقود/Restore قطع‌شده، بازیابی Application/Worker، تطبیق Provider، Failover منطقه‌ای یا RPO/RTO را اثبات نمی‌کند. هیچ ادعای آمادگی Production وجود ندارد.
+
+
+## تأیید تطبیق‌یافته P-05A — ۲۰۲۶-۱۱-۲۵
+
+- شاخه جایگزین PR شماره ۶۳ روی PR تطبیق‌یافته شماره ۶۲ در P-04 قرار دارد؛ PR اصلی شماره ۵۲ باز، Draft و دست‌نخورده باقی می‌ماند.
+- Head کد آزمایش‌شده: 76650b0c799e2f2a5b2f3ae4831bb55d3a3811a6.
+- P-02 با [اجرای 45609220358](https://github.com/tecpey/lottorito-platform/actions/runs/45609220358): تعداد ۲۵/۲۵ موفق.
+- P-03C/P-03D با [اجرای 45609220468](https://github.com/tecpey/lottorito-platform/actions/runs/45609220468): تعداد ۱۵/۱۵ + ۱۹/۱۹ موفق.
+- P-04 با [اجرای 45609220377](https://github.com/tecpey/lottorito-platform/actions/runs/45609220377): تعداد ۷/۷ موفق.
+- P-05A با [اجرای 45609220359](https://github.com/tecpey/lottorito-platform/actions/runs/45609220359): نتیجه P05A_RESULT=PASS.
+- Documentation Governance با [اجرای 45609220328](https://github.com/tecpey/lottorito-platform/actions/runs/45609220328): موفق.
+- هر پنج Workflow روی یک Head یکسان موفق شدند. قدم بعدی: P-05B روی PR شماره ۶۳ Replay شود و زنجیره کامل Regression حفظ گردد. فقط ساختگی؛ بدون Merge، تغییر main، Migration مخرب یا Deploy.
