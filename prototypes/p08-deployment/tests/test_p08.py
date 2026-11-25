@@ -180,6 +180,12 @@ class PromotionAndRollbackTests(unittest.TestCase):
         original = self.store.get(digest)
         self.assertEqual(self.store.get(digest), original)
 
+    def test_immutable_store_detects_corrupted_stored_bytes(self):
+        digest = self.built["v1"][0]
+        self.store._artifacts[digest] = self.store._artifacts[digest] + b"tampered"
+        with self.assertRaisesRegex(GateRejected, "stored_artifact_digest_mismatch"):
+            self.store.get(digest)
+
     def test_stale_compare_and_swap_is_rejected(self):
         digest = self.built["v2"][0]
         with self.assertRaisesRegex(DeploymentConflict, "stale_current_release"):
@@ -214,7 +220,8 @@ class PromotionAndRollbackTests(unittest.TestCase):
             self.controller.promote(self.stage_state, digest, self.approval(digest), DEPLOY_ACTOR,
                 self.stage_state.current_digest, unhealthy, GOOD_WORKER, self.built["v2"][1], SOURCE)
         self.assertEqual(self.stage_state.current_digest, self.built["v1"][0])
-        self.assertFalse(any(not x for x in [self.stage_state.traffic_enabled, self.stage_state.workers_enabled]))
+        self.assertTrue(self.stage_state.traffic_enabled)
+        self.assertTrue(self.stage_state.workers_enabled)
 
     def test_worker_failure_blocks_promotion_and_restores_partial_api_rollout(self):
         digest = self.built["v2"][0]
@@ -233,16 +240,19 @@ class PromotionAndRollbackTests(unittest.TestCase):
         self.assertEqual(record["artifact_digest"], digest)
         self.assertEqual(record["actor"], DEPLOY_ACTOR)
         self.assertEqual(record["outcome"], "accepted")
+        self.assertEqual(record["financial_state_digest"], "synthetic-ledger-state-v1")
 
     def test_safe_rollback_preserves_financial_state_and_digest(self):
-        ledger = (("j-1", "tenant-alpha", "USD", 12500), ("j-2", "tenant-alpha", "USD", -12500))
-        before = ledger
+        before = self.stage_state.financial_state_digest
+        before_financial_state = self.stage_state.financial_state_digest
         self.promote(self.stage_state, "v2")
+        self.controller.migrate_schema(self.stage_state, 2, "expand")
         target = self.stage_state.previous_digest
         result = self.controller.rollback(self.stage_state, target, DEPLOY_ACTOR,
             self.approval(target), GOOD_API, GOOD_WORKER)
         self.assertEqual(result["status"], "rolled_back")
-        self.assertEqual(ledger, before)
+        self.assertEqual(self.stage_state.schema_version, 2)
+        self.assertEqual(self.stage_state.financial_state_digest, before)
 
     def test_incompatible_rollback_is_blocked_after_contract_migration(self):
         self.promote(self.stage_state, "v2")
@@ -268,6 +278,7 @@ class PromotionAndRollbackTests(unittest.TestCase):
         self.promote(self.stage_state, "v3")
         self.assertEqual(self.stage_state.current_digest, self.built["v3"][0])
         self.assertEqual(self.stage_state.schema_version, 3)
+        self.assertEqual(self.stage_state.financial_state_digest, before_financial_state)
 
 
 if __name__ == "__main__":
