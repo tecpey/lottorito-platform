@@ -126,3 +126,6 @@ Head دقیق فعلی PR که اعتبارسنجی شد: `14d69ec5be1a9285049c1
 
 
 تست‌های Regression مربوط به Ingress در P-09H اکنون ثابت می‌کنند که `tenantid`، `scope`، `sourceeventid`، `traceparent`، `dataschema` و `schemaversion` ارسالی Provider نمی‌توانند Metadata مورد اعتماد را بازنویسی کنند؛ همچنین یک Provider Event ID یکسان می‌تواند مستقل از طریق Ingress امضاشده در Affiliate/Tenant-A، Lottery/Tenant-A و Affiliate/Tenant-B پذیرفته شود. هر سه ردیف Source Event UUID مستقل دارند. Workflow مربوط به P-03C/P-03D روی Head حاوی این کد به‌ترتیب موفقیت ۱۵ از ۱۵ و ۲۸ از ۲۸ تست را گزارش کرد.
+
+
+Runner تست P-03D اکنون مجموعه تست مستقیم انطباق Node.js برای Validator مشترک P-09 را نیز اجرا می‌کند. این تست‌ها حالت‌های معتبر و خصمانه Envelope را مستقل از تست‌های Ingress متصل به PostgreSQL بررسی می‌کنند تا تغییرات آینده Worker نتوانند بی‌صدا قواعد اصلی Validator را دور بزنند.
