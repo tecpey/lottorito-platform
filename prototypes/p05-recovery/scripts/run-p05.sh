@@ -61,4 +61,4 @@ echo "restore_point_lsn=$RESTORE_LSN"
 echo "restore_wal=$RESTORE_WAL"
 echo "backup_and_verify_seconds=$BACKUP_SECONDS"
 echo "restore_start_seconds=$RESTORE_SECONDS"
-echo "P05A_RESULT=PASS"\n
+echo "P05A_RESULT=PASS"
