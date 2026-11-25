@@ -86,3 +86,8 @@ P-02 was re-run as part of P-04 PR #62 on code head `dca0762678ed45da122ba109276
 ## P-05A downstream regression gate — 2026-11-25
 
 P-05A is being replayed onto the reconciled P-04 branch. Its backup/PITR fixture is synthetic and independent; it does not modify P-02 schema. Re-run the P-02 25-test suite as a regression gate on the P-05A replacement head before accepting the downstream stack.
+
+
+## P-05A reconciled-stack regression result — 2026-11-25
+
+P-02 regression passed on P-05A replacement code head 76650b0c799e2f2a5b2f3ae4831bb55d3a3811a6: [run 45609220358](https://github.com/tecpey/lottorito-platform/actions/runs/45609220358), 25 passed, 0 failed, 0 skipped. P-05A remains an independent synthetic recovery fixture and does not modify P-02 ledger schema.

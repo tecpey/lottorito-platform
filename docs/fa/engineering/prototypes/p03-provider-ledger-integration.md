@@ -129,3 +129,8 @@ PR شماره ۵۱ در P-04 شاخه‌ای هم‌سطح P-03C/P-03D بود، 
 ## دروازه Regression پایین‌دستی P-05A — ۲۰۲۶-۱۱-۲۵
 
 P-05A روی PR تطبیق‌یافته شماره ۶۲ در P-04 بازپخش می‌شود که فرزند این شاخه P-03D است. Workflow ترکیبی ۳۴ تستی P-03C/P-03D باید روی Head جایگزین P-05A دوباره اجرا شود تا حضور پل Ledger/Outbox/Provider اثبات شود. Fixture بازیابی دیتابیس در P-05A مستقل و ساختگی است و جایگزین پذیرش Provider Event یا Posting دفترکل نیست.
+
+
+## نتیجه Regression تطبیق‌یافته P-05A — ۲۰۲۶-۱۱-۲۵
+
+Regression ترکیبی P-03C/P-03D روی Head کد جایگزین P-05A با SHA 76650b0c799e2f2a5b2f3ae4831bb55d3a3811a6 موفق شد: [اجرای 45609220468](https://github.com/tecpey/lottorito-platform/actions/runs/45609220468)، P-03C برابر ۱۵/۱۵ و P-03D برابر ۱۹/۱۹؛ صفر شکست و صفر Skip. P-05A جایگزین یا تغییردهنده یکپارچه‌سازی Provider-to-Ledger نیست.

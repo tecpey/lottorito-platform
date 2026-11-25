@@ -329,3 +329,11 @@ The prototype phase is complete only when all eight experiments have reproducibl
 - Original P-05A evidence: run [45524797849](https://github.com/tecpey/lottorito-platform/actions/runs/45524797849) passed; Documentation Governance [45524797818](https://github.com/tecpey/lottorito-platform/actions/runs/45524797818) passed. This remains historical evidence for original PR #52 only.
 - Revalidate the replacement on one exact head: P-02, P-03C/P-03D, P-04, P-05A and bilingual Documentation Governance. Preserve the limits in LOT-PROT-P05A-001: no off-site/immutable retention, key custody, object-byte recovery, missing-WAL/interrupted-restore negative drills, application/worker recovery, provider reconciliation, regional failover, RPO/RTO approval or production readiness.
 - Original PR #52 remains open/Draft and untouched. Replacement PR #63 will stack on PR #62 and remain Draft until full regression passes. No merge, main update, destructive operation or deployment.
+
+
+## P-05A verified on reconciled stack — 2026-11-25
+
+- Replacement PR #63 branch spike/p05-backup-restore-recovery-p03d is based on reconciled P-04 PR #62 head 1013f3b93b55b2cb0859b371db58e1e17ec4ad5e. Original PR #52 remains open/Draft as historical context.
+- Exact tested code head 76650b0c799e2f2a5b2f3ae4831bb55d3a3811a6 passed P-02 25, P-03C 15, P-03D 19, P-04 7, P-05A recovery P05A_RESULT=PASS and Documentation Governance. Runs: 45609220358, 45609220468, 45609220377, 45609220359 and 45609220328. All workflows succeeded; automated suite count 66, zero failures/skips.
+- P-05A is synthetic only. Missing-WAL/interrupted-restore negative drills, off-site immutable retention, key custody, object-byte recovery, app/worker recovery, provider reconciliation, regional recovery and RPO/RTO approval remain open.
+- Next: P-05B object/key/idempotent-event recovery. Replay it onto PR #63 in a new branch and run the complete P-02/P-03C/P-03D/P-04/P-05A/P-05B regression chain. Keep original PR #52 open/Draft and do not merge or deploy.

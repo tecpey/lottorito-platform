@@ -329,3 +329,11 @@ Prototype فقط زمانی **Pass** است که تمام معیارهای اج�
 - شواهد اصلی P-05A: اجرای [45524797849](https://github.com/tecpey/lottorito-platform/actions/runs/45524797849) موفق و Documentation Governance با شناسه [45524797818](https://github.com/tecpey/lottorito-platform/actions/runs/45524797818) نیز موفق بوده‌اند. این شواهد تاریخی فقط مربوط به PR اصلی شماره ۵۲ است.
 - شاخه جایگزین باید روی یک Head دقیق، P-02، P-03C/P-03D، P-04، P-05A و Documentation Governance دوزبانه را با موفقیت بگذراند. محدودیت‌های سند LOT-PROT-P05A-001 حفظ شوند: بدون نگهداری Off-site/Immutable، مالکیت کلید، بازیابی بایت Object، آزمون منفی WAL مفقود/Restore قطع‌شده، بازیابی Application/Worker، تطبیق Provider، Failover منطقه‌ای، تصویب RPO/RTO یا ادعای آمادگی Production.
 - PR اصلی شماره ۵۲ باز و Draft و دست‌نخورده باقی می‌ماند. PR جایگزین شماره ۶۳ روی PR شماره ۶۲ قرار می‌گیرد و تا زمان موفقیت Regression کامل Draft می‌ماند. هیچ Merge، تغییر main، عملیات مخرب یا Deploy مجاز نیست.
+
+
+## تأیید P-05A روی زنجیره تطبیق‌یافته — ۲۰۲۶-۱۱-۲۵
+
+- شاخه جایگزین PR شماره ۶۳ با نام spike/p05-backup-restore-recovery-p03d بر مبنای Head تطبیق‌یافته PR شماره ۶۲ در P-04 یعنی 1013f3b93b55b2cb0859b371db58e1e17ec4ad5e است. PR اصلی شماره ۵۲ به‌عنوان سابقه تاریخی باز و Draft باقی می‌ماند.
+- Head دقیق کد آزمایش‌شده 76650b0c799e2f2a5b2f3ae4831bb55d3a3811a6، P-02 با ۲۵ تست، P-03C با ۱۵ تست، P-03D با ۱۹ تست، P-04 با ۷ تست، بازیابی P-05A با نتیجه P05A_RESULT=PASS و Documentation Governance را با موفقیت گذراند. اجراها: 45609220358، 45609220468، 45609220377، 45609220359 و 45609220328. تمام Workflowها موفق بودند؛ مجموعه خودکار ۶۶ تست داشت و هیچ شکست یا Skip وجود نداشت.
+- P-05A فقط ساختگی است. آزمون منفی WAL مفقود/Restore قطع‌شده، نگهداری Off-site/Immutable، مالکیت کلید، بازیابی بایت Object، بازیابی App/Worker، تطبیق Provider، بازیابی منطقه‌ای و تصویب RPO/RTO همچنان باز هستند.
+- قدم بعدی: بازیابی Object/Key و Event Idempotency در P-05B. آن را در شاخه‌ای جدید روی PR شماره ۶۳ Replay کن و زنجیره کامل Regression مربوط به P-02/P-03C/P-03D/P-04/P-05A/P-05B را اجرا کن. PR اصلی شماره ۵۲ باز و Draft بماند؛ هیچ Merge یا Deploy انجام نشود.

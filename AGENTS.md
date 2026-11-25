@@ -73,3 +73,10 @@ A task is done only when implementation exists, relevant tests pass, documentati
 - Create a new Draft PR stacked on PR #62; leave original PR #52 open/Draft and untouched.
 - Re-run P-02, P-03C/P-03D, P-04, P-05A and bilingual Documentation Governance on the exact replacement head. Do not reuse historical PR #52 CI as proof of the replacement.
 - No production data, credentials, real provider, merge, main update, destructive migration or deployment without explicit owner approval.
+
+
+## P-05A reconciled verification and next handoff — 2026-11-25
+- Replacement PR #63 code head 76650b0c799e2f2a5b2f3ae4831bb55d3a3811a6 passed P-02 (25), P-03C (15), P-03D (19), P-04 (7), P-05A recovery (P05A_RESULT=PASS) and Documentation Governance. Runs: 45609220358, 45609220468, 45609220377, 45609220359 and 45609220328. All succeeded on the same head.
+- Keep PR #63 Draft/open stacked on reconciled P-04 PR #62. Original PR #52 remains open/Draft as historical context.
+- Next: P-05B object/key/idempotent-event recovery. Rebase/replay onto PR #63, keep original PRs as review references, and rerun the complete P-02/P-03C/P-03D/P-04/P-05A/P-05B chain on the exact final head.
+- No production recovery claim, real credentials, merge, main update, destructive migration or deployment without explicit owner approval.

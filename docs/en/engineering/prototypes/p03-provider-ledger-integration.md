@@ -129,3 +129,8 @@ The P-04 continuation is now stacked on this P-03D branch through PR #62. On PR 
 ## P-05A downstream regression gate — 2026-11-25
 
 P-05A is being replayed onto reconciled P-04 PR #62, which descends from this P-03D branch. Re-run the combined P-03C/P-03D 34-test workflow on the P-05A replacement head to prove the ledger/outbox/provider bridge remains present. P-05A's synthetic database recovery fixture is separate and does not replace provider event or ledger posting acceptance.
+
+
+## P-05A reconciled-stack regression result — 2026-11-25
+
+The combined P-03C/P-03D regression passed on P-05A replacement code head 76650b0c799e2f2a5b2f3ae4831bb55d3a3811a6: [run 45609220468](https://github.com/tecpey/lottorito-platform/actions/runs/45609220468), P-03C 15/15 and P-03D 19/19, 0 failures and 0 skips. P-05A does not replace or modify the provider-to-ledger integration.

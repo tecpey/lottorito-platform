@@ -65,3 +65,16 @@
 ## ادامه روی زنجیره تطبیق‌یافته — ۲۰۲۶-۱۱-۲۵
 
 PR اصلی P-05A با شماره ۵۲ بر مبنای PR اصلی P-04 با شماره ۵۱ ساخته شده بود؛ درحالی‌که آن P-04 شاخه‌ای هم‌سطح P-03C/P-03D بود. این ادامه به شاخه `spike/p05-backup-restore-recovery-p03d` منتقل شده که بر مبنای Head تطبیق‌یافته PR شماره ۶۲ در P-04 یعنی `1013f3b93b55b2cb0859b371db58e1e17ec4ad5e` است. شواهد CI اصلی P-05A در بالا تاریخی‌اند. پیش از پذیرش P-05A در زنجیره تطبیق‌یافته، Workflow مربوط به P-05A همراه P-02، P-03C/P-03D، P-04 و Documentation Governance دوزبانه باید روی شاخه جدید دوباره اجرا شوند. محدوده فعلی حفظ شود: P-05A آزمون منفی WAL مفقود یا Restore قطع‌شده، بازیابی بایت Object/کلید یا Failover/Fencing/Failback را پوشش نمی‌دهد.
+
+
+## CI تأییدشده روی زنجیره تطبیق‌یافته — ۲۰۲۶-۱۱-۲۵
+
+Head دقیق کد آزمایش‌شده: 76650b0c799e2f2a5b2f3ae4831bb55d3a3811a6.
+
+- Regression مربوط به P-02: [اجرای ۱۲۸](https://github.com/tecpey/lottorito-platform/actions/runs/45609220358) — ۲۵ موفق، صفر شکست و صفر Skip.
+- Regression مربوط به P-03C/P-03D: [اجرای ۴۷](https://github.com/tecpey/lottorito-platform/actions/runs/45609220468) — ۱۵ تست P-03C و ۱۹ تست P-03D موفق؛ در مجموع ۳۴ تست، صفر شکست و صفر Skip.
+- سازگاری P-04: [اجرای ۳۱](https://github.com/tecpey/lottorito-platform/actions/runs/45609220377) — ۷ موفق، صفر شکست و صفر Skip.
+- Backup/PITR در P-05A: [اجرای ۹۰](https://github.com/tecpey/lottorito-platform/actions/runs/45609220359) — با نتیجه P05A_RESULT=PASS کامل شد؛ Base Backup، بررسی و رد Manifest دست‌کاری‌شده، WAL/PITR، RLS محدود به Tenant و تطبیق مالی موفق بودند.
+- Documentation Governance دوزبانه: [اجرای ۷۱۶](https://github.com/tecpey/lottorito-platform/actions/runs/45609220328) — موفق.
+
+هر پنج Workflow روی یک Head دقیق کد با موفقیت کامل شدند. این نتیجه فقط برش پذیرش ساختگی P-05A را تأیید می‌کند. نگهداری Off-site/Immutable، مالکیت کلید، بازیابی بایت Object، آزمون منفی WAL مفقود/Restore قطع‌شده، بازیابی Application/Worker، تطبیق Provider، بازیابی منطقه‌ای و تصویب RPO/RTO همچنان خارج از محدوده‌اند.

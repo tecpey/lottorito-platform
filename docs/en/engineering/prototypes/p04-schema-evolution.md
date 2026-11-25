@@ -58,3 +58,8 @@ All four workflows completed successfully on the exact same code head. This veri
 ## P-05A handoff — 2026-11-25
 
 P-05A PR #52 was based on the original P-04 branch. Its replacement branch `spike/p05-backup-restore-recovery-p03d` is based on the reconciled P-04 PR #62 head `1013f3b93b55b2cb0859b371db58e1e17ec4ad5e`. P-05A must pass its own recovery workflow and the complete P-02/P-03C/P-03D/P-04 regression chain on the new head.
+
+
+## P-05A reconciled-stack regression result — 2026-11-25
+
+P-04 passed on P-05A replacement code head 76650b0c799e2f2a5b2f3ae4831bb55d3a3811a6: [run 45609220377](https://github.com/tecpey/lottorito-platform/actions/runs/45609220377), 7 passed, 0 failed, 0 skipped. P-05A remains a downstream, independent synthetic recovery experiment.

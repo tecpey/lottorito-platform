@@ -65,3 +65,16 @@ No production data, credentials, partner secrets, real funds or live endpoints. 
 ## Reconciled-stack continuation — 2026-11-25
 
 Original P-05A PR #52 was stacked on original P-04 PR #51, which was a sibling of P-03C/P-03D. This continuation is carried onto `spike/p05-backup-restore-recovery-p03d`, based on reconciled P-04 PR #62 head `1013f3b93b55b2cb0859b371db58e1e17ec4ad5e`. The original P-05A CI evidence above is historical. Re-run the P-05A workflow plus P-02, P-03C/P-03D, P-04 and bilingual Documentation Governance on the new branch before accepting P-05A in the reconciled chain. Preserve the existing scope: P-05A does not cover missing-WAL or interrupted-restore negative drills, object-byte/key recovery, or failover/fencing/failback.
+
+
+## Verified reconciled-stack CI — 2026-11-25
+
+Exact tested code head: 76650b0c799e2f2a5b2f3ae4831bb55d3a3811a6.
+
+- P-02 regression: [run 128](https://github.com/tecpey/lottorito-platform/actions/runs/45609220358) — 25 passed, 0 failed, 0 skipped.
+- P-03C/P-03D regression: [run 47](https://github.com/tecpey/lottorito-platform/actions/runs/45609220468) — P-03C 15 passed and P-03D 19 passed; 34 total, 0 failed, 0 skipped.
+- P-04 compatibility: [run 31](https://github.com/tecpey/lottorito-platform/actions/runs/45609220377) — 7 passed, 0 failed, 0 skipped.
+- P-05A backup/PITR: [run 90](https://github.com/tecpey/lottorito-platform/actions/runs/45609220359) — completed with P05A_RESULT=PASS; base backup, manifest verification/tamper rejection, WAL/PITR, tenant RLS and financial reconciliation all passed.
+- Bilingual Documentation Governance: [run 716](https://github.com/tecpey/lottorito-platform/actions/runs/45609220328) — passed.
+
+All five workflows completed successfully on the same exact code head. This verifies only the synthetic P-05A acceptance slice. Off-site immutable retention, key custody, object-byte recovery, missing-WAL/interrupted-restore negative drills, application/worker recovery, provider reconciliation, regional recovery and RPO/RTO approval remain out of scope.
