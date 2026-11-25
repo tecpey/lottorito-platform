@@ -14,7 +14,7 @@ from build import build
 from pipeline import (
     Approval, DeploymentConflict, DeploymentController, DeploymentState,
     GateRejected, HealthSnapshot, ImmutableArtifactStore, RuntimeSecret,
-    bind_state_artifacts, run_artifact, update_state_artifact_binding,
+    run_artifact,
     verify_artifact_bytes, verify_provenance,
 )
 
@@ -141,11 +141,9 @@ class PromotionAndRollbackTests(unittest.TestCase):
             artifact, provenance_path, digest = build(version, self.root / version, SOURCE)
             data = artifact.read_bytes()
             self.built[version] = (self.store.put(data), json.loads(provenance_path.read_text()), data)
-        self.controller = DeploymentController(self.store, {})
+        self.controller = DeploymentController(self.store)
         self.test_state = DeploymentState("test", 1, self.built["v1"][0], api_digest=self.built["v1"][0], worker_digest=self.built["v1"][0], traffic_enabled=True, workers_enabled=True)
         self.stage_state = DeploymentState("staging", 1, self.built["v1"][0], api_digest=self.built["v1"][0], worker_digest=self.built["v1"][0], traffic_enabled=True, workers_enabled=True)
-        bind_state_artifacts(self.test_state, self.store)
-        bind_state_artifacts(self.stage_state, self.store)
 
     def tearDown(self):
         self.temp.cleanup()
@@ -159,7 +157,6 @@ class PromotionAndRollbackTests(unittest.TestCase):
             state, digest, self.approval(digest, state.environment), DEPLOY_ACTOR,
             state.current_digest, api, worker, provenance, SOURCE,
         )
-        update_state_artifact_binding(state, self.store, state.current_digest, state.previous_digest)
         return result
 
     def test_same_artifact_digest_promotes_from_test_to_staging(self):
@@ -256,13 +253,10 @@ class PromotionAndRollbackTests(unittest.TestCase):
     def test_incompatible_rollback_is_blocked_after_contract_migration(self):
         self.promote(self.stage_state, "v2")
         self.controller.migrate_schema(self.stage_state, 2, "expand")
-        update_state_artifact_binding(self.stage_state, self.store, self.stage_state.current_digest, self.stage_state.previous_digest)
         self.controller.retire_rollback_target(self.stage_state, "RETIRE_ROLLBACK_TARGET", DEPLOY_ACTOR)
         self.controller.migrate_schema(self.stage_state, 3, "contract")
-        update_state_artifact_binding(self.stage_state, self.store, self.stage_state.current_digest)
         old_digest = self.built["v1"][0]
         self.stage_state.previous_digest = old_digest
-        update_state_artifact_binding(self.stage_state, self.store, self.stage_state.current_digest, old_digest)
         with self.assertRaisesRegex(GateRejected, "rollback_schema_incompatible"):
             self.controller.rollback(self.stage_state, old_digest, DEPLOY_ACTOR,
                 self.approval(old_digest), GOOD_API, GOOD_WORKER)
