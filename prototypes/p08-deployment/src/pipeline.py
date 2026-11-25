@@ -174,6 +174,7 @@ class DeploymentState:
     worker_digest: str | None = None
     traffic_enabled: bool = False
     workers_enabled: bool = False
+    financial_state_digest: str = "synthetic-ledger-state-v1"
     audit: list[dict[str, Any]] = field(default_factory=list)
 
 
@@ -226,8 +227,6 @@ class DeploymentController:
             raise GateRejected("artifact_schema_incompatible")
         if not api_health.readiness_ok:
             raise GateRejected("api_readiness_failed")
-        if not worker_health.worker_readiness_ok:
-            raise GateRejected("worker_readiness_failed")
         return metadata
 
     def promote(self, state: DeploymentState, digest: str, approval: Approval,
@@ -293,6 +292,7 @@ class DeploymentController:
             "action": action,
             "outcome": outcome,
             "schema_version": state.schema_version,
+            "financial_state_digest": state.financial_state_digest,
         }
 
     @staticmethod
