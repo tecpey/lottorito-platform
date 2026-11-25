@@ -95,3 +95,8 @@ Workflow مربوط به P-05 با شناسه [45635972222](https://github.com/t
 ## تأیید مجدد P-09E روی Head دقیق (۲۰۲۶-۱۱-۲۵)
 
 P-09E در Workflow مربوط به P-05 با شناسه [45637659268](https://github.com/tecpey/lottorito-platform/actions/runs/45637659268) روی 2b393cc8c41226a20333f34559ac6952883901a3 موفق شد. Backup فیزیکی، pg_verifybackup، Restore مستقل، Recordهای واقعی P-02/P-03C/P-03D، Rollback اتمیک در Failure تزریق‌شده، Replay روی Inbox، Idempotency، RLS Tenant/Product، توازن Journal، اتمیک‌بودن Delivery State در Outbox و صفر بودن استثناهای Reconciliation همگی PASS شدند. PITR در P-05A، P-05B و آزمون‌های منفی WAL/Restore ناقص نیز موفق شدند. Documentation Governance با شناسه [45637659297](https://github.com/tecpey/lottorito-platform/actions/runs/45637659297) روی همان Head موفق شد.
+
+
+### P-09H — دروازه اعتبارسنجی قرارداد در Replay (۲۰۲۶-۱۱-۲۵)
+
+Helper بازیابی P-05E اکنون پیش از فراخوانی Journal Posting، رویداد Canonical ذخیره‌شده را با ردیف Provider Inbox بازیابی‌شده تطبیق می‌دهد. نسخه/id/source/type در CloudEvents، Tenant، Product Scope، UUID مربوط به Source Event، نسخه Schema، ساختار traceparent و قابل‌تبدیل‌بودن Timestamp بررسی می‌شوند. Fixtureهای بازیابی اکنون Envelope کامل P-09 را دارند. هر مغایرت، تراکنش Replay را پیش از Commit شدن اثر مالی متوقف می‌کند. این همچنان یک Drill بازیابی ساختگی و موقت است، نه سرویس بازیابی Production.
