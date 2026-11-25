@@ -1,5 +1,5 @@
 CREATE OR REPLACE FUNCTION public.p05_process_pending(p_tenant uuid,p_consumer text,p_aggregate uuid)
-RETURNS integer LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public AS $$
+RETURNS integer LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public,pg_temp AS $
 DECLARE v_last bigint; v_event public.p05_inbox%ROWTYPE; v_count integer:=0; v_amount bigint; v_currency text;
 BEGIN
  SELECT last_sequence INTO v_last FROM public.p05_replay_cursor
@@ -8,7 +8,7 @@ BEGIN
  LOOP
   SELECT * INTO v_event FROM public.p05_inbox
   WHERE tenant_id=p_tenant AND consumer_name=p_consumer AND aggregate_id=p_aggregate
-   AND aggregate_seq=v_last+1 AND status='pending' FOR UPDATE;
+   AND aggregate_seq=v_last+1 AND status='pending' ORDER BY source_event_id LIMIT 1 FOR UPDATE;
   EXIT WHEN NOT FOUND;
   SELECT amount_minor,currency_code INTO v_amount,v_currency FROM public.source_events
   WHERE tenant_id=p_tenant AND event_id=v_event.source_event_id AND economic_effect_id=v_event.economic_effect_id;
