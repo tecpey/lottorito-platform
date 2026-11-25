@@ -124,6 +124,11 @@ class CrossProductEventContractTests(unittest.TestCase):
     def setUp(self):
         AUDIT_DECISIONS.clear()
 
+    def test_dispatch_rejects_non_rfc3339_event_time(self):
+        result = dispatch_event(event(time="November 25, 2026"), AFFILIATE_TOKEN, LOTTERY_TOKEN)
+        self.assertEqual(result["decision"], "deny")
+        self.assertEqual(result["reason"], "invalid_event_contract")
+
     def test_explicit_test_contract_allows_expected_consumer(self):
         result = dispatch_event(event(), AFFILIATE_TOKEN, LOTTERY_TOKEN)
         self.assertEqual(result["decision"], "allow")
