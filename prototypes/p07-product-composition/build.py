@@ -26,9 +26,15 @@ def assert_no_cross_product_imports(source: str, forbidden_product: str) -> None
             names = [alias.name for alias in node.names]
         elif isinstance(node, ast.ImportFrom):
             names = [node.module or ""]
+            names.extend(alias.name for alias in node.names)
         else:
             names = []
-        if any(name == forbidden_product or name.startswith(f"products.{forbidden_product}") for name in names):
+        if any(
+            name == forbidden_product
+            or name.startswith(f"products.{forbidden_product}")
+            or (name == "products" and forbidden_product in names)
+            for name in names
+        ):
             raise ValueError(f"forbidden cross-product import: {forbidden_product}")
         if isinstance(node, ast.Call):
             func = node.func
