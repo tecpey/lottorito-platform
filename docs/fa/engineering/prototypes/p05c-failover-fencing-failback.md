@@ -1,6 +1,6 @@
 # P-05C — Failover، Writer Fencing و Failback
 
-**شناسه سند:** LOT-PROT-P05C-001 | **نسخه:** ۰.۲.۰ | **وضعیت:** پیاده‌سازی آزمایش ساختگی؛ اعتبارسنجی CI در انتظار
+**شناسه سند:** LOT-PROT-P05C-001 | **نسخه:** ۰.۳.۰ | **وضعیت:** CI ساختگی روی Head نهایی PR با شناسه 194c565c1471474a1d908efb3dfda89035d9d4cc موفق شد؛ HA در Production تصویب نشده است
 
 ## اعتبار و مرز
 
@@ -76,12 +76,16 @@ P-05C یک آزمایش دورریختنی PostgreSQL 18.7 است که چرخه 
 
 
 
-## شواهد اولیه CI
+## شواهد نهایی CI
+
+- Integration مربوط به P-05C در PR با شناسه [45533992674](https://github.com/tecpey/lottorito-platform/actions/runs/45533992674)، Integration بازگشتی P-05B با شناسه [45533992779](https://github.com/tecpey/lottorito-platform/actions/runs/45533992779) و Documentation Governance با شناسه [45533992863](https://github.com/tecpey/lottorito-platform/actions/runs/45533992863) روی Head شماره `194c565c1471474a1d908efb3dfda89035d9d4cc` موفق شدند.
+- pg_rewind اول واگرایی روی Timeline شماره ۱ را پیدا کرد و ۳۵ مگابایت کپی کرد. pg_rewind دوم واگرایی روی Timeline شماره ۲ را پیدا کرد و ۶۷ مگابایت کپی کرد؛ این موضوع مسیر Failback واقعاً واگرا را تأیید می‌کند، نه Rewind بدون تغییر را.
+- Assertionهای نهایی PR موفق شدند: Physical Standby، Promotion Gate، Process Fence، افزایش Epoch، رد Writer قدیمی و Lease منقضی، دقیقاً یک Claimant هم‌زمان، حذف هر دو Tail واگرا، هر دو چرخه Rewind/Join، Read-only بودن Standby، Failback کنترل‌شده و Epoch نهایی شماره ۴ با Active Writer برابر Node A.
 
 - Integration ایزوله P-05C با شناسه [45533778752](https://github.com/tecpey/lottorito-platform/actions/runs/45533778752) روی Head کد اجرایی `4884a3c38d2da8ea9ab9961dc095eb0ddd469f4d` موفق شد.
 - آزمون دو Timeline واگرای واقعی و دو عملیات pg_rewind را کامل کرد. Rewind دوم ۶۷ مگابایت کپی کرد و ثابت کرد مسیر Failback کنترل‌شده صرفاً Rewind بدون تغییر نبوده است.
 - Assertionهای Physical Standby، رد Promotion در زمان فعال بودن Primary قدیمی، Process Fence، Epoch از ۱ به ۲، رد Writer قدیمی و Lease منقضی، یک برنده CAS برای Epoch شماره ۳، حذف Tail واگرای اول، Read-only بودن Standby بازگشته، حذف Tail واگرای دوم، Rewind واقعی دوم و Epoch نهایی ۴ با Active Writer برابر Node A موفق شدند.
-- Integration روی Head نهایی PR و Documentation Governance همچنان برای ثبت وضعیت نهایی فاز لازم‌اند.
+- همه نتایج فقط شواهد CI ساختگی هستند؛ Fencing در Production، رفتار Quorum و RPO/RTO همچنان اثبات نشده‌اند.
 
 ## منابع
 
