@@ -26,7 +26,7 @@ try {
       (SELECT count(*)::int FROM public.ledger_accounts) AS account_count
   `);
   const row = objects.rows[0];
-  if (!row.ledger_outbox_exists || row.duplicate_source_exists || !row.delivery_state_exists || row.account_count !== 6) {
+  if (!row.ledger_outbox_exists || row.duplicate_source_exists || !row.delivery_state_exists || row.account_count !== 8) {
     throw new Error("P-03C combined schema invariant failed");
   }
   console.log("P-03C combined P-02/P-03 schema prepared; ledger_outbox is the single immutable source");
