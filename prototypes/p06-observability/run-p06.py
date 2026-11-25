@@ -173,7 +173,10 @@ def main():
 
     print("[P06] Create bounded metric series for 500 synthetic tenant identities")
     metric_counts={}
-    for i in range(500):
+    synthetic_tenant_refs={ref(f"synthetic-tenant-{i}") for i in range(500)}
+    if len(synthetic_tenant_refs)!=500: raise AssertionError("synthetic tenant identities were not unique")
+    for tenant_ref in synthetic_tenant_refs:
+        # Tenant identity is deliberately not part of any metric label set.
         for key in [
           ("affiliate_events_total","event_received","success","affiliate_agent",None),
           ("commission_calculations_total","commission_calculated","success","affiliate_agent",None),
@@ -264,6 +267,7 @@ def main():
 
     print(f"trace_id={trace_id}")
     print(f"span_count={len(span_records)}")
+    print(f"synthetic_tenant_count={len(synthetic_tenant_refs)}")
     print(f"metric_series_for_500_tenants={metric_series}")
     print("p02_real_ledger_journal=PASS")
     print("w3c_trace_context_parent_chain=PASS")
