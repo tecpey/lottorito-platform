@@ -1,6 +1,6 @@
 # Lottorito Architecture Prototype and Evidence Plan
 
-**Document ID:** LOT-PROT-001 | **Version:** 1.21.0 | **Status:** Proposed experiment plan; execution and technology choices not approved
+**Document ID:** LOT-PROT-001 | **Version:** 1.22.0 | **Status:** Proposed experiment plan; execution and technology choices not approved
 
 ## 1. Purpose and authority
 
@@ -269,7 +269,7 @@ A prototype may be **Pass**, **Fail**, **Inconclusive** or **Not run**. “Pass�
 
 **Execution slices (2026-11-25):**
 - **P-07A — Product isolation:** independently build and boot each product without its sibling runtime/package dependency. Initial synthetic evidence is specified in [LOT-PROT-P07A-001](prototypes/p07a-product-isolation.md); this is not a core business-journey proof.
-- **P-07B — Shared platform and trust boundaries:** establish ownership and interfaces for Identity, Tenant, Finance, Notifications and Audit; test authorization, entitlements, cross-product data access and event contracts, including default-deny behavior. Initial synthetic evidence is documented in [LOT-PROT-P07B-001](prototypes/p07b-shared-trust-boundaries.md); CI passed on the recorded PR head 9c3bfee, but production trust controls are not proven.
+- **P-07B — Shared platform and trust boundaries:** establish ownership and interfaces for Identity, Tenant, Finance, Notifications and Audit; test authorization, entitlements, cross-product data access and event contracts, including default-deny behavior. Initial synthetic evidence is documented in [LOT-PROT-P07B-001](prototypes/p07b-shared-trust-boundaries.md); CI passed on the recorded PR head 872cfd8, but production trust controls are not proven.
 - **P-07C — Independent lifecycle:** test product disablement, configuration and migration isolation, independent artifact promotion/rollback, operational ownership and white-label traceability.
 - P-07A does not close P-07. P-07B and P-07C remain gated on review of the preceding evidence and explicit scope; no production architecture is pre-approved.
 
