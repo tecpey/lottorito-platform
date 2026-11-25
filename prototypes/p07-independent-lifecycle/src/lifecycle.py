@@ -183,8 +183,10 @@ def _migration_actor(token: str, owner: str, tenant_id: str) -> dict[str, Any]:
     if actor["role"] == "platform_admin":
         return actor
     if owner == "platform":
-        if actor["role"] != "platform_migration_runner" or tenant_id not in actor.get("allowed_tenants", []):
+        if actor["role"] != "platform_migration_runner":
             raise AuthorizationError("platform_migration_runner_required")
+        if tenant_id not in actor.get("allowed_tenants", []):
+            raise AuthorizationError("migration_tenant_scope_denied")
     else:
         if actor["role"] != "migration_runner" or actor.get("product_id") != owner:
             raise AuthorizationError("product_migration_owner_mismatch")
