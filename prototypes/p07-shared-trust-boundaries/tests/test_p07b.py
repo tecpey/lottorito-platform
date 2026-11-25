@@ -75,6 +75,26 @@ class SharedCapabilityPolicyTests(unittest.TestCase):
         result = evaluate_capability(AFFILIATE_TOKEN, "tenant-gamma", "identity", "resolve_subject")
         self.assertEqual(result["reason"], "service_tenant_scope_denied")
 
+    def test_unknown_platform_capability_owner_is_rejected(self):
+        registry = {"capabilities": {"identity": {
+            "owner": "platform.unknown", "operations": ["resolve_subject"],
+            "consumers": {"affiliate_agent": ["resolve_subject"]},
+        }}}
+        result = evaluate_capability(AFFILIATE_TOKEN, "tenant-beta", "identity", "resolve_subject", capability_registry=registry)
+        self.assertEqual(result["reason"], "invalid_capability_owner")
+
+    def test_product_cannot_access_sibling_owned_capability(self):
+        registry = {"capabilities": {"lottery_domain": {
+            "owner": "lottery", "operations": ["read"],
+            "consumers": {"affiliate_agent": ["read"]},
+        }}}
+        result = evaluate_capability(AFFILIATE_TOKEN, "tenant-beta", "lottery_domain", "read", capability_registry=registry)
+        self.assertEqual(result["reason"], "cross_product_capability_owner")
+
+    def test_enforcement_point_blocks_denied_operation(self):
+        with self.assertRaises(PermissionError):
+            enforce_capability(LOTTERY_TOKEN, "tenant-beta", "finance", "post_journal")
+
     def test_product_cannot_use_an_operation_not_in_its_grant(self):
         result = evaluate_capability(AFFILIATE_TOKEN, "tenant-beta", "identity", "delete_subject")
         self.assertEqual(result["reason"], "operation_not_granted")
@@ -109,9 +129,13 @@ class CrossProductEventContractTests(unittest.TestCase):
         result = dispatch_event(event(dataschema="urn:lottorito:schema:affiliate.demo.signal:2"), AFFILIATE_TOKEN, LOTTERY_TOKEN)
         self.assertEqual(result["reason"], "unsupported_schema_version")
 
+    def test_event_classification_must_match_registered_contract(self):
+        result = dispatch_event(event(classification="public"), AFFILIATE_TOKEN, LOTTERY_TOKEN)
+        self.assertEqual(result["reason"], "data_classification_mismatch")
+
     def test_financial_classification_exceeding_contract_is_denied(self):
         result = dispatch_event(event(classification="restricted_financial"), AFFILIATE_TOKEN, LOTTERY_TOKEN)
-        self.assertEqual(result["reason"], "data_classification_exceeds_contract")
+        self.assertEqual(result["reason"], "data_classification_mismatch")
 
     def test_missing_required_payload_field_is_denied(self):
         result = dispatch_event(event(data={}), AFFILIATE_TOKEN, LOTTERY_TOKEN)
@@ -134,6 +158,10 @@ class CrossProductEventContractTests(unittest.TestCase):
     def test_unknown_consumer_identity_is_denied(self):
         result = dispatch_event(event(), AFFILIATE_TOKEN, "unknown-service")
         self.assertEqual(result["reason"], "unknown_service_identity")
+
+    def test_tenant_identifier_cannot_be_reintroduced_in_payload(self):
+        result = dispatch_event(event(data={"reference": "x", "tenant_id": "tenant-alpha"}), AFFILIATE_TOKEN, LOTTERY_TOKEN)
+        self.assertEqual(result["reason"], "sensitive_data_key_forbidden")
 
     def test_unregistered_sensitive_extension_is_denied(self):
         result = dispatch_event(event(email="person@example.invalid"), AFFILIATE_TOKEN, LOTTERY_TOKEN)
