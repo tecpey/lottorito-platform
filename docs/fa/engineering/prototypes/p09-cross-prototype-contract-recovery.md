@@ -172,4 +172,24 @@ Workflow یکپارچه‌سازی P-03C/P-03D با شناسه [45637659485](htt
 
 Schema دورریختنی P-02 مقدار جدید `shared` را رد می‌کند. Recordهای Legacy بازنویسی نمی‌شوند و تا زمان تأیید نگاشت معتبر توسط مالک مسئول، باید شناسایی و قرنطینه شوند. کلیدهای مالی P-02 که هنوز فقط Tenant را شامل می‌شوند، یک شکاف صریح و باز هستند و P-09J آن‌ها را حل‌شده معرفی نمی‌کند.
 
-**اعتبارسنجی:** CI روی Head دقیق در انتظار است. پذیرش ساختگی است؛ هیچ Migration مربوط به Production، Merge یا Deploy انجام نشده است.
+**اعتبارسنجی:** Source-code Head دقیق `dfaa8120340cc6b4b80450dbf0e5755b21111080` هر ۹ Workflow مرتبط را با موفقیت گذراند. پذیرش ساختگی است؛ هیچ Migration مربوط به Production، Merge یا Deploy انجام نشده است.
+
+### شواهد Workflowهای P-09J روی Head دقیق
+
+تمام نتایج زیر روی Source-code Head با شناسه dfaa8120340cc6b4b80450dbf0e5755b21111080 اجرا شدند.
+
+| Workflow | شناسه اجرا | نتیجه |
+|---|---:|---|
+| بازیابی P-05 / P-09E / P-05B | [45662750801](https://github.com/tecpey/lottorito-platform/actions/runs/45662750801) | موفق — PITR، بازیابی فیزیکی، Replay، Scope محصول و هم‌زمانی |
+| ثبت دفتر P-02 | [45662750926](https://github.com/tecpey/lottorito-platform/actions/runs/45662750926) | موفق — ۲۶ از ۲۶ |
+| Contract در P-09 | [45662750745](https://github.com/tecpey/lottorito-platform/actions/runs/45662750745) | موفق — ۲۰ از ۲۰ |
+| P-03C/P-03D | [45662750837](https://github.com/tecpey/lottorito-platform/actions/runs/45662750837) | موفق — ۱۵ از ۱۵ و ۳۵ از ۳۵ |
+| Observability/Privacy در P-06 | [45662750890](https://github.com/tecpey/lottorito-platform/actions/runs/45662750890) | موفق |
+| Failover/Fencing در P-05C | [45662750722](https://github.com/tecpey/lottorito-platform/actions/runs/45662750722) | موفق |
+| Trust Boundaries در P-07B | [45662750966](https://github.com/tecpey/lottorito-platform/actions/runs/45662750966) | موفق — ۴۳ تست |
+| Deployment Health/Rollback در P-08 | [45662750833](https://github.com/tecpey/lottorito-platform/actions/runs/45662750833) | موفق — ۵۶ تست |
+| Documentation Governance | [45662750791](https://github.com/tecpey/lottorito-platform/actions/runs/45662750791) | موفق — ۵۸ جفت دوزبانه و ۱۳۶ لینک محلی |
+
+Assertionهای دقیق P-05B شامل رد Sequence تکراری در Aggregate، هویت Event/Effect محصول‌محور، Cursorهای مستقل، سریال‌سازی هم‌محصول در Workerهای هم‌زمان، RLS بین محصولات روی Inbox/Source Event/Journal/Line، Rollback و تطبیق Ledger بود. تست‌های ۲۶گانه P-02 نیز شامل رد مقدار Legacy جدید shared هستند. داده‌های Legacy بازنویسی نشدند.
+
+این نتایج فقط پذیرش Synthetic Prototype را اثبات می‌کنند. کلیدهای مالی P-02 که فقط Tenant را شامل می‌شوند، همچنان باز هستند. هیچ Migration مربوط به Production، Merge یا Deploy انجام نشد.

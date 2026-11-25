@@ -172,4 +172,24 @@ P-05B now carries canonical `product_id` through its inbox, replay cursor, sourc
 
 P-02's disposable schema rejects new `shared` product values. Existing legacy records are not rewritten: they require inventory and quarantine pending an authoritative owner mapping. P-02's tenant-only financial keys remain an explicitly open follow-up and are not represented as solved by P-09J.
 
-**Validation:** pending exact-head CI. Synthetic acceptance only; no production migration, merge or deployment.
+**Validation:** the exact source-code head `dfaa8120340cc6b4b80450dbf0e5755b21111080` passed all nine applicable workflows. Synthetic acceptance only; no production migration, merge or deployment.
+
+### P-09J exact-head workflow evidence
+
+All results below ran on source-code head dfaa8120340cc6b4b80450dbf0e5755b21111080.
+
+| Workflow | Run | Result |
+|---|---:|---|
+| P-05 recovery / P-09E / P-05B | [45662750801](https://github.com/tecpey/lottorito-platform/actions/runs/45662750801) | PASS — PITR, physical restore, replay, product scope and concurrency |
+| P-02 ledger posting | [45662750926](https://github.com/tecpey/lottorito-platform/actions/runs/45662750926) | PASS — 26/26 |
+| P-09 contract | [45662750745](https://github.com/tecpey/lottorito-platform/actions/runs/45662750745) | PASS — 20/20 |
+| P-03C/P-03D | [45662750837](https://github.com/tecpey/lottorito-platform/actions/runs/45662750837) | PASS — 15/15 and 35/35 |
+| P-06 observability/privacy | [45662750890](https://github.com/tecpey/lottorito-platform/actions/runs/45662750890) | PASS |
+| P-05C failover/fencing | [45662750722](https://github.com/tecpey/lottorito-platform/actions/runs/45662750722) | PASS |
+| P-07B trust boundaries | [45662750966](https://github.com/tecpey/lottorito-platform/actions/runs/45662750966) | PASS — 43 tests |
+| P-08 deployment health/rollback | [45662750833](https://github.com/tecpey/lottorito-platform/actions/runs/45662750833) | PASS — 56 tests |
+| Documentation Governance | [45662750791](https://github.com/tecpey/lottorito-platform/actions/runs/45662750791) | PASS — 58 bilingual pairs, 136 local links |
+
+P-05B's exact assertions included duplicate aggregate-sequence rejection, product-scoped event/effect identity, independent cursors, concurrent same-product serialization, cross-product RLS on Inbox/source events/journals/lines, rollback and ledger reconciliation. P-02's 26/26 tests include rejection of new legacy shared values. Existing legacy data was not rewritten.
+
+These results establish synthetic prototype acceptance only. P-02 tenant-only financial keys remain open. No production migration, merge or deployment was performed.
