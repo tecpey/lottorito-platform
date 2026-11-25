@@ -9,6 +9,8 @@ on:
       - "prototypes/p08-deployment/**"
       - "docs/en/engineering/prototypes/p08-deployment-health-rollback.md"
       - "docs/fa/engineering/prototypes/p08-deployment-health-rollback.md"
+      - "docs/en/engineering/project-status.md"
+      - "docs/fa/engineering/project-status.md"
   pull_request:
     paths:
       - ".github/workflows/p08-deployment-health-rollback.yml"
