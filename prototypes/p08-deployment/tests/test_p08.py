@@ -332,6 +332,18 @@ class PromotionAndRollbackTests(unittest.TestCase):
             self.controller.rollback(self.stage_state, old_digest, self.stage_state.current_digest, DEPLOY_ACTOR,
                 self.approval(old_digest), GOOD_API, GOOD_WORKER)
 
+    def test_production_schema_migration_is_rejected_without_state_change(self):
+        digest = self.built["v1"][0]
+        production = DeploymentState(
+            "production", 1, digest, api_digest=digest, worker_digest=digest,
+            traffic_enabled=True, workers_enabled=True,
+        )
+        with self.assertRaisesRegex(GateRejected, "environment_not_allowed"):
+            self.controller.migrate_schema(production, 2, "expand", "migration-runner")
+        self.assertEqual(production.schema_version, 1)
+        self.assertEqual(production.current_digest, digest)
+        self.assertEqual(production.audit, [])
+
     def test_schema_transition_requires_nonempty_actor_identity(self):
         self.promote(self.stage_state, "v2")
         with self.assertRaisesRegex(GateRejected, "actor_identity_invalid"):
