@@ -143,3 +143,14 @@ Research basis: [W3C Trace Context Recommendation](https://www.w3.org/TR/trace-c
 P-09 now validates non-empty CloudEvents `id` and `type`, non-empty RFC 3986 URI-reference forms for `source` and `dataschema`, and RFC 3339 date-time syntax with calendar, clock and offset range checks. CloudEvents extension attributes remain permitted. The Lottorito-specific required envelope remains declared in `contract.json`.
 
 The explicit `ledger.journal.posted` event type is product-scope-only: platform-scoped financial events are rejected, while non-financial platform events remain structurally valid. This is a narrow policy rule, not a complete event-type registry. P-07B remains responsible for producer-bound authorization. Runtime ingress/dispatch wiring is a separate P-09H gate.
+
+
+### P-09H — Runtime ingress, dispatch and replay enforcement (2026-11-25)
+
+The canonical validator now has a Node.js implementation at `prototypes/p09-contract-recovery/contract.mjs`, aligned with the Python validator for UUID shape, scope, CloudEvents attributes, RFC 3986 URI-reference characters, RFC 3339 time, schema version and W3C Trace Context v00. The provider worker consumes this implementation directly rather than maintaining a third, independent validation rule set.
+
+P-03D now constructs its canonical envelope only from trusted installation metadata and an explicitly approved event mapping. After raw-body signature verification, it binds tenant and product scope from the installation, uses the provider event ID as the CloudEvents `id`, generates a distinct canonical `sourceeventid` and a new trace context, and persists the same source-event UUID in both the envelope and inbox row. A provider-supplied tenant/product field cannot override these values. Missing schema mappings and non-RFC3339 event times are rejected before inbox persistence. The stored envelope and its tenant/product/source-event identity are validated again before journal posting; corrupted identity is quarantined before any economic effect.
+
+P-07B dispatch invokes the shared Python validator after its existing authentication, producer-scope and denial-reason checks. P-05E recovery/replay checks the persisted envelope against the inbox row and refuses to post if tenant, product, provider event, source event, schema or trace metadata disagree. Its synthetic recovery fixtures now carry the full required envelope.
+
+These are synthetic prototype integrations, not production deployment evidence. P-09H acceptance remains contingent on the complete CI matrix for the exact final PR head; live provider integrations, production key custody, and production runtime wiring remain out of scope.
