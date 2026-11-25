@@ -382,3 +382,7 @@ The prototype phase is complete only when all eight experiments have reproducibl
 ### P-09B execution update (2026-11-25)
 
 The P-06 correlation map, forensic grant and forensic view now bind tenant + scope kind + scope ID + source-event ID + trace ID. The synthetic regression reuses one source UUID and trace ID in Affiliate and Lottery for the same tenant and proves reciprocal forensic isolation. P-06 CI [45628562800](https://github.com/tecpey/lottorito-platform/actions/runs/45628562800) passed on branch head `109530985a00bd158866e45a8c11e3bb5f520f53`. This closes only P-09B's P-06 slice; P-05B/P-07B/P-08 remain open.
+
+## P-09C — Product-aware deployment artifacts and provenance (2026-11-25)
+
+P-08 is no longer Affiliate-only in its synthetic build path. Product is an explicit allow-listed input; the selected product is bound into artifact bytes, release metadata, provenance external parameters and deployment lifecycle checks. CI [45629980686](https://github.com/tecpey/lottorito-platform/actions/runs/45629980686) passed 53/53 tests, including product-bound builds and cross-product promotion/rollback rejection. P-09C closes only the P-08 slice. P-05B recovery and P-07B canonical event mapping remain outstanding.
