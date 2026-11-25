@@ -268,7 +268,7 @@ A prototype may be **Pass**, **Fail**, **Inconclusive** or **Not run**. “Pass�
 **Evidence:** separate build/run records, dependency graph, configuration matrix, negative authorization tests, migration inventory and independent-product operational checklist.
 
 **Execution slices (2026-11-25):**
-- **P-07A — Product isolation:** independently build and boot each product without its sibling runtime/package dependency. Initial synthetic evidence is specified in [LOT-PROT-P07A-001](p07a-product-isolation.md); this is not a core business-journey proof.
+- **P-07A — Product isolation:** independently build and boot each product without its sibling runtime/package dependency. Initial synthetic evidence is specified in [LOT-PROT-P07A-001](prototypes/p07a-product-isolation.md); this is not a core business-journey proof.
 - **P-07B — Shared platform and trust boundaries:** establish ownership and interfaces for Identity, Tenant, Finance, Notifications and Audit; test authorization, entitlements, cross-product data access and event contracts, including default-deny behavior.
 - **P-07C — Independent lifecycle:** test product disablement, configuration and migration isolation, independent artifact promotion/rollback, operational ownership and white-label traceability.
 - P-07A does not close P-07. P-07B and P-07C remain gated on review of the preceding evidence and explicit scope; no production architecture is pre-approved.
