@@ -144,7 +144,7 @@ BEGIN
     OR COALESCE(p_scope_kind || ':' || p_scope_id,'') NOT IN('product:affiliate_agent','product:lottery','platform:lottorito')
     OR p_trace_id IS NULL OR length(p_trace_id)<>32 OR p_trace_id !~ '^[0-9a-f]{32}'
     OR p_reason_code NOT IN('incident_review','export_approved','replay_authorized','configuration_approved')
-    OR p_actor_ref IS NULL OR p_actor_ref !~ '^[0-9a-f]{64}' THEN
+    OR p_actor_ref IS NULL OR length(p_actor_ref)<>64 OR p_actor_ref !~ '^[0-9a-f]{64}' THEN
   RAISE EXCEPTION 'P06_FORENSIC_ACCESS_CONTEXT_INVALID';
  END IF;
  INSERT INTO p06.privileged_audit(actor_ref,action,target_ref,reason_code,trace_id,outcome)
