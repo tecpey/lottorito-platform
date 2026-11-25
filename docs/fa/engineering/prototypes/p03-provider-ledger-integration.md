@@ -123,3 +123,6 @@ Head دقیق فعلی PR که اعتبارسنجی شد: `14d69ec5be1a9285049c1
 ### P-09H — اعمال قرارداد Canonical (۲۰۲۶-۱۱-۲۵)
 
 مسیر Ingress امضاشده اکنون CloudEvent استاندارد را فقط از Installation مورد اعتماد و Event Mapping تأییدشده می‌سازد. Tenant/Product از فیلدهای Payload ارسالی Provider پذیرفته نمی‌شوند. شناسه Provider به‌عنوان CloudEvents `id` حفظ می‌شود؛ UUID مستقل `sourceeventid` تولید و هم در Envelope و هم در Inbox ذخیره می‌شود و Trace Context جدید W3C نیز ساخته می‌شود. Schema Mapping ناشناخته و Timestamp غیرمنطبق با RFC 3339 پیش از ثبت در Inbox رد می‌شوند. Worker پیش از Posting، Envelope ذخیره‌شده و تطابق هویت Tenant/Product/Source Event را دوباره اعتبارسنجی می‌کند؛ Scope دست‌کاری‌شده پیش از ایجاد Journal/Outbox به قرنطینه می‌رود. این‌ها شواهد یکپارچه‌سازی ساختگی‌اند و پذیرش نهایی P-03D به CI روی Head نهایی وابسته است.
+
+
+تست‌های Regression مربوط به Ingress در P-09H اکنون ثابت می‌کنند که `tenantid`، `scope`، `sourceeventid`، `traceparent`، `dataschema` و `schemaversion` ارسالی Provider نمی‌توانند Metadata مورد اعتماد را بازنویسی کنند؛ همچنین یک Provider Event ID یکسان می‌تواند مستقل از طریق Ingress امضاشده در Affiliate/Tenant-A، Lottery/Tenant-A و Affiliate/Tenant-B پذیرفته شود. هر سه ردیف Source Event UUID مستقل دارند. Workflow مربوط به P-03C/P-03D روی Head حاوی این کد به‌ترتیب موفقیت ۱۵ از ۱۵ و ۲۸ از ۲۸ تست را گزارش کرد.
