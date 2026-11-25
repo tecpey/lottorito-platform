@@ -19,10 +19,14 @@ on:
       - "spike/p03d-provider-ledger-integration"
     paths:
       - "prototypes/p03-ledger-outbox-integration/**"
+      - "prototypes/p03-provider-ledger-integration/**"
       - "prototypes/p02-ledger-posting/**"
       - "docs/en/engineering/prototypes/p03-ledger-outbox-integration.md"
       - "docs/fa/engineering/prototypes/p03-ledger-outbox-integration.md"
+      - "docs/en/engineering/prototypes/p03-provider-ledger-integration.md"
+      - "docs/fa/engineering/prototypes/p03-provider-ledger-integration.md"
       - ".github/workflows/p03-ledger-outbox-integration.yml"
+      - ".github/workflows/p03-provider-ledger-integration.yml"
 
 permissions:
   contents: read
@@ -73,7 +77,7 @@ jobs:
       - name: Create isolated P-03D database
         working-directory: prototypes/p03-ledger-outbox-integration
         run: |
-          node --input-type=module -e 'import pg from "pg"; const c = new pg.Client({ connectionString: process.env.ADMIN_DATABASE_URL.replace("/lottorito_p03c", "/postgres") }); await c.connect(); await c.query("CREATE DATABASE lottorito_p03d"); await c.end();'
+          node --input-type=module -e 'import { Client } from "pg"; const c = new Client({ connectionString: process.env.ADMIN_DATABASE_URL.replace("/lottorito_p03c", "/postgres") }); await c.connect(); await c.query("CREATE DATABASE lottorito_p03d"); await c.end();'
       - name: Install pinned P-03D dependency
         working-directory: prototypes/p03-provider-ledger-integration
         run: npm ci --ignore-scripts --no-audit --no-fund
