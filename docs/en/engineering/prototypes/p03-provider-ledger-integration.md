@@ -124,3 +124,8 @@ P-04 PR #51 was a sibling of P-03C/P-03D, not a descendant. Its P-04-only files 
 ## P-04 downstream regression result — 2026-11-25
 
 The P-04 continuation is now stacked on this P-03D branch through PR #62. On PR #62 code head `dca0762678ed45da122ba109276c54ce61ac0846`, the combined P-03C/P-03D run [45608274098](https://github.com/tecpey/lottorito-platform/actions/runs/45608274098) passed 15 P-03C and 19 P-03D tests (34 total; 0 failed, 0 skipped). P-02 run [45608274029](https://github.com/tecpey/lottorito-platform/actions/runs/45608274029) passed 25 tests, P-04 run [45608274118](https://github.com/tecpey/lottorito-platform/actions/runs/45608274118) passed 7, and Documentation Governance [45608274060](https://github.com/tecpey/lottorito-platform/actions/runs/45608274060) passed. This confirms regression on the new branch; it does not upgrade the synthetic prototype to production readiness.
+
+
+## P-05A downstream regression gate — 2026-11-25
+
+P-05A is being replayed onto reconciled P-04 PR #62, which descends from this P-03D branch. Re-run the combined P-03C/P-03D 34-test workflow on the P-05A replacement head to prove the ledger/outbox/provider bridge remains present. P-05A's synthetic database recovery fixture is separate and does not replace provider event or ledger posting acceptance.
