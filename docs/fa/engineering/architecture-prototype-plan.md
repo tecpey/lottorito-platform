@@ -1,6 +1,6 @@
 # برنامه Prototype معماری و تولید شواهد Lottorito
 
-**شناسه سند:** LOT-PROT-001 | **نسخه:** ۱.۱۶.۰ | **وضعیت:** برنامه آزمایش پیشنهادی؛ اجرا و انتخاب فناوری تصویب نشده است
+**شناسه سند:** LOT-PROT-001 | **نسخه:** ۱.۱۷.۰ | **وضعیت:** برنامه آزمایش پیشنهادی؛ اجرا و انتخاب فناوری تصویب نشده است
 
 ## ۱. هدف و اعتبار
 
@@ -219,29 +219,29 @@
 
 **وضعیت:** Integration مربوط به P-05C با شناسه [45533992674](https://github.com/tecpey/lottorito-platform/actions/runs/45533992674)، Integration بازگشتی P-05B با شناسه [45533992779](https://github.com/tecpey/lottorito-platform/actions/runs/45533992779) و Documentation Governance با شناسه [45533992863](https://github.com/tecpey/lottorito-platform/actions/runs/45533992863)، هر سه روی Head PR با شناسه 194c565c1471474a1d908efb3dfda89035d9d4cc موفق شدند. دو Timeline واگرا و دو عملیات واقعی pg_rewind با کپی ۳۵ و ۶۷ مگابایت، از جمله حذف Tail دوم در Failback، موفق شدند. PR شماره ۵۴ همچنان Draft و Stacked روی PR شماره ۵۳ است. هیچ فناوری HA، فروشنده، توپولوژی، RPO/RTO یا آمادگی Production تصویب نشده است.
 
-### P-06 — Observability سرتاسری و حریم خصوصی
+### P-06 — مشاهده‌پذیری سرتاسری و حریم خصوصی
 
-**پرسش:** آیا اپراتور می‌تواند یک رویداد ساختگی شریک را از Ingress تا Attribution، تصمیم کمیسیون و ارجاع Journal ردیابی کند، در حالی که Secret و داده شخصی/مالی غیرضروری وارد Telemetry نشود؟
+**پرسش:** آیا می‌توان یک رویداد ساختگی Affiliate/Agent را از Ingress شریک تا احراز اصالت، Inbox، Attribution، کمیسیون، Outbox، Worker، Journal واقعی P-02 و Reconciliation بازسازی کرد، بدون افشای Secret/PII یا ایجاد Cardinality نامحدود Metric؟
 
-**حداقل Fixture:** هویت Tenant و Event ساختگی، Credential تولیدشده، داده شخصی Fake و Secret Canary کنترل‌شده.
+**Fixture ساختگی:** PostgreSQL 18.7 با Schema موجود دفترکل P-02؛ یک Journal ساختگی واقعی و متوازن؛ نه Span سازگار با W3C Trace Context؛ ارجاع‌های مبهم HMAC؛ Log ساختاریافته؛ ۵۰۰ هویت Tenant ساختگی تجمیع‌شده در Metric محدود؛ Telemetry Reader محدود به Tenant؛ Mapping Forensic ممیزی‌شده؛ Privileged Audit فقط‌افزودنی.
 
 **آزمایش‌ها:**
-۱. Event را از Ingress، Validation، Inbox، پردازش دامنه، Outbox، Worker تا ارجاع Ledger Trace کنید.
-۲. Request، Actor، Tenant، Product، Source Event، Economic Effect و Journal Entry را مرتبط کنید.
-۳. Log، Trace، Metric، Exception، Dashboard و Alert Payload را برای Secret Canary و فیلد حساس بررسی کنید.
-۴. شناسه‌های پرکاردینالیتی و Labelهای Tenant/Customer را در Metric آزمایش کنید.
-۵. Authorization Denial، قطعی Provider، Backlog صف، مغایرت Reconciliation و نقض Ledger Invariant ایجاد کنید.
-۶. رویدادهای Audit ممتاز و دسترسی به Telemetry را بررسی کنید.
+۱. یک Journal واقعی P-02 با Role اجرایی Tenant A ثبت و Journal را به ارجاع‌های Trace مربوط به Event/Economic Effect متصل کنید.
+۲. Trace با زنجیره Parent میان Ingress، احراز اصالت، Inbox، Attribution، کمیسیون، Outbox، Worker، Ledger و Reconciliation بسازید. Trace Context را از مرز ناهمزمان حفظ کنید؛ PII یا Credential در traceparent/tracestate/baggage قرار نگیرد.
+۳. شناسه خام Tenant/Actor/Event/Effect/Journal را از Telemetry عمومی حذف کنید. ارجاع مبهم HMAC در Span/Log و Mapping خام در جدول Forensic محدودشده نگهداری شود.
+۴. Secret و PII Canary در ورودی درون‌حافظه‌ای Event/Exception قرار دهید؛ نبود آن‌ها در Span، Log، Metric، Alert و Audit را اثبات کنید. تزریق CR/LF در Event Name را به Validation Failure محدود تبدیل کنید.
+۵. RLS برای Span/Log با استفاده از Mapping نقش دیتابیس احرازشده به Tenant اعمال شود. ثابت کنید خواندن بین Tenantها هیچ ردیفی برنمی‌گرداند و Telemetry Reader به Raw Correlation Mapping دسترسی ندارد.
+۶. پیش از نمایش Mapping خام، دسترسی Forensic دارای Reason باید در همان Session دیتابیس ثبت شود؛ Actor/Action/Target/Reason/Outcome در Audit فقط‌افزودنی ثبت شود.
+۷. ۵۰۰ هویت Tenant را شبیه‌سازی کنید، در حالی که Metric فقط بر اساس Label محدود Operation/Outcome/Product/Reason تجمیع می‌شود؛ محدودماندن Series و نبود Label شناسه Tenant/User/Event/Actor/Journal را اثبات کنید.
+۸. پنج کلاس Alert را با Severity، Owner و Runbook پایدار Seed کنید.
 
-**معیار Pass:**
-- مسیر حیاتی از Telemetry مجاز بازسازی شود، بدون اینکه Log به‌عنوان Ledger تلقی شود.
-- Correlation در مرزهای هم‌زمان و غیرهمزمان سازگار باشد.
-- Secret Canary و فیلدهای ممنوع در Telemetry ظاهر نشوند.
-- Metricها از Cardinality نامحدود Tenant/Customer پرهیز کنند؛ شناسه‌های تفصیلی کنترل دسترسی داشته باشند.
-- Alert دارای مالک، شدت، Runbook قابل اقدام و نویز کنترل‌شده باشد.
-- دسترسی Telemetry و اقدامات ممتاز قابل ممیزی باشند.
+**معیار Pass:** Journal واقعی P-02 به نه Span متصل باشد؛ Parent Graph و Async Context معتبر باشند؛ ارجاع Source/Effect/Journal تطبیق داشته باشد؛ همه Canaryها/شناسه‌های خام از Telemetry غایب باشند؛ Baggage و Log Injection خنثی شوند؛ RLS محدوده Tenant را اعمال کند؛ Mapping خام نیازمند دسترسی Forensic دارای Reason و Audit باشد؛ Audit فقط‌افزودنی باشد؛ ۵۰۰ Tenant باعث رشد Cardinality نشوند؛ همه Alertها Owner/Severity/Runbook داشته باشند.
 
-**شواهد:** Trace پالایش‌شده، فهرست Metric/Label، Policy فیلد Log، اسکن Secret Canary، نگاشت Alert/Runbook و Audit دسترسی.
+**محدودیت‌های حیاتی:** Harness از شناسه سازگار با W3C و Span به‌سبک OTel استفاده می‌کند، اما OpenTelemetry SDK را متصل نمی‌کند و OTLP را به Collector نمی‌فرستد. کلید HMAC فقط مواد موقت CI است. Retention، Encryption، Residency، Sampling، Hardening Collector، Export Policy، تحویل Alert، SLO، تصویب حقوقی/حریم خصوصی یا مجوزدهی کامل پلتفرم Telemetry در Production آزموده نمی‌شوند. Log/Trace/Metric/Audit دفترکل مالی نیستند.
+
+**منابع:** W3C Trace Context؛ Context Propagation و Messaging Convention در OpenTelemetry؛ OWASP Logging Cheat Sheet؛ راهنمای Cardinality در Prometheus؛ NIST SP 800-92 (راهنمای منتشرشده؛ Rev. 1 نهایی فرض نمی‌شود)؛ وضعیت بلوغ Redaction Processor در OpenTelemetry Collector.
+
+**وضعیت:** پیاده‌سازی ساختگی در PR شماره ۵۵ به‌صورت Draft و Stacked روی P-05C PR شماره ۵۴ قرار دارد. Integration و Documentation Governance در انتظارند. هیچ Instrumentation Production، فروشنده، سیاست Retention، مبنای قانونی یا آمادگی Production تصویب نشده است.
 
 ### P-07 — ترکیب مستقل محصولات
 
