@@ -1,0 +1,34 @@
+name: P-07A Independent Product Composition
+on:
+  push:
+    branches:
+      - spike/p07a-product-isolation
+    paths:
+      - ".github/workflows/p07a-product-composition.yml"
+      - "prototypes/p07-product-composition/**"
+      - "docs/en/engineering/prototypes/p07a-product-isolation.md"
+      - "docs/fa/engineering/prototypes/p07a-product-isolation.md"
+  pull_request:
+    paths:
+      - ".github/workflows/p07a-product-composition.yml"
+      - "prototypes/p07-product-composition/**"
+      - "docs/en/engineering/prototypes/p07a-product-isolation.md"
+      - "docs/fa/engineering/prototypes/p07a-product-isolation.md"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: p07a-product-composition-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  product-composition:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Verify Python syntax
+        run: python3 -m compileall -q prototypes/p07-product-composition
+      - name: Build and run each product in an isolated artifact
+        run: python3 -m unittest discover -s prototypes/p07-product-composition/tests -v
