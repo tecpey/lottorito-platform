@@ -57,7 +57,7 @@ def read_release_metadata(data: bytes) -> dict[str, Any]:
         raise GateRejected("artifact_invalid") from exc
     if metadata.get("product") != "affiliate_agent":
         raise GateRejected("artifact_product_invalid")
-    if not isinstance(metadata.get("version"), str):
+    if not isinstance(metadata.get("version"), str) or not metadata["version"].strip():
         raise GateRejected("artifact_version_missing")
     if (
         isinstance(metadata.get("min_schema"), bool)
@@ -344,6 +344,8 @@ class DeploymentController:
         if target_schema_version != state.schema_version + 1:
             raise GateRejected("rollback_retirement_target_schema_invalid")
         active = self._metadata(state.current_digest)
+        if not (active["min_schema"] <= state.schema_version <= active["max_schema"]):
+            raise GateRejected("active_release_current_schema_incompatible")
         if not (active["min_schema"] <= target_schema_version <= active["max_schema"]):
             raise GateRejected("active_release_cannot_read_target_schema")
         previous = self._metadata(state.previous_digest)
