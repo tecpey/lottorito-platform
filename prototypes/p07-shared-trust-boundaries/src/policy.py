@@ -1,7 +1,5 @@
 """Synthetic PDP/PEP fixture for P-07B; no production identity or authorization."""
-
 from __future__ import annotations
-
 import json
 from pathlib import Path
 from typing import Any
@@ -10,17 +8,20 @@ ROOT = Path(__file__).resolve().parents[1]
 CAPABILITY_REGISTRY_PATH = ROOT / "registry" / "capabilities.json"
 ENTITLEMENTS_PATH = ROOT / "registry" / "tenant-entitlements.json"
 
-# Opaque, synthetic test credentials. Never use these as production credentials.
+# Opaque synthetic test credentials with explicit service-to-tenant scopes.
 SERVICE_PRINCIPALS = {
     "synthetic-affiliate-service-token": {
         "service_id": "affiliate-agent-worker",
         "product_id": "affiliate_agent",
+        "allowed_tenants": ["tenant-alpha", "tenant-beta"],
     },
     "synthetic-lottery-service-token": {
         "service_id": "lottery-worker",
         "product_id": "lottery",
+        "allowed_tenants": ["tenant-alpha", "tenant-beta"],
     },
 }
+AUDIT_DECISIONS: list[dict[str, Any]] = []
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -28,7 +29,7 @@ def _load_json(path: Path) -> dict[str, Any]:
 
 
 def _record(decision: dict[str, Any]) -> dict[str, Any]:
-    # Deliberately exclude credentials, event payloads and personal data.
+    # Credentials, payloads and personal data are deliberately excluded.
     AUDIT_DECISIONS.append({
         key: decision.get(key)
         for key in ("decision", "reason", "product_id", "tenant_id", "capability", "operation")
@@ -36,10 +37,7 @@ def _record(decision: dict[str, Any]) -> dict[str, Any]:
     return decision
 
 
-AUDIT_DECISIONS: list[dict[str, Any]] = []
-
-
-def resolve_principal(token: str) -> dict[str, str] | None:
+def resolve_principal(token: str) -> dict[str, Any] | None:
     principal = SERVICE_PRINCIPALS.get(token)
     return dict(principal) if principal else None
 
@@ -51,18 +49,27 @@ def evaluate_capability(
     operation: str,
     capability_registry: dict[str, Any] | None = None,
     entitlements: dict[str, Any] | None = None,
+    policy_available: bool = True,
 ) -> dict[str, Any]:
-    """PDP: evaluate trusted service identity, tenant entitlement and capability policy."""
-    if capability_registry is None:
-        capability_registry = _load_json(CAPABILITY_REGISTRY_PATH)
-    if entitlements is None:
-        entitlements = _load_json(ENTITLEMENTS_PATH)
+    """PDP: evaluate trusted service identity, tenant scope, entitlement and capability policy."""
+    if not policy_available:
+        return _record({"decision": "deny", "reason": "policy_unavailable", "tenant_id": tenant_id, "capability": capability, "operation": operation})
+    try:
+        if capability_registry is None:
+            capability_registry = _load_json(CAPABILITY_REGISTRY_PATH)
+        if entitlements is None:
+            entitlements = _load_json(ENTITLEMENTS_PATH)
+    except (OSError, ValueError, json.JSONDecodeError):
+        return _record({"decision": "deny", "reason": "policy_unavailable", "tenant_id": tenant_id, "capability": capability, "operation": operation})
 
     principal = resolve_principal(token)
     if principal is None:
         return _record({"decision": "deny", "reason": "unknown_service_identity", "tenant_id": tenant_id, "capability": capability, "operation": operation})
 
     product_id = principal["product_id"]
+    if tenant_id not in principal["allowed_tenants"]:
+        return _record({"decision": "deny", "reason": "service_tenant_scope_denied", "product_id": product_id, "tenant_id": tenant_id, "capability": capability, "operation": operation})
+
     tenant = entitlements.get("tenants", {}).get(tenant_id)
     if tenant is None or tenant.get(product_id) is not True:
         return _record({"decision": "deny", "reason": "product_not_entitled_for_tenant", "product_id": product_id, "tenant_id": tenant_id, "capability": capability, "operation": operation})
@@ -83,7 +90,7 @@ def evaluate_capability(
 
 
 def enforce_capability(token: str, tenant_id: str, capability: str, operation: str) -> dict[str, Any]:
-    """PEP: protected operation cannot proceed unless the PDP explicitly allows it."""
+    """PEP: a protected operation cannot proceed unless the PDP explicitly allows it."""
     result = evaluate_capability(token, tenant_id, capability, operation)
     if result["decision"] != "allow":
         raise PermissionError(result["reason"])
@@ -95,6 +102,8 @@ def authorize_product_resource(token: str, tenant_id: str, resource_owner: str) 
     if principal is None:
         return _record({"decision": "deny", "reason": "unknown_service_identity", "tenant_id": tenant_id})
     product_id = principal["product_id"]
+    if tenant_id not in principal["allowed_tenants"]:
+        return _record({"decision": "deny", "reason": "service_tenant_scope_denied", "product_id": product_id, "tenant_id": tenant_id})
     tenant = _load_json(ENTITLEMENTS_PATH).get("tenants", {}).get(tenant_id, {})
     if tenant.get(product_id) is not True:
         return _record({"decision": "deny", "reason": "product_not_entitled_for_tenant", "product_id": product_id, "tenant_id": tenant_id})
