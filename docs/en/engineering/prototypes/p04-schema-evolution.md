@@ -53,3 +53,8 @@ Exact tested code head: `dca0762678ed45da122ba109276c54ce61ac0846`.
 - Bilingual Documentation Governance: [run 707](https://github.com/tecpey/lottorito-platform/actions/runs/45608274060) — passed.
 
 All four workflows completed successfully on the exact same code head. This verifies the synthetic P-04 experiment in the reconciled P-03D stack only; it does not establish production migration safety, zero downtime, or technology approval.
+
+
+## P-05A handoff — 2026-11-25
+
+P-05A PR #52 was based on the original P-04 branch. Its replacement branch `spike/p05-backup-restore-recovery-p03d` is based on the reconciled P-04 PR #62 head `1013f3b93b55b2cb0859b371db58e1e17ec4ad5e`. P-05A must pass its own recovery workflow and the complete P-02/P-03C/P-03D/P-04 regression chain on the new head.
