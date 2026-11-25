@@ -1,15 +1,15 @@
 # وضعیت واقعی پروژه و نقطه ادامه کار
 
-**شناسه:** LOT-OPS-001 | **نسخه:** ۱.۴۶.۰ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۵
+**شناسه:** LOT-OPS-001 | **نسخه:** ۱.۴۷.۰ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۵
 
 ## وضعیت تأییدشده مخزن
 
 ## پیاده‌سازی اولیه P-08 — ۲۰۲۶-۱۱-۲۵
 
-- P-08 روی شاخه `spike/p08-deployment-health-rollback` و بر مبنای Head فعلی PR شماره ۵۸ مربوط به P-07C یعنی `7d349789ae8e57225dd67eaa8685685e71577fb8` در حال پیاده‌سازی است. این شاخه روی P-07C قرار دارد؛ در زمان این Snapshot هنوز PR مربوط به P-08 باز نشده است.
+- P-08 با PR شماره [۵۹](https://github.com/tecpey/lottorito-platform/pull/59) به‌صورت Draft روی شاخه `spike/p08-deployment-health-rollback` باز است و روی PR شماره ۵۸ مربوط به P-07C قرار دارد. Base آن Head شاخه P-07C یعنی `7d349789ae8e57225dd67eaa8685685e71577fb8` است؛ PR شماره ۵۹ هنوز Merge نشده است.
 - Fixture ساختگی اکنون شامل Builder قطعی Python zipapp، Metadata جداگانه Provenance متصل به Digest، تزریق Canary Secret فقط در Runtime، دروازه‌های مستقل Startup/Liveness/API Readiness/Worker Readiness، Artifact Store در حافظه با کلید Digest، بررسی Approval بر اساس Digest و Environment دقیق، تفکیک وظایف، Promotion محدود به Test/Staging، سناریوهای Rollback آگاه از Schema و Forward Repair و مستندات آزمایش دوزبانه است.
 - این Fixture از پلتفرم استقرار، Registry، Secret Manager، Migration دیتابیس، منبع Cloud، داده مشتری، Credential یا وجه واقعی استفاده نمی‌کند. Provenance آن Metadata بدون امضاست و انطباق با SLSA نیست؛ Fingerprint وضعیت مالی نیز Sentinel ساختگی است، نه Ledger.
-- CI روی Head نهایی شاخه در انتظار است. تا زمانی که مقایسه Build قطعی، همه تست‌ها و Documentation Governance روی Head دقیق PR موفق نشوند، هیچ Pass برای P-08 ثبت نمی‌شود. هیچ Merge یا Deploy مجاز یا انجام نشده است.
+- شواهد Integration و Documentation Governance در PR شماره ۵۹ پیگیری می‌شوند. آخرین Checkها باید روی Head فعلی PR بررسی شوند؛ نسخه‌های میانی دارای شکست بودند که در Commitهای بعدی اصلاح شدند، بنابراین فقط Checkهای آخرین Head دقیق ملاک وضعیت هستند. هیچ Merge یا Deploy مجاز یا انجام نشده است.
 
 ## اعتبارسنجی اولیه P-07C — ۲۰۲۶-۱۱-۲۵
 
