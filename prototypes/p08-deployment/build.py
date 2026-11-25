@@ -5,13 +5,19 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import sys
 import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
+sys.path.insert(0, str(ROOT.parent / "p09-contract-recovery"))
+from contract import PRODUCT_IDS as CANONICAL_PRODUCT_IDS, normalize_scope
+
 SOURCE_REVISION_LENGTH = 40
-PRODUCT_IDS = ("affiliate_agent", "lottery")
+PRODUCT_IDS = tuple(sorted(CANONICAL_PRODUCT_IDS))
 PRODUCT_SLUGS = {"affiliate_agent": "affiliate-agent", "lottery": "lottery"}
+if set(PRODUCT_SLUGS) != set(PRODUCT_IDS):
+    raise RuntimeError("product_slug_registry_mismatch")
 SCHEMA_SUPPORT = {
     "v1": {"version": "1.0.0", "min_schema": 1, "max_schema": 2},
     "v2": {"version": "2.0.0", "min_schema": 1, "max_schema": 3},
@@ -39,6 +45,8 @@ def build(version_key: str, output_dir: Path, source_revision: str, product_id: 
     output_dir.mkdir(parents=True, exist_ok=True)
     if any(output_dir.iterdir()):
         raise FileExistsError("build_output_directory_must_be_empty")
+    product_scope = {"kind": "product", "id": product_id}
+    normalize_scope(product_scope)
     product_slug = PRODUCT_SLUGS[product_id]
     artifact_path = output_dir / f"{product_slug}-{version_key}.pyz"
     provenance_path = output_dir / f"{product_slug}-{version_key}.provenance.json"
@@ -47,6 +55,7 @@ def build(version_key: str, output_dir: Path, source_revision: str, product_id: 
     entrypoint = entrypoint_template.replace(b"__P08_PRODUCT_ID__", product_id.encode("ascii"))
     metadata = {
         "product": product_id,
+        "scope": product_scope,
         "version": SCHEMA_SUPPORT[version_key]["version"],
         "min_schema": SCHEMA_SUPPORT[version_key]["min_schema"],
         "max_schema": SCHEMA_SUPPORT[version_key]["max_schema"],
@@ -71,6 +80,7 @@ def build(version_key: str, output_dir: Path, source_revision: str, product_id: 
                 "buildType": BUILD_TYPE,
                 "externalParameters": {
                     "product": product_id,
+                    "scope": product_scope,
                     "version": metadata["version"],
                     "source_revision": source_revision,
                 },
