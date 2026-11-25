@@ -20,6 +20,7 @@ test "$(admin_psql -At -c "SELECT public.p05_process_pending('aaaaaaaa-aaaa-4aaa
 test "$(admin_psql -At -c "SELECT count(*) FROM public.p05_inbox WHERE status='processed'")" = "2"
 test "$(admin_psql -At -c "SELECT last_sequence FROM public.p05_replay_cursor WHERE consumer_name='ledger-projection'")" = "2"
 test "$(admin_psql -At -c "SELECT count(*) FROM public.ledger_journals WHERE economic_effect_id IN ('20000000-0000-4000-8000-000000000101','20000000-0000-4000-8000-000000000102')")" = "2"
+test "$(admin_psql -At -c "SELECT public.p05_process_pending('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','ledger-projection','50000000-0000-4000-8000-000000000001')")" = "0"
 test "$(admin_psql -At -c "SELECT count(*) FROM (SELECT tenant_id,journal_id FROM public.ledger_lines GROUP BY tenant_id,journal_id HAVING sum(CASE WHEN direction='debit' THEN amount_minor ELSE -amount_minor END)<>0) q")" = "0"
 test "$(admin_psql -At -c "WITH cash AS (SELECT tenant_id,sum(amount_minor) n FROM public.ledger_lines WHERE account_code='cash' AND direction='debit' GROUP BY tenant_id), src AS (SELECT tenant_id,sum(amount_minor) n FROM public.source_events GROUP BY tenant_id) SELECT count(*) FROM src FULL JOIN cash USING(tenant_id) WHERE coalesce(src.n,0)<>coalesce(cash.n,0)")" = "0"
 test "$(admin_psql -At -c "SELECT count(*) FROM (SELECT tenant_id,economic_effect_id FROM public.ledger_journals GROUP BY tenant_id,economic_effect_id HAVING count(*)>1) q")" = "0"
