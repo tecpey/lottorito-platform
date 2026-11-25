@@ -1,8 +1,15 @@
 # وضعیت واقعی پروژه و نقطه ادامه کار
 
-**شناسه:** LOT-OPS-001 | **نسخه:** ۱.۴۵.۰ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۵
+**شناسه:** LOT-OPS-001 | **نسخه:** ۱.۴۶.۰ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۵
 
 ## وضعیت تأییدشده مخزن
+
+## پیاده‌سازی اولیه P-08 — ۲۰۲۶-۱۱-۲۵
+
+- P-08 روی شاخه `spike/p08-deployment-health-rollback` و بر مبنای Head فعلی PR شماره ۵۸ مربوط به P-07C یعنی `7d349789ae8e57225dd67eaa8685685e71577fb8` در حال پیاده‌سازی است. این شاخه روی P-07C قرار دارد؛ در زمان این Snapshot هنوز PR مربوط به P-08 باز نشده است.
+- Fixture ساختگی اکنون شامل Builder قطعی Python zipapp، Metadata جداگانه Provenance متصل به Digest، تزریق Canary Secret فقط در Runtime، دروازه‌های مستقل Startup/Liveness/API Readiness/Worker Readiness، Artifact Store در حافظه با کلید Digest، بررسی Approval بر اساس Digest و Environment دقیق، تفکیک وظایف، Promotion محدود به Test/Staging، سناریوهای Rollback آگاه از Schema و Forward Repair و مستندات آزمایش دوزبانه است.
+- این Fixture از پلتفرم استقرار، Registry، Secret Manager، Migration دیتابیس، منبع Cloud، داده مشتری، Credential یا وجه واقعی استفاده نمی‌کند. Provenance آن Metadata بدون امضاست و انطباق با SLSA نیست؛ Fingerprint وضعیت مالی نیز Sentinel ساختگی است، نه Ledger.
+- CI روی Head نهایی شاخه در انتظار است. تا زمانی که مقایسه Build قطعی، همه تست‌ها و Documentation Governance روی Head دقیق PR موفق نشوند، هیچ Pass برای P-08 ثبت نمی‌شود. هیچ Merge یا Deploy مجاز یا انجام نشده است.
 
 ## اعتبارسنجی اولیه P-07C — ۲۰۲۶-۱۱-۲۵
 
@@ -33,7 +40,7 @@
 - Documentation Governance با شناسه [45569616782](https://github.com/tecpey/lottorito-platform/actions/runs/45569336699) نیز روی همان Head PR موفق شد.
 - Fixture ساختگی، Artifactهای Affiliate & Agent و Lottery را مستقل Build کرد و در فرایندهای تازه اجرا کرد. هر Artifact فقط شامل Entry Point محصول منتخب، Port ساختگی پلتفرم مشترک، Manifest و Runner بود. تست‌های منفی Import مستقیم، Package-qualified، نسبی و Dynamic محصول خواهر را رد کردند؛ Manifest وابستگی محصولی را رد کرد؛ پوشه خروجی قدیمی/غیرخالی رد شد؛ انتساب Audit ساختگی در محدوده محصول باقی ماند.
 - این نتیجه فقط ترکیب، Build و Runtime در Fixture مربوط به P-07A را اثبات می‌کند. مسیرهای واقعی Referral/Commission در Affiliate، جریان‌های Ticket/Draw/Prize در Lottery، مجوزدهی قابلیت‌های مشترک، Tenant RLS، Event Contract، غیرفعال‌سازی محصول، Migration/Deployment مستقل یا آمادگی Production اثبات نشده‌اند. Portهای هویت/Tenant/Audit مشترک، Stub ساختگی هستند.
-- P-07 اکنون صریحاً به P-07A (جداسازی محصول)، P-07B (پلتفرم مشترک و مرزهای اعتماد) و P-07C (چرخه عمر مستقل) تقسیم شده است. P-07B و P-07C هنوز پیاده‌سازی نشده‌اند.
+- در زمان Snapshot اولیه اعتبارسنجی P-07A، P-07B و P-07C هنوز پیاده‌سازی نشده بودند؛ بخش‌های اعتبارسنجی بعدی P-07B و P-07C در بالای این سند، آن وضعیت تاریخی را جایگزین می‌کنند.
 - هیچ Merge، Deploy، داده Production، Credential واقعی یا وجه واقعی استفاده نشد. هیچ معماری Production یا توپولوژی Microservice/Database تصویب نشده است.
 
 ## به‌روزرسانی نهایی اعتبارسنجی P-06 — ۲۰۲۶-۱۱-۲۵
