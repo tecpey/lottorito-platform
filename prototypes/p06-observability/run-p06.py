@@ -79,6 +79,7 @@ def main():
     journal_id,duplicate=ledger_result.split("|")
     if duplicate!="f": raise AssertionError("P-06 expected a new synthetic journal")
     journal_ref=ref(journal_id)
+    CANARIES.extend([TENANT_A,TENANT_B,actor_id,source_event_id,effect_id,journal_id])
     if scalar(f"SELECT count(*) FROM public.ledger_journals WHERE tenant_id='{TENANT_A}' AND journal_id='{journal_id}' AND status='posted'")!="1":
         raise AssertionError("P-02 ledger journal was not posted")
 
@@ -210,6 +211,16 @@ def main():
         raise AssertionError("tenant A cannot see its complete trace")
     if scalar("SELECT count(*) FROM p06.spans",user="p06_tenant_b_reader",password="p06-tenant-b-not-production")!="0":
         raise AssertionError("tenant B can see tenant A trace")
+    if scalar("SELECT count(*) FROM p06.logs",user="p06_tenant_a_reader",password="p06-tenant-a-not-production")!="6":
+        raise AssertionError("tenant A cannot see its sanitized logs")
+    if scalar("SELECT count(*) FROM p06.logs",user="p06_tenant_b_reader",password="p06-tenant-b-not-production")!="0":
+        raise AssertionError("tenant B can see tenant A logs")
+    if scalar(f"SELECT count(*) FROM p06.spans WHERE source_event_ref={q(source_event_ref)}")!="9":
+        raise AssertionError("source event reference is not consistent across trace")
+    if scalar(f"SELECT count(*) FROM p06.spans WHERE economic_effect_ref={q(effect_ref)}")!="5":
+        raise AssertionError("economic effect reference is not consistent across trace")
+    if scalar(f"SELECT count(*) FROM p06.spans WHERE journal_ref={q(journal_ref)}")!="2":
+        raise AssertionError("journal reference is not consistent across ledger/reconciliation spans")
     if scalar(f"SELECT count(*) FROM p06.spans WHERE tenant_ref={q(tenant_b_ref)}",user="p06_tenant_a_reader",password="p06-tenant-a-not-production")!="0":
         raise AssertionError("tenant A can query tenant B spans")
     expect_reject("SELECT count(*) FROM p06.correlation_map","p06_tenant_a_reader","p06-tenant-a-not-production","permission denied")
