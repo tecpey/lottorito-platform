@@ -1,6 +1,6 @@
 # P-07C — Independent Product Lifecycle, Release and White-Label Traceability
 
-**Document ID:** LOT-PROT-P07C-001 | **Version:** 0.1.0 | **Status:** Synthetic implementation; CI validation pending
+**Document ID:** LOT-PROT-P07C-001 | **Version:** 0.1.0 | **Status:** Synthetic fixture validated in CI on PR head f488f34
 
 ## Decision question
 
@@ -107,3 +107,10 @@ python3 -m unittest discover -s prototypes/p07-independent-lifecycle/tests -v
 - AWS Prescriptive Guidance, [Database migration strategies](https://docs.aws.amazon.com/prescriptive-guidance/latest/strategy-database-migration/welcome.html).
 - SLSA, [Provenance v1 specification](https://slsa.dev/spec/v1.1/provenance).
 - in-toto, [Attestation Framework](https://github.com/in-toto/attestation).
+
+
+## CI evidence
+
+- Integration [run 45571477383](https://github.com/tecpey/lottorito-platform/actions/runs/45571477383): PASS on PR head f488f34; all 41 tests passed.
+- Documentation Governance [run 45571477357](https://github.com/tecpey/lottorito-platform/actions/runs/45571477357): PASS on the same PR head.
+- PR [#58](https://github.com/tecpey/lottorito-platform/pull/58) remains Draft, open and unmerged.
