@@ -118,3 +118,6 @@ P-07B اکنون Envelope محصول‌محور هم‌راستا با ADR-009 �
 ### P-09H — اعمال قرارداد مشترک (۲۰۲۶-۱۱-۲۵)
 
 Dispatch رویداد در P-07B اکنون پس از احراز هویت Principal و بررسی Tenant/Product Scope و کنترل‌های دقیق Deny موجود، Validator استاندارد Python در P-09 را اجرا می‌کند. به این ترتیب، Reasonهای قبلی P-07B برای موارد Authorization موجود حفظ می‌شوند و در عین حال دروازه مشترک انطباق CloudEvents، URI-reference و RFC 3339 نیز افزوده می‌شود. Fixture رویداد ساختگی اکنون ویژگی الزامی `time` را دارد. سیاست Runtime همچنان صرفاً Prototype است.
+
+
+در P-09H یک تست Regression برای رد Timestamp غیرمنطبق با RFC 3339 به Dispatch افزوده شده است. P-07B Reasonهای تثبیت‌شده Deny برای هویت Producer، Tenant، Product Scope، Source Event UUID، Schema Version و Trace Context را حفظ می‌کند؛ Validator مشترک پس از این کنترل‌ها، دروازه انطباق Time/URI را اضافه می‌کند. مجموعه تست فعلی P-07B روی آخرین Head حاوی کد، موفقیت ۴۳ از ۴۳ تست را گزارش کرده است.
