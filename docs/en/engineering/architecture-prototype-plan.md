@@ -1,6 +1,6 @@
 # Lottorito Architecture Prototype and Evidence Plan
 
-**Document ID:** LOT-PROT-001 | **Version:** 1.14.0 | **Status:** Proposed experiment plan; execution and technology choices not approved
+**Document ID:** LOT-PROT-001 | **Version:** 1.15.0 | **Status:** Proposed experiment plan; execution and technology choices not approved
 
 ## 1. Purpose and authority
 
@@ -217,7 +217,7 @@ A prototype may be **Pass**, **Fail**, **Inconclusive** or **Not run**. “Pass�
 
 **References:** PostgreSQL 18 failover, hot standby and pg_rewind; Patroni lease/watchdog guidance; etcd atomic transactions, leases and linearizability.
 
-**Status:** Implementation is on P-05C PR #54, stacked on P-05B PR #53. CI validation is pending. No HA technology, vendor, topology, RPO/RTO or production readiness is approved.
+**Status:** P-05C executable integration passed on branch-push run [45533778752](https://github.com/tecpey/lottorito-platform/actions/runs/45533778752) at code head `4884a3c38d2da8ea9ab9961dc095eb0ddd469f4d`. Two divergent timelines and two real pg_rewind operations, including discarding the second tail during failback, passed. PR #54 remains Draft and stacked on PR #53; final PR Integration and Documentation Governance on the final documentation head must be checked before closing the phase. No HA technology, vendor, topology, RPO/RTO or production readiness is approved.
 
 ### P-06 — End-to-end observability and privacy
 
