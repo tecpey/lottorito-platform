@@ -303,7 +303,7 @@ BEGIN
   v_tenant_id := private.current_tenant_id();
   v_product_id := private.current_product_id();
   IF v_tenant_id IS NULL OR v_product_id IS NULL THEN
-    RAISE EXCEPTION 'database identity is not mapped to a tenant/product' USING ERRCODE = '42501';
+    RAISE EXCEPTION 'database identity is not mapped to a tenant' USING ERRCODE = '42501';
   END IF;
 
   IF p_idempotency_key IS NULL
