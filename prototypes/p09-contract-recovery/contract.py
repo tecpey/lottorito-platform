@@ -8,6 +8,7 @@ from typing import Any
 PRODUCT_IDS = frozenset({"affiliate_agent", "lottery"})
 PLATFORM_ID = "lottorito"
 TRACE_ID = re.compile(r"^[0-9a-f]{32}$")
+TRACEPARENT_V00 = re.compile(r"^00-([0-9a-f]{32})-([0-9a-f]{16})-([0-9a-f]{2})$")
 SCHEMA_VERSION_MIN = 1
 
 
@@ -53,9 +54,22 @@ def financial_identity(tenant_id: Any, product_id: Any, identifier: Any, field: 
     return tenant, product_id, value
 
 
+def _validate_traceparent(value: Any) -> str:
+    """Validate the contract's W3C Trace Context version-00 profile."""
+    if not isinstance(value, str):
+        raise ContractViolation("traceparent_invalid")
+    match = TRACEPARENT_V00.fullmatch(value)
+    if match is None:
+        raise ContractViolation("traceparent_invalid")
+    trace_id, parent_id, _flags = match.groups()
+    if trace_id == "0" * 32 or parent_id == "0" * 16:
+        raise ContractViolation("traceparent_invalid")
+    return trace_id
+
+
 def correlation_identity(tenant_id: Any, scope: Any, source_event_id: Any, trace_id: Any) -> tuple[str, str, str, str, str]:
     tenant, kind, identifier, event_id = source_event_identity(tenant_id, scope, source_event_id)
-    if not isinstance(trace_id, str) or not TRACE_ID.fullmatch(trace_id):
+    if not isinstance(trace_id, str) or not TRACE_ID.fullmatch(trace_id) or trace_id == "0" * 32:
         raise ContractViolation("trace_id_invalid")
     return tenant, kind, identifier, event_id, trace_id
 
@@ -64,7 +78,7 @@ def validate_event(event: Any) -> dict[str, Any]:
     if not isinstance(event, dict):
         raise ContractViolation("event_not_object")
     required = {"specversion", "id", "source", "type", "time", "dataschema",
-                "tenantid", "scope", "sourceeventid", "schemaversion"}
+                "tenantid", "scope", "sourceeventid", "schemaversion", "traceparent"}
     if not required.issubset(event):
         raise ContractViolation("event_required_attribute_missing")
     if event["specversion"] != "1.0":
@@ -75,4 +89,6 @@ def validate_event(event: Any) -> dict[str, Any]:
     if isinstance(version, bool) or not isinstance(version, int) or version < SCHEMA_VERSION_MIN:
         raise ContractViolation("schema_version_invalid")
     identity = source_event_identity(event["tenantid"], event["scope"], event["sourceeventid"])
-    return {"identity": identity, "schema_version": version, "event_type": event["type"]}
+    trace_id = _validate_traceparent(event["traceparent"])
+    return {"identity": identity, "schema_version": version, "event_type": event["type"],
+            "trace_id": trace_id}
