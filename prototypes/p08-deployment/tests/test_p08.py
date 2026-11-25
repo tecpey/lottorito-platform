@@ -270,7 +270,7 @@ class PromotionAndRollbackTests(unittest.TestCase):
         self.promote(self.stage_state, "v2")
         self.controller.migrate_schema(self.stage_state, 2, "expand")
         target = self.stage_state.previous_digest
-        result = self.controller.rollback(self.stage_state, target, DEPLOY_ACTOR,
+        result = self.controller.rollback(self.stage_state, target, self.stage_state.current_digest, DEPLOY_ACTOR,
             self.approval(target), GOOD_API, GOOD_WORKER)
         self.assertEqual(result["status"], "rolled_back")
         self.assertEqual(self.stage_state.schema_version, 2)
@@ -285,8 +285,22 @@ class PromotionAndRollbackTests(unittest.TestCase):
         old_digest = self.built["v1"][0]
         self.stage_state.previous_digest = old_digest
         with self.assertRaisesRegex(GateRejected, "rollback_schema_incompatible"):
-            self.controller.rollback(self.stage_state, old_digest, DEPLOY_ACTOR,
+            self.controller.rollback(self.stage_state, old_digest, self.stage_state.current_digest, DEPLOY_ACTOR,
                 self.approval(old_digest), GOOD_API, GOOD_WORKER)
+
+    def test_rollback_rejects_stale_current_release_pointer(self):
+        self.promote(self.stage_state, "v2")
+        target = self.stage_state.previous_digest
+        with self.assertRaisesRegex(DeploymentConflict, "stale_current_release"):
+            self.controller.rollback(self.stage_state, target, self.built["v1"][0],
+                DEPLOY_ACTOR, self.approval(target), GOOD_API, GOOD_WORKER)
+        self.assertEqual(self.stage_state.current_digest, self.built["v2"][0])
+
+    def test_expand_migration_preserves_previous_release_compatibility(self):
+        self.promote(self.stage_state, "v2")
+        with self.assertRaisesRegex(GateRejected, "rollback_target_incompatible"):
+            self.controller.migrate_schema(self.stage_state, 3, "expand")
+        self.assertEqual(self.stage_state.schema_version, 1)
 
     def test_rollback_target_retirement_requires_two_person_approval(self):
         self.promote(self.stage_state, "v2")
