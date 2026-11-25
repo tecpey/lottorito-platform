@@ -198,25 +198,44 @@ def main():
     )
     if unbounded_cols!="0": raise AssertionError("metrics schema contains unbounded identifiers")
 
-    print("[P06] Record pseudonymous correlation map behind audited forensic access")
+    print("[P06] Record scope-aware correlation rows with colliding source UUIDs")
+    lottery_effect_id=str(uuid.uuid4()); lottery_effect_ref=ref(lottery_effect_id)
+    lottery_journal_id=str(uuid.uuid4()); lottery_journal_ref=ref(lottery_journal_id)
     psql(
-      "INSERT INTO p06.correlation_map(tenant_id,tenant_ref,actor_id,actor_ref,source_event_id,source_event_ref,"
-      "economic_effect_id,economic_effect_ref,journal_id,journal_ref,trace_id) VALUES("
-      f"{q(TENANT_A)}::uuid,{q(tenant_a_ref)},{q(actor_id)}::uuid,{q(actor_ref)},"
+      "INSERT INTO p06.correlation_map(tenant_id,scope_kind,scope_id,tenant_ref,actor_id,actor_ref,"
+      "source_event_id,source_event_ref,economic_effect_id,economic_effect_ref,journal_id,journal_ref,trace_id) VALUES("
+      f"{q(TENANT_A)}::uuid,'product','affiliate_agent',{q(tenant_a_ref)},{q(actor_id)}::uuid,{q(actor_ref)},"
       f"{q(source_event_id)}::uuid,{q(source_event_ref)},{q(effect_id)}::uuid,{q(effect_ref)},"
-      f"{q(journal_id)}::uuid,{q(journal_ref)},{q(trace_id)})"
+      f"{q(journal_id)}::uuid,{q(journal_ref)},{q(trace_id)}),("
+      f"{q(TENANT_A)}::uuid,'product','lottery',{q(tenant_a_ref)},{q(actor_id)}::uuid,{q(actor_ref)},"
+      f"{q(source_event_id)}::uuid,{q(source_event_ref)},{q(lottery_effect_id)}::uuid,{q(lottery_effect_ref)},"
+      f"{q(lottery_journal_id)}::uuid,{q(lottery_journal_ref)},{q(trace_id)})"
     )
+    if scalar(f"SELECT count(*) FROM p06.correlation_map WHERE tenant_id='{TENANT_A}' AND source_event_id='{source_event_id}'")!="2":
+        raise AssertionError("same source UUID was not preserved as two product-scoped identities")
     if scalar("SELECT count(*) FROM p06.forensic_correlation_map",user="p06_forensic_reader",password="p06-forensic-not-production")!="0":
         raise AssertionError("forensic map was visible before an audited access grant")
     forensic_sql=(
-      f"SELECT p06.record_forensic_access({q(trace_id)},'incident_review',{q(actor_ref)}); "
-      "SELECT count(*) FROM p06.forensic_correlation_map"
+      f"SELECT p06.record_forensic_access('{TENANT_A}'::uuid,'product','affiliate_agent',{q(source_event_id)}::uuid,"
+      f"{q(trace_id)},'incident_review',{q(actor_ref)}); "
+      "SELECT count(*) FROM p06.forensic_correlation_map WHERE scope_kind='product' AND scope_id='affiliate_agent'; "
+      "SELECT count(*) FROM p06.forensic_correlation_map WHERE scope_kind='product' AND scope_id='lottery'"
     )
     forensic_out,_,_=psql(forensic_sql,user="p06_forensic_reader",password="p06-forensic-not-production")
-    if forensic_out.splitlines()[-1]!="1": raise AssertionError("audited forensic access did not reveal one correlation row")
+    if forensic_out.splitlines()[-2:]!=["1","0"]:
+        raise AssertionError("affiliate forensic grant disclosed a sibling Lottery correlation")
+    lottery_forensic_sql=(
+      f"SELECT p06.record_forensic_access('{TENANT_A}'::uuid,'product','lottery',{q(source_event_id)}::uuid,"
+      f"{q(trace_id)},'incident_review',{q(actor_ref)}); "
+      "SELECT count(*) FROM p06.forensic_correlation_map WHERE scope_kind='product' AND scope_id='affiliate_agent'; "
+      "SELECT count(*) FROM p06.forensic_correlation_map WHERE scope_kind='product' AND scope_id='lottery'"
+    )
+    lottery_forensic_out,_,_=psql(lottery_forensic_sql,user="p06_forensic_reader",password="p06-forensic-not-production")
+    if lottery_forensic_out.splitlines()[-2:]!=["0","1"]:
+        raise AssertionError("Lottery forensic grant disclosed a sibling Affiliate correlation")
     expect_reject("SELECT count(*) FROM p06.correlation_map","p06_forensic_reader","p06-forensic-not-production","permission denied")
-    if scalar(f"SELECT count(*) FROM p06.privileged_audit WHERE action='telemetry.correlation_map.read' AND trace_id='{trace_id}'")!="1":
-        raise AssertionError("forensic access was not audited")
+    if scalar(f"SELECT count(*) FROM p06.privileged_audit WHERE action='telemetry.correlation_map.read' AND trace_id='{trace_id}'")!="2":
+        raise AssertionError("scope-specific forensic access was not audited twice")
 
     print("[P06] Prove tenant isolation, least privilege and append-only audit")
     if scalar("SELECT count(*) FROM p06.spans",user="p06_tenant_a_reader",password="p06-tenant-a-not-production")!="9":
