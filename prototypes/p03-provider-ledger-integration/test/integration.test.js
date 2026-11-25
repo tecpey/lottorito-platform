@@ -261,9 +261,9 @@ test("expired provider inbox lease is reclaimed and stale worker cannot process"
   const fixture = webhook(affiliateInstallation);
   await ingest(affiliateA, fixture);
   const future = new Date(Date.now() + 1000);
-  const first = await claimNextProviderEvent(affiliateA, { workerId: "old-worker", leaseSeconds: 1, now: future });
+  const first = await claimNextProviderEvent(affiliateA, { workerId: "old-worker", leaseSeconds: 1, now: future, providerId: affiliateInstallation.provider_id, eventId: fixture.eventId });
   const second = await claimNextProviderEvent(affiliateA, {
-    workerId: "new-worker", leaseSeconds: 30, now: new Date(future.getTime() + 2000)
+    workerId: "new-worker", leaseSeconds: 30, now: new Date(future.getTime() + 2000), providerId: affiliateInstallation.provider_id, eventId: fixture.eventId
   });
   assert.equal(second.provider_event_id, fixture.eventId);
   assert.notEqual(second.lease_token, first.lease_token);
