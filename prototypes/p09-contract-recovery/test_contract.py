@@ -43,6 +43,12 @@ class ScopeContractTests(unittest.TestCase):
         with self.assertRaisesRegex(ContractViolation, "scope_shape_invalid"):
             source_event_identity(TENANT, {"kind": "product", "id": "lottery", "tenant_id": TENANT}, EVENT)
 
+    def test_scope_rejects_non_string_identifiers_without_type_errors(self):
+        with self.assertRaisesRegex(ContractViolation, "scope_unknown_or_mismatched"):
+            source_event_identity(TENANT, {"kind": "product", "id": ["lottery"]}, EVENT)
+        with self.assertRaisesRegex(ContractViolation, "financial_scope_must_be_product"):
+            financial_identity(TENANT, ["lottery"], EFFECT, "economic_effect_id")
+
     def test_same_event_uuid_in_two_tenants_is_not_a_collision(self):
         other = "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee"
         self.assertNotEqual(
