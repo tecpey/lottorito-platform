@@ -253,7 +253,7 @@ function journalLines(event, installation) {
 }
 
 function idempotencyKey(productId, providerId, eventId) {
-  return "provider:" + digest(Buffer.from(productId + "\\0" + providerId + "\\0" + eventId, "utf8"));
+  return "provider:" + digest(Buffer.from(productId + "|" + providerId + "|" + eventId, "utf8"));
 }
 
 async function failClaim(pool, claim, errorCode, now, retryDelaySeconds = 5) {
