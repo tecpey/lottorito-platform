@@ -320,7 +320,7 @@ async function failClaim(pool, claim, errorCode, now, retryDelaySeconds = 5) {
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
-    const permanent = ["P03D_UNMAPPED_EVENT", "P03D_INVALID_AMOUNT", "P03D_CURRENCY_MISMATCH"].includes(errorCode);
+    const permanent = ["P03D_UNMAPPED_EVENT", "P03D_UNMAPPED_SCHEMA", "P03D_CONTRACT_VIOLATION", "P03D_CONTRACT_IDENTITY_MISMATCH", "P03D_INVALID_AMOUNT", "P03D_CURRENCY_MISMATCH"].includes(errorCode);
     const status = permanent ? "quarantined" :
       claim.attempt_count >= claim.max_attempts ? "dead_letter" : "retry";
     const result = await client.query(
