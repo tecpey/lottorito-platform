@@ -203,6 +203,30 @@ class PromotionAndRollbackTests(unittest.TestCase):
             self.controller.promote(self.stage_state, digest, same_actor, DEPLOY_ACTOR,
                 self.stage_state.current_digest, GOOD_API, GOOD_WORKER, self.built["v2"][1], SOURCE)
 
+    def test_untrusted_provenance_blocks_promotion_without_state_change(self):
+        digest = self.built["v2"][0]
+        provenance = json.loads(json.dumps(self.built["v2"][1]))
+        provenance["subject"][0]["digest"]["sha256"] = "0" * 64
+        before = self.stage_state.current_digest
+        with self.assertRaisesRegex(GateRejected, "provenance_verification_failed"):
+            self.controller.promote(self.stage_state, digest, self.approval(digest), DEPLOY_ACTOR,
+                before, GOOD_API, GOOD_WORKER, provenance, SOURCE)
+        self.assertEqual(self.stage_state.current_digest, before)
+
+    def test_non_release_approver_cannot_promote(self):
+        digest = self.built["v2"][0]
+        wrong_role = Approval(REQUEST_ACTOR, APPROVAL_ACTOR, "tenant_admin", "staging", digest)
+        with self.assertRaisesRegex(GateRejected, "release_approver_required"):
+            self.controller.promote(self.stage_state, digest, wrong_role, DEPLOY_ACTOR,
+                self.stage_state.current_digest, GOOD_API, GOOD_WORKER, self.built["v2"][1], SOURCE)
+
+    def test_artifact_that_cannot_read_current_schema_is_rejected(self):
+        digest = self.built["v3"][0]
+        with self.assertRaisesRegex(GateRejected, "artifact_schema_incompatible"):
+            self.controller.promote(self.stage_state, digest, self.approval(digest), DEPLOY_ACTOR,
+                self.stage_state.current_digest, GOOD_API, GOOD_WORKER, self.built["v3"][1], SOURCE)
+        self.assertEqual(self.stage_state.current_digest, self.built["v1"][0])
+
     def test_production_environment_is_never_eligible(self):
         digest = self.built["v2"][0]
         production = DeploymentState("production", 1, self.built["v1"][0])
@@ -229,6 +253,8 @@ class PromotionAndRollbackTests(unittest.TestCase):
                 self.stage_state.current_digest, GOOD_API, unhealthy_worker, self.built["v2"][1], SOURCE)
         after = (self.stage_state.api_digest, self.stage_state.worker_digest, self.stage_state.traffic_enabled, self.stage_state.workers_enabled)
         self.assertEqual(after, before)
+        self.assertEqual(self.stage_state.audit[-1]["action"], "rollout.rejected")
+        self.assertEqual(self.stage_state.audit[-1]["outcome"], "worker_readiness_failed")
 
     def test_successful_promotion_audits_digest_and_actor_without_secret(self):
         digest = self.built["v2"][0]
