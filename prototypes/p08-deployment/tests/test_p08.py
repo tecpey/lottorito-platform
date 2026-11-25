@@ -138,6 +138,13 @@ class HealthGateTests(unittest.TestCase):
         health = HealthSnapshot(startup_complete=False)
         self.assertFalse(health.readiness_ok)
 
+    def test_non_boolean_health_values_fail_closed(self):
+        health = HealthSnapshot(startup_complete="yes", process_alive="yes",
+                                critical_dependencies={"database": "healthy"}, worker_ready="yes")
+        self.assertFalse(health.liveness_ok)
+        self.assertFalse(health.readiness_ok)
+        self.assertFalse(health.worker_readiness_ok)
+
     def test_dead_process_fails_liveness_and_readiness(self):
         health = HealthSnapshot(process_alive=False)
         self.assertFalse(health.liveness_ok)
@@ -290,7 +297,7 @@ class PromotionAndRollbackTests(unittest.TestCase):
     def test_safe_rollback_preserves_financial_state_and_digest(self):
         before = self.stage_state.financial_state_digest
         self.promote(self.stage_state, "v2")
-        self.controller.migrate_schema(self.stage_state, 2, "expand")
+        self.controller.migrate_schema(self.stage_state, 2, "expand", "migration-runner")
         target = self.stage_state.previous_digest
         result = self.controller.rollback(self.stage_state, target, self.stage_state.current_digest, DEPLOY_ACTOR,
             self.approval(target), GOOD_API, GOOD_WORKER)
@@ -300,15 +307,30 @@ class PromotionAndRollbackTests(unittest.TestCase):
 
     def test_incompatible_rollback_is_blocked_after_contract_migration(self):
         self.promote(self.stage_state, "v2")
-        self.controller.migrate_schema(self.stage_state, 2, "expand")
+        self.controller.migrate_schema(self.stage_state, 2, "expand", "migration-runner")
         self.controller.retire_rollback_target(self.stage_state, 3, "RETIRE_ROLLBACK_TARGET", DEPLOY_ACTOR,
             self.approval(self.stage_state.current_digest))
-        self.controller.migrate_schema(self.stage_state, 3, "contract")
+        self.controller.migrate_schema(self.stage_state, 3, "contract", "migration-runner")
         old_digest = self.built["v1"][0]
         self.stage_state.previous_digest = old_digest
         with self.assertRaisesRegex(GateRejected, "rollback_schema_incompatible"):
             self.controller.rollback(self.stage_state, old_digest, self.stage_state.current_digest, DEPLOY_ACTOR,
                 self.approval(old_digest), GOOD_API, GOOD_WORKER)
+
+    def test_schema_transition_is_attributed_in_audit(self):
+        self.promote(self.stage_state, "v2")
+        self.controller.migrate_schema(self.stage_state, 2, "expand", "migration-runner")
+        record = self.stage_state.audit[-1]
+        self.assertEqual(record["actor"], "migration-runner")
+        self.assertEqual(record["action"], "schema.expand")
+        self.assertEqual(record["financial_state_digest"], self.stage_state.financial_state_digest)
+
+    def test_invalid_approval_boolean_fails_closed(self):
+        digest = self.built["v2"][0]
+        invalid = Approval(REQUEST_ACTOR, APPROVAL_ACTOR, "release_approver", "staging", digest, "true")
+        with self.assertRaisesRegex(GateRejected, "approval_invalid_or_wrong_environment"):
+            self.controller.promote(self.stage_state, digest, invalid, DEPLOY_ACTOR,
+                self.stage_state.current_digest, GOOD_API, GOOD_WORKER, self.built["v2"][1], SOURCE)
 
     def test_rollback_rejects_stale_current_release_pointer(self):
         self.promote(self.stage_state, "v2")
@@ -320,14 +342,14 @@ class PromotionAndRollbackTests(unittest.TestCase):
 
     def test_expand_migration_preserves_previous_release_compatibility(self):
         self.promote(self.stage_state, "v2")
-        self.controller.migrate_schema(self.stage_state, 2, "expand")
+        self.controller.migrate_schema(self.stage_state, 2, "expand", "migration-runner")
         with self.assertRaisesRegex(GateRejected, "rollback_target_incompatible"):
-            self.controller.migrate_schema(self.stage_state, 3, "expand")
+            self.controller.migrate_schema(self.stage_state, 3, "expand", "migration-runner")
         self.assertEqual(self.stage_state.schema_version, 2)
 
     def test_rollback_target_retirement_requires_two_person_approval(self):
         self.promote(self.stage_state, "v2")
-        self.controller.migrate_schema(self.stage_state, 2, "expand")
+        self.controller.migrate_schema(self.stage_state, 2, "expand", "migration-runner")
         same_actor = Approval(REQUEST_ACTOR, DEPLOY_ACTOR, "release_approver", "staging",
                               self.stage_state.current_digest)
         with self.assertRaisesRegex(GateRejected, "separation_of_duties_violation"):
@@ -346,10 +368,10 @@ class PromotionAndRollbackTests(unittest.TestCase):
     def test_forward_repair_with_schema_compatible_artifact_is_allowed(self):
         before_financial_state = self.stage_state.financial_state_digest
         self.promote(self.stage_state, "v2")
-        self.controller.migrate_schema(self.stage_state, 2, "expand")
+        self.controller.migrate_schema(self.stage_state, 2, "expand", "migration-runner")
         self.controller.retire_rollback_target(self.stage_state, 3, "RETIRE_ROLLBACK_TARGET", DEPLOY_ACTOR,
             self.approval(self.stage_state.current_digest))
-        self.controller.migrate_schema(self.stage_state, 3, "contract")
+        self.controller.migrate_schema(self.stage_state, 3, "contract", "migration-runner")
         self.promote(self.stage_state, "v3")
         self.assertEqual(self.stage_state.current_digest, self.built["v3"][0])
         self.assertEqual(self.stage_state.schema_version, 3)
