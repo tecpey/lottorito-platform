@@ -159,7 +159,7 @@ BEGIN
 END
 $p06$;
 REVOKE ALL ON FUNCTION p06.record_forensic_access(uuid,text,text,uuid,text,text,text,text) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION p06.record_forensic_access(uuid,text,text,uuid,text,text,text) TO p06_forensic_reader;
+GRANT EXECUTE ON FUNCTION p06.record_forensic_access(uuid,text,text,uuid,text,text,text,text) TO p06_forensic_reader;
 GRANT SELECT ON p06.privileged_audit TO p06_forensic_reader;
 
 CREATE VIEW p06.forensic_correlation_map WITH (security_barrier=true) AS
