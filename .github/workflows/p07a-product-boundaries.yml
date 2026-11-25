@@ -1,0 +1,43 @@
+name: P-07A Product Boundary Verification
+
+on:
+  push:
+    branches:
+      - spike/p07a-product-boundaries
+    paths:
+      - ".github/workflows/p07a-product-boundaries.yml"
+      - "prototypes/p07-product-boundaries/**"
+      - "docs/en/engineering/prototypes/p07a-product-boundaries.md"
+      - "docs/fa/engineering/prototypes/p07a-product-boundaries.md"
+      - "docs/en/engineering/architecture-prototype-plan.md"
+      - "docs/fa/engineering/architecture-prototype-plan.md"
+  pull_request:
+    paths:
+      - ".github/workflows/p07a-product-boundaries.yml"
+      - "prototypes/p07-product-boundaries/**"
+      - "docs/en/engineering/prototypes/p07a-product-boundaries.md"
+      - "docs/fa/engineering/prototypes/p07a-product-boundaries.md"
+      - "docs/en/engineering/architecture-prototype-plan.md"
+      - "docs/fa/engineering/architecture-prototype-plan.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: p07a-product-boundaries-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  boundary-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Validate declared architecture boundary graph
+        run: python3 prototypes/p07-product-boundaries/validate_boundaries.py prototypes/p07-product-boundaries/architecture.json
+      - name: Run positive and adversarial boundary tests
+        working-directory: prototypes/p07-product-boundaries
+        run: python3 -m unittest discover -s tests -v
