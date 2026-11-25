@@ -118,3 +118,8 @@ Head دقیق فعلی PR که اعتبارسنجی شد: `14d69ec5be1a9285049c1
 ## Regression هم‌زمانی و Scopeهای مستقل در P-09F (۲۰۲۶-۱۱-۲۵)
 
 روی Head کاندید 2b393cc8c41226a20333f34559ac6952883901a3، Workflow مربوط به P-03C/P-03D با شناسه [45637659485](https://github.com/tecpey/lottorito-platform/actions/runs/45637659485) موفق شد: P-03C با **۱۵ از ۱۵** و P-03D با **۲۵ از ۲۵** تست. سه تست افزوده‌شده Worker واقعی Provider با Node.js را روی PostgreSQL 18.7 اجرا می‌کنند: Claim و Process هم‌زمان Inbox با یک برنده؛ Fencing Token مربوط به Lease قدیمی/جدید در پردازش هم‌زمان؛ و پردازش مستقل Provider Event ID/Source Event UUID یکسان بین Affiliate، Lottery و Tenant دوم. هر Scope دقیقاً یک Journal، Outbox Event تغییرناپذیر و Delivery State ایجاد می‌کند و Reconciliation صفر است. این فقط شواهد یکپارچه‌سازی ساختگی است؛ ترتیب Aggregate و Replay Worker روی Cluster بازیابی‌شده P-09E همچنان باز هستند.
+
+
+### P-09H — اعمال قرارداد Canonical (۲۰۲۶-۱۱-۲۵)
+
+مسیر Ingress امضاشده اکنون CloudEvent استاندارد را فقط از Installation مورد اعتماد و Event Mapping تأییدشده می‌سازد. Tenant/Product از فیلدهای Payload ارسالی Provider پذیرفته نمی‌شوند. شناسه Provider به‌عنوان CloudEvents `id` حفظ می‌شود؛ UUID مستقل `sourceeventid` تولید و هم در Envelope و هم در Inbox ذخیره می‌شود و Trace Context جدید W3C نیز ساخته می‌شود. Schema Mapping ناشناخته و Timestamp غیرمنطبق با RFC 3339 پیش از ثبت در Inbox رد می‌شوند. Worker پیش از Posting، Envelope ذخیره‌شده و تطابق هویت Tenant/Product/Source Event را دوباره اعتبارسنجی می‌کند؛ Scope دست‌کاری‌شده پیش از ایجاد Journal/Outbox به قرنطینه می‌رود. این‌ها شواهد یکپارچه‌سازی ساختگی‌اند و پذیرش نهایی P-03D به CI روی Head نهایی وابسته است.
