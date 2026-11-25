@@ -5,13 +5,18 @@ on:
   pull_request:
     paths:
       - "prototypes/p03-ledger-outbox-integration/**"
+      - "prototypes/p03-provider-ledger-integration/**"
       - "prototypes/p02-ledger-posting/**"
       - "docs/en/engineering/prototypes/p03-ledger-outbox-integration.md"
       - "docs/fa/engineering/prototypes/p03-ledger-outbox-integration.md"
+      - "docs/en/engineering/prototypes/p03-provider-ledger-integration.md"
+      - "docs/fa/engineering/prototypes/p03-provider-ledger-integration.md"
       - ".github/workflows/p03-ledger-outbox-integration.yml"
+      - ".github/workflows/p03-provider-ledger-integration.yml"
   push:
     branches:
       - "spike/p03-ledger-outbox-integration"
+      - "spike/p03d-provider-ledger-integration"
     paths:
       - "prototypes/p03-ledger-outbox-integration/**"
       - "prototypes/p02-ledger-posting/**"
@@ -30,7 +35,7 @@ jobs:
   integration:
     name: Node.js 26 + PostgreSQL 18.7 ledger-outbox integration
     runs-on: ubuntu-24.04
-    timeout-minutes: 12
+    timeout-minutes: 20
     services:
       postgres:
         image: postgres:18.7-bookworm
@@ -64,4 +69,19 @@ jobs:
         run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Run end-to-end ledger/outbox integration tests
         working-directory: prototypes/p03-ledger-outbox-integration
+        run: npm test
+      - name: Create isolated P-03D database
+        working-directory: prototypes/p03-ledger-outbox-integration
+        run: |
+          node --input-type=module -e 'import pg from "pg"; const c = new pg.Client({ connectionString: process.env.ADMIN_DATABASE_URL.replace("/lottorito_p03c", "/postgres") }); await c.connect(); await c.query("CREATE DATABASE lottorito_p03d"); await c.end();'
+      - name: Install pinned P-03D dependency
+        working-directory: prototypes/p03-provider-ledger-integration
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Run provider inbox to ledger atomic integration tests
+        working-directory: prototypes/p03-provider-ledger-integration
+        env:
+          ADMIN_DATABASE_URL: postgres://postgres:p03c-admin-only-not-production@127.0.0.1:5432/lottorito_p03d
+          TENANT_A_AFFILIATE_DATABASE_URL: postgres://tenant_a_ledger_runtime:p02-tenant-a-not-for-production@127.0.0.1:5432/lottorito_p03d
+          TENANT_B_AFFILIATE_DATABASE_URL: postgres://tenant_b_ledger_runtime:p02-tenant-b-not-for-production@127.0.0.1:5432/lottorito_p03d
+          TENANT_A_LOTTERY_DATABASE_URL: postgres://tenant_a_lottery_runtime:p02-tenant-a-lottery-not-for-production@127.0.0.1:5432/lottorito_p03d
         run: npm test
