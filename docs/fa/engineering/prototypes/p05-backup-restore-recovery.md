@@ -103,3 +103,8 @@ Head دقیق PR شماره ۶۴: bbad5969fc3c952ebafdaed3c8d2306dbd018ad4.
 - Documentation Governance با [اجرای 45611209546](https://github.com/tecpey/lottorito-platform/actions/runs/45611209546): موفق.
 
 هر پنج Workflow روی یک Head دقیق PR موفق شدند. مجموعه خودکار P-02 تا P-04 در مجموع ۶۶ تست داشت که همگی موفق و بدون Skip بودند؛ Assertionهای P-05 نیز موفق شدند. این فقط شواهد بازیابی ساختگی است، نه آمادگی Production یا تصویب RPO/RTO.
+
+
+## دروازه Regression پایین‌دستی P-05C — ۲۰۲۶-۱۱-۲۵
+
+آزمایش HA ساختگی در P-05C روی شاخه تطبیق‌یافته P-05A/P-05B قرار می‌گیرد. Workflow ترکیبی بازیابی P-05A/P-05B باید روی Head جایگزین P-05C دوباره اجرا شود تا حفظ PITR، بازیابی Object/Key/Event و آزمون‌های منفی Restore/WAL پیش از پذیرش Workflow مستقل Failover/Fencing اثبات شود.

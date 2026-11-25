@@ -354,3 +354,10 @@ The prototype phase is complete only when all eight experiments have reproducibl
 - PR #64 head bbad5969fc3c952ebafdaed3c8d2306dbd018ad4 passed P-02 25, P-03C 15, P-03D 19, P-04 7, combined P-05A/P-05B positive and negative recovery, and Documentation Governance. Runs: 45611209596, 45611209613, 45611209559, 45611209642 and 45611209546.
 - P-05B hardening covers strict manifest context, tenant-bound wrapped-DEK AAD, nonce/base64/size checks, plaintext size/hash, unique aggregate sequence and deterministic locked event processing. P-05A negative recovery checks pass.
 - P-05B remains synthetic only. Next experiment: P-05C failover/fencing/failback, with explicit lease/fencing safety, promotion readiness and financial consistency; RPO/RTO remain TBD. Original PR #53 stays open/Draft as historical review context; PR #64 remains Draft/open. No merge or deployment.
+
+
+## P-05C on reconciled P-05B stack — 2026-11-25
+
+- Original PR #54 was based on original P-05B PR #53. Replacement branch spike/p05c-failover-fencing-failback-p03d is based on reconciled P-05B PR #64 head eff4176b4d2ea0c25591c76173c3ec28753e1dc8.
+- Original P-05C run [45534242728](https://github.com/tecpey/lottorito-platform/actions/runs/45534242728), combined P-05A/B run [45534242739](https://github.com/tecpey/lottorito-platform/actions/runs/45534242739), and Documentation Governance [45534242653](https://github.com/tecpey/lottorito-platform/actions/runs/45534242653) passed on the original branch; historical only.
+- Revalidate P-05C plus P-02/P-03C/P-03D/P-04/P-05A/P-05B and bilingual Documentation Governance on the replacement PR head. P-05C remains synthetic-only; no real STONITH, quorum/DCS, watchdog, cloud failover, production fencing, RPO/RTO or HA design is approved.

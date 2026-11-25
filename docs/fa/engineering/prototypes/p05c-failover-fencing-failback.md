@@ -98,3 +98,8 @@ P-05C یک آزمایش دورریختنی PostgreSQL 18.7 است که چرخه 
 - https://patroni.readthedocs.io/en/latest/faq.html
 - https://etcd.io/docs/v3.5/learning/api_guarantees/
 - https://etcd.io/docs/v3.5/learning/api/
+
+
+## ادامه روی زنجیره تطبیق‌یافته — ۲۰۲۶-۱۱-۲۵
+
+PR اصلی P-05C با شماره ۵۴ بر مبنای PR اصلی P-05B با شماره ۵۳ ساخته شده بود که Ancestry آن قدیمی‌تر از پل تطبیق‌یافته P-03C/P-03D است. این ادامه روی شاخه `spike/p05c-failover-fencing-failback-p03d` و بر مبنای Head تطبیق‌یافته PR شماره ۶۴ در P-05B یعنی `eff4176b4d2ea0c25591c76173c3ec28753e1dc8` قرار دارد. شواهد PR اصلی شماره ۵۴ فقط تاریخی‌اند؛ پیش از پذیرش، P-05C همراه P-02/P-03C/P-03D/P-04/P-05A/P-05B و Documentation Governance دوزبانه باید روی Head جایگزین دوباره اجرا شوند.

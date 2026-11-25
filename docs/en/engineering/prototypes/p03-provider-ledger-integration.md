@@ -149,3 +149,8 @@ P-05B event replay is a synthetic recovery projection, not a replacement for P-0
 ## P-05B reconciled regression result — 2026-11-25
 
 P-03C/P-03D passed on PR #64 head bbad5969fc3c952ebafdaed3c8d2306dbd018ad4: [run 45611209613](https://github.com/tecpey/lottorito-platform/actions/runs/45611209613), 15 + 19 passed, zero failures/skips. P-05B's recovery replay does not replace provider inbox or delivery state.
+
+
+## P-05C downstream regression gate — 2026-11-25
+
+P-05C is an isolated two-node PostgreSQL failover experiment. Re-run the 34-test P-03C/P-03D suite on the replacement head to preserve the provider-to-ledger bridge and tenant/product boundaries; no real provider or production failover integration is introduced.

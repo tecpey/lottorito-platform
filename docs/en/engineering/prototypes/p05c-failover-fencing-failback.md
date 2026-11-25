@@ -98,3 +98,8 @@ This demonstrates a transactional epoch-checking primitive only. The row is repl
 - https://patroni.readthedocs.io/en/latest/faq.html
 - https://etcd.io/docs/v3.5/learning/api_guarantees/
 - https://etcd.io/docs/v3.5/learning/api/
+
+
+## Reconciled-stack continuation — 2026-11-25
+
+Original P-05C PR #54 was based on original P-05B PR #53, whose ancestry predates the reconciled P-03C/P-03D bridge. This continuation is on `spike/p05c-failover-fencing-failback-p03d`, based on reconciled P-05B PR #64 head `eff4176b4d2ea0c25591c76173c3ec28753e1dc8`. The original PR #54 evidence is historical only; re-run P-05C plus P-02/P-03C/P-03D/P-04/P-05A/P-05B and bilingual Documentation Governance on the replacement head before acceptance.

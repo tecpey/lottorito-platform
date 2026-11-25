@@ -106,3 +106,8 @@ P-05B's object/key/event recovery fixture is independent of the P-02 ledger sche
 ## P-05B reconciled regression result — 2026-11-25
 
 P-02 passed on PR #64 head bbad5969fc3c952ebafdaed3c8d2306dbd018ad4: [run 45611209596](https://github.com/tecpey/lottorito-platform/actions/runs/45611209596), 25/25, zero failures/skips. P-05B remains separate from P-02 schema and may not bypass ledger posting invariants.
+
+
+## P-05C downstream regression gate — 2026-11-25
+
+P-05C's writer-fencing experiment must not bypass P-02 ledger invariants. Re-run the 25-test P-02 integration suite on the replacement head; the HA fixture remains isolated and synthetic and does not change P-02 schema or production ledger semantics.

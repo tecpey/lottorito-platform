@@ -165,3 +165,11 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 - P-05A positive PITR, recovery-complete gate, incomplete-restore rejection and missing-WAL fail-closed checks passed. P-05B object/key and ordered event replay assertions passed.
 - All five workflows passed on the same exact head. Automated P-02–P-04 coverage is 66 tests with 0 failures/0 skips. P-05A/P-05B shell assertions also passed.
 - Next: P-05C failover/fencing/failback experiment. RPO/RTO remain TBD; no production recovery decision is approved. PR #64 remains Draft/open; original PR #53 remains untouched.
+
+
+## P-05C ancestry reconciliation — 2026-11-25
+
+- Original P-05C PR #54 was stacked on original P-05B PR #53. Replacement branch `spike/p05c-failover-fencing-failback-p03d` is based on reconciled P-05B PR #64 head `eff4176b4d2ea0c25591c76173c3ec28753e1dc8`.
+- Original P-05C integration [45534242728](https://github.com/tecpey/lottorito-platform/actions/runs/45534242728), P-05A/B [45534242739](https://github.com/tecpey/lottorito-platform/actions/runs/45534242739) and Documentation Governance [45534242653](https://github.com/tecpey/lottorito-platform/actions/runs/45534242653) passed on original branch; these do not validate the replacement.
+- Replacement PR #65 must pass P-02, P-03C/P-03D, P-04, P-05A/B, P-05C and bilingual Documentation Governance on the exact final head. Original PR #54 remains open/Draft and untouched.
+- P-05C is synthetic only; production quorum, STONITH, watchdog, fencing, HA, RPO/RTO and failover safety are not approved. No merge or deployment.

@@ -78,3 +78,8 @@ P-05B extends the reconciled P-04/P-05A chain with synthetic object/key/event re
 ## P-05B reconciled regression result — 2026-11-25
 
 P-04 passed on PR #64 head bbad5969fc3c952ebafdaed3c8d2306dbd018ad4: [run 45611209559](https://github.com/tecpey/lottorito-platform/actions/runs/45611209559), 7/7, zero failures/skips. P-05B does not alter the P-04 schema-evolution contract.
+
+
+## P-05C downstream regression gate — 2026-11-25
+
+P-05C must not change P-04 schema-evolution compatibility. Re-run the 7-test P-04 suite on the replacement head together with the upstream P-02/P-03C/P-03D/P-05A/P-05B regressions.
