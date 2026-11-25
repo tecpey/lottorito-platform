@@ -1,6 +1,6 @@
 # P-05A — نسخه پشتیبان PostgreSQL، PITR و صحت مالی
 
-**شناسه سند:** LOT-PROT-P05-001 | **نسخه:** ۰.۳.۰ | **وضعیت:** آزمایش ساختگی CI موفق؛ بازیابی Production تصویب نشده است
+**شناسه سند:** LOT-PROT-P05-001 | **نسخه:** ۰.۴.۰ | **وضعیت:** آزمایش ساختگی CI موفق؛ بازیابی Production تصویب نشده است
 
 ## اعتبار و مرز تصمیم
 
@@ -66,9 +66,13 @@ Workflow ترکیبی P-05 دو کنترل Fail-closed را علاوه بر مس
 
 ## شواهد
 
+- Integration ترکیبی P-05A/P-05B: [اجرای 45532382323](https://github.com/tecpey/lottorito-platform/actions/runs/45532382323) روی Head نهایی شاخه `0a6b8f992161cd9f9d760698b1c9d0c8e30867a9` موفق شد.
+- Documentation Governance: [اجرای 45532382310](https://github.com/tecpey/lottorito-platform/actions/runs/45532382310) روی همان Head موفق شد.
+- Assertionهای منفی: `incomplete_restore_manifest_rejected=PASS`، `incomplete_restore_server_start_rejected=PASS`، `missing_wal_startup_not_ready=PASS`، `missing_wal_target_segment_absence_detected=PASS` و `P05A_NEGATIVE_RESULT=PASS`.
+
 - Integration: [اجرای 45524388676](https://github.com/tecpey/lottorito-platform/actions/runs/45524388676) روی Head با شناسه f2303a647aefd5bd8d48ba9d2e1830c881f60041 موفق شد.
 - Documentation Governance: [اجرای 45524388734](https://github.com/tecpey/lottorito-platform/actions/runs/45524388734) روی همان Head موفق شد.
 - PostgreSQL 18.7؛ Backup و Verification در مجموع ۱۲ تا ۱۳ ثانیه (اجرای نهایی روی Head فعلی: ۱۳ ثانیه)؛ راه‌اندازی دیتابیس بازیابی‌شده ۱ ثانیه در Runner دورریختنی GitHub. این‌ها مشاهدات آزمایش‌اند، نه هدف RTO عملیاتی.
 - تست، Verification و رد Manifest دست‌کاری‌شده، وجود WAL آرشیوشده، Log نقطه بازیابی نام‌گذاری‌شده، حضور نشانگر پیش از Target و نبود نشانگر پس از Target، خواندن محدود به Tenant و رد Insert بین Tenantها، توازن Journal، تطبیق مجموع Source-to-Ledger، یکتایی Economic Effect و فرمت معتبر Hash ارجاع Object را بررسی کرد.
-- آزمون منفی WAL مفقود و Restore قطع‌شده همچنان باز هستند. بازیابی بایت Object/کلید و Failover/Fencing/Failback در P-05B/P-05C هستند و هنوز اجرا نشده‌اند.
+- آزمون‌های منفی روی Head ترکیبی P-05A/P-05B موفق شدند: Staging ناقص Restore هم توسط `pg_verifybackup` و هم راه‌اندازی PostgreSQL رد شد؛ حذف Segment دقیق WAL مربوط به Target، مانع Ready شدن بازیابی در نقطه نام‌گذاری‌شده درخواستی شد. Log مربوط به WAL مفقود، نبود Segment هدف را ثبت کرد. بازیابی بایت Object/کلید در P-05B پوشش داده شده است؛ Failover/Fencing/Failback در P-05C همچنان اجرا نشده است.
 - موفقیت ساختگی به‌معنای آمادگی Production، تصمیم فناوری یا تصویب RPO/RTO نیست.
