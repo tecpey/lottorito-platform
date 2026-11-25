@@ -33,6 +33,16 @@ def jsonb(value):
 def ref(value):
     return hmac.new(HMAC_KEY,str(value).encode(),hashlib.sha256).hexdigest()
 
+def sanitize_baggage(baggage):
+    allowed={"messaging.system","messaging.destination_kind"}
+    return {k:v for k,v in baggage.items() if k in allowed and isinstance(v,str) and len(v)<=64 and re.fullmatch(r"[a-zA-Z0-9_.-]+",v)}
+
+def normalize_event_type(value):
+    allowed={"affiliate.referral.converted","affiliate.commission.created"}
+    if isinstance(value,str) and value in allowed and "\\r" not in value and "\\n" not in value:
+        return value,"PARTNER_EVENT_ACCEPTED"
+    return "event.validation_failed","INVALID_EVENT_TYPE"
+
 def psql(sql=None,user="postgres",password=ADMIN_PASSWORD,file=None,check=True):
     env=os.environ.copy(); env["PGPASSWORD"]=password
     args=["psql","-X","-h","127.0.0.1","-p","5432","-U",user,"-d",DB,"-At","-F","|","-v","ON_ERROR_STOP=1"]
