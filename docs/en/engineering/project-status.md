@@ -1,8 +1,15 @@
 # Verified Project Status and Continuation Point
 
-**Document ID:** LOT-OPS-001 | **Version:** 1.45.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-25
+**Document ID:** LOT-OPS-001 | **Version:** 1.46.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-25
 
 ## Verified repository state
+
+## P-08 initial implementation — 2026-11-25
+
+- P-08 is being implemented on branch `spike/p08-deployment-health-rollback`, based on the current P-07C PR #58 head `7d349789ae8e57225dd67eaa8685685e71577fb8`. The branch is stacked on P-07C; no P-08 PR has been opened at this status snapshot.
+- The synthetic fixture now contains a deterministic Python zipapp builder, detached digest-bound provenance metadata, runtime-only secret canary injection, separate startup/liveness/API-readiness/worker-readiness gates, digest-keyed in-memory artifact storage, exact-digest/environment approval checks, separation-of-duties checks, test/staging-only promotion, schema-aware rollback and forward-repair scenarios, and bilingual experiment documentation.
+- The fixture uses no real deployment platform, registry, secret manager, database migration, cloud resource, customer data, credential or money. Its provenance is unsigned metadata and is not SLSA conformance; its financial-state fingerprint is a synthetic sentinel, not a ledger.
+- CI is pending on the final branch head. No P-08 pass is claimed until deterministic build comparison, all tests, and Documentation Governance complete on the exact PR head. No merge or deployment is authorized or performed.
 
 ## P-07C initial validation — 2026-11-25
 
@@ -33,7 +40,7 @@
 - Documentation Governance [run 45569616782](https://github.com/tecpey/lottorito-platform/actions/runs/45569336699) also passed on the same PR head.
 - The synthetic fixture independently built and launched Affiliate & Agent and Lottery artifacts in fresh processes. Each artifact contained only the selected product entrypoint, the synthetic shared-platform port, its manifest and runner. Negative tests rejected direct, package-qualified, relative and dynamic sibling imports; manifests rejected product dependencies; stale/non-empty output directories were rejected; synthetic audit attribution remained product-scoped.
 - This proves only the P-07A composition/build/runtime fixture. It does not prove actual Affiliate referral/commission journeys, Lottery ticket/draw/prize workflows, shared-capability authorization, tenant RLS, event contracts, product disablement, independent migrations/deployments or production readiness. Shared identity/tenant/audit ports are synthetic stubs.
-- P-07 is now explicitly split into P-07A (product isolation), P-07B (shared platform and trust boundaries) and P-07C (independent lifecycle). P-07B and P-07C are not yet implemented.
+- At the time of the initial P-07A validation snapshot, P-07B and P-07C had not yet been implemented; the later P-07B and P-07C validation sections above supersede that historical statement.
 - No merge, deployment, production data, real credentials or real funds were used. No production architecture or microservice/database topology is approved.
 
 ## Final P-06 validation update — 2026-11-25
