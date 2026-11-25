@@ -125,5 +125,54 @@ class ScopeContractTests(unittest.TestCase):
             source_event_identity(TENANT, {"kind": "product", "id": "lottery"}, EVENT.upper())
 
 
+
+    def test_event_requires_rfc3339_timestamp_with_valid_calendar_and_offset(self):
+        for value in ("2026-11-25T12:30:45Z", "2026-11-25T12:30:45.123+05:30",
+                      "2026-11-25t12:30:45-04:00", "2026-12-31T23:59:60Z"):
+            candidate = event({"kind": "product", "id": "lottery"})
+            candidate["time"] = value
+            self.assertEqual(validate_event(candidate)["time"], value)
+        for value in ("2026-02-30T12:30:45Z", "2026-11-25 12:30:45Z",
+                      "2026-11-25T24:00:00Z", "2026-11-25T12:60:00Z",
+                      "2026-11-25T12:30:61Z", "2026-11-25T12:30:45",
+                      "2026-11-25T12:30:45+24:00", "", None):
+            candidate = event({"kind": "product", "id": "lottery"})
+            candidate["time"] = value
+            with self.subTest(value=value), self.assertRaisesRegex(ContractViolation, "event_time_invalid"):
+                validate_event(candidate)
+
+    def test_source_and_dataschema_must_be_nonempty_uri_references(self):
+        for field, value in (("source", "urn:lottorito:provider:one"),
+                             ("dataschema", "../schemas/event-v1.json"),
+                             ("source", "https://example.test/provider?q=1#v1")):
+            candidate = event({"kind": "product", "id": "lottery"})
+            candidate[field] = value
+            validate_event(candidate)
+        for field, value in (("source", ""), ("dataschema", "not a uri"),
+                             ("source", "urn:bad:%Q0"), ("dataschema", "https://[::1")):
+            candidate = event({"kind": "product", "id": "lottery"})
+            candidate[field] = value
+            with self.subTest(field=field, value=value), self.assertRaises(ContractViolation):
+                validate_event(candidate)
+
+    def test_cloud_event_id_and_type_must_be_nonempty_strings(self):
+        for field, value in (("id", ""), ("id", None), ("type", ""), ("type", 1)):
+            candidate = event({"kind": "product", "id": "lottery"})
+            candidate[field] = value
+            with self.subTest(field=field, value=value), self.assertRaisesRegex(ContractViolation, "event_attribute_invalid"):
+                validate_event(candidate)
+
+    def test_financial_event_type_is_rejected_for_platform_scope(self):
+        candidate = event({"kind": "platform", "id": "lottorito"})
+        candidate["type"] = "ledger.journal.posted"
+        with self.assertRaisesRegex(ContractViolation, "financial_event_requires_product_scope"):
+            validate_event(candidate)
+
+    def test_platform_scope_remains_valid_for_non_financial_event(self):
+        candidate = event({"kind": "platform", "id": "lottorito"})
+        candidate["type"] = "platform.tenant.provisioned"
+        self.assertEqual(validate_event(candidate)["identity"][1:3], ("platform", "lottorito"))
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
