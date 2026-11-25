@@ -1,6 +1,6 @@
 # برنامه Prototype معماری و تولید شواهد Lottorito
 
-**شناسه سند:** LOT-PROT-001 | **نسخه:** ۱.۲۵.۰ | **وضعیت:** برنامه آزمایش پیشنهادی؛ اجرا و انتخاب فناوری تصویب نشده است
+**شناسه سند:** LOT-PROT-001 | **نسخه:** ۱.۲۶.۰ | **وضعیت:** برنامه آزمایش پیشنهادی؛ اجرا و انتخاب فناوری تصویب نشده است
 
 ## ۱. هدف و اعتبار
 
@@ -369,3 +369,11 @@ Prototype فقط زمانی **Pass** است که تمام معیارهای اج�
 
 
 **وضعیت آزمایش P-04 (۲۰۲۶-۱۱-۲۴):** PR شماره ۵۱ در وضعیت Draft روی شاخه spike/p04-schema-evolution و بر مبنای Head مربوط به P-03 یعنی 45b37700cb2b9ad633158ba8d5f00b8c7f0553d5 ایجاد شده است. Candidate ساختگی PostgreSQL، سازگاری Writerهای v1/v2، Expand افزایشی، Backfill قابل ادامه و محدود به Tenant، Idempotency/Checksum Migration، شکست Lock Timeout، بازیابی Index Concurrent نامعتبر، اعتبارسنجی مرحله‌ای Constraint و تمرین غیرمخرب Contract را پوشش می‌دهد. Integration با شناسه 45471750215 روی Head کد 15c536e5be2f61b1805191f5977a46b17eaf1971 تعداد ۷ تست موفق داشته و Documentation Governance با شناسه 45471750133 روی همان Head موفق شده است. این همچنان آزمایش ساختگی است؛ هیچ Migration عملیاتی، ادعای Zero Downtime یا تصویب فناوری مطرح نیست.
+
+## شواهد P-03C/P-03D و تطبیق زنجیره — ۲۰۲۶-۱۱-۲۵
+
+- P-03C، Outbox تغییرناپذیر P-02 را به وضعیت Delivery محدود به Tenant متصل می‌کند. P-03D پذیرش امضاشده Provider Inbox را به Posting اتمیک در P-02 و وضعیت Delivery در P-03C وصل می‌کند. این مرحله، برش ساختگی فعلی یکپارچه‌سازی ورودی/خروجی Provider-to-Ledger را تکمیل می‌کند، نه تمام نیازمندی‌های پلتفرمی P-03 یا اتصال عملیاتی Provider را.
+- پوشش Regression مربوط به P-03D شامل HMAC روی Raw Body، تازگی Timestamp، Base64 Canonical، محدودیت اندازه Body/Header و پیکربندی، Installation و هویت دیتابیس مورداعتماد، پذیرش پایدار Inbox، Duplicate/Conflict، Posting/Outbox/Delivery اتمیک، Retry/Dead-letter/Quarantine، Fencing مربوط به Lease، جداسازی Product، Reconciliation و ناورداهای وضعیت Inbox در سطح دیتابیس است.
+- Head مربوط به PR شماره ۶۰ در P-03C برابر 32b34f4c7c67b12874cdf6a14a2788d9a2f4c6dc، در اجرای [45576594884](https://github.com/tecpey/lottorito-platform/actions/runs/45576594884) تعداد ۱۵ تست موفق داشته است. Head فعلی PR شماره ۶۱ در P-03D برابر b75a2e128c4289f18366a52bbb50c07f6b62c136 است و P-02 با ۲۵ از ۲۵ در [45620428866](https://github.com/tecpey/lottorito-platform/actions/runs/45620428866)، P-03C با ۱۵ از ۱۵ و P-03D با ۲۲ از ۲۲ در [45620428553](https://github.com/tecpey/lottorito-platform/actions/runs/45620428553)، و Documentation Governance در [45620428404](https://github.com/tecpey/lottorito-platform/actions/runs/45620428404) موفق شده‌اند. همه آزمایش‌ها ساختگی‌اند؛ Provider، KMS، انتقال شبکه، سیاست حسابداری یا Migration عملیاتی تصویب نشده است.
+- PR شماره ۵۱ مربوط به P-04 همچنان بر مبنای PR شماره ۵۰ در P-03 قرار دارد، نه PR شماره ۶۰ یا ۶۱. Head فعلی P-04 برابر 016695c0b8b6f06fb91c563338f1e0fd6d928f72 است و ۸ از ۸ تست را در [45620775017](https://github.com/tecpey/lottorito-platform/actions/runs/45620775017) گذرانده؛ Documentation Governance با شناسه [45620774995](https://github.com/tecpey/lottorito-platform/actions/runs/45620774995) نیز موفق بوده است.
+- PRهای ۵۱ تا ۵۹ زنجیره P-04 تا P-08 و PRهای ۶۰ تا ۶۱ زنجیره P-03C/P-03D را تشکیل می‌دهند. هر دو از Head مشترک P-03 یعنی 45b37700cb2b9ad633158ba8d5f00b8c7f0553d5 منشعب شده‌اند. P-04 یک Fixture مستقل Schema/Database است و Schemaهای P-02/P-03 را Import نمی‌کند، اما فایل‌های حاکمیتی و وضعیت مشترک هم‌پوشانی دارند. Ancestry و مستندات مشترک را آگاهانه تطبیق بده و سپس Regression کامل P-02/P-03C/P-03D/P-04 تا P-08 را روی یک Candidate واحد اجرا کن. Rebase کورکورانه، تغییر Base، Merge یا Deploy مجاز نیست.

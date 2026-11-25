@@ -1,6 +1,6 @@
 # Lottorito Architecture Prototype and Evidence Plan
 
-**Document ID:** LOT-PROT-001 | **Version:** 1.25.0 | **Status:** Proposed experiment plan; execution and technology choices not approved
+**Document ID:** LOT-PROT-001 | **Version:** 1.26.0 | **Status:** Proposed experiment plan; execution and technology choices not approved
 
 ## 1. Purpose and authority
 
@@ -370,3 +370,11 @@ The prototype phase is complete only when all eight experiments have reproducibl
 
 
 **Current P-04 experiment (2026-11-24):** Draft PR #51 on branch spike/p04-schema-evolution, based on P-03 head 45b37700cb2b9ad633158ba8d5f00b8c7f0553d5. The synthetic PostgreSQL candidate covers v1/v2 writer compatibility, additive expand, tenant-scoped resumable backfill, migration checksum/idempotency, lock-timeout failure, invalid concurrent-index recovery, staged constraint validation and a non-destructive contract rehearsal. Integration run 45471750215 passed 7 tests on head 15c536e5be2f61b1805191f5977a46b17eaf1971 and Documentation Governance run 45471750133 passed on the same head. This remains a synthetic experiment; no production migration, zero-downtime claim or technology approval is implied.
+
+## P-03C/P-03D evidence and stack reconciliation — 2026-11-25
+
+- P-03C links the immutable P-02 ledger outbox to tenant-scoped delivery state. P-03D connects signed provider inbox acceptance to atomic P-02 posting and P-03C delivery state. This completes the current synthetic inbound/outbound provider-to-ledger integration slice, not every P-03 platform requirement or production provider integration.
+- P-03D regression coverage includes raw-body HMAC verification, timestamp freshness, canonical Base64, bounded body/header/configuration limits, trusted installation and database identity, durable inbox acceptance, duplicate/conflict handling, atomic posting/outbox/delivery, retry/dead-letter/quarantine, lease fencing, product isolation, reconciliation and database-enforced inbox-state invariants.
+- PR #60 P-03C head 32b34f4c7c67b12874cdf6a14a2788d9a2f4c6dc passed 15 tests in [45576594884](https://github.com/tecpey/lottorito-platform/actions/runs/45576594884). PR #61 P-03D current head b75a2e128c4289f18366a52bbb50c07f6b62c136 passed P-02 25/25 in [45620428866](https://github.com/tecpey/lottorito-platform/actions/runs/45620428866), P-03C 15/15 and P-03D 22/22 in [45620428553](https://github.com/tecpey/lottorito-platform/actions/runs/45620428553), and Documentation Governance in [45620428404](https://github.com/tecpey/lottorito-platform/actions/runs/45620428404). All remain synthetic; no provider, KMS, transport, accounting policy or production migration is approved.
+- P-04 PR #51 remains on P-03 PR #50, not on PR #60/#61. Current P-04 head 016695c0b8b6f06fb91c563338f1e0fd6d928f72 passed 8/8 tests in [45620775017](https://github.com/tecpey/lottorito-platform/actions/runs/45620775017); Documentation Governance [45620774995](https://github.com/tecpey/lottorito-platform/actions/runs/45620774995) passed.
+- PRs #51–#59 form the P-04–P-08 stack; PRs #60–#61 form the P-03C/P-03D stack. Both diverged from common P-03 head 45b37700cb2b9ad633158ba8d5f00b8c7f0553d5. P-04 is an isolated schema/database fixture and does not import P-02/P-03 schema, but shared governance/status files overlap. Reconcile ancestry and shared documentation deliberately, then run the full P-02/P-03C/P-03D/P-04–P-08 regression on one candidate branch. No blind rebase, retarget, merge or deployment is authorized.
