@@ -49,7 +49,7 @@ Artifact Store و Deployment Controller، Test Doubleهای In-memory هستند
 | P08-09 | Rollback فقط زمانی پذیرفته شود که Artifact مقصد از Schema فعلی پشتیبانی کند. |
 | P08-10 | Expand/Contract در صورت ناسازگاری Release فعال یا Rollback Target باقی‌مانده با Schema مقصد مسدود شود؛ بازنشستگی Rollback Target به تأیید دو نفر و تأیید صریح Schema مقصد نیاز داشته باشد؛ پس از بازنشستگی، Rollback ناایمن رد و Forward Repair سازگار موفق شود. |
 | P08-11 | Promotion، Rollback و انتقال Schema باید Fingerprint وضعیت مالی ساختگی را حفظ کنند. |
-| P08-12 | Audit مربوط به Promotion، Rollback، بازنشستگی Rollback Target و انتقال Schema باید Actor، Environment، Artifact Digest، Action، Outcome و Schema Version را بدون ثبت مقدار Secret Runtime ثبت کند. |
+| P08-12 | Audit مربوط به Promotion، Rollback، بازنشستگی Rollback Target و انتقال Schema باید هویت غیرخالی Actor را الزامی کند و Environment، Artifact Digest، Action، Outcome و Schema Version را بدون ثبت مقدار Secret Runtime ثبت کند. |
 | P08-13 | CI باید مقایسه Build قطعی و تمام تست‌های مثبت/خصمانه را با صفر Skip اجرا کند. |
 | P08-14 | اسناد فارسی و انگلیسی باید از نظر Scope، محدودیت‌ها، شناسه‌های پذیرش و قیود هم‌معنا باشند. |
 
