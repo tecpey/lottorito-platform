@@ -1,5 +1,14 @@
 name: P-05 Backup Restore, Object, Key and Event Recovery
 on:
+  push:
+    branches:
+      - spike/p05b-object-key-event-recovery
+    paths:
+      - "prototypes/p05-recovery/**"
+      - "docs/en/engineering/prototypes/p05-backup-restore-recovery.md"
+      - "docs/fa/engineering/prototypes/p05-backup-restore-recovery.md"
+      - "docs/en/engineering/prototypes/p05b-object-key-event-recovery.md"
+      - "docs/fa/engineering/prototypes/p05b-object-key-event-recovery.md"
   workflow_dispatch:
   pull_request:
     paths:
