@@ -134,3 +134,8 @@ P-05A is being replayed onto reconciled P-04 PR #62, which descends from this P-
 ## P-05A reconciled-stack regression result — 2026-11-25
 
 The combined P-03C/P-03D regression passed on P-05A replacement code head 76650b0c799e2f2a5b2f3ae4831bb55d3a3811a6: [run 45609220468](https://github.com/tecpey/lottorito-platform/actions/runs/45609220468), P-03C 15/15 and P-03D 19/19, 0 failures and 0 skips. P-05A does not replace or modify the provider-to-ledger integration.
+
+
+## P-05B downstream regression gate — 2026-11-25
+
+P-05B event replay is a synthetic recovery projection, not a replacement for P-03D provider inbox or P-03C delivery state. Re-run the 34-test P-03C/P-03D suite on the P-05B replacement head to preserve the provider-to-ledger bridge and tenant/product isolation.
