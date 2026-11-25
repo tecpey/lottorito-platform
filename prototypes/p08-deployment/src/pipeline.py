@@ -16,7 +16,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Mapping
 
-from build import BUILD_TYPE, BUILDER_ID, PRODUCT_IDS
+from build import BUILD_TYPE, BUILDER_ID, PRODUCT_IDS, ContractViolation, normalize_scope
 
 SECRET_ENV = "LOTTORITO_SYNTHETIC_RUNTIME_SECRET"
 ALLOWED_ENVIRONMENTS = {"test", "staging"}
@@ -57,6 +57,12 @@ def read_release_metadata(data: bytes) -> dict[str, Any]:
         raise GateRejected("artifact_invalid") from exc
     if metadata.get("product") not in PRODUCT_IDS:
         raise GateRejected("artifact_product_invalid")
+    try:
+        scope_kind, scope_id = normalize_scope(metadata.get("scope"))
+    except ContractViolation:
+        raise GateRejected("artifact_scope_invalid") from None
+    if scope_kind != "product" or scope_id != metadata["product"]:
+        raise GateRejected("artifact_scope_product_mismatch")
     if not isinstance(metadata.get("version"), str) or not metadata["version"].strip():
         raise GateRejected("artifact_version_missing")
     if (
@@ -81,6 +87,7 @@ def verify_provenance(data: bytes, provenance: Mapping[str, Any], expected_diges
         subject_digest = subject[0]["digest"]["sha256"]
         source_revision = build_definition["externalParameters"]["source_revision"]
         product = build_definition["externalParameters"]["product"]
+        scope = build_definition["externalParameters"]["scope"]
         build_type = build_definition["buildType"]
         builder_id = run_details["builder"]["id"]
         dependency_digest = build_definition["resolvedDependencies"][0]["digest"]["sha256"]
@@ -106,6 +113,8 @@ def verify_provenance(data: bytes, provenance: Mapping[str, Any], expected_diges
         and expected_product in PRODUCT_IDS
         and product == expected_product
         and metadata["product"] == expected_product
+        and scope == metadata["scope"]
+        and normalize_scope(scope) == ("product", expected_product)
         and build_type == BUILD_TYPE
         and builder_id == BUILDER_ID
         and dependency_digest == entrypoint_digest
