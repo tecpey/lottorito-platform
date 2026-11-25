@@ -151,17 +151,29 @@ for attempt in $(seq 1 120); do
   if as_pg psql -X -h 127.0.0.1 -p 55441 -U postgres -d postgres -At -c "SELECT '$REPLAY_LSN'::pg_lsn >= '$TARGET_LSN'::pg_lsn" | grep -qx t; then break; fi
   sleep 0.25
 done
+# Disconnect the returning standby, create a second synthetic divergent tail on
+# the current primary, then stop it before promoting the returning node.
+as_pg pg_ctl -D "$PRIMARY" -m fast -w -t 15 stop
+CURRENT_WRITER="$(psql_standby -c "SELECT active_writer FROM public.p05c_fence_state WHERE singleton")"
+psql_standby -c "SELECT public.p05c_post_effect('$CURRENT_WRITER',3,'former-primary-unreplicated','synthetic tail not present on returning node')" >/dev/null
 as_pg pg_ctl -D "$STANDBY" -m fast -w -t 15 stop
+as_pg pg_ctl -D "$PRIMARY" -l "$ROOT/primary-failback.log" -o "-p 55441 -h 127.0.0.1" -w -t 30 start
+for attempt in $(seq 1 60); do
+  if test "$(psql_primary -c "SELECT pg_is_in_recovery()")" = "t"; then break; fi
+  sleep 0.25
+done
+test "$(psql_primary -c "SELECT pg_is_in_recovery()")" = "t"
 as_pg pg_ctl -D "$PRIMARY" promote -w -t 30
 for attempt in $(seq 1 60); do
   if test "$(psql_primary -c "SELECT pg_is_in_recovery()")" = "f"; then break; fi
   sleep 0.25
 done
 test "$(psql_primary -c "SELECT pg_is_in_recovery()")" = "f"
+test "$(psql_primary -c "SELECT count(*) FROM public.p05c_events WHERE event_id='former-primary-unreplicated'")" = "0"
 test "$(psql_primary -c "SELECT public.p05c_claim_epoch(3,'node-a')")" = "4"
 psql_primary -c "SELECT public.p05c_post_effect('node-a',4,'controlled-failback','original node resumed primary after rewind')" >/dev/null
 as_pg pg_rewind --target-pgdata="$STANDBY" --source-server="host=127.0.0.1 port=55441 user=postgres dbname=postgres" --write-recovery-conf --progress
-as_pg bash -c "printf '\nport = 55442\n' >> '$STANDBY/postgresql.auto.conf'"
+as_pg bash -c "printf '\\nport = 55442\\n' >> '$STANDBY/postgresql.auto.conf'"
 as_pg pg_ctl -D "$STANDBY" -l "$ROOT/standby-failback.log" -o "-p 55442 -h 127.0.0.1" -w -t 30 start
 for attempt in $(seq 1 120); do
   if test "$(psql_standby -c "SELECT pg_is_in_recovery()")" = "t" && test "$(psql_standby -c "SELECT count(*) FROM public.p05c_events WHERE event_id='controlled-failback'")" = "1"; then break; fi
@@ -169,10 +181,13 @@ for attempt in $(seq 1 120); do
 done
 test "$(psql_standby -c "SELECT pg_is_in_recovery()")" = "t"
 test "$(psql_standby -c "SELECT count(*) FROM public.p05c_events WHERE event_id='controlled-failback'")" = "1"
+test "$(psql_standby -c "SELECT count(*) FROM public.p05c_events WHERE event_id='former-primary-unreplicated'")" = "0"
 test "$(psql_standby -c "SELECT current_epoch FROM public.p05c_fence_state WHERE singleton")" = "4"
 test "$(psql_standby -c "SELECT active_writer FROM public.p05c_fence_state WHERE singleton")" = "node-a"
 test "$(psql_primary -c "SELECT current_epoch FROM public.p05c_fence_state WHERE singleton")" = "4"
 echo "controlled_switchover_back=PASS"
+echo "second_unreplicated_tail_discarded=PASS"
+echo "pg_rewind_failback_second_divergence=PASS"
 echo "former_primary_rewound_as_standby=PASS"
 echo "epoch_four_active_writer_node_a=PASS"
 echo "P05C_RESULT=PASS"
