@@ -1,8 +1,20 @@
 # Verified Project Status and Continuation Point
 
-**Document ID:** LOT-OPS-001 | **Version:** 1.36.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-25
+**Document ID:** LOT-OPS-001 | **Version:** 1.37.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-25
 
 ## Verified repository state
+
+## Final P-06 validation update — 2026-11-25
+
+- P-06 PR #55 remains open, Draft and unmerged, stacked on P-05C PR #54. P-05C #54, P-05B #53, P-05A #52 and P-04 #51 remain open Draft/unmerged.
+- P-06 PR Integration [run 45535315659](https://github.com/tecpey/lottorito-platform/actions/runs/45535315659) and Documentation Governance [run 45535315503](https://github.com/tecpey/lottorito-platform/actions/runs/45535315503) passed on PR head 9f30a2966ce77aca8a7df6acf8e803733bd723dd.
+- The run posted a real synthetic P-02 balanced journal and linked it through nine spans from partner ingress to reconciliation. It generated 500 unique synthetic tenant references while retaining four bounded metric series.
+- Secret/PII canary absence, sensitive-baggage filtering, CR/LF event-name normalization, tenant RLS, audited forensic mapping access, least privilege, append-only audit, metric cardinality and alert owner/severity/runbook assertions all passed.
+- An earlier harness assertion compared PostgreSQL boolean text false with psql display f; the comparison was corrected. The final PR-head integration passed.
+- This remains a policy/schema fixture, not application-wide OpenTelemetry SDK/Collector integration or production telemetry authorization. No production retention, encryption, residency, sampling, alert delivery, legal/privacy approval or production readiness is implied. Telemetry is not the ledger.
+- No merge, deployment, production data, live credentials or real funds were used.
+
+
 
 ## Latest continuation update — 2026-11-25 (P-06)
 
