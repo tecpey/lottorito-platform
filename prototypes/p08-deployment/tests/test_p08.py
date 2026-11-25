@@ -253,13 +253,32 @@ class PromotionAndRollbackTests(unittest.TestCase):
     def test_incompatible_rollback_is_blocked_after_contract_migration(self):
         self.promote(self.stage_state, "v2")
         self.controller.migrate_schema(self.stage_state, 2, "expand")
-        self.controller.retire_rollback_target(self.stage_state, "RETIRE_ROLLBACK_TARGET", DEPLOY_ACTOR)
+        self.controller.retire_rollback_target(self.stage_state, 3, "RETIRE_ROLLBACK_TARGET", DEPLOY_ACTOR,
+            self.approval(self.stage_state.current_digest))
         self.controller.migrate_schema(self.stage_state, 3, "contract")
         old_digest = self.built["v1"][0]
         self.stage_state.previous_digest = old_digest
         with self.assertRaisesRegex(GateRejected, "rollback_schema_incompatible"):
             self.controller.rollback(self.stage_state, old_digest, DEPLOY_ACTOR,
                 self.approval(old_digest), GOOD_API, GOOD_WORKER)
+
+    def test_rollback_target_retirement_requires_two_person_approval(self):
+        self.promote(self.stage_state, "v2")
+        self.controller.migrate_schema(self.stage_state, 2, "expand")
+        same_actor = Approval(REQUEST_ACTOR, DEPLOY_ACTOR, "release_approver", "staging",
+                              self.stage_state.current_digest)
+        with self.assertRaisesRegex(GateRejected, "separation_of_duties_violation"):
+            self.controller.retire_rollback_target(self.stage_state, 3, "RETIRE_ROLLBACK_TARGET",
+                DEPLOY_ACTOR, same_actor)
+        self.assertIsNotNone(self.stage_state.previous_digest)
+
+    def test_rollback_target_cannot_be_retired_while_still_schema_compatible(self):
+        self.promote(self.stage_state, "v2")
+        approval = self.approval(self.stage_state.current_digest)
+        with self.assertRaisesRegex(GateRejected, "rollback_target_still_compatible"):
+            self.controller.retire_rollback_target(self.stage_state, 2, "RETIRE_ROLLBACK_TARGET",
+                DEPLOY_ACTOR, approval)
+        self.assertIsNotNone(self.stage_state.previous_digest)
 
     def test_forward_repair_with_schema_compatible_artifact_is_allowed(self):
         before_financial_state = self.stage_state.financial_state_digest
