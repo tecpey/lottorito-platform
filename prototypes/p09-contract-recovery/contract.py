@@ -13,7 +13,7 @@ TRACE_ID = re.compile(r"^[0-9a-f]{32}$")
 TRACEPARENT_V00 = re.compile(r"^00-([0-9a-f]{32})-([0-9a-f]{16})-([0-9a-f]{2})$")
 SCHEMA_VERSION_MIN = 1
 FINANCIAL_PRODUCT_ONLY_TYPES = frozenset({"ledger.journal.posted"})
-URI_CHARS = re.compile(r"""^[A-Za-z0-9._~:/?#@!$&'()*+,;=%\\[\\]\\-]*$""")
+URI_CHARS = re.compile(r"^[A-Za-z0-9._~:/?#@!$&'()*+,;=%\[\]-]*$")
 BAD_PERCENT = re.compile(r"%(?![0-9A-Fa-f]{2})")
 
 
