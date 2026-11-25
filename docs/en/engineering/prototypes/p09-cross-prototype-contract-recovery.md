@@ -1,6 +1,6 @@
 # P-09 — Cross-Prototype Contract & Recovery Integration
 
-**Document ID:** LOT-PROT-P09-001 | **Version:** 0.3.0 | **Status:** Proposed cross-prototype contract; P-09A passed and P-09B scope-aware P-06 correlation passed on synthetic CI; no production approval
+**Document ID:** LOT-PROT-P09-001 | **Version:** 0.4.0 | **Status:** Proposed cross-prototype contract; P-09A passed and P-09B scope-aware P-06 correlation passed on synthetic CI; no production approval
 
 **Status:** Proposed contract baseline; implementation and owner approval remain open.  
 **Baseline:** `integration/p03d-p04-p08-candidate` at `c7f9ffa1f499fbd34d260b2aa6d3122d32e1ac7f`.  
@@ -103,3 +103,7 @@ The P-06 fixture now proves product-scoped uniqueness and forensic filtering for
 ### P-09C acceptance evidence
 
 P-08 product-aware build/provenance and lifecycle enforcement passed in [45629980686](https://github.com/tecpey/lottorito-platform/actions/runs/45629980686): **53/53 tests**. Both product artifacts are built independently; the product identity is embedded in the artifact payload, release metadata and provenance. The deployment controller rejects promotion and rollback across product scopes. This closes the synthetic P-08 slice only; P-05B recovery and P-07B event-contract alignment remain open.
+
+### P-09D acceptance evidence
+
+P-07B now validates the canonical product event envelope: tenant UUID, producer-bound product scope, source-event UUID, schema version and W3C traceparent. The dispatch result returns the exact source identity tuple and trace ID required by P-06. CI [45631269584](https://github.com/tecpey/lottorito-platform/actions/runs/45631269584) passed **42/42 tests**. The registry and synthetic tenant fixtures now use the same identity types as the P-09 contract. Platform-originated events are not implicitly accepted by product service identities.
