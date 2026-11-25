@@ -136,7 +136,7 @@ function canonicalize(payload, installation, eventId, sourceEventId) {
     id: eventId,
     source: installation.provider_source,
     type: payload.type,
-    time: new Date(occurredAt).toISOString(),
+    time: occurredAt,
     dataschema: mapping.dataschema,
     tenantid: installation.tenant_id,
     scope: { kind: "product", id: productId },
