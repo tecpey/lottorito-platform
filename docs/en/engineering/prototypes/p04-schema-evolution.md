@@ -41,3 +41,15 @@ Integration run [45471750215](https://github.com/tecpey/lottorito-platform/actio
 ## Rebased-stack validation — 2026-11-25
 
 The original PR #51 code head passed its seven-test P-04 suite, but that branch was a sibling of P-03C/P-03D. This prototype has been copied onto `spike/p04-schema-evolution-p03d`, whose parent is P-03D PR #61. Re-run P-04 plus P-02/P-03C/P-03D regression and bilingual Documentation Governance on the new PR head. Until then, the original seven-test run is historical evidence only; the rebased P-04 status is pending verification.
+
+
+## Verified reconciled-stack CI — 2026-11-25
+
+Exact tested code head: `dca0762678ed45da122ba109276c54ce61ac0846`.
+
+- P-02 regression: [run 119](https://github.com/tecpey/lottorito-platform/actions/runs/45608274029) — 25 passed, 0 failed, 0 skipped.
+- P-03C/P-03D regression: [run 38](https://github.com/tecpey/lottorito-platform/actions/runs/45608274098) — P-03C 15 passed and P-03D 19 passed; 34 total, 0 failed, 0 skipped.
+- P-04 schema evolution: [run 22](https://github.com/tecpey/lottorito-platform/actions/runs/45608274118) — 7 passed, 0 failed, 0 skipped.
+- Bilingual Documentation Governance: [run 707](https://github.com/tecpey/lottorito-platform/actions/runs/45608274060) — passed.
+
+All four workflows completed successfully on the exact same code head. This verifies the synthetic P-04 experiment in the reconciled P-03D stack only; it does not establish production migration safety, zero downtime, or technology approval.
