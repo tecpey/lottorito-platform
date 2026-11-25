@@ -82,7 +82,7 @@ LOT-FIN-POST-001 کنترل‌های پیشنهادی ثبت مالی و تطب�
 
 ## کنترل خودکار مستندات
 
-Validator ساختاری در [scripts/check_docs.py](../../scripts/check_docs.py) جفت‌بودن مسیرهای Markdown، شناسه‌های پایدار و یکتا، عنوان سطح اول، Metadata نسخه/وضعیت و لینک‌های محلی نسبی را بررسی می‌کند. GitHub Actions آن را از طریق [Workflow حاکمیت مستندات](../../.github/workflows/docs-governance.yml) اجرا می‌کند. این کنترل‌ها هم‌ارزی معنایی ترجمه را اثبات نمی‌کنند؛ بازبینی انسانی همچنان الزامی است. Documentation Governance روی Head مربوط به PR شماره ۵۹ در اجرای [45577208030](https://github.com/tecpey/lottorito-platform/actions/runs/45577208030) موفق شد؛ این فقط اعتبارسنجی ساختار و لینک است، نه گواهی هم‌ارزی معنایی ترجمه.
+Validator ساختاری در [scripts/check_docs.py](../../scripts/check_docs.py) جفت‌بودن مسیرهای Markdown، شناسه‌های پایدار و یکتا، عنوان سطح اول، Metadata نسخه/وضعیت و لینک‌های محلی نسبی را بررسی می‌کند. GitHub Actions آن را از طریق [Workflow حاکمیت مستندات](../../.github/workflows/docs-governance.yml) اجرا می‌کند. این کنترل‌ها هم‌ارزی معنایی ترجمه را اثبات نمی‌کنند؛ بازبینی انسانی همچنان الزامی است. Documentation Governance روی Head نهایی PR شماره ۵۹ با پیشوند `1046b525...` در اجرای [45577321154](https://github.com/tecpey/lottorito-platform/actions/runs/45577321154) موفق شد؛ این فقط اعتبارسنجی ساختار و لینک است، نه گواهی هم‌ارزی معنایی ترجمه.
 
 ## انضباط شواهد و وضعیت
 
