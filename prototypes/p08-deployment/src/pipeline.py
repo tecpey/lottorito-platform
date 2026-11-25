@@ -234,6 +234,8 @@ class DeploymentController:
                 provenance: Mapping[str, Any], expected_source_revision: str) -> dict[str, Any]:
         if state.current_digest != expected_current_digest:
             raise DeploymentConflict("stale_current_release")
+        if state.api_digest != state.current_digest or state.worker_digest != state.current_digest:
+            raise DeploymentConflict("active_component_release_drift")
         artifact = self.store.get(digest)
         if not verify_provenance(artifact, provenance, digest, expected_source_revision):
             raise GateRejected("provenance_verification_failed")
@@ -256,9 +258,11 @@ class DeploymentController:
         state.audit.append(self._audit(actor, state, digest, "release.promoted", "accepted"))
         return {"status": "promoted", "digest": digest, "version": metadata["version"]}
 
-    def rollback(self, state: DeploymentState, target_digest: str, actor: str,
-                 approval: Approval, api_health: HealthSnapshot,
+    def rollback(self, state: DeploymentState, target_digest: str, expected_current_digest: str,
+                 actor: str, approval: Approval, api_health: HealthSnapshot,
                  worker_health: HealthSnapshot) -> dict[str, Any]:
+        if state.current_digest != expected_current_digest:
+            raise DeploymentConflict("stale_current_release")
         if state.environment not in ALLOWED_ENVIRONMENTS:
             raise GateRejected("environment_not_allowed")
         if not approval.valid or approval.environment != state.environment or approval.artifact_digest != target_digest:
@@ -330,7 +334,7 @@ class DeploymentController:
         active = self._metadata(state.current_digest)
         if not (active["min_schema"] <= target_version <= active["max_schema"]):
             raise GateRejected("active_release_cannot_read_target_schema")
-        if phase == "contract" and state.previous_digest is not None:
+        if state.previous_digest is not None:
             previous = self._metadata(state.previous_digest)
             if not (previous["min_schema"] <= target_version <= previous["max_schema"]):
                 raise GateRejected("rollback_target_incompatible")
