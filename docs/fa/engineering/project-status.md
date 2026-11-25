@@ -1,15 +1,15 @@
 # وضعیت واقعی پروژه و نقطه ادامه کار
 
-**شناسه:** LOT-OPS-001 | **نسخه:** ۱.۴۱.۰ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۵
+**شناسه:** LOT-OPS-001 | **نسخه:** ۱.۴۲.۰ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۵
 
 ## وضعیت تأییدشده مخزن
 
 ## اعتبارسنجی اولیه P-07B — ۲۰۲۶-۱۱-۲۵
 
 - P-07B با PR شماره [۵۷](https://github.com/tecpey/lottorito-platform/pull/57) به‌صورت Draft باز است و روی P-07A PR شماره ۵۶ قرار دارد. Merge نشده است.
-- Head دقیق اعتبارسنجی‌شده P-07B: `78c69234fce7859d6383695914b664cf05ecd52f`.
-- Integration مربوط به P-07B با شناسه [45570055150](https://github.com/tecpey/lottorito-platform/actions/runs/45570055150) روی Head دقیق PR موفق شد؛ اعتبارسنجی JSON Registry، بررسی Syntax پایتون و هر ۳۳ تست موفق بودند. اجرای Push با شناسه [45570037120](https://github.com/tecpey/lottorito-platform/actions/runs/45570037120) نیز موفق شد.
-- Documentation Governance با شناسه [45570055148](https://github.com/tecpey/lottorito-platform/actions/runs/45570055148) روی همان Head PR موفق شد.
+- Head دقیق اعتبارسنجی‌شده P-07B: `9c3bfee387c9f989a556da9cdce2a1616f31c382`.
+- Integration مربوط به P-07B با شناسه [45570214926](https://github.com/tecpey/lottorito-platform/actions/runs/45570055150) روی Head دقیق PR موفق شد؛ اعتبارسنجی JSON Registry، بررسی Syntax پایتون و هر ۳۳ تست موفق بودند. اجرای Push با شناسه [45570037120](https://github.com/tecpey/lottorito-platform/actions/runs/45570037120) نیز موفق شد.
+- Documentation Governance با شناسه [45570214958](https://github.com/tecpey/lottorito-platform/actions/runs/45570055148) روی همان Head PR موفق شد.
 - Fixture مالکیت و مجوزهای سطح عملیات برای قابلیت‌های مشترک Identity، Tenant، Finance، Notifications و Audit را اثبات می‌کند؛ همچنین جداسازی منابع متعلق به محصول، بررسی مستقل Service-to-Tenant Scope و Product Entitlement، تصمیم‌های Deny-by-Default/Fail-Closed، تطبیق هویت Producer و Source، قرارداد صریح Consumer، بررسی پروفایل CloudEvents و dataschema، طبقه‌بندی رویداد، رد کلید/Extension حساس و حذف Credential از Audit را آزمایش می‌کند.
 - رویداد بین Affiliate و Lottery صرفاً آزمایشی و ساختگی است. هیچ یکپارچگی Production تصویب نشده است. Tokenهای ثابت، Registryهای JSON، توابع محلی PDP/PEP و فهرست Audit در حافظه کنترل Production نیستند.
 - هویت رمزنگاری‌شده، OAuth/OIDC، پروتکل AuthZEN، Event Broker، تضمین تحویل/Replay، دیتابیس/RLS، جداسازی واقعی Tenant، Audit تغییرناپذیر، Merge یا Deploy اثبات/انجام نشده‌اند.
