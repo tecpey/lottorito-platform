@@ -33,9 +33,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Validate and compile experiment
-        run: |
-          python3 -m json.tool prototypes/p08-deployment/fixtures/v1/release.json >/dev/null 2>&1 || true
-          python3 -m compileall -q prototypes/p08-deployment
+        run: python3 -m compileall -q prototypes/p08-deployment
       - name: Build deterministic release artifacts
         run: |
           REVISION="${GITHUB_SHA}"
