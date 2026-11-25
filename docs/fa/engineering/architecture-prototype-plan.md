@@ -1,6 +1,6 @@
 # برنامه Prototype معماری و تولید شواهد Lottorito
 
-**شناسه سند:** LOT-PROT-001 | **نسخه:** ۱.۶.۰ | **وضعیت:** برنامه آزمایش پیشنهادی؛ اجرا و انتخاب فناوری تصویب نشده است
+**شناسه سند:** LOT-PROT-001 | **نسخه:** ۱.۸.۰ | **وضعیت:** برنامه آزمایش پیشنهادی؛ اجرا و انتخاب فناوری تصویب نشده است
 
 ## ۱. هدف و اعتبار
 
@@ -141,29 +141,35 @@
 
 **شواهد:** Migration Script، Checksum/Count قبل و بعد، مشاهده Lock/Latency، ماتریس سازگاری، بازیابی اجرای متوقف‌شده و گزارش Rollback/Roll-forward.
 
-### P-05 — Backup، Restore و بازیابی
+### P-05 — پشتیبان‌گیری، بازیابی و تداوم
 
-**پرسش:** آیا داده حیاتی و وابستگی‌های ضروری به وضعیت قابل استفاده و سازگار درونی، مطابق اهداف بازیابی مورد تأیید مالک، برمی‌گردند؟
+**پرسش:** آیا می‌توان از یک Cluster ساختگی مشابه Lottorito نسخه پشتیبان گرفت، صحت آن را بررسی کرد، تا نقطه بازیابی نام‌گذاری‌شده بازگرداند و حفظ جداسازی Tenant و Invariantهای مالی را اثبات کرد؟
 
-**حداقل Fixture:** محیط ایزوله با رکورد ساختگی Database، تاریخچه Event، Ledger، ارجاع Object، تنظیمات و Key غیرProduction. از Backup یا Secret واقعی Production استفاده نشود.
+**مرز تصمیم:** P-05 سه برش مستقل با پذیرش جداگانه دارد. P-05A نسخه فیزیکی پایه، پیوستگی آرشیو WAL، PITR، صحت‌سنجی Restore و تطبیق مالی ساختگی را اثبات می‌کند. P-05B جداگانه بازیابی بایت Object، کلید/تنظیمات و Replay رویداد را می‌آزماید. P-05C جداگانه Failover، Writer Fencing، جلوگیری از Split-brain و Failback را بررسی می‌کند. موفقیت P-05A به‌معنای موفقیت P-05B یا P-05C نیست.
 
-**آزمایش‌ها:**
-۱. Backup رمزگذاری‌شده بسازید و در محیط پاک و ایزوله Restore کنید.
-۲. در صورت پشتیبانی Candidate، Point-in-Time Recovery را آزمایش کنید.
-۳. داده Object و Key Material لازم را با فرایند Test-Key مصوب Restore کنید.
-۴. اختلال Database، Worker و وابستگی را شبیه‌سازی و ترتیب بازیابی را تعیین کنید.
-۵. رویدادهای دریافتی حین قطعی را Replay و مجموع Provider/Source را با وضعیت Restoreشده تطبیق دهید.
-۶. Failback را آزمایش و از Split-brain Writer در دوره بازیابی جلوگیری کنید.
+**Fixture حداقلی:** Cluster دورریختنی PostgreSQL 18.7، دو Tenant ساختگی با هویت Login مستقل، رکورد رویداد مبدأ، Fixture اسناد مالی متوازن، Metadata ارجاع Object و نشانگر حادثه پس از Restore Point. Backup عملیاتی، وجه واقعی، Credential زنده، Secret شریک یا داده مشتری/بازیکن ممنوع است.
 
-**معیار Pass:**
-- Restore تکرارپذیر و دارای Integrity Check باشد.
-- مرز Tenant، تراز Journal، یکتایی Event و ارجاع Object حفظ شود.
-- Key/Configuration لازم بدون افشای Secret قابل بازیابی باشد.
-- مراحل، وابستگی‌ها، نقش‌ها و نقاط تصمیم بازیابی مستند باشند.
-- نتیجه زمان‌دار با RPO/RTO مصوب مقایسه شود؛ اگر هدفی تصویب نشده، فقط اندازه‌گیری گزارش شود و ادعای انطباق با هدف مطرح نشود.
-- وجود Backup به‌تنهایی شاهد قابلیت بازیابی تلقی نشود.
+**آزمایش‌های P-05A:**
+۱. پیش از Base Backup آرشیو WAL را فعال و با pg_basebackup نسخه فیزیکی و Manifest بسازید.
+۲. pg_verifybackup را اجرا کنید؛ یک کپی از Manifest را عمداً دست‌کاری و رد شدن آن را اثبات کنید.
+۳. Restore Point نام‌گذاری‌شده بسازید، داده مالی/رویداد ساختگی پس از آن Commit کنید، تعویض WAL را اجباری و آرشیو Segment لازم را تأیید کنید.
+۴. Backup را در Data Directory دوم و ایزوله Restore کنید؛ restore_command، recovery.signal و Recovery Target نام‌گذاری‌شده را تنظیم کنید و پس از رسیدن به Target آن را Promote کنید.
+۵. وجود داده پیش از Target و نبود داده پس از Target را اثبات و Log و زمان Restore را ثبت کنید.
+۶. توازن Journal، مجموع کنترلی Source Event تا Ledger، یکتایی Economic Effect و سلامت Metadata ارجاع Object را دوباره محاسبه کنید.
+۷. با Login دیتابیس مستقل هر Tenant متصل شوید و ثابت کنید RLS پس از Restore نیز مانع خواندن بین Tenantها می‌شود.
+۸. خرابی WAL مفقود، Manifest نامعتبر، Restore قطع‌شده و آرشیو غیرقابل‌دسترس را ثبت کنید؛ هیچ سناریویی بی‌صدا Skip نشود.
 
-**شواهد:** گزارش زمان‌دار تمرین، Manifest بازیابی، گزارش Integrity/Reconciliation، شاهد بازیابی Key، Runbook و بازه مشاهده‌شده Downtime/Data Loss.
+**معیار پذیرش P-05A:** موفقیت Base Backup و pg_verifybackup؛ رد کپی خراب‌شده؛ مرز دقیق PITR؛ راه‌اندازی Cluster بازیابی‌شده و پذیرش اتصال احرازشده؛ صفر Journal نامتوازن، Economic Effect تکراری، اختلاف توضیح‌نداده‌شده Source-to-Ledger یا ارجاع ساختگی خراب به Object؛ صفر مشاهده بین Tenantها؛ بررسی صریح پیوستگی WAL؛ ثبت نسخه‌ها، زمان‌ها، فرمان‌ها و شواهد CI.
+
+**P-05B (خارج از این برش):** بازیابی Payload از شبیه‌ساز ایزوله Object Storage؛ بررسی Content Hash؛ بازیابی Key/Envelope ساختگی با سلسله‌مراتب مستقل و صرفاً آزمایشی؛ Replay رویداد با Idempotency مربوط به Inbox/Economic Effect و تطبیق منبع/Provider. وجود ردیف ارجاع Object در دیتابیس اثبات بازیابی بایت‌های فایل نیست. کلید Production هرگز در Backup دیتابیس یا Fixture مربوط به CI قرار نگیرد.
+
+**P-05C (خارج از این برش):** انشعاب Timeline بین Primary/Standby ساختگی، Promotion، Writer Fencing مبتنی بر Epoch، رد نوشتن Primary قدیمی، اتصال مجدد آگاه از Timeline و Failback. pg_rewind فقط ابزار نامزد است؛ دسترسی WAL، پیش‌نیاز Checksum یا wal_log_hints، Shutdown تمیز، Replay WAL پس از Rewind و مسیر جایگزین شکست باید آزمون شوند. شکست Rewind ممکن است مقصد را غیرقابل‌استفاده کند و به Base Backup تازه نیاز داشته باشد.
+
+**مرجع RPO/RTO:** اهداف عددی در LOT-QA-001 همچنان TBD هستند و به تأیید مالک/متخصص دامنه نیاز دارند. RPO، RTO و نرخ Restore مشاهده‌شده را گزارش کنید، بدون ادعای انطباق با هدف مصوب. مثال‌های Provider ابری تعهد Lottorito نیستند.
+
+**شواهد:** Manifest و خروجی صحت‌سنجی Backup، نتیجه تست منفی دست‌کاری، فهرست WAL آرشیوشده، LSN/Timeline نقطه بازیابی، Log و زمان Restore، Assertions قبل/بعد از Target، نتایج جداسازی Tenant، گزارش Ledger/Reconciliation، نسخه دقیق نرم‌افزار، Runbook و محدودیت‌ها.
+
+**وضعیت:** راستی‌آزمایی ساختگی P-05A در CI روی Head با شناسه f2303a647aefd5bd8d48ba9d2e1830c881f60041 موفق شد. اجرای Integration با شناسه [45524388676](https://github.com/tecpey/lottorito-platform/actions/runs/45524388676) و Documentation Governance با شناسه [45524388734](https://github.com/tecpey/lottorito-platform/actions/runs/45524388734) موفق بودند. PostgreSQL 18.7 استفاده شد؛ در Runner دورریختنی CI، زمان Backup به‌همراه Verification برابر ۱۲ تا ۱۳ ثانیه (اجرای نهایی روی Head فعلی: ۱۳ ثانیه) و زمان راه‌اندازی Restore برابر ۱ ثانیه اندازه‌گیری شد. Log رسیدن به Restore Point نام‌گذاری‌شده بررسی شد، نشانگر قبل از Target حاضر و نشانگر بعد از Target غایب بود، RLS خواندن/نوشتن بین Tenantها را رد کرد و مجموع ساختگی Ledger/Source تطبیق داشت. آزمون منفی WAL مفقود و Restore قطع‌شده هنوز اجرا نشده‌اند؛ بازیابی بایت Object/کلید و Failover/Fencing/Failback در P-05B/P-05C قرار دارند و اجرا نشده‌اند. این نتیجه آمادگی Production، تعهد RPO/RTO یا تصویب فناوری نیست.
 
 ### P-06 — Observability سرتاسری و حریم خصوصی
 

@@ -1,8 +1,17 @@
 # وضعیت واقعی پروژه و نقطه ادامه کار
 
-**شناسه:** LOT-OPS-001 | **نسخه:** ۱.۲۷.۰ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۴
+**شناسه:** LOT-OPS-001 | **نسخه:** ۱.۲۸.۰ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۴
 
 ## وضعیت تأییدشده مخزن
+
+## به‌روزرسانی نقطه ادامه — ۲۰۲۶-۱۱-۲۵
+
+- PR شماره ۵۱ مربوط به P-04 همچنان باز، Draft و Mergeنشده است؛ Head آن d143c213a4c3cedcf64fcbe2edb17f21ad2b3a85 است. اجرای Integration با شناسه [45523886859](https://github.com/tecpey/lottorito-platform/actions/runs/45523886859) و Documentation Governance با شناسه [45523886920](https://github.com/tecpey/lottorito-platform/actions/runs/45523886920) موفق شدند.
+- PR شماره ۵۲ مربوط به P-05A باز، Draft و Mergeنشده و روی P-04 قرار دارد؛ Head آن f2303a647aefd5bd8d48ba9d2e1830c881f60041 است. اجرای Integration با شناسه [45524388676](https://github.com/tecpey/lottorito-platform/actions/runs/45524388676) و Documentation Governance با شناسه [45524388734](https://github.com/tecpey/lottorito-platform/actions/runs/45524388734) موفق شدند.
+- P-05A از Container دورریختنی PostgreSQL 18.7 استفاده کرد. تست Physical Base Backup، pg_verifybackup، رد Manifest دست‌کاری‌شده، WAL آرشیوشده، PITR نام‌گذاری‌شده با Assertion قبل/بعد از Target، جداسازی خواندن/نوشتن Tenant با RLS و تطبیق ساختگی Journal/Source را بررسی کرد. زمان مشاهده‌شده Backup به‌همراه Verification در CI برابر ۱۲ تا ۱۳ ثانیه (اجرای نهایی روی Head فعلی: ۱۳ ثانیه) و راه‌اندازی Restore برابر ۱ ثانیه بود؛ این‌ها هدف عملیاتی RPO/RTO نیستند.
+- P-05A هنوز آزمون منفی WAL مفقود/Restore قطع‌شده، بازیابی بایت Object/کلید، Replay رویداد، بازیابی منطقه‌ای، Failover، Split-brain Fencing یا Failback را پوشش نمی‌دهد. P-05B/P-05C اجرا نشده‌اند. RPO/RTO همچنان TBD است؛ هیچ داده، Credential یا وجه Production استفاده و هیچ Deploy یا Merge انجام نشده است.
+- موارد قدیمی‌تر وضعیت پروژه در ادامه، Snapshotهای تاریخی هستند؛ این به‌روزرسانی در صورت تعارض، وضعیت P-04/P-05 را جایگزین می‌کند. پیش از هر تصمیم Merge، Metadata زنده PR و Runها دوباره دریافت شود.
+
 - مخزن tecpey/lottorito-platform؛ شاخه پیش‌فرض main؛ سطح دسترسی Public طبق تصمیم مالک.
 - در تاریخ ۲۰۲۶-۱۱-۲۴، PRهای ۱۹ تا ۲۵، ۲۷ تا ۳۶، ۳۹، ۴۲، ۴۵ و ۴۶ به‌صورت تغییرات Open/Draft هستند. PR شماره ۴۵ نسخه بازسازی‌شده آزمایش Credential/Pool هر Tenant بر مبنای آخرین Head مربوط به PR شماره ۴۲ است؛ PR شماره ۴۳ بدون Merge بسته شده است. PR شماره ۴۲ برای جداسازی Data Planeهای ثانویه روی PR شماره ۳۹ قرار دارد؛ PR شماره ۳۹ برای Support روی PR شماره ۳۶ قرار دارد. PR شماره ۳۷ پس از انشعاب تاریخچه شاخه Support به‌عنوان مورد جایگزین‌شده بسته شد؛ PR شماره ۳۹ از آخرین Head مربوط به PR شماره ۳۶ دوباره ساخته شده و آزمایش فعال Support است. زنجیره مستندات/محصول موردنظر چنین است: ۱۹ ← ۲۰ ← ۲۱ ← ۲۲ ← ۲۳ ← ۲۴ ← ۲۵ ← ۲۷ ← ۲۸ ← ۲۹ ← ۳۰ ← ۳۱ ← ۳۲ ← ۳۳ ← ۳۴ ← ۳۵ ← ۳۶ ← ۳۹ ← ۴۲ ← ۴۵ ← ۴۶. PR شماره ۲۶ یک شاخه مستقل Open/Draft بر مبنای main است و با فایل‌های حاکمیتی مشترک هم‌پوشانی دارد؛ پیش از ادغام باید با زنجیره اصلی تطبیق داده شود. هیچ‌یک از PRهای این زنجیره Merge نشده‌اند.
 - PR شماره ۲۵ شش Commit از آخرین Head مربوط به PR شماره ۲۴ عقب است؛ PRهای ۲۷ تا ۳۵ این ancestry قدیمی را به ارث می‌برند. PR شماره ۲۸ پیشنهادهای B2B2C، IAM و داشبورد، PR شماره ۲۹ LOT-WALLET-001، PR شماره ۳۰ LOT-PAYMENT-001، PR شماره ۳۱ LOT-PAYOUT-001، PR شماره ۳۲ LOT-B2C-PRD-001 و PR شماره ۳۳ LOT-API-PLATFORM-001 را بر مبنای زنجیره قبلی اضافه می‌کنند؛ PR شماره ۳۴ LOT-AFFILIATE-API-001 را بر مبنای #۳۳ و PR شماره ۳۵ LOT-CUSTOMER-PILOT-001 را بر مبنای #۳۴ اضافه می‌کند؛ PR شماره ۳۵ محدوده مشتری RaidenBet را به دو ماژول Advanced Affiliate & Agent و Live Chat Widget محدود می‌کند. پیش از بررسی Merge، زنجیره بالادستی باید همگام و CI دوباره اجرا شود. این Snapshot تاریخ‌دار است؛ Metadata زنده PR مرجع نهایی است.

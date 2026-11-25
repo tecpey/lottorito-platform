@@ -1,6 +1,6 @@
 # Lottorito Architecture Prototype and Evidence Plan
 
-**Document ID:** LOT-PROT-001 | **Version:** 1.6.0 | **Status:** Proposed experiment plan; execution and technology choices not approved
+**Document ID:** LOT-PROT-001 | **Version:** 1.8.0 | **Status:** Proposed experiment plan; execution and technology choices not approved
 
 ## 1. Purpose and authority
 
@@ -143,27 +143,33 @@ A prototype may be **Pass**, **Fail**, **Inconclusive** or **Not run**. “Pass�
 
 ### P-05 — Backup, restore and recovery
 
-**Question:** Can critical data and required dependencies be restored to a usable, internally consistent state within owner-approved recovery objectives?
+**Question:** Can a disposable Lottorito-like PostgreSQL cluster be backed up, verified, restored to a named recovery point, and shown to preserve tenant isolation and financial invariants?
 
-**Minimum fixture:** Isolated environment with synthetic database records, event history, ledger, object references, configuration and non-production keys. No production backup or secret.
+**Decision boundary:** P-05 has three independently accepted slices. P-05A proves physical base backup, WAL archive continuity, PITR, restore verification and synthetic financial reconciliation. P-05B separately tests object-byte recovery, key/configuration recovery and event replay. P-05C separately tests failover, writer fencing, split-brain prevention and failback. Passing P-05A does not imply P-05B or P-05C passed.
 
-**Experiments:**
-1. Create encrypted backup and restore into a clean isolated environment.
-2. Exercise point-in-time recovery if the candidate supports it.
-3. Restore required object data and key material using the approved test-key process.
-4. Simulate database, worker and dependency interruption; establish recovery order.
-5. Replay events received during the outage and reconcile provider/source totals to restored state.
-6. Test failback and prevent split-brain writers during recovery.
+**Minimum fixture:** Disposable PostgreSQL 18.7 cluster, two synthetic tenants with distinct login identities, source-event records, balanced journal fixtures, object-reference metadata and a post-restore-point incident marker. No production backup, real funds, live credentials, partner secrets or customer/player data.
 
-**Pass criteria:**
-- Restore is reproducible and produces integrity-checked data.
-- Tenant boundaries, journal balance, event uniqueness and object references remain valid.
-- Required keys/configuration can be recovered without exposing secrets.
-- Recovery steps, dependencies, roles and decision points are documented.
-- Measured recovery results are recorded against approved RPO/RTO; if targets are not approved, report measurements without claiming target compliance.
-- Backup existence alone is never treated as proof of recoverability.
+**P-05A experiments:**
+1. Enable WAL archiving before the base backup; create a physical backup with pg_basebackup and its manifest.
+2. Run pg_verifybackup; deliberately tamper with a copy of the manifest and prove verification fails closed.
+3. Create a named restore point, commit post-point synthetic financial/event data, force WAL switch and wait for the required segment to be archived.
+4. Restore the base backup into a second isolated data directory; configure restore_command, recovery.signal and the named recovery target; promote only after reaching the target.
+5. Prove pre-target data exists and post-target data does not; record restore logs and elapsed time.
+6. Recompute journal balance, source-event-to-ledger control totals, economic-effect uniqueness and object-reference metadata integrity.
+7. Connect using each tenant's distinct database login and prove RLS still prevents cross-tenant reads after restore.
+8. Record missing-WAL, invalid-manifest, interrupted-restore and unavailable-archive failures; do not silently skip scenarios.
 
-**Evidence:** timed exercise log, restore manifest, integrity/reconciliation reports, key-recovery evidence, runbook and observed data-loss/downtime window.
+**P-05A pass criteria:** successful base backup and pg_verifybackup; rejection of the corrupted copy; exact named PITR boundary; restored cluster starts and accepts authenticated connections; zero unbalanced journals, duplicate economic effects, unexplained source-to-ledger differences or broken synthetic object references; zero cross-tenant visibility; required WAL continuity is explicit; exact versions, timings, commands and CI evidence are recorded.
+
+**P-05B (not in this slice):** restore object payloads from an isolated object-store emulator; verify content hashes; recover synthetic envelope/key material using a separate test-only key-encryption hierarchy; replay events with inbox/economic-effect idempotency and provider/source reconciliation. A database object-reference row does not prove object bytes are recoverable. Never put production keys in database backups or CI fixtures.
+
+**P-05C (not in this slice):** simulate primary/standby divergence, promotion, epoch-based writer fencing, stale-primary write rejection, timeline-aware rejoin and failback. pg_rewind is only a candidate: WAL availability, checksum-or-wal_log_hints prerequisites, clean shutdown, post-rewind WAL replay and failure fallback must be tested. A failed rewind may leave the target unusable and require a fresh base backup.
+
+**RPO/RTO authority:** Numeric targets remain TBD in LOT-QA-001 and require owner/domain approval. Report measured RPO, RTO and restore throughput without claiming target compliance. Cloud-provider example targets are not Lottorito commitments.
+
+**Evidence:** backup manifest and verification output, tamper-negative result, archived WAL inventory, restore-point LSN/timeline, restore logs and timing, pre/post-target assertions, tenant-isolation results, journal/reconciliation report, exact versions, runbook and limitations.
+
+**Status:** P-05A synthetic CI verification passed on head f2303a647aefd5bd8d48ba9d2e1830c881f60041. Integration run [45524388676](https://github.com/tecpey/lottorito-platform/actions/runs/45524388676) and Documentation Governance run [45524388734](https://github.com/tecpey/lottorito-platform/actions/runs/45524388734) passed. PostgreSQL 18.7 was used; CI measured 12–13 seconds (latest final-head run: 13 seconds) for backup plus verification and 1 second for restore startup in this disposable runner only. The named restore-point log was asserted, the pre-target marker was present, the post-target marker absent, tenant RLS read/write denial held, and synthetic ledger/source totals reconciled. Missing-WAL and interrupted-restore negative drills remain untested; object-byte/key recovery and failover/fencing/failback are P-05B/P-05C and not run. This is not production readiness, an RPO/RTO commitment or technology approval.
 
 ### P-06 — End-to-end observability and privacy
 
