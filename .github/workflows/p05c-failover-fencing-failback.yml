@@ -1,0 +1,44 @@
+name: P-05C Failover, Writer Fencing and Failback
+on:
+  push:
+    branches:
+      - spike/p05c-failover-fencing-failback-p03d
+    paths:
+      - "prototypes/p05-recovery/p05c/**"
+      - "prototypes/p05-recovery/Dockerfile"
+      - "prototypes/p05-recovery/compose.yaml"
+      - "docs/en/engineering/prototypes/p05c-failover-fencing-failback.md"
+      - "docs/fa/engineering/prototypes/p05c-failover-fencing-failback.md"
+  pull_request:
+    paths:
+      - "prototypes/p05-recovery/p05c/**"
+      - "prototypes/p05-recovery/Dockerfile"
+      - "prototypes/p05-recovery/compose.yaml"
+      - "docs/en/engineering/prototypes/p05c-failover-fencing-failback.md"
+      - "docs/fa/engineering/prototypes/p05c-failover-fencing-failback.md"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: p05c-failover-fencing-failback-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  failover:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Build isolated PostgreSQL test image
+        run: docker compose -f prototypes/p05-recovery/compose.yaml build
+      - name: Start disposable PostgreSQL container
+        run: docker compose -f prototypes/p05-recovery/compose.yaml up -d --wait --wait-timeout 90
+      - name: Run P-05C failover, epoch fencing, rewind and failback assertions
+        run: docker compose -f prototypes/p05-recovery/compose.yaml exec -T postgres bash /workspace/p05c/run-p05c.sh
+      - name: Capture container and PostgreSQL logs on failure
+        if: failure()
+        run: docker compose -f prototypes/p05-recovery/compose.yaml logs --no-color
+      - name: Destroy disposable clusters
+        if: always()
+        run: docker compose -f prototypes/p05-recovery/compose.yaml down --volumes --remove-orphans
