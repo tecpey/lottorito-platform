@@ -9,7 +9,6 @@ from __future__ import annotations
 import hashlib
 import io
 import json
-import os
 import subprocess
 import sys
 import zipfile
@@ -108,8 +107,8 @@ class RuntimeSecret:
 
 
 def run_artifact(artifact_path: Path, secret: RuntimeSecret | None = None) -> str:
-    env = dict(os.environ)
-    env.pop(SECRET_ENV, None)
+    # Pass an allowlisted environment only; never inherit ambient CI/host secrets.
+    env: dict[str, str] = {}
     if secret is not None:
         if not secret.reference.startswith("secret://") or not secret.value:
             raise GateRejected("runtime_secret_reference_invalid")
