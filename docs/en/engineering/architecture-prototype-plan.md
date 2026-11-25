@@ -1,6 +1,6 @@
 # Lottorito Architecture Prototype and Evidence Plan
 
-**Document ID:** LOT-PROT-001 | **Version:** 1.27.0 | **Status:** Proposed experiment plan; execution and technology choices not approved
+**Document ID:** LOT-PROT-001 | **Version:** 1.28.0 | **Status:** Proposed experiment plan; execution and technology choices not approved
 
 ## 1. Purpose and authority
 
@@ -394,3 +394,7 @@ P-07B's producer/consumer contract now carries canonical tenant UUID, product sc
 ## P-09E — Shared-record recovery proof (2026-11-25)
 
 P-09E now passes on exact candidate head 73d7d0daa46e6a019020fc25ace315836d270a6f: P-05 workflow [45635972222](https://github.com/tecpey/lottorito-platform/actions/runs/45635972222) and Documentation Governance [45635972312](https://github.com/tecpey/lottorito-platform/actions/runs/45635972312). The recovery experiment applies the exact P-02/P-03C/P-03D SQL chain, backs up the database physically, verifies the backup, restores a second cluster and replays actual P-03D provider-inbox records through P-02 post_journal. It proves transaction rollback after injected failure, idempotent retries, same-source-UUID separation across product/tenant scopes, product/tenant RLS after restore, balanced journals, atomic outbox delivery-state creation and zero provider-ledger reconciliation exceptions. The legacy P-05B simplified fixture remains separate. Aggregate ordering, concurrent lease fencing, full Node worker orchestration and production recovery design are not claimed by this slice.
+
+## P-09F — Concurrent worker and cross-scope proof (2026-11-25)
+
+P-03C/P-03D CI [45637659485](https://github.com/tecpey/lottorito-platform/actions/runs/45637659485) passed on 2b393cc8c41226a20333f34559ac6952883901a3: 15/15 P-03C and 25/25 P-03D tests. Three P-09F tests use the real Node.js 26 provider worker on PostgreSQL 18.7: single-winner concurrent inbox claim/process; stale/current lease-token fencing under concurrent processing; and same provider event/source UUID processed independently across Affiliate, Lottery and a second tenant with one journal/outbox/delivery per scope and zero reconciliation exceptions. P-05/P-09/P-06/P-07B/P-08/P-05C and Documentation Governance also passed on the same head (45637659268, 45637659215, 45637659351, 45637659213, 45637659193, 45637659194, 45637659297). This closes the first P-09F concurrency slice only; aggregate ordering and direct Node-worker replay on the P-09E restored cluster remain open.

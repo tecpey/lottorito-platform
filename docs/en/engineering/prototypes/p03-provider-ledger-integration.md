@@ -1,6 +1,6 @@
 # P-03D — Provider Inbox to Product-Scoped Ledger Posting and Outbox
 
-**Document ID:** LOT-PROT-P03D-001 | **Version:** 0.2.0 | **Status:** Synthetic integration prototype; 22 P-03D and 15 P-03C tests passed; no production claim | **Review date:** 2026-11-25
+**Document ID:** LOT-PROT-P03D-001 | **Version:** 0.3.0 | **Status:** Synthetic integration prototype; 25 P-03D and 15 P-03C tests passed; no production claim | **Review date:** 2026-11-25
 
 ## Purpose
 
@@ -115,3 +115,6 @@ Exact current validated PR head: `14d69ec5be1a9285049c1f88529f375782f2de51`.
 
 This verifies the synthetic acceptance matrix on the cited branch head only. PR #61 remains Draft/open and stacked on PR #60; no merge, production provider integration, production database migration, technology approval or deployment is implied.
 
+## P-09F concurrency and cross-scope regression (2026-11-25)
+
+On candidate head 2b393cc8c41226a20333f34559ac6952883901a3, P-03C/P-03D workflow [45637659485](https://github.com/tecpey/lottorito-platform/actions/runs/45637659485) passed: P-03C **15/15**, P-03D **25/25**. Three added tests run the real Node.js provider worker against PostgreSQL 18.7: one-winner concurrent inbox claim and process race; stale/current lease-token fencing under concurrent processing; and same provider event ID/source-event UUID processed independently across Affiliate, Lottery and a second tenant. Each scope receives exactly one journal, immutable outbox event and delivery-state row, with zero reconciliation exceptions. Synthetic evidence only; aggregate ordering and Node-worker replay on the P-09E restored cluster remain open.

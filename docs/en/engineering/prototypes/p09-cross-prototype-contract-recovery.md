@@ -1,6 +1,6 @@
 # P-09 — Cross-Prototype Contract & Recovery Integration
 
-**Document ID:** LOT-PROT-P09-001 | **Version:** 0.5.0 | **Status:** Proposed cross-prototype contract; P-09A passed and P-09B scope-aware P-06 correlation passed on synthetic CI; no production approval
+**Document ID:** LOT-PROT-P09-001 | **Version:** 0.6.0 | **Status:** Proposed cross-prototype contract; P-09A passed and P-09B scope-aware P-06 correlation passed on synthetic CI; no production approval
 
 **Status:** Proposed contract baseline; implementation and owner approval remain open.  
 **Baseline:** `integration/p03d-p04-p08-candidate` at `c7f9ffa1f499fbd34d260b2aa6d3122d32e1ac7f`.  
@@ -68,7 +68,7 @@ A financial event must carry product scope. A platform event may carry platform 
 - **P-09B — P-06 correlation:** product/platform scoped correlation key; collision tests with identical source UUIDs in Affiliate and Lottery and denial of cross-scope reads.
 - **P-09C — P-08 product-aware artifacts:** parameterized Affiliate and Lottery build, product-bound artifact metadata/provenance, compatibility and promotion/rollback tests.
 - **P-09D — P-07B event contract mapping:** producer contract, consumer authorization, canonical source identity, schema version and W3C trace context.
-- **P-09E — shared-record recovery integration:** restore/replay the same P-02/P-03D schema and records; prove atomic rollback, idempotency, reconciliation and product isolation. Aggregate ordering and stale-lease fencing remain separate follow-up tests.
+- **P-09E — shared-record recovery integration:** restore/replay the same P-02/P-03D schema and records; prove atomic rollback, idempotency, reconciliation and product isolation. Aggregate ordering remains a separate follow-up because P-03D has no aggregate-sequence contract.
 - **P-09F — integrated failure/concurrency suite:** disposable candidate, duplicate delivery, sequence gaps, conflicting product IDs, interrupted replay, restore failure, stale trace/correlation, artifact tampering and rollback.
 
 ## 6. Acceptance gates
@@ -114,3 +114,16 @@ P-07B now validates the canonical product event envelope: tenant UUID, producer-
 P-09E passed in the P-05 recovery workflow [45635972222](https://github.com/tecpey/lottorito-platform/actions/runs/45635972222) on exact candidate head 73d7d0daa46e6a019020fc25ace315836d270a6f. The run applied the actual P-02, P-03C and P-03D SQL schemas in a separate disposable database, took a physical base backup, passed pg_verifybackup, started an isolated restored cluster, injected and verified rollback of a failed posting transaction, replayed three accepted P-03D inbox records through P-02 post_journal, verified idempotent retry, product/tenant RLS after restore, balanced journals, outbox delivery-state atomicity and zero provider-to-ledger reconciliation exceptions. The same source-event UUID and provider event ID were deliberately reused across Affiliate/Lottery for one tenant and Affiliate for a second tenant.
 
 Documentation Governance [45635972312](https://github.com/tecpey/lottorito-platform/actions/runs/45635972312) passed on the same head (58 bilingual Markdown pairs and 136 local links). This closes the P-09E physical restore + transactional replay slice only. It does not prove aggregate sequence ordering, concurrent stale-lease fencing, full Node.js provider-worker orchestration, production PITR architecture, RPO/RTO, or production readiness; those remain explicit follow-up gates.
+
+### P-09E latest exact-head confirmation
+
+P-05 recovery [45637659268](https://github.com/tecpey/lottorito-platform/actions/runs/45637659268) passed again on 2b393cc8c41226a20333f34559ac6952883901a3. P-09E markers confirm physical backup, pg_verifybackup, isolated restore, actual P-02/P-03C/P-03D schema and records, injected transaction rollback, provider-inbox replay, financial-effect idempotency, outbox delivery-state atomicity, tenant/product RLS after restore, same-source-UUID collision isolation and zero provider/ledger/outbox reconciliation exceptions. P-05A PITR, P-05B and negative-WAL drills also passed. Documentation Governance [45637659297](https://github.com/tecpey/lottorito-platform/actions/runs/45637659297) passed on the same head (58 bilingual Markdown pairs, 136 local links).
+
+
+### P-09F concurrency and scope-isolation acceptance slice
+
+P-03C/P-03D workflow [45637659485](https://github.com/tecpey/lottorito-platform/actions/runs/45637659485) passed on 2b393cc8c41226a20333f34559ac6952883901a3: P-03C **15/15**, P-03D **25/25**, zero failures. Three tests use the real Node.js 26 provider worker on PostgreSQL 18.7: (1) two workers race to claim one event; exactly one lease is granted, and concurrent processing resolves to one `processed` and one `stale` with one journal/outbox/delivery row; (2) an expired lease is reclaimed and old/current lease holders race, with the old token rejected and only the current token posting; (3) the same provider event ID and source-event UUID across Affiliate/Lottery in one tenant and Affiliate in a second tenant are processed independently, with one journal/outbox/delivery per scope and zero reconciliation exceptions.
+
+PostgreSQL documents `FOR UPDATE SKIP LOCKED` as suitable for queue-like consumers, while warning it gives an inconsistent view unsuitable for general-purpose reads ([SELECT locking clause](https://www.postgresql.org/docs/18/sql-select.html), [row-level locks](https://www.postgresql.org/docs/18/explicit-locking.html)). Lease tokens provide an additional application-level fencing condition, not a substitute for row locks.
+
+This closes only the first P-09F concurrency/scope slice. Aggregate sequence semantics are not defined in P-03D; direct Node-worker replay on the P-09E restored cluster and broader failure interleavings remain open.

@@ -1,6 +1,6 @@
 # P-03D — اتصال Provider Inbox به ثبت مالی محصول‌محور و Outbox
 
-**شناسه سند:** LOT-PROT-P03D-001 | **نسخه:** ۰.۲.۰ | **وضعیت:** Prototype یکپارچه‌سازی ساختگی؛ ۲۲ تست P-03D و ۱۵ تست P-03C موفق؛ بدون ادعای Production | **تاریخ بازبینی:** ۲۰۲۶-۱۱-۲۵
+**شناسه سند:** LOT-PROT-P03D-001 | **نسخه:** ۰.۳.۰ | **وضعیت:** Prototype یکپارچه‌سازی ساختگی؛ ۲۵ تست P-03D و ۱۵ تست P-03C موفق؛ بدون ادعای Production | **تاریخ بازبینی:** ۲۰۲۶-۱۱-۲۵
 
 ## هدف
 
@@ -115,3 +115,6 @@ Head دقیق فعلی PR که اعتبارسنجی شد: `14d69ec5be1a9285049c1
 
 این نتیجه فقط ماتریس پذیرش ساختگی را روی Head شاخه ذکرشده راستی‌آزمایی می‌کند. PR شماره ۶۱ همچنان Draft و باز و وابسته به PR شماره ۶۰ است؛ هیچ Merge، اتصال Provider عملیاتی، Migration دیتابیس Production، تصویب فناوری یا Deploy از آن نتیجه نمی‌شود.
 
+## Regression هم‌زمانی و Scopeهای مستقل در P-09F (۲۰۲۶-۱۱-۲۵)
+
+روی Head کاندید 2b393cc8c41226a20333f34559ac6952883901a3، Workflow مربوط به P-03C/P-03D با شناسه [45637659485](https://github.com/tecpey/lottorito-platform/actions/runs/45637659485) موفق شد: P-03C با **۱۵ از ۱۵** و P-03D با **۲۵ از ۲۵** تست. سه تست افزوده‌شده Worker واقعی Provider با Node.js را روی PostgreSQL 18.7 اجرا می‌کنند: Claim و Process هم‌زمان Inbox با یک برنده؛ Fencing Token مربوط به Lease قدیمی/جدید در پردازش هم‌زمان؛ و پردازش مستقل Provider Event ID/Source Event UUID یکسان بین Affiliate، Lottery و Tenant دوم. هر Scope دقیقاً یک Journal، Outbox Event تغییرناپذیر و Delivery State ایجاد می‌کند و Reconciliation صفر است. این فقط شواهد یکپارچه‌سازی ساختگی است؛ ترتیب Aggregate و Replay Worker روی Cluster بازیابی‌شده P-09E همچنان باز هستند.

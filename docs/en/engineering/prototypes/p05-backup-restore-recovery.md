@@ -1,6 +1,6 @@
 # P-05A — PostgreSQL Backup, PITR and Financial Integrity
 
-**Document ID:** LOT-PROT-P05-001 | **Version:** 0.6.0 | **Status:** Synthetic CI experiment passed; production recovery not approved
+**Document ID:** LOT-PROT-P05-001 | **Version:** 0.7.0 | **Status:** Synthetic CI experiment passed; production recovery not approved
 
 ## Authority and decision boundary
 
@@ -90,3 +90,7 @@ No production data, credentials, partner secrets, real funds or live endpoints. 
 The P-05 workflow [45635972222](https://github.com/tecpey/lottorito-platform/actions/runs/45635972222) passed on candidate head 73d7d0daa46e6a019020fc25ace315836d270a6f. In addition to the existing P-05A PITR, P-05B object/key/event fixture and P-05A negative drills, it ran P-09E against the exact P-02/P-03C/P-03D SQL schemas and actual provider inbox, ledger, journal, line, outbox and delivery-state tables. The physical backup passed pg_verifybackup; the restored cluster replayed three accepted inbox records with one journal/effect/outbox/delivery row per scope. Failure injection rolled back the posting transaction as a unit. Same-source-ID collisions across product and tenant scopes, idempotent retries, RLS and P-03D reconciliation all passed. See the P-09 integration record for scope and limitations.
 
 This does not replace the simplified P-05B fixture or establish production backup architecture, PITR retention, off-site durability, key/object restore, aggregate ordering, concurrent fencing, RPO/RTO or Production readiness. Documentation Governance [45635972312](https://github.com/tecpey/lottorito-platform/actions/runs/45635972312) passed on the same head (58 bilingual pairs, 136 local links).
+
+## P-09E latest exact-head confirmation (2026-11-25)
+
+P-09E passed again in P-05 workflow [45637659268](https://github.com/tecpey/lottorito-platform/actions/runs/45637659268) on 2b393cc8c41226a20333f34559ac6952883901a3. Physical backup, pg_verifybackup, isolated restore, actual P-02/P-03C/P-03D records, atomic rollback under injected failure, inbox replay, idempotency, tenant/product RLS, balanced journals, outbox delivery-state atomicity and zero provider-ledger reconciliation exceptions all emitted PASS. P-05A PITR, P-05B and negative-WAL/incomplete-restore drills also passed. Documentation Governance [45637659297](https://github.com/tecpey/lottorito-platform/actions/runs/45637659297) passed on the same head.

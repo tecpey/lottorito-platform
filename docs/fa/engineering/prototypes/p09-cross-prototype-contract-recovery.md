@@ -1,6 +1,6 @@
 # P-09 — یکپارچه‌سازی قرارداد و بازیابی بین Prototypeها
 
-**شناسه سند:** LOT-PROT-P09-001 | **نسخه:** ۰.۵.۰ | **وضعیت:** قرارداد پیشنهادی بین Prototypeها؛ P-09A و Correlation محصول‌محور P-09B در CI ساختگی موفق شدند؛ بدون تصویب Production
+**شناسه سند:** LOT-PROT-P09-001 | **نسخه:** ۰.۶.۰ | **وضعیت:** قرارداد پیشنهادی بین Prototypeها؛ P-09A و Correlation محصول‌محور P-09B در CI ساختگی موفق شدند؛ بدون تصویب Production
 
 **وضعیت:** خط مبنای قرارداد پیشنهادی؛ پیاده‌سازی کامل و تصویب مالک همچنان باز است.  
 **مبنای بررسی:** شاخه `integration/p03d-p04-p08-candidate` با Head برابر `c7f9ffa1f499fbd34d260b2aa6d3122d32e1ac7f`.  
@@ -68,7 +68,7 @@ Event مالی باید Product Scope داشته باشد. Event پلتفرمی 
 - **P-09B — Correlation در P-06:** کلید Correlation محصول/پلتفرم‌محور؛ تست برخورد UUID یکسان Source در Affiliate و Lottery و منع خواندن بین Scopeها.
 - **P-09C — Artifactهای Product-aware در P-08:** Build پارامتری Affiliate و Lottery، اتصال Product به Metadata/Provenance، تست Compatibility و Promotion/Rollback.
 - **P-09D — نگاشت Event Contract در P-07B:** اتصال Producer Contract، مجوز Consumer، هویت Canonical Source، Schema Version و W3C Trace Context.
-- **P-09E — اتصال Recovery در P-05B:** Restore/Replay همان Schema و Recordهای P-02/P-03D؛ اثبات ترتیب، Idempotency، Fencing، Reconciliation و جداسازی Product.
+- **P-09E — اتصال Recovery روی Recordهای مشترک:** Restore/Replay همان Schema و Recordهای P-02/P-03D؛ اثبات Rollback اتمیک، Idempotency، Reconciliation و جداسازی Product. ترتیب Aggregate در قرارداد فعلی P-03D تعریف نشده و باید جداگانه تصمیم‌گیری شود.
 - **P-09F — مجموعه یکپارچه Failure/Concurrency:** Candidate ایزوله، Delivery تکراری، Sequence Gap، Product ID متعارض، قطع Replay، شکست Restore، Correlation قدیمی، دستکاری Artifact و Rollback.
 
 ## ۶. دروازه‌های پذیرش
@@ -114,3 +114,16 @@ P-07B اکنون Envelope محصول‌محور Canonical را اعتبارسن�
 P-09E در Workflow بازیابی P-05 با شناسه [45635972222](https://github.com/tecpey/lottorito-platform/actions/runs/45635972222) روی Head دقیق Candidate برابر با 73d7d0daa46e6a019020fc25ace315836d270a6f موفق شد. اجرا، Schemaهای واقعی P-02، P-03C و P-03D را در Database مستقل و دورریختنی اعمال کرد، Backup فیزیکی گرفت، pg_verifybackup را با موفقیت گذراند، Cluster بازیابی‌شده مستقل را راه‌اندازی کرد، Rollback تراکنش Posting ناموفق را تزریق و تأیید کرد، سه رکورد پذیرفته‌شده P-03D Inbox را از طریق post_journal واقعی P-02 Replay کرد و Idempotent Retry، جداسازی RLS در سطح Tenant/Product پس از Restore، توازن Journalها، اتمیک‌بودن Delivery State در Outbox و صفر بودن استثناهای Reconciliation بین Provider و Ledger را بررسی کرد. یک Source Event UUID و Provider Event ID یکسان عمداً بین Affiliate/Lottery در یک Tenant و Affiliate در Tenant دوم تکرار شدند.
 
 Documentation Governance با شناسه [45635972312](https://github.com/tecpey/lottorito-platform/actions/runs/45635972312) روی همان Head موفق شد (۵۸ جفت Markdown دوزبانه و ۱۳۶ لینک محلی). این نتیجه فقط Slice مربوط به Backup فیزیکی، Restore و Replay تراکنشی P-09E را می‌بندد. ترتیب Aggregate، Fencing هم‌زمان Lease منقضی‌شده، اجرای کامل Worker جاوااسکریپت Provider، معماری PITR عملیاتی، RPO/RTO و آمادگی Production را اثبات نمی‌کند؛ این موارد دروازه‌های مستقل بعدی هستند.
+
+### تأیید مجدد P-09E روی Head دقیق
+
+Workflow بازیابی P-05 با شناسه [45637659268](https://github.com/tecpey/lottorito-platform/actions/runs/45637659268) بار دیگر روی Head کاندید 2b393cc8c41226a20333f34559ac6952883901a3 موفق شد. Markerهای P-09E موفقیت Backup فیزیکی، pg_verifybackup، Restore مستقل، Schema و Recordهای واقعی P-02/P-03C/P-03D، Rollback تراکنش تزریق‌شده، Replay روی Provider Inbox، Idempotency اثر مالی، اتمیک‌بودن Delivery State در Outbox، RLS مربوط به Tenant/Product پس از Restore، جداسازی برخورد Source UUID یکسان و صفر بودن استثناهای Reconciliation را تأیید می‌کنند. PITR در P-05A، Fixture در P-05B و آزمون‌های منفی WAL نیز موفق شدند. Documentation Governance با شناسه [45637659297](https://github.com/tecpey/lottorito-platform/actions/runs/45637659297) روی همان Head موفق شد (۵۸ جفت Markdown دوزبانه و ۱۳۶ لینک محلی).
+
+
+### Slice پذیرش هم‌زمانی و جداسازی Scope در P-09F
+
+Workflow یکپارچه‌سازی P-03C/P-03D با شناسه [45637659485](https://github.com/tecpey/lottorito-platform/actions/runs/45637659485) روی 2b393cc8c41226a20333f34559ac6952883901a3 موفق شد: P-03C با **۱۵ از ۱۵** و P-03D با **۲۵ از ۲۵** تست، بدون شکست. سه تست با Worker واقعی Provider در Node.js 26 و PostgreSQL 18.7 اجرا شدند: ۱) رقابت دو Worker برای Claim یک Event فقط یک Lease صادر می‌کند و پردازش هم‌زمان به یک `processed` و یک `stale` با یک Journal/Outbox/Delivery می‌رسد؛ ۲) Lease منقضی‌شده تصاحب می‌شود و Token Worker قدیمی در رقابت با Worker جدید رد می‌شود؛ ۳) Provider Event ID و Source Event UUID یکسان بین Affiliate/Lottery در یک Tenant و Affiliate در Tenant دوم مستقل پردازش می‌شوند و برای هر Scope یک Journal/Outbox/Delivery و صفر استثنای Reconciliation داریم.
+
+مستندات PostgreSQL، `FOR UPDATE SKIP LOCKED` را برای مصرف‌کننده‌های Queue مناسب می‌دانند، اما هشدار می‌دهند که نمای ناسازگار ایجاد می‌کند و برای Read عمومی مناسب نیست ([قفل‌گذاری SELECT](https://www.postgresql.org/docs/18/sql-select.html)، [قفل‌های سطح ردیف](https://www.postgresql.org/docs/18/explicit-locking.html)). Lease Token یک شرط Fencing در سطح Application است و جایگزین Row Lock نیست.
+
+این نتیجه فقط نخستین Slice هم‌زمانی/جداسازی Scope در P-09F را می‌بندد. P-03D معنای Aggregate Sequence ندارد؛ اجرای مستقیم Node Worker روی Cluster بازیابی‌شده P-09E و Interleavingهای گسترده‌تر Failure همچنان باز هستند.

@@ -1,6 +1,6 @@
 # برنامه Prototype معماری و تولید شواهد Lottorito
 
-**شناسه سند:** LOT-PROT-001 | **نسخه:** ۱.۲۷.۰ | **وضعیت:** برنامه آزمایش پیشنهادی؛ اجرا و انتخاب فناوری تصویب نشده است
+**شناسه سند:** LOT-PROT-001 | **نسخه:** ۱.۲۸.۰ | **وضعیت:** برنامه آزمایش پیشنهادی؛ اجرا و انتخاب فناوری تصویب نشده است
 
 ## ۱. هدف و اعتبار
 
@@ -393,3 +393,7 @@ Correlation Map، Grant دسترسی Forensic و View مربوط به P-06 اک�
 ## P-09E — اثبات بازیابی Recordهای مشترک (۲۰۲۶-۱۱-۲۵)
 
 P-09E روی Head دقیق Candidate برابر با 73d7d0daa46e6a019020fc25ace315836d270a6f موفق شده است: Workflow مربوط به P-05 با شناسه [45635972222](https://github.com/tecpey/lottorito-platform/actions/runs/45635972222) و Documentation Governance با شناسه [45635972312](https://github.com/tecpey/lottorito-platform/actions/runs/45635972312). آزمایش Recovery، زنجیره SQL دقیق P-02/P-03C/P-03D را اعمال می‌کند، Backup فیزیکی می‌گیرد، Backup را Verify می‌کند، Cluster دوم را Restore می‌کند و Recordهای واقعی Provider Inbox در P-03D را از طریق post_journal در P-02 Replay می‌کند. Rollback تراکنش پس از تزریق خرابی، Retryهای Idempotent، جداسازی Source UUID یکسان بین Scopeهای Product/Tenant، RLS پس از Restore، توازن Journalها، ایجاد اتمیک Outbox Delivery State و صفر بودن استثناهای Reconciliation بین Provider و Ledger اثبات شده‌اند. Fixture ساده‌شده قدیمی P-05B مستقل باقی می‌ماند. این Slice ادعای ترتیب Aggregate، Fencing هم‌زمان Lease، اجرای کامل Worker جاوااسکریپت یا طراحی Recovery عملیاتی Production را ندارد.
+
+## P-09F — اثبات Worker هم‌زمان و Scopeهای مستقل (۲۰۲۶-۱۱-۲۵)
+
+CI مربوط به P-03C/P-03D با شناسه [45637659485](https://github.com/tecpey/lottorito-platform/actions/runs/45637659485) روی 2b393cc8c41226a20333f34559ac6952883901a3 موفق شد: P-03C با ۱۵/۱۵ و P-03D با ۲۵/۲۵ تست. سه تست P-09F از Worker واقعی Provider با Node.js 26 روی PostgreSQL 18.7 استفاده می‌کنند: Claim/Process هم‌زمان Inbox با یک برنده؛ Fencing Token مربوط به Lease قدیمی/جدید؛ و پردازش مستقل Provider Event/Source UUID یکسان بین Affiliate، Lottery و Tenant دوم با یک Journal/Outbox/Delivery برای هر Scope و صفر استثنای Reconciliation. Workflowهای P-05/P-09/P-06/P-07B/P-08/P-05C و Documentation Governance نیز روی همان Head موفق شدند (اجراهای 45637659268، 45637659215، 45637659351، 45637659213، 45637659193، 45637659194 و 45637659297). این فقط نخستین Slice هم‌زمانی P-09F را می‌بندد؛ ترتیب Aggregate و اجرای مستقیم Node Worker روی Cluster بازیابی‌شده P-09E همچنان باز هستند.
