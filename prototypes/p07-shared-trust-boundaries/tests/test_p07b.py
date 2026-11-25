@@ -74,6 +74,10 @@ class SharedCapabilityPolicyTests(unittest.TestCase):
         result = evaluate_capability(LOTTERY_TOKEN, "11111111-1111-4111-8111-111111111111", "identity", "resolve_subject")
         self.assertEqual(result["reason"], "product_not_entitled_for_tenant")
 
+    def test_tenant_identity_must_be_a_canonical_uuid(self):
+        result = evaluate_capability(AFFILIATE_TOKEN, "tenant-beta", "identity", "resolve_subject")
+        self.assertEqual(result["reason"], "invalid_tenant_identity")
+
     def test_unknown_service_identity_is_denied(self):
         result = evaluate_capability("not-a-real-token", "22222222-2222-4222-8222-222222222222", "identity", "resolve_subject")
         self.assertEqual(result["reason"], "unknown_service_identity")
@@ -171,6 +175,10 @@ class CrossProductEventContractTests(unittest.TestCase):
         registry["contracts"][0]["source_scope"] = {"kind": "product", "id": "lottery"}
         result = dispatch_event(event(), AFFILIATE_TOKEN, LOTTERY_TOKEN, contract_registry=registry)
         self.assertEqual(result["reason"], "contract_source_scope_mismatch")
+
+    def test_event_tenant_identity_must_be_a_canonical_uuid(self):
+        result = dispatch_event(event(tenantid="tenant-beta"), AFFILIATE_TOKEN, LOTTERY_TOKEN)
+        self.assertEqual(result["reason"], "invalid_tenant_identity")
 
     def test_event_without_contract_is_denied(self):
         result = dispatch_event(event(type="com.lottorito.affiliate.unsolicited.v1"), AFFILIATE_TOKEN, LOTTERY_TOKEN)
