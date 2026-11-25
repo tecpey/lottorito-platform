@@ -102,4 +102,15 @@ Workflow اختصاصی از PostgreSQL 18.7، Node.js 26.13.0، Lockfile ثبت
 
 مسیر Secret متنی نیز اکنون حداقل طول ۱۲۸ بیت را مانند ورودی‌های Buffer و `whsec_` اعمال می‌کند؛ یک تست Regression برای Secret کوتاه اضافه شده است.
 
-**وضعیت اعتبارسنجی:** این موارد فقط اصلاح کد هستند. پیش از هرگونه ادعای پذیرش، Workflowهای Integration مربوط به P-02، P-03C و P-03D باید همگی روی Commit دقیق نهایی موفق شوند.
+**وضعیت اعتبارسنجی:** پذیرش ساختگی روی Head دقیق و اجراهای CI زیر راستی‌آزمایی شده است.
+
+## نتیجه تأییدشده CI ساختگی — ۲۰۲۶-۱۱-۲۵
+
+Head دقیق PR که اعتبارسنجی شد: `40d002a2af5875a6ead178604b90dc92aa678dc5`.
+
+- P-02 Ledger Posting: [اجرای ۱۱۴](https://github.com/tecpey/lottorito-platform/actions/runs/45607187120) — ۲۵ موفق، صفر شکست و صفر Skip.
+- Integration ترکیبی P-03C/P-03D: [اجرای ۳۱](https://github.com/tecpey/lottorito-platform/actions/runs/45607186885) — تعداد ۱۵ تست موفق برای P-03C و ۱۹ تست موفق برای P-03D؛ در مجموع ۳۴ تست، صفر شکست و صفر Skip. تمام مراحل Setup، تست و Cleanup موفق بودند.
+- Documentation Governance: [اجرای ۷۰۲](https://github.com/tecpey/lottorito-platform/actions/runs/45607186745) — موفق.
+
+این نتیجه فقط ماتریس پذیرش ساختگی را روی Head شاخه ذکرشده راستی‌آزمایی می‌کند. PR شماره ۶۱ همچنان Draft و باز و وابسته به PR شماره ۶۰ است؛ هیچ Merge، اتصال Provider عملیاتی، Migration دیتابیس Production، تصویب فناوری یا Deploy از آن نتیجه نمی‌شود.
+
