@@ -39,9 +39,9 @@ The artifact store and deployment controller are in-memory test doubles. The zip
 | ID | Required result |
 |---|---|
 | P08-01 | Identical build inputs produce byte-identical artifacts and the same SHA-256 digest. |
-| P08-02 | Existing build outputs cannot be silently overwritten; artifact tampering is detected by digest verification. |
+| P08-02 | Any pre-existing build output directory content is rejected rather than overwritten; artifact tampering is detected by digest verification. |
 | P08-03 | Detached provenance subject digest, source revision, product, build type, builder and resolved entrypoint digest must match the artifact/build inputs. |
-| P08-04 | A canary secret injected at runtime is absent from artifact bytes, provenance and captured process output. |
+| P08-04 | A canary secret injected at runtime is absent from artifact bytes, provenance and captured process output; ambient host/CI environment secrets are not inherited by the child process. |
 | P08-05 | Startup, liveness, API readiness and worker readiness have distinct semantics; critical dependency failure blocks readiness without falsely failing process liveness. |
 | P08-06 | The exact same artifact digest can be promoted from test to staging; stale compare-and-swap state is rejected. |
 | P08-07 | Approval must match digest and environment; requester, approver and deployer separation is enforced; production target is denied. |
