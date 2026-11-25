@@ -91,7 +91,9 @@ async function processOne(pool, installation, fixture, options = {}) {
   const claim = await claimNextProviderEvent(pool, {
     workerId: options.workerId ?? "p03d-worker-" + randomUUID(),
     leaseSeconds: options.leaseSeconds ?? 30,
-    now: options.now ?? null
+    now: options.now ?? null,
+    providerId: fixture.installation.provider_id,
+    eventId: fixture.eventId
   });
   assert.ok(claim, "expected a provider inbox event to be claimable");
   assert.equal(claim.provider_event_id, fixture.eventId);
