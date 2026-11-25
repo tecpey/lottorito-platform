@@ -58,3 +58,10 @@ A task is done only when implementation exists, relevant tests pass, documentati
 - Re-run P-02, combined P-03C/P-03D, P-04 and Documentation Governance on the exact new PR head. P-03D implementation evidence is on code head `40d002a2af5875a6ead178604b90dc92aa678dc5` (P-02 25, P-03C 15, P-03D 19, docs governance passed); this does not replace regression on the new branch.
 - After P-04 passes, replay P-05A, P-05B, P-05C, P-06, P-07A, P-07B, P-07C and P-08 in dependency order onto the reconciled chain, preserving each experiment's boundaries. Reconcile shared documentation semantically; never copy an older branch's whole README/status/AGENTS over newer P-03D evidence.
 - No merge, main update, destructive migration, production credential, real provider integration or deployment without explicit owner approval.
+
+
+## P-04 reconciled verification and next handoff — 2026-11-25
+- Reconciled PR #62 code head `dca0762678ed45da122ba109276c54ce61ac0846` passed P-02 (25), P-03C (15), P-03D (19), P-04 (7) and Documentation Governance. Runs: 45608274029, 45608274098, 45608274118, 45608274060. All completed successfully with 0 failures and 0 skipped tests.
+- Keep PR #62 Draft/open stacked on P-03D PR #61. Original P-04 PR #51 remains open/Draft as historical review context; do not retarget or merge it.
+- Next sequence is P-05A -> P-05B -> P-05C -> P-06 -> P-07A -> P-07B -> P-07C -> P-08. Rebase/replay each in dependency order onto the reconciled P-04 head, reconcile bilingual shared docs semantically, and run the complete P-02/P-03C/P-03D/P-04 plus downstream regression on every new final head.
+- Preserve synthetic-only claims. No production migration, provider credential, merge, main update, destructive operation or deployment without explicit owner approval.
