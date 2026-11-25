@@ -189,6 +189,9 @@ class PromotionAndRollbackTests(unittest.TestCase):
             artifact, provenance_path, digest = build(version, self.root / version, SOURCE)
             data = artifact.read_bytes()
             self.built[version] = (self.store.put(data), json.loads(provenance_path.read_text()), data)
+        lottery_artifact, lottery_provenance_path, lottery_digest = build("v1", self.root / "lottery-v1", SOURCE, "lottery")
+        lottery_data = lottery_artifact.read_bytes()
+        self.lottery_built = (self.store.put(lottery_data), json.loads(lottery_provenance_path.read_text()), lottery_data)
         self.controller = DeploymentController(self.store)
         self.test_state = DeploymentState("test", 1, self.built["v1"][0], api_digest=self.built["v1"][0], worker_digest=self.built["v1"][0], traffic_enabled=True, workers_enabled=True)
         self.stage_state = DeploymentState("staging", 1, self.built["v1"][0], api_digest=self.built["v1"][0], worker_digest=self.built["v1"][0], traffic_enabled=True, workers_enabled=True)
@@ -206,6 +209,52 @@ class PromotionAndRollbackTests(unittest.TestCase):
             state.current_digest, api, worker, provenance, SOURCE,
         )
         return result
+
+    def test_lottery_artifact_promotes_with_lottery_product_identity(self):
+        digest, provenance, _ = self.lottery_built
+        state = DeploymentState("staging", 1, digest, product_id="lottery",
+                                api_digest=digest, worker_digest=digest,
+                                traffic_enabled=True, workers_enabled=True)
+        result = self.controller.promote(
+            state, digest, self.approval(digest), DEPLOY_ACTOR, digest,
+            GOOD_API, GOOD_WORKER, provenance, SOURCE,
+        )
+        self.assertEqual(result["product_id"], "lottery")
+        self.assertEqual(state.product_id, "lottery")
+        self.assertEqual(state.current_digest, digest)
+
+    def test_affiliate_artifact_cannot_promote_into_lottery_scope(self):
+        lottery_digest, _, _ = self.lottery_built
+        affiliate_digest, affiliate_provenance, _ = self.built["v2"]
+        state = DeploymentState("staging", 1, lottery_digest, product_id="lottery",
+                                api_digest=lottery_digest, worker_digest=lottery_digest,
+                                traffic_enabled=True, workers_enabled=True)
+        before = (state.current_digest, state.previous_digest, state.api_digest,
+                  state.worker_digest, state.traffic_enabled, state.workers_enabled,
+                  state.schema_version, list(state.audit))
+        with self.assertRaisesRegex(GateRejected, "provenance_verification_failed"):
+            self.controller.promote(
+                state, affiliate_digest, self.approval(affiliate_digest), DEPLOY_ACTOR,
+                lottery_digest, GOOD_API, GOOD_WORKER, affiliate_provenance, SOURCE,
+            )
+        after = (state.current_digest, state.previous_digest, state.api_digest,
+                 state.worker_digest, state.traffic_enabled, state.workers_enabled,
+                 state.schema_version, list(state.audit))
+        self.assertEqual(after, before)
+
+    def test_cross_product_rollback_target_is_rejected(self):
+        lottery_digest, _, _ = self.lottery_built
+        affiliate_digest = self.built["v1"][0]
+        state = DeploymentState("staging", 1, lottery_digest, product_id="lottery",
+                                previous_digest=affiliate_digest,
+                                api_digest=lottery_digest, worker_digest=lottery_digest,
+                                traffic_enabled=True, workers_enabled=True)
+        with self.assertRaisesRegex(GateRejected, "rollback_product_mismatch"):
+            self.controller.rollback(
+                state, affiliate_digest, lottery_digest, DEPLOY_ACTOR,
+                self.approval(affiliate_digest), GOOD_API, GOOD_WORKER,
+            )
+        self.assertEqual(state.current_digest, lottery_digest)
 
     def test_same_artifact_digest_promotes_from_test_to_staging(self):
         digest = self.built["v2"][0]
