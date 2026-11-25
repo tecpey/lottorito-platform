@@ -1,8 +1,19 @@
 # وضعیت واقعی پروژه و نقطه ادامه کار
 
-**شناسه:** LOT-OPS-001 | **نسخه:** ۱.۳۵.۰ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۵
+**شناسه:** LOT-OPS-001 | **نسخه:** ۱.۳۶.۰ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۵
 
 ## وضعیت تأییدشده مخزن
+
+## آخرین به‌روزرسانی نقطه ادامه — ۲۰۲۶-۱۱-۲۵ (P-06)
+
+- P-06 در PR شماره ۵۵ به‌صورت Draft و روی P-05C PR شماره ۵۴ Stacked شده است. باز و Mergeنشده است. PRهای P-05C شماره ۵۴، P-05B شماره ۵۳، P-05A شماره ۵۲ و P-04 شماره ۵۱ نیز باز، Draft و Mergeنشده هستند.
+- P-06 از Schema موجود دفترکل P-02 استفاده می‌کند و یک Journal ساختگی واقعی و متوازن را با Role اجرایی Tenant A ثبت می‌کند. نه Span مرتبط و سازگار با W3C Trace Context، Ingress شریک، احراز اصالت، Inbox، Attribution، کمیسیون، Outbox، Worker، Ledger و Reconciliation را به هم متصل می‌کنند.
+- این آزمایش ارجاع‌های مبهم HMAC، RLS محدود به Tenant برای Span/Log، دسترسی Forensic ممیزی‌شده به Mapping خام، Privileged Audit فقط‌افزودنی، اسکن Secret/PII Canary، خنثی‌سازی Log Injection از نوع CR/LF، رد Baggage حساس، Metric محدود روی ۵۰۰ Tenant ساختگی و بررسی Owner/Severity/Runbook برای Alert را اضافه می‌کند.
+- CI اولیه P-06 یک اشکال Assertion در Harness را آشکار کرد: خروجی تبدیل Boolean به Text در PostgreSQL برابر "false" است، نه شکل نمایشی psql یعنی "f". Assertion اصلاح شد. Integration و Documentation Governance روی Head نهایی مستندات باید پیش از بستن فاز موفق شوند.
+- Harness، OpenTelemetry SDK/Collector را متصل نمی‌کند و Retention، Encryption، Residency، Sampling، تحویل Alert، انطباق حقوقی/حریم خصوصی یا مجوزدهی Production را اثبات نمی‌کند. Telemetry دفترکل نیست.
+- هیچ داده Production، Credential واقعی، وجه واقعی، Merge یا Deploy استفاده نمی‌شود. هیچ Instrumentation یا فروشنده Production تصویب نشده است.
+
+
 
 ## به‌روزرسانی نهایی اعتبارسنجی P-05C — ۲۰۲۶-۱۱-۲۵
 
