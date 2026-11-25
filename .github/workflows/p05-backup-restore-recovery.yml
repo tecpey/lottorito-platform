@@ -23,7 +23,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Build and start isolated PostgreSQL with WAL archiving
-        run: docker compose -f prototypes/p05-recovery/compose.yaml up -d --build
+        run: docker compose -f prototypes/p05-recovery/compose.yaml up -d --build --wait --wait-timeout 90
       - name: Run backup verification, PITR and integrity assertions
         run: docker compose -f prototypes/p05-recovery/compose.yaml exec -T postgres bash /workspace/scripts/run-p05.sh
       - name: Capture PostgreSQL logs on failure
