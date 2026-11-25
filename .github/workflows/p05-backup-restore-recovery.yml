@@ -36,6 +36,8 @@ jobs:
         run: docker compose -f prototypes/p05-recovery/compose.yaml exec -T postgres bash /workspace/scripts/run-p05.sh
       - name: Run P-05B object, key and event recovery assertions
         run: docker compose -f prototypes/p05-recovery/compose.yaml exec -T postgres bash /workspace/p05b/run-p05b.sh
+      - name: Run P-05A missing-WAL and incomplete-restore negative drills
+        run: docker compose -f prototypes/p05-recovery/compose.yaml exec -T postgres bash /workspace/scripts/run-p05a-negative.sh
       - name: Capture PostgreSQL logs on failure
         if: failure()
         run: docker compose -f prototypes/p05-recovery/compose.yaml logs --no-color
