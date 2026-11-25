@@ -7,6 +7,7 @@ database, a load balancer, or a production environment.
 from __future__ import annotations
 
 import hashlib
+import io
 import json
 import os
 import subprocess
@@ -45,7 +46,7 @@ def verify_artifact_bytes(data: bytes, expected_digest: str) -> bool:
 
 def read_release_metadata(data: bytes) -> dict[str, Any]:
     try:
-        with zipfile.ZipFile(__import__("io").BytesIO(data), "r") as archive:
+        with zipfile.ZipFile(io.BytesIO(data), "r") as archive:
             names = archive.namelist()
             if sorted(names) != ["__main__.py", "release.json"] or len(names) != len(set(names)):
                 raise GateRejected("artifact_file_set_invalid")
@@ -209,7 +210,7 @@ class DeploymentController:
         return read_release_metadata(self.store.get(digest))
 
     def _gate(self, state: DeploymentState, digest: str, approval: Approval,
-              actor: str, api_health: HealthSnapshot, worker_health: HealthSnapshot) -> dict[str, Any]:
+              actor: str, api_health: HealthSnapshot) -> dict[str, Any]:
         if state.environment not in ALLOWED_ENVIRONMENTS:
             raise GateRejected("environment_not_allowed")
         if not approval.valid or approval.environment != state.environment:
@@ -236,7 +237,7 @@ class DeploymentController:
         artifact = self.store.get(digest)
         if not verify_provenance(artifact, provenance, digest, expected_source_revision):
             raise GateRejected("provenance_verification_failed")
-        metadata = self._gate(state, digest, approval, actor, api_health, worker_health)
+        metadata = self._gate(state, digest, approval, actor, api_health)
         before = (state.api_digest, state.worker_digest, state.traffic_enabled, state.workers_enabled)
         # Stage API first. Traffic remains closed until the worker also passes.
         state.api_digest = digest
