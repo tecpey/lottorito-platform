@@ -118,3 +118,6 @@ P-07B now requires a product-scoped envelope aligned to ADR-009: canonical UUID 
 ### P-09H — Shared contract enforcement (2026-11-25)
 
 P-07B event dispatch now invokes the canonical Python validator from P-09 after its existing principal authentication, tenant/product scope and detailed denial checks. This preserves P-07B's established denial reasons for its existing authorization cases while adding the common CloudEvents, URI-reference and RFC3339 conformance gate. The synthetic event fixture now includes the profile-required `time` attribute. Runtime policy remains prototype-only.
+
+
+P-09H adds a dispatch regression for non-RFC3339 timestamps. P-07B retains its established denial reasons for producer identity, tenant, product scope, source-event UUID, schema-version and trace-context failures; the shared validator adds the common time/URI conformance gate after those checks. The current P-07B suite reports 43/43 tests passing on the latest code-bearing head.
