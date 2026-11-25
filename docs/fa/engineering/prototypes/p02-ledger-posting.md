@@ -96,3 +96,8 @@ Regression مربوط به P-02 روی Head کد جایگزین P-05A با SHA 7
 ## دروازه Regression پایین‌دستی P-05B — ۲۰۲۶-۱۱-۲۵
 
 Fixture بازیابی Object/Key/Event در P-05B مستقل از Schema دفترکل P-02 باقی می‌ماند. مجموعه ۲۵ تست Integration مربوط به P-02 باید روی Head جایگزین P-05B دوباره اجرا شود؛ Replay رویداد نباید از Invariantهای دفترکل P-02 عبور کند یا به معنی Migration عملیاتی Ledger تلقی شود.
+
+
+## دروازه Regression پایین‌دستی P-05B — ۲۰۲۶-۱۱-۲۵
+
+Fixture بازیابی Object/Key/Event در P-05B مستقل از Schema دفترکل P-02 باقی می‌ماند. مجموعه ۲۵ تست Integration مربوط به P-02 باید روی Head جایگزین P-05B دوباره اجرا شود؛ Replay رویداد نباید از Invariantهای دفترکل P-02 عبور کند یا به معنی Migration عملیاتی Ledger تلقی شود.
