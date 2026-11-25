@@ -60,3 +60,8 @@ No production data, credentials, partner secrets, real funds or live endpoints. 
 - The run asserted manifest verification and tamper rejection, archived WAL presence, the named PITR log entry, pre-target marker present/post-target marker absent, tenant-scoped reads and denied cross-tenant insert, balanced journals, source-to-ledger totals, unique economic effects and valid object-reference hash format.
 - Missing-WAL and interrupted-restore negative drills remain open. Object-byte/key recovery and failover/fencing/failback are P-05B/P-05C and have not run.
 - Synthetic success is not production readiness, a technology decision or RPO/RTO approval.
+
+
+## Reconciled-stack continuation — 2026-11-25
+
+Original P-05A PR #52 was stacked on original P-04 PR #51, which was a sibling of P-03C/P-03D. This continuation is carried onto `spike/p05-backup-restore-recovery-p03d`, based on reconciled P-04 PR #62 head `1013f3b93b55b2cb0859b371db58e1e17ec4ad5e`. The original P-05A CI evidence above is historical. Re-run the P-05A workflow plus P-02, P-03C/P-03D, P-04 and bilingual Documentation Governance on the new branch before accepting P-05A in the reconciled chain. Preserve the existing scope: P-05A does not cover missing-WAL or interrupted-restore negative drills, object-byte/key recovery, or failover/fencing/failback.
