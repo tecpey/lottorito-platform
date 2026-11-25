@@ -139,3 +139,8 @@ Regression ترکیبی P-03C/P-03D روی Head کد جایگزین P-05A با S
 ## دروازه Regression پایین‌دستی P-05B — ۲۰۲۶-۱۱-۲۵
 
 Replay رویداد در P-05B یک Projection ساختگی برای بازیابی است، نه جایگزین Provider Inbox در P-03D یا وضعیت Delivery در P-03C. مجموعه ۳۴ تست P-03C/P-03D باید روی Head جایگزین P-05B دوباره اجرا شود تا پل Provider-to-Ledger و جداسازی Tenant/Product حفظ شوند.
+
+
+## دروازه Regression پایین‌دستی P-05B — ۲۰۲۶-۱۱-۲۵
+
+Replay رویداد در P-05B یک Projection ساختگی برای بازیابی است، نه جایگزین Provider Inbox در P-03D یا وضعیت Delivery در P-03C. مجموعه ۳۴ تست P-03C/P-03D باید روی Head جایگزین P-05B دوباره اجرا شود تا پل Provider-to-Ledger و جداسازی Tenant/Product حفظ شوند.
