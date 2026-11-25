@@ -210,6 +210,20 @@ class ImmutableArtifactStore:
         return digest in self._artifacts
 
 
+def _require_actor_identity(actor: str) -> None:
+    if not isinstance(actor, str) or not actor.strip():
+        raise GateRejected("actor_identity_invalid")
+
+
+def _require_approval_identities(approval: Approval, actor: str) -> None:
+    _require_actor_identity(actor)
+    if (
+        not isinstance(approval.requested_by, str) or not approval.requested_by.strip()
+        or not isinstance(approval.approved_by, str) or not approval.approved_by.strip()
+    ):
+        raise GateRejected("approval_identity_invalid")
+
+
 class DeploymentController:
     def __init__(self, store: ImmutableArtifactStore) -> None:
         self.store = store
@@ -221,6 +235,7 @@ class DeploymentController:
               actor: str, api_health: HealthSnapshot) -> dict[str, Any]:
         if state.environment not in ALLOWED_ENVIRONMENTS:
             raise GateRejected("environment_not_allowed")
+        _require_approval_identities(approval, actor)
         if approval.valid is not True or approval.environment != state.environment:
             raise GateRejected("approval_invalid_or_wrong_environment")
         if approval.artifact_digest != digest:
@@ -277,6 +292,7 @@ class DeploymentController:
             raise DeploymentConflict("stale_current_release")
         if state.api_digest != state.current_digest or state.worker_digest != state.current_digest:
             raise DeploymentConflict("active_component_release_drift")
+        _require_approval_identities(approval, actor)
         if approval.valid is not True or approval.environment != state.environment or approval.artifact_digest != target_digest:
             raise GateRejected("approval_invalid_or_wrong_environment")
         if approval.role != "release_approver" or approval.approved_by in {approval.requested_by, actor}:
@@ -318,6 +334,7 @@ class DeploymentController:
             raise DeploymentConflict("active_component_release_drift")
         if confirmation != RETIRE_CONFIRMATION:
             raise GateRejected("explicit_retirement_confirmation_required")
+        _require_approval_identities(approval, actor)
         if approval.valid is not True or approval.environment != state.environment or approval.artifact_digest != state.current_digest:
             raise GateRejected("approval_invalid_or_wrong_environment")
         if approval.role != "release_approver" or approval.approved_by in {approval.requested_by, actor}:
@@ -346,6 +363,7 @@ class DeploymentController:
         })
 
     def migrate_schema(self, state: DeploymentState, target_version: int, phase: str, actor: str) -> None:
+        _require_actor_identity(actor)
         if phase not in {"expand", "contract"} or target_version != state.schema_version + 1:
             raise GateRejected("migration_transition_invalid")
         if state.api_digest != state.current_digest or state.worker_digest != state.current_digest:
