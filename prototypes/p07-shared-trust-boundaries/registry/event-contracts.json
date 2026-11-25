@@ -4,7 +4,7 @@
       "contract_id": "p07b-synthetic-affiliate-to-lottery-signal",
       "source_product": "affiliate_agent",
       "event_type": "com.lottorito.p07b.demo.signal.v1",
-      "schema_version": "1",
+      "dataschema": "urn:lottorito:schema:affiliate.demo.signal:1",
       "allowed_consumers": ["lottery"],
       "max_data_classification": "internal",
       "required_data_fields": ["reference"],
