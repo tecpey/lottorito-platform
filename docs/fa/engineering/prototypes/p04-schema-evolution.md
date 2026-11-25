@@ -36,3 +36,8 @@ Zero Downtime، رفتار Lock/Backfill در مقیاس Production، CDC، جد
 ## شواهد
 
 اجرای Integration با شناسه [45471750215](https://github.com/tecpey/lottorito-platform/actions/runs/45471750215) تعداد ۷ تست موفق، صفر شکست و صفر Skip روی Head کد 15c536e5be2f61b1805191f5977a46b17eaf1971 داشته است؛ اجرای تکراری Push با شناسه [45471737779](https://github.com/tecpey/lottorito-platform/actions/runs/45471737779) نیز موفق بوده است. Documentation Governance با شناسه [45471750133](https://github.com/tecpey/lottorito-platform/actions/runs/45471750133) روی همان Head موفق شده است. PostgreSQL 18.7، Node.js 26.13.0، npm ci و pg 8.23.1 استفاده شده‌اند. موفقیت تست ساختگی به‌معنای آمادگی Production یا تصویب فناوری نیست.
+
+
+## اعتبارسنجی روی زنجیره Rebaseشده — ۲۰۲۶-۱۱-۲۵
+
+Head کد PR اصلی شماره ۵۱، مجموعه هفت‌تستی P-04 را با موفقیت گذرانده بود؛ اما آن شاخه هم‌سطح P-03C/P-03D بود. این Prototype به شاخه `spike/p04-schema-evolution-p03d` منتقل شده که والد آن PR شماره ۶۱ در P-03D است. تست P-04 همراه Regression مربوط به P-02/P-03C/P-03D و Documentation Governance دوزبانه باید روی Head جدید PR دوباره اجرا شوند. تا آن زمان اجرای هفت‌تستی اصلی فقط شاهد تاریخی است و وضعیت P-04 در زنجیره Rebaseشده در انتظار راستی‌آزمایی باقی می‌ماند.
