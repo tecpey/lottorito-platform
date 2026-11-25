@@ -98,12 +98,7 @@ CREATE TABLE p06.correlation_map(
  economic_effect_ref text NOT NULL,
  journal_id uuid NOT NULL,
  journal_ref text NOT NULL,
- trace_id text NOT NULL CHECK(length(trace_id)=32 AND trace_id ~ '^[0-9a-f]{32}'),
- CHECK((scope_kind='product' AND scope_id IN('affiliate_agent','lottery'))
-    OR (scope_kind='platform' AND scope_id='lottorito')),
- PRIMARY KEY(tenant_id,scope_kind,scope_id,source_event_id)
-);
-REVOKE ALL ON p06.correlation_map FROM PUBLIC,p06_tenant_a_reader,p06_tenant_b_reader,p06_metrics_reader,p06_forensic_reader;
+ trace_id text NOT NULL CHECK(length(trace_id)=32 AND trace_id ~ '^[0-9a-f]{32}'REVOKE ALL ON p06.correlation_map FROM PUBLIC,p06_tenant_a_reader,p06_tenant_b_reader,p06_metrics_reader,p06_forensic_reader;
 
 CREATE TABLE p06.privileged_audit(
  audit_id bigserial PRIMARY KEY,
