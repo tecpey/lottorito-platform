@@ -1,6 +1,6 @@
 # Lottorito Architecture Prototype and Evidence Plan
 
-**Document ID:** LOT-PROT-001 | **Version:** 1.13.0 | **Status:** Proposed experiment plan; execution and technology choices not approved
+**Document ID:** LOT-PROT-001 | **Version:** 1.14.0 | **Status:** Proposed experiment plan; execution and technology choices not approved
 
 ## 1. Purpose and authority
 
@@ -195,6 +195,29 @@ A prototype may be **Pass**, **Fail**, **Inconclusive** or **Not run**. “Pass�
 **References:** AWS S3 checksum validation; Google Cloud Storage data validation/versioning; NIST SP 800-57 Part 1 Rev. 5 (Rev. 6 remains a draft); AWS transactional outbox and at-least-once event processing guidance.
 
 **Status:** P-05B synthetic CI passed on validated branch head e4820884194ecf1ab3acd539d77145904f14ab73. Combined P-05A/P-05B Pull-request Integration [45526975173](https://github.com/tecpey/lottorito-platform/actions/runs/45526975173) and Documentation Governance [45526975222](https://github.com/tecpey/lottorito-platform/actions/runs/45526975222) passed. The restored 4,409-byte object matched its database SHA-256 reference; missing/corrupt key and object cases failed closed; duplicate/out-of-order replay, transaction interruption/retry, ledger reconciliation and tenant isolation assertions passed. No technology, vendor, production readiness, RPO/RTO or release approval is implied.
+
+### P-05C — Failover, writer fencing and failback
+
+**Question:** Can the recovery prototype demonstrate a controlled primary-to-standby promotion, reject stale writers, preserve a single writable node, rewind the former primary and complete a controlled failback?
+
+**Synthetic topology:** Two independent PostgreSQL 18.7 clusters in one disposable container; physical streaming replication; data checksums and wal_log_hints; a database-local writer epoch/lease row; no external DCS, consensus cluster, watchdog, cloud instance or production infrastructure.
+
+**Experiments:**
+1. Seed a baseline event and prove streaming standby recovery.
+2. Require a local promotion gate to refuse while the former primary process is still alive. Stop the standby, commit a deliberately unreplicated synthetic tail on the old primary, then stop the old primary before promotion.
+3. Start and promote the standby; increment epoch 1 → 2. Reject stale writer identity/epoch and expired lease.
+4. Race two promotion claimants against expected epoch 2; one atomic compare-and-swap must win epoch 3, the other must receive no token.
+5. Rewind the stopped former primary with pg_rewind, rejoin it as a read-only standby, and verify the promoted event exists while the intentionally unreplicated old-primary tail is absent.
+6. Wait for replay, perform a controlled switchover back to the original node, increment epoch 3 → 4, write a failback marker, rewind the other node and rejoin it as standby.
+7. Assert one writable primary, one read-only standby and consistent epoch/active-writer state after failback.
+
+**Pass criteria:** promotion refused while old primary is alive; old process stopped before promotion; standby promotion succeeds; stale token and expired lease fail closed; exactly one concurrent epoch claimant wins; pg_rewind rejoin succeeds; divergent unreplicated tail is absent; former primary is read-only after rejoin; controlled failback and second rewind succeed; final topology has exactly one writer.
+
+**Critical limitations:** The process stop is a local CI fence simulation, not STONITH, host/storage fencing or watchdog. The writer-epoch row is replicated application data, not an independent quorum-backed DCS; it cannot stop a partitioned old primary from accepting local writes. The experiment intentionally loses one committed-but-unreplicated synthetic event to expose asynchronous replication's data-loss window. It does not test a real network partition, quorum loss, simultaneous live primaries, DCS outage, watchdog failure, regional failover, production traffic, RPO or RTO.
+
+**References:** PostgreSQL 18 failover, hot standby and pg_rewind; Patroni lease/watchdog guidance; etcd atomic transactions, leases and linearizability.
+
+**Status:** Implementation is on P-05C PR #54, stacked on P-05B PR #53. CI validation is pending. No HA technology, vendor, topology, RPO/RTO or production readiness is approved.
 
 ### P-06 — End-to-end observability and privacy
 
