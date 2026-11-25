@@ -76,3 +76,8 @@ All data and credentials are synthetic. P-02 run [45465421133](https://github.co
 ## Downstream P-04 stack regression — 2026-11-25
 
 P-04 is being carried onto a clean branch based on the verified synthetic P-03D head so that P-04–P-08 do not silently omit the P-03C/P-03D ledger/outbox bridge. P-04's own schema-evolution fixture is independent and does not mutate this P-02 schema. The P-02 integration workflow is intentionally re-run as a regression gate on the new P-04 stack head; this does not change the P-02 acceptance scope or approve production accounting.
+
+
+## Reconciled P-04 stack regression result — 2026-11-25
+
+P-02 was re-run as part of P-04 PR #62 on code head `dca0762678ed45da122ba109276c54ce61ac0846`. [Run 119](https://github.com/tecpey/lottorito-platform/actions/runs/45608274029) passed all 25 tests with 0 failures and 0 skips. This is a regression check only; P-04 remains a separate synthetic schema-evolution experiment and does not alter P-02's ledger schema.
