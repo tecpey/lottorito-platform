@@ -1,6 +1,6 @@
 # P-08 — استقرار، دروازه سلامت و ایمنی Rollback
 
-**شناسه سند:** LOT-PROT-P08-001 | **نسخه:** ۰.۲.۰ | **وضعیت:** پیاده‌سازی کنترل استقرار ساختگی؛ شواهد CI در PR شماره ۵۹ پیگیری می‌شود؛ بدون تصویب پلتفرم استقرار یا انتشار Production
+**شناسه سند:** LOT-PROT-P08-001 | **نسخه:** ۰.۳.۰ | **وضعیت:** پیاده‌سازی کنترل استقرار ساختگی؛ شواهد CI در PR شماره ۵۹ پیگیری می‌شود؛ بدون تصویب پلتفرم استقرار یا انتشار Production
 
 ## ۱. پرسش تصمیم و مرزبندی
 
@@ -120,3 +120,7 @@ Workflow مربوط به CI: .github/workflows/p08-deployment-health-rollback.ym
 ## ۹. دروازه تکمیل
 
 P-08 فقط زمانی تکمیل است که Head دقیق PR دارای Integration موفق و Documentation Governance موفق باشد، مقایسه Artifact قطعی قبول شود، تمام تست‌های مثبت و منفی با صفر Skip موفق باشند، هم‌ارزی معنایی نسخه فارسی و انگلیسی به‌صورت دستی بازبینی شود و محدودیت‌ها صریح باقی بمانند. موفقیت P-08 به‌تنهایی پلتفرم Production را انتخاب نمی‌کند، فناوری را تصویب نمی‌کند و مجوز Merge یا Deploy صادر نمی‌کند.
+
+## الحاقیه P-09C — Artifact و Provenance محصول‌محور (۲۰۲۶-۱۱-۲۵)
+
+P-08 اکنون ورودی صریح و Allow-listشده `--product` را می‌پذیرد (`affiliate_agent` یا `lottery`). هویت Product در Entrypoint مربوط به Zipapp، Release Metadata، نام Artifact و External Parameterهای Provenance هم‌شکل SLSA ثبت می‌شود. Promotion، Artifact و Provenance را با Product مربوط به Deployment State تطبیق می‌دهد؛ Rollback، بازنشستگی Rollback Target و Schema Migration نیز Artifact متعلق به Product دیگر را رد می‌کنند. اجرای CI مربوط به P-08 با شناسه [45629980686](https://github.com/tecpey/lottorito-platform/actions/runs/45629980686) با **۵۳ تست از ۵۳ تست** موفق شد؛ شامل Build جداگانه Affiliate/Lottery، Provenance مقید به Product، Promotion موفق Lottery و رد Promotion/Rollback بین دو Product. این همچنان آزمایش ساختگی کنترل استقرار است و هیچ محیط واقعی لمس نشده است.
