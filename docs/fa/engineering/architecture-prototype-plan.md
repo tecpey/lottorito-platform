@@ -1,6 +1,6 @@
 # برنامه Prototype معماری و تولید شواهد Lottorito
 
-**شناسه سند:** LOT-PROT-001 | **نسخه:** ۱.۹.۰ | **وضعیت:** برنامه آزمایش پیشنهادی؛ اجرا و انتخاب فناوری تصویب نشده است
+**شناسه سند:** LOT-PROT-001 | **نسخه:** ۱.۱۰.۰ | **وضعیت:** برنامه آزمایش پیشنهادی؛ اجرا و انتخاب فناوری تصویب نشده است
 
 ## ۱. هدف و اعتبار
 
@@ -169,7 +169,7 @@
 
 **شواهد:** Manifest و خروجی صحت‌سنجی Backup، نتیجه تست منفی دست‌کاری، فهرست WAL آرشیوشده، LSN/Timeline نقطه بازیابی، Log و زمان Restore، Assertions قبل/بعد از Target، نتایج جداسازی Tenant، گزارش Ledger/Reconciliation، نسخه دقیق نرم‌افزار، Runbook و محدودیت‌ها.
 
-**وضعیت:** راستی‌آزمایی ساختگی P-05A در CI روی Head با شناسه f2303a647aefd5bd8d48ba9d2e1830c881f60041 موفق شد. اجرای Integration با شناسه [45524388676](https://github.com/tecpey/lottorito-platform/actions/runs/45524388676) و Documentation Governance با شناسه [45524388734](https://github.com/tecpey/lottorito-platform/actions/runs/45524388734) موفق بودند. PostgreSQL 18.7 استفاده شد؛ در Runner دورریختنی CI، زمان Backup به‌همراه Verification برابر ۱۲ تا ۱۳ ثانیه (اجرای نهایی روی Head فعلی: ۱۳ ثانیه) و زمان راه‌اندازی Restore برابر ۱ ثانیه اندازه‌گیری شد. Log رسیدن به Restore Point نام‌گذاری‌شده بررسی شد، نشانگر قبل از Target حاضر و نشانگر بعد از Target غایب بود، RLS خواندن/نوشتن بین Tenantها را رد کرد و مجموع ساختگی Ledger/Source تطبیق داشت. آزمون منفی WAL مفقود و Restore قطع‌شده هنوز اجرا نشده‌اند؛ بازیابی بایت Object/کلید و Failover/Fencing/Failback در P-05B/P-05C قرار دارند و اجرا نشده‌اند. این نتیجه آمادگی Production، تعهد RPO/RTO یا تصویب فناوری نیست.
+**وضعیت:** راستی‌آزمایی ساختگی P-05A در CI روی Head با شناسه f2303a647aefd5bd8d48ba9d2e1830c881f60041 موفق شد. اجرای Integration با شناسه [45524388676](https://github.com/tecpey/lottorito-platform/actions/runs/45524388676) و Documentation Governance با شناسه [45524388734](https://github.com/tecpey/lottorito-platform/actions/runs/45524388734) موفق بودند. PostgreSQL 18.7 استفاده شد؛ در Runner دورریختنی CI، زمان Backup به‌همراه Verification برابر ۱۲ تا ۱۳ ثانیه (اجرای نهایی روی Head فعلی: ۱۳ ثانیه) و زمان راه‌اندازی Restore برابر ۱ ثانیه اندازه‌گیری شد. Log رسیدن به Restore Point نام‌گذاری‌شده بررسی شد، نشانگر قبل از Target حاضر و نشانگر بعد از Target غایب بود، RLS خواندن/نوشتن بین Tenantها را رد کرد و مجموع ساختگی Ledger/Source تطبیق داشت. آزمون منفی WAL مفقود و Restore قطع‌شده همچنان اجرا نشده‌اند. بازیابی بایت Object/کلید و Replay مرتب و Idempotent در P-05B اکنون در CI ساختگی موفق شده‌اند (PR شماره ۵۳)؛ Failover/Fencing/Failback در P-05C هنوز اجرا نشده است. این نتیجه آمادگی Production، تعهد RPO/RTO یا تصویب فناوری نیست.
 
 
 ### P-05B — بازیابی Object، کلید و رویداد
@@ -194,7 +194,7 @@
 
 **منابع:** صحت Checksum در AWS S3؛ اعتبارسنجی داده و Versioning در Google Cloud Storage؛ NIST SP 800-57 Part 1 Rev. 5 (Rev. 6 هنوز پیش‌نویس است)؛ راهنمای Transactional Outbox و تحویل At-least-once در AWS.
 
-**وضعیت:** پیاده‌سازی در شاخه Feature مربوط به P-05B قرار دارد؛ شواهد نهایی CI در انتظار است. هیچ فناوری، فروشنده، آمادگی Production، RPO/RTO یا مجوز انتشار تصویب نشده است.
+**وضعیت:** CI ساختگی P-05B روی Head با شناسه 99ac76a68817116d05441a8165609252e7cd8ee9 موفق شد. اجرای Integration مربوط به Pull Request با شناسه [45526169535](https://github.com/tecpey/lottorito-platform/actions/runs/45526169535)، اجرای Integration شاخه با شناسه [45526158154](https://github.com/tecpey/lottorito-platform/actions/runs/45526158154) و Documentation Governance با شناسه [45526171881](https://github.com/tecpey/lottorito-platform/actions/runs/45526171881) موفق شدند. Object بازیابی‌شده ۴٬۴۰۹ بایتی با مرجع SHA-256 دیتابیس تطبیق داشت؛ حالت‌های کلید/Object مفقود یا خراب Fail-closed شدند؛ Assertionهای Duplicate/ترتیب Replay، قطع تراکنش و Retry، تطبیق Ledger و جداسازی Tenant موفق شدند. هیچ فناوری، فروشنده، آمادگی Production، RPO/RTO یا مجوز انتشار تصویب نشده است.
 
 ### P-06 — Observability سرتاسری و حریم خصوصی
 
