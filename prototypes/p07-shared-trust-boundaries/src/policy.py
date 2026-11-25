@@ -13,12 +13,12 @@ SERVICE_PRINCIPALS = {
     "synthetic-affiliate-service-token": {
         "service_id": "affiliate-agent-worker",
         "product_id": "affiliate_agent",
-        "allowed_tenants": ["tenant-alpha", "tenant-beta"],
+        "allowed_tenants": ["11111111-1111-4111-8111-111111111111", "22222222-2222-4222-8222-222222222222"],
     },
     "synthetic-lottery-service-token": {
         "service_id": "lottery-worker",
         "product_id": "lottery",
-        "allowed_tenants": ["tenant-alpha", "tenant-beta"],
+        "allowed_tenants": ["11111111-1111-4111-8111-111111111111", "22222222-2222-4222-8222-222222222222"],
     },
 }
 AUDIT_DECISIONS: list[dict[str, Any]] = []
