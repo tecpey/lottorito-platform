@@ -1,6 +1,6 @@
 # P-09 — یکپارچه‌سازی قرارداد و بازیابی بین Prototypeها
 
-**شناسه سند:** LOT-PROT-P09-001 | **نسخه:** ۰.۴.۰ | **وضعیت:** قرارداد پیشنهادی بین Prototypeها؛ P-09A و Correlation محصول‌محور P-09B در CI ساختگی موفق شدند؛ بدون تصویب Production
+**شناسه سند:** LOT-PROT-P09-001 | **نسخه:** ۰.۵.۰ | **وضعیت:** قرارداد پیشنهادی بین Prototypeها؛ P-09A و Correlation محصول‌محور P-09B در CI ساختگی موفق شدند؛ بدون تصویب Production
 
 **وضعیت:** خط مبنای قرارداد پیشنهادی؛ پیاده‌سازی کامل و تصویب مالک همچنان باز است.  
 **مبنای بررسی:** شاخه `integration/p03d-p04-p08-candidate` با Head برابر `c7f9ffa1f499fbd34d260b2aa6d3122d32e1ac7f`.  
@@ -107,3 +107,10 @@ Build/Provenance محصول‌محور و اعمال Product Scope در چرخه
 ### شواهد پذیرش P-09D
 
 P-07B اکنون Envelope محصول‌محور Canonical را اعتبارسنجی می‌کند: UUID مربوط به Tenant، Product Scope مقید به Producer، UUID مربوط به Source Event، Schema Version و W3C Traceparent. خروجی Dispatch دقیقاً Tuple هویت Source و Trace ID موردنیاز P-06 را برمی‌گرداند. CI با شناسه [45631269584](https://github.com/tecpey/lottorito-platform/actions/runs/45631269584) با **۴۲ تست از ۴۲ تست** موفق شد. Registry و Fixtureهای Tenant ساختگی اکنون از همان انواع هویتی قرارداد P-09 استفاده می‌کنند. Eventهای Platform-originated به‌طور ضمنی از طریق Service Identity محصولات پذیرفته نمی‌شوند.
+
+
+### شواهد پذیرش P-09E
+
+P-09E در Workflow بازیابی P-05 با شناسه [45635972222](https://github.com/tecpey/lottorito-platform/actions/runs/45635972222) روی Head دقیق Candidate برابر با 73d7d0daa46e6a019020fc25ace315836d270a6f موفق شد. اجرا، Schemaهای واقعی P-02، P-03C و P-03D را در Database مستقل و دورریختنی اعمال کرد، Backup فیزیکی گرفت، pg_verifybackup را با موفقیت گذراند، Cluster بازیابی‌شده مستقل را راه‌اندازی کرد، Rollback تراکنش Posting ناموفق را تزریق و تأیید کرد، سه رکورد پذیرفته‌شده P-03D Inbox را از طریق post_journal واقعی P-02 Replay کرد و Idempotent Retry، جداسازی RLS در سطح Tenant/Product پس از Restore، توازن Journalها، اتمیک‌بودن Delivery State در Outbox و صفر بودن استثناهای Reconciliation بین Provider و Ledger را بررسی کرد. یک Source Event UUID و Provider Event ID یکسان عمداً بین Affiliate/Lottery در یک Tenant و Affiliate در Tenant دوم تکرار شدند.
+
+Documentation Governance با شناسه [45635972312](https://github.com/tecpey/lottorito-platform/actions/runs/45635972312) روی همان Head موفق شد (۵۸ جفت Markdown دوزبانه و ۱۳۶ لینک محلی). این نتیجه فقط Slice مربوط به Backup فیزیکی، Restore و Replay تراکنشی P-09E را می‌بندد. ترتیب Aggregate، Fencing هم‌زمان Lease منقضی‌شده، اجرای کامل Worker جاوااسکریپت Provider، معماری PITR عملیاتی، RPO/RTO و آمادگی Production را اثبات نمی‌کند؛ این موارد دروازه‌های مستقل بعدی هستند.

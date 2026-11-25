@@ -1,6 +1,6 @@
 # Lottorito Architecture Prototype and Evidence Plan
 
-**Document ID:** LOT-PROT-001 | **Version:** 1.26.0 | **Status:** Proposed experiment plan; execution and technology choices not approved
+**Document ID:** LOT-PROT-001 | **Version:** 1.27.0 | **Status:** Proposed experiment plan; execution and technology choices not approved
 
 ## 1. Purpose and authority
 
@@ -390,3 +390,7 @@ P-08 is no longer Affiliate-only in its synthetic build path. Product is an expl
 ## P-09D — Canonical event contract mapping (2026-11-25)
 
 P-07B's producer/consumer contract now carries canonical tenant UUID, product scope bound to the authenticated producer, source-event UUID, schema version and W3C traceparent. Its accepted dispatch result exposes `(tenant_id, scope_kind, scope_id, source_event_id)` plus trace ID for P-06 correlation. Synthetic tenant fixtures were normalized to UUIDs. P-07B CI [45631269584](https://github.com/tecpey/lottorito-platform/actions/runs/45631269584) passed 42/42 tests. Platform-originated events remain outside the product-service event profile. P-05B shared-record recovery is the remaining major cross-prototype integration gate.
+
+## P-09E — Shared-record recovery proof (2026-11-25)
+
+P-09E now passes on exact candidate head 73d7d0daa46e6a019020fc25ace315836d270a6f: P-05 workflow [45635972222](https://github.com/tecpey/lottorito-platform/actions/runs/45635972222) and Documentation Governance [45635972312](https://github.com/tecpey/lottorito-platform/actions/runs/45635972312). The recovery experiment applies the exact P-02/P-03C/P-03D SQL chain, backs up the database physically, verifies the backup, restores a second cluster and replays actual P-03D provider-inbox records through P-02 post_journal. It proves transaction rollback after injected failure, idempotent retries, same-source-UUID separation across product/tenant scopes, product/tenant RLS after restore, balanced journals, atomic outbox delivery-state creation and zero provider-ledger reconciliation exceptions. The legacy P-05B simplified fixture remains separate. Aggregate ordering, concurrent lease fencing, full Node worker orchestration and production recovery design are not claimed by this slice.

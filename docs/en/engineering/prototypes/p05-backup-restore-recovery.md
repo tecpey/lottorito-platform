@@ -1,6 +1,6 @@
 # P-05A — PostgreSQL Backup, PITR and Financial Integrity
 
-**Document ID:** LOT-PROT-P05-001 | **Version:** 0.5.0 | **Status:** Synthetic CI experiment passed; production recovery not approved
+**Document ID:** LOT-PROT-P05-001 | **Version:** 0.6.0 | **Status:** Synthetic CI experiment passed; production recovery not approved
 
 ## Authority and decision boundary
 
@@ -83,3 +83,10 @@ No production data, credentials, partner secrets, real funds or live endpoints. 
 - The run asserted manifest verification and tamper rejection, archived WAL presence, the named PITR log entry, pre-target marker present/post-target marker absent, tenant-scoped reads and denied cross-tenant insert, balanced journals, source-to-ledger totals, unique economic effects and valid object-reference hash format.
 - Negative drills passed on combined executable-code head `146a9bc635e3b03db568c423fb0958b62bc31c7b`: an incomplete restore staging directory was rejected by both `pg_verifybackup` and PostgreSQL startup; removal of the exact target WAL segment caused the recovery startup to fail closed before the requested named target. The missing-WAL log recorded the absent target segment. Object-byte/key recovery is covered by P-05B; failover/fencing/failback remains P-05C and has not run.
 - Synthetic success is not production readiness, a technology decision or RPO/RTO approval.
+
+
+## P-09E shared-record recovery evidence (2026-11-25)
+
+The P-05 workflow [45635972222](https://github.com/tecpey/lottorito-platform/actions/runs/45635972222) passed on candidate head 73d7d0daa46e6a019020fc25ace315836d270a6f. In addition to the existing P-05A PITR, P-05B object/key/event fixture and P-05A negative drills, it ran P-09E against the exact P-02/P-03C/P-03D SQL schemas and actual provider inbox, ledger, journal, line, outbox and delivery-state tables. The physical backup passed pg_verifybackup; the restored cluster replayed three accepted inbox records with one journal/effect/outbox/delivery row per scope. Failure injection rolled back the posting transaction as a unit. Same-source-ID collisions across product and tenant scopes, idempotent retries, RLS and P-03D reconciliation all passed. See the P-09 integration record for scope and limitations.
+
+This does not replace the simplified P-05B fixture or establish production backup architecture, PITR retention, off-site durability, key/object restore, aggregate ordering, concurrent fencing, RPO/RTO or Production readiness. Documentation Governance [45635972312](https://github.com/tecpey/lottorito-platform/actions/runs/45635972312) passed on the same head (58 bilingual pairs, 136 local links).

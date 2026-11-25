@@ -1,6 +1,6 @@
 # برنامه Prototype معماری و تولید شواهد Lottorito
 
-**شناسه سند:** LOT-PROT-001 | **نسخه:** ۱.۲۶.۰ | **وضعیت:** برنامه آزمایش پیشنهادی؛ اجرا و انتخاب فناوری تصویب نشده است
+**شناسه سند:** LOT-PROT-001 | **نسخه:** ۱.۲۷.۰ | **وضعیت:** برنامه آزمایش پیشنهادی؛ اجرا و انتخاب فناوری تصویب نشده است
 
 ## ۱. هدف و اعتبار
 
@@ -389,3 +389,7 @@ Correlation Map، Grant دسترسی Forensic و View مربوط به P-06 اک�
 ## P-09D — نگاشت قرارداد Canonical رویداد (۲۰۲۶-۱۱-۲۵)
 
 قرارداد Producer/Consumer در P-07B اکنون UUID استاندارد Tenant، Product Scope مقید به Producer احراز‌شده، UUID مربوط به Source Event، Schema Version و W3C Traceparent را حمل می‌کند. خروجی Dispatch پذیرفته‌شده، `(tenant_id, scope_kind, scope_id, source_event_id)` به‌همراه Trace ID را برای Correlation در P-06 ارائه می‌دهد. Fixtureهای Tenant ساختگی به UUID استاندارد تبدیل شدند. CI مربوط به P-07B با شناسه [45631269584](https://github.com/tecpey/lottorito-platform/actions/runs/45631269584) با ۴۲ تست از ۴۲ تست موفق شد. رویدادهای Platform-originated خارج از Profile رویداد Serviceهای محصول باقی می‌مانند. Recovery روی Recordهای مشترک در P-05B مهم‌ترین دروازه یکپارچه‌سازی باقی‌مانده است.
+
+## P-09E — اثبات بازیابی Recordهای مشترک (۲۰۲۶-۱۱-۲۵)
+
+P-09E روی Head دقیق Candidate برابر با 73d7d0daa46e6a019020fc25ace315836d270a6f موفق شده است: Workflow مربوط به P-05 با شناسه [45635972222](https://github.com/tecpey/lottorito-platform/actions/runs/45635972222) و Documentation Governance با شناسه [45635972312](https://github.com/tecpey/lottorito-platform/actions/runs/45635972312). آزمایش Recovery، زنجیره SQL دقیق P-02/P-03C/P-03D را اعمال می‌کند، Backup فیزیکی می‌گیرد، Backup را Verify می‌کند، Cluster دوم را Restore می‌کند و Recordهای واقعی Provider Inbox در P-03D را از طریق post_journal در P-02 Replay می‌کند. Rollback تراکنش پس از تزریق خرابی، Retryهای Idempotent، جداسازی Source UUID یکسان بین Scopeهای Product/Tenant، RLS پس از Restore، توازن Journalها، ایجاد اتمیک Outbox Delivery State و صفر بودن استثناهای Reconciliation بین Provider و Ledger اثبات شده‌اند. Fixture ساده‌شده قدیمی P-05B مستقل باقی می‌ماند. این Slice ادعای ترتیب Aggregate، Fencing هم‌زمان Lease، اجرای کامل Worker جاوااسکریپت یا طراحی Recovery عملیاتی Production را ندارد.

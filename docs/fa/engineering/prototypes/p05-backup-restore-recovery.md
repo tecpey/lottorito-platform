@@ -1,6 +1,6 @@
 # P-05A — نسخه پشتیبان PostgreSQL، PITR و صحت مالی
 
-**شناسه سند:** LOT-PROT-P05-001 | **نسخه:** ۰.۵.۰ | **وضعیت:** آزمایش ساختگی CI موفق؛ بازیابی Production تصویب نشده است
+**شناسه سند:** LOT-PROT-P05-001 | **نسخه:** ۰.۶.۰ | **وضعیت:** آزمایش ساختگی CI موفق؛ بازیابی Production تصویب نشده است
 
 ## اعتبار و مرز تصمیم
 
@@ -84,3 +84,10 @@ Workflow ترکیبی P-05 دو کنترل Fail-closed را علاوه بر مس
 - تست، Verification و رد Manifest دست‌کاری‌شده، وجود WAL آرشیوشده، Log نقطه بازیابی نام‌گذاری‌شده، حضور نشانگر پیش از Target و نبود نشانگر پس از Target، خواندن محدود به Tenant و رد Insert بین Tenantها، توازن Journal، تطبیق مجموع Source-to-Ledger، یکتایی Economic Effect و فرمت معتبر Hash ارجاع Object را بررسی کرد.
 - آزمون‌های منفی روی Head کد اجرایی ترکیبی `146a9bc635e3b03db568c423fb0958b62bc31c7b` موفق شدند: Staging ناقص Restore هم توسط `pg_verifybackup` و هم راه‌اندازی PostgreSQL رد شد؛ حذف Segment دقیق WAL هدف باعث شد راه‌اندازی Recovery پیش از Target نام‌گذاری‌شده به‌صورت Fail-closed متوقف شود. Log مربوط به WAL مفقود، نبود Segment هدف را ثبت کرد. بازیابی بایت Object/کلید در P-05B پوشش داده شده است؛ Failover/Fencing/Failback در P-05C همچنان اجرا نشده است.
 - موفقیت ساختگی به‌معنای آمادگی Production، تصمیم فناوری یا تصویب RPO/RTO نیست.
+
+
+## شواهد P-09E برای بازیابی Recordهای مشترک (۲۰۲۶-۱۱-۲۵)
+
+Workflow مربوط به P-05 با شناسه [45635972222](https://github.com/tecpey/lottorito-platform/actions/runs/45635972222) روی Head کاندید 73d7d0daa46e6a019020fc25ace315836d270a6f موفق شد. علاوه بر PITR در P-05A، Fixture مربوط به Object/Key/Event در P-05B و آزمون‌های منفی P-05A، این اجرا P-09E را روی Schemaهای دقیق SQL در P-02/P-03C/P-03D و جدول‌های واقعی Provider Inbox، Ledger، Journal، Line، Outbox و Delivery State اجرا کرد. Backup فیزیکی pg_verifybackup را گذراند؛ Cluster بازیابی‌شده سه Inbox پذیرفته‌شده را Replay کرد و برای هر Scope دقیقاً یک Journal/Effect/Outbox/Delivery ساخت. تزریق خرابی، Rollback یکپارچه تراکنش Posting را اثبات کرد. برخورد Source ID یکسان بین Scopeهای Product و Tenant، Retry تکراری، RLS و Reconciliation در P-03D نیز موفق شدند. برای محدوده و محدودیت‌ها به سند یکپارچه‌سازی P-09 مراجعه کنید.
+
+این آزمایش جایگزین Fixture ساده‌شده P-05B نیست و معماری Backup Production، نگهداری PITR، دوام Off-site، بازیابی Key/Object، ترتیب Aggregate، Fencing هم‌زمان، RPO/RTO یا آمادگی Production را اثبات نمی‌کند. Documentation Governance با شناسه [45635972312](https://github.com/tecpey/lottorito-platform/actions/runs/45635972312) روی همان Head موفق شد (۵۸ جفت دوزبانه و ۱۳۶ لینک محلی).

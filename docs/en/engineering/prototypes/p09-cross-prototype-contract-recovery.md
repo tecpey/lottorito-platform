@@ -1,6 +1,6 @@
 # P-09 — Cross-Prototype Contract & Recovery Integration
 
-**Document ID:** LOT-PROT-P09-001 | **Version:** 0.4.0 | **Status:** Proposed cross-prototype contract; P-09A passed and P-09B scope-aware P-06 correlation passed on synthetic CI; no production approval
+**Document ID:** LOT-PROT-P09-001 | **Version:** 0.5.0 | **Status:** Proposed cross-prototype contract; P-09A passed and P-09B scope-aware P-06 correlation passed on synthetic CI; no production approval
 
 **Status:** Proposed contract baseline; implementation and owner approval remain open.  
 **Baseline:** `integration/p03d-p04-p08-candidate` at `c7f9ffa1f499fbd34d260b2aa6d3122d32e1ac7f`.  
@@ -68,7 +68,7 @@ A financial event must carry product scope. A platform event may carry platform 
 - **P-09B — P-06 correlation:** product/platform scoped correlation key; collision tests with identical source UUIDs in Affiliate and Lottery and denial of cross-scope reads.
 - **P-09C — P-08 product-aware artifacts:** parameterized Affiliate and Lottery build, product-bound artifact metadata/provenance, compatibility and promotion/rollback tests.
 - **P-09D — P-07B event contract mapping:** producer contract, consumer authorization, canonical source identity, schema version and W3C trace context.
-- **P-09E — P-05B recovery integration:** restore/replay the same P-02/P-03D schema and records; prove order, idempotency, fencing, reconciliation and product isolation.
+- **P-09E — shared-record recovery integration:** restore/replay the same P-02/P-03D schema and records; prove atomic rollback, idempotency, reconciliation and product isolation. Aggregate ordering and stale-lease fencing remain separate follow-up tests.
 - **P-09F — integrated failure/concurrency suite:** disposable candidate, duplicate delivery, sequence gaps, conflicting product IDs, interrupted replay, restore failure, stale trace/correlation, artifact tampering and rollback.
 
 ## 6. Acceptance gates
@@ -107,3 +107,10 @@ P-08 product-aware build/provenance and lifecycle enforcement passed in [4562998
 ### P-09D acceptance evidence
 
 P-07B now validates the canonical product event envelope: tenant UUID, producer-bound product scope, source-event UUID, schema version and W3C traceparent. The dispatch result returns the exact source identity tuple and trace ID required by P-06. CI [45631269584](https://github.com/tecpey/lottorito-platform/actions/runs/45631269584) passed **42/42 tests**. The registry and synthetic tenant fixtures now use the same identity types as the P-09 contract. Platform-originated events are not implicitly accepted by product service identities.
+
+
+### P-09E acceptance evidence
+
+P-09E passed in the P-05 recovery workflow [45635972222](https://github.com/tecpey/lottorito-platform/actions/runs/45635972222) on exact candidate head 73d7d0daa46e6a019020fc25ace315836d270a6f. The run applied the actual P-02, P-03C and P-03D SQL schemas in a separate disposable database, took a physical base backup, passed pg_verifybackup, started an isolated restored cluster, injected and verified rollback of a failed posting transaction, replayed three accepted P-03D inbox records through P-02 post_journal, verified idempotent retry, product/tenant RLS after restore, balanced journals, outbox delivery-state atomicity and zero provider-to-ledger reconciliation exceptions. The same source-event UUID and provider event ID were deliberately reused across Affiliate/Lottery for one tenant and Affiliate for a second tenant.
+
+Documentation Governance [45635972312](https://github.com/tecpey/lottorito-platform/actions/runs/45635972312) passed on the same head (58 bilingual Markdown pairs and 136 local links). This closes the P-09E physical restore + transactional replay slice only. It does not prove aggregate sequence ordering, concurrent stale-lease fencing, full Node.js provider-worker orchestration, production PITR architecture, RPO/RTO, or production readiness; those remain explicit follow-up gates.
