@@ -113,3 +113,8 @@ python3 -m unittest discover -s prototypes/p07-shared-trust-boundaries/tests -v
 ## P-09D canonical event identity and trace-context addendum (2026-11-25)
 
 P-07B now requires a product-scoped envelope aligned to ADR-009: canonical UUID tenant identity, explicit `scope={kind: product, id: source_product}`, canonical UUID `sourceeventid`, positive integer `schemaversion`, and W3C Trace Context `traceparent`. The contract registry binds source scope, schema version and required envelope fields. The dispatch result exposes the canonical source-event tuple and trace ID for mapping to P-06 correlation. Synthetic tenant fixtures were converted from labels to UUIDs so the same tenant identity type is used across P-02/P-03D/P-06/P-07B. P-07B CI [45631269584](https://github.com/tecpey/lottorito-platform/actions/runs/45631269584) passed **42/42 tests**. Product-originated P-07B events currently require product scope; platform-originated events remain a separately governed future extension.
+
+
+### P-09H — Shared contract enforcement (2026-11-25)
+
+P-07B event dispatch now invokes the canonical Python validator from P-09 after its existing principal authentication, tenant/product scope and detailed denial checks. This preserves P-07B's established denial reasons for its existing authorization cases while adding the common CloudEvents, URI-reference and RFC3339 conformance gate. The synthetic event fixture now includes the profile-required `time` attribute. Runtime policy remains prototype-only.
