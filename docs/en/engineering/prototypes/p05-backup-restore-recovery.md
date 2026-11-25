@@ -56,7 +56,7 @@ No production data, credentials, partner secrets, real funds or live endpoints. 
 
 - Integration: [run 45524388676](https://github.com/tecpey/lottorito-platform/actions/runs/45524388676), passed on head f2303a647aefd5bd8d48ba9d2e1830c881f60041.
 - Documentation Governance: [run 45524388734](https://github.com/tecpey/lottorito-platform/actions/runs/45524388734), passed on the same head.
-- PostgreSQL 18.7; base backup plus verification: 12 seconds; restored server startup: 1 second in this disposable GitHub-hosted runner. These are observations, not production RTO targets.
+- PostgreSQL 18.7; base backup plus verification: 12–13 seconds (latest final-head run: 13 seconds); restored server startup: 1 second in this disposable GitHub-hosted runner. These are observations, not production RTO targets.
 - The run asserted manifest verification and tamper rejection, archived WAL presence, the named PITR log entry, pre-target marker present/post-target marker absent, tenant-scoped reads and denied cross-tenant insert, balanced journals, source-to-ledger totals, unique economic effects and valid object-reference hash format.
 - Missing-WAL and interrupted-restore negative drills remain open. Object-byte/key recovery and failover/fencing/failback are P-05B/P-05C and have not run.
 - Synthetic success is not production readiness, a technology decision or RPO/RTO approval.

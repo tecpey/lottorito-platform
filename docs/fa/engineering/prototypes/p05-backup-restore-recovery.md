@@ -56,7 +56,7 @@
 
 - Integration: [اجرای 45524388676](https://github.com/tecpey/lottorito-platform/actions/runs/45524388676) روی Head با شناسه f2303a647aefd5bd8d48ba9d2e1830c881f60041 موفق شد.
 - Documentation Governance: [اجرای 45524388734](https://github.com/tecpey/lottorito-platform/actions/runs/45524388734) روی همان Head موفق شد.
-- PostgreSQL 18.7؛ Backup و Verification در مجموع ۱۲ ثانیه؛ راه‌اندازی دیتابیس بازیابی‌شده ۱ ثانیه در Runner دورریختنی GitHub. این‌ها مشاهدات آزمایش‌اند، نه هدف RTO عملیاتی.
+- PostgreSQL 18.7؛ Backup و Verification در مجموع ۱۲ تا ۱۳ ثانیه (اجرای نهایی روی Head فعلی: ۱۳ ثانیه)؛ راه‌اندازی دیتابیس بازیابی‌شده ۱ ثانیه در Runner دورریختنی GitHub. این‌ها مشاهدات آزمایش‌اند، نه هدف RTO عملیاتی.
 - تست، Verification و رد Manifest دست‌کاری‌شده، وجود WAL آرشیوشده، Log نقطه بازیابی نام‌گذاری‌شده، حضور نشانگر پیش از Target و نبود نشانگر پس از Target، خواندن محدود به Tenant و رد Insert بین Tenantها، توازن Journal، تطبیق مجموع Source-to-Ledger، یکتایی Economic Effect و فرمت معتبر Hash ارجاع Object را بررسی کرد.
 - آزمون منفی WAL مفقود و Restore قطع‌شده همچنان باز هستند. بازیابی بایت Object/کلید و Failover/Fencing/Failback در P-05B/P-05C هستند و هنوز اجرا نشده‌اند.
 - موفقیت ساختگی به‌معنای آمادگی Production، تصمیم فناوری یا تصویب RPO/RTO نیست.
