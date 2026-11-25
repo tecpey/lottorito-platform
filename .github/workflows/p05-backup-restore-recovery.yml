@@ -6,6 +6,8 @@ on:
       - "prototypes/p05-recovery/**"
       - "docs/en/engineering/prototypes/p05-backup-restore-recovery.md"
       - "docs/fa/engineering/prototypes/p05-backup-restore-recovery.md"
+      - "docs/en/engineering/prototypes/p05b-object-key-event-recovery.md"
+      - "docs/fa/engineering/prototypes/p05b-object-key-event-recovery.md"
 permissions:
   contents: read
 concurrency:
