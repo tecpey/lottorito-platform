@@ -1,0 +1,36 @@
+name: P-09 Cross-Prototype Contract Baseline
+on:
+  push:
+    branches:
+      - spike/p09-cross-prototype-contract-recovery
+    paths:
+      - ".github/workflows/p09-cross-prototype-contract-recovery.yml"
+      - "prototypes/p09-contract-recovery/**"
+      - "docs/en/engineering/prototypes/p09-cross-prototype-contract-recovery.md"
+      - "docs/fa/engineering/prototypes/p09-cross-prototype-contract-recovery.md"
+  pull_request:
+    paths:
+      - ".github/workflows/p09-cross-prototype-contract-recovery.yml"
+      - "prototypes/p09-contract-recovery/**"
+      - "docs/en/engineering/prototypes/p09-cross-prototype-contract-recovery.md"
+      - "docs/fa/engineering/prototypes/p09-cross-prototype-contract-recovery.md"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: p09-cross-prototype-contract-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Validate machine-readable contract
+        run: python3 -m json.tool prototypes/p09-contract-recovery/contract.json > /dev/null
+      - name: Compile contract validator and tests
+        run: python3 -m compileall -q prototypes/p09-contract-recovery
+      - name: Run canonical identity and scope tests
+        run: python3 -m unittest discover -s prototypes/p09-contract-recovery -v
