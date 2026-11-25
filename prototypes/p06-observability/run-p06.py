@@ -217,7 +217,7 @@ def main():
         raise AssertionError("forensic map was visible before an audited access grant")
     forensic_sql=(
       f"SELECT p06.record_forensic_access('{TENANT_A}'::uuid,'product','affiliate_agent',{q(source_event_id)}::uuid,"
-      f"{q(trace_id)},'incident_review',{q(actor_ref)}); "
+      f"{q(source_event_ref)},{q(trace_id)},'incident_review',{q(actor_ref)}); "
       "SELECT count(*) FROM p06.forensic_correlation_map WHERE scope_kind='product' AND scope_id='affiliate_agent'; "
       "SELECT count(*) FROM p06.forensic_correlation_map WHERE scope_kind='product' AND scope_id='lottery'"
     )
@@ -226,7 +226,7 @@ def main():
         raise AssertionError("affiliate forensic grant disclosed a sibling Lottery correlation")
     lottery_forensic_sql=(
       f"SELECT p06.record_forensic_access('{TENANT_A}'::uuid,'product','lottery',{q(source_event_id)}::uuid,"
-      f"{q(trace_id)},'incident_review',{q(actor_ref)}); "
+      f"{q(source_event_ref)},{q(trace_id)},'incident_review',{q(actor_ref)}); "
       "SELECT count(*) FROM p06.forensic_correlation_map WHERE scope_kind='product' AND scope_id='affiliate_agent'; "
       "SELECT count(*) FROM p06.forensic_correlation_map WHERE scope_kind='product' AND scope_id='lottery'"
     )
