@@ -1,0 +1,24 @@
+services:
+  postgres:
+    build: .
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: p05-admin-only-not-production
+      POSTGRES_DB: lottorito_p05
+    command:
+      - postgres
+      - -c
+      - wal_level=replica
+      - -c
+      - archive_mode=on
+      - -c
+      - archive_timeout=1s
+      - -c
+      - archive_command=test ! -f /var/lib/postgresql/wal-archive/%f && cp %p /var/lib/postgresql/wal-archive/%f
+    volumes:
+      - ./:/workspace:ro
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U postgres -d lottorito_p05"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
