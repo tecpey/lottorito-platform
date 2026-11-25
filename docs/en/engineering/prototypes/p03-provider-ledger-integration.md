@@ -102,4 +102,15 @@ The first combined CI attempt exposed three setup/contract issues before P-03D's
 
 The plain-text synthetic signing-secret path now enforces the same minimum 128-bit length as Buffer and `whsec_` inputs; a regression test covers undersized secrets.
 
-**Validation status:** these are code corrections only. P-02, P-03C and P-03D integration workflows must all pass on the exact resulting commit before any acceptance claim is made.
+**Validation status:** synthetic acceptance is verified on the exact head and CI runs recorded below.
+
+## Verified synthetic CI result — 2026-11-25
+
+Exact validated PR head: `40d002a2af5875a6ead178604b90dc92aa678dc5`.
+
+- P-02 Ledger Posting: [run 114](https://github.com/tecpey/lottorito-platform/actions/runs/45607187120) — 25 passed, 0 failed, 0 skipped.
+- P-03C/P-03D combined integration: [run 31](https://github.com/tecpey/lottorito-platform/actions/runs/45607186885) — P-03C 15 passed and P-03D 19 passed; 34 total, 0 failed, 0 skipped. All setup, test, and cleanup steps succeeded.
+- Documentation Governance: [run 702](https://github.com/tecpey/lottorito-platform/actions/runs/45607186745) — passed.
+
+This verifies the synthetic acceptance matrix on the cited branch head only. PR #61 remains Draft/open and stacked on PR #60; no merge, production provider integration, production database migration, technology approval or deployment is implied.
+
