@@ -71,3 +71,9 @@ All data and credentials are synthetic. P-02 run [45465421133](https://github.co
 - [AWS Prescriptive Guidance — Transactional outbox](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html): atomically persist business state and outbox events; consumers must tolerate duplicate delivery.
 - [AWS Well-Architected — Make mutating operations idempotent](https://docs.aws.amazon.com/wellarchitected/latest/framework/rel04-bp04.html): stable idempotency tokens, atomic state tracking, retries and duplicate event handling.
 - [Microsoft Architecture Center — Idempotent consumer](https://learn.microsoft.com/azure/architecture/patterns/idempotent-consumer): use a stable business-operation identity, not a broad correlation ID, to deduplicate redelivered events.
+
+## P-09J — Canonical product token enforcement (2026-11-25)
+
+The disposable P-02 schema now accepts only the canonical product identifiers `affiliate_agent` and `lottery`; the ambiguous legacy token `shared` is rejected by the product CHECK constraints. A negative integration test attempts to insert `shared` and requires SQLSTATE `23514`.
+
+This is deliberately not a data migration. Existing databases or legacy rows containing `shared` must be inventoried and quarantined until an authoritative owner supplies an explicit tenant/product mapping; no automatic conversion to Affiliate, Lottery, or platform scope is permitted. The separate P-09J P-05B work adds product scope to recovery inboxes and replay cursors. P-02's remaining tenant-only financial primary/unique keys are still an explicit follow-up; this section does not claim that the complete P-02 financial identity migration is finished.

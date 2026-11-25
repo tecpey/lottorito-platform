@@ -84,3 +84,11 @@ RPO/RTO remain TBD under LOT-QA-001. CI timings are observations only. A success
 - https://csrc.nist.gov/pubs/sp/800/57/pt1/r6/ipd
 - https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html
 - https://docs.aws.amazon.com/lambda/latest/dg/best-practices.html
+
+## P-09J — Product-qualified recovery identity (2026-11-25)
+
+P-05B's inbox and replay cursor now include `product_id` in their primary/unique keys. The same tenant, consumer, source-event UUID, economic-effect UUID and aggregate UUID are seeded independently for Affiliate & Agent and Lottery. Product identity is carried through source-event lookup, journal/line creation, inbox status updates and cursor updates; the disposable role map and RLS policies bind both tenant and product.
+
+The replay function locks the product-qualified cursor row with `FOR UPDATE`. Two concurrent workers against the same Affiliate cursor serialize to exactly two effects in total, while a worker for the same aggregate in Lottery advances its independent cursor. The tests also verify sequence-gap blocking, rollback after injected interruption, retry/no-op behavior, balanced journals, per-product source-to-ledger reconciliation, and cross-tenant/cross-product RLS denial.
+
+P-09J CI validation is pending on the resulting PR head. These remain synthetic disposable fixtures, not a production recovery design. The P-02 canonical-token test rejects new `shared` values; any legacy rows still require explicit inventory/quarantine rather than automatic reassignment.

@@ -84,3 +84,11 @@ RPO/RTO طبق LOT-QA-001 همچنان TBD است. زمان CI فقط مشاهد
 - https://csrc.nist.gov/pubs/sp/800/57/pt1/r6/ipd
 - https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html
 - https://docs.aws.amazon.com/lambda/latest/dg/best-practices.html
+
+## P-09J — هویت بازیابی با Scope محصول (۲۰۲۶-۱۱-۲۵)
+
+اکنون `product_id` در کلیدهای Primary/Unique مربوط به Inbox و Replay Cursor در P-05B حضور دارد. همان Tenant، Consumer، UUID رویداد مبدأ، UUID اثر اقتصادی و UUID Aggregate به‌صورت مستقل برای Affiliate & Agent و Lottery مقداردهی می‌شوند. هویت محصول در Lookup رویداد مبدأ، ایجاد Journal/Line، به‌روزرسانی وضعیت Inbox و به‌روزرسانی Cursor حمل می‌شود؛ Role Map و RLS آزمایشی نیز هم Tenant و هم Product را محدود می‌کنند.
+
+تابع Replay ردیف Cursor دارای Scope محصول را با `FOR UPDATE` قفل می‌کند. دو Worker هم‌زمان روی Cursor مربوط به Affiliate در مجموع دقیقاً دو اثر را پردازش می‌کنند؛ در همان زمان Worker مربوط به همان Aggregate در Lottery، Cursor مستقل خود را جلو می‌برد. تست‌ها همچنین توقف در شکاف Sequence، Rollback پس از وقفه تزریق‌شده، Retry/No-op، توازن Journal، تطبیق Source-to-Ledger به تفکیک محصول و رد RLS بین Tenant/Product را بررسی می‌کنند.
+
+اعتبارسنجی CI مربوط به P-09J هنوز روی Head حاصل در انتظار اجراست. این موارد همچنان Fixtureهای ساختگی و دورریختنی هستند، نه طراحی بازیابی Production. تست Canonical Token در P-02 مقدار جدید `shared` را رد می‌کند؛ ردیف‌های Legacy همچنان باید بدون تخصیص خودکار، شناسایی و قرنطینه شوند.

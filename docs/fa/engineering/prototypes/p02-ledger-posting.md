@@ -71,3 +71,9 @@
 - [AWS Prescriptive Guidance — Transactional outbox](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html): ذخیره اتمیک وضعیت کسب‌وکار و Outbox؛ Consumer باید تحویل تکراری را تحمل کند.
 - [AWS Well-Architected — Make mutating operations idempotent](https://docs.aws.amazon.com/wellarchitected/latest/framework/rel04-bp04.html): شناسه پایدار Idempotency، ثبت اتمیک وضعیت، Retry و مدیریت رویدادهای تکراری.
 - [Microsoft Architecture Center — Idempotent consumer](https://learn.microsoft.com/azure/architecture/patterns/idempotent-consumer): استفاده از هویت پایدار عملیات کسب‌وکار، نه Correlation ID عمومی، برای Deduplicate کردن تحویل مجدد.
+
+## P-09J — اعمال شناسه Canonical محصول (۲۰۲۶-۱۱-۲۵)
+
+Schema دورریختنی P-02 اکنون فقط شناسه‌های Canonical محصول یعنی `affiliate_agent` و `lottery` را می‌پذیرد؛ مقدار مبهم Legacy یعنی `shared` توسط Check Constraintهای محصول رد می‌شود. یک تست منفی Integration درج مقدار `shared` را امتحان می‌کند و الزام دارد SQLSTATE برابر `23514` باشد.
+
+این تغییر عمداً Migration داده نیست. دیتابیس‌ها یا ردیف‌های Legacy دارای مقدار `shared` باید تا زمان ارائه نگاشت معتبر Tenant/Product از سوی مالک مسئول، شناسایی و قرنطینه شوند؛ هیچ تبدیل خودکاری به Affiliate، Lottery یا Platform Scope مجاز نیست. کار P-09J در P-05B نیز Scope محصول را به Inbox بازیابی و Replay Cursor اضافه می‌کند. کلیدهای مالی P-02 که هنوز فقط Tenant را دربرمی‌گیرند، یک کار پیگیری صریح باقی می‌مانند؛ این بخش ادعا نمی‌کند Migration کامل هویت مالی P-02 انجام شده است.
