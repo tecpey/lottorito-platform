@@ -1,13 +1,14 @@
 # وضعیت واقعی پروژه و نقطه ادامه کار
 
-**شناسه:** LOT-OPS-001 | **نسخه:** ۱.۳۱.۰ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۴
+**شناسه:** LOT-OPS-001 | **نسخه:** ۱.۳۲.۰ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۵
 
 ## وضعیت تأییدشده مخزن
 
 ## آخرین به‌روزرسانی نقطه ادامه — ۲۰۲۶-۱۱-۲۵ (آزمون‌های منفی P-05A و P-05B)
+- مسیر مثبت PITR اکنون پیش از Assertionهای مالی/RLS نوشتنی، تا بازگشت `pg_is_in_recovery()` به مقدار `false` صبر می‌کند. این اصلاح Race در CI را برطرف کرد: `pg_ctl` زمانی Ready شده بود که PostgreSQL هنوز فقط اتصال Read-only در حالت Recovery می‌پذیرفت؛ آن اجرای قبلی به‌عنوان موفقیت RLS شمرده نشد. آزمون WAL مفقود نیز هر راه‌اندازی Writable پیش از Target درخواستی را رد می‌کند.
 
-- P-05B همچنان PR شماره ۵۳، باز، Draft و Mergeنشده است و روی PR شماره ۵۲ مربوط به P-05A قرار دارد؛ P-05A نیز روی PR شماره ۵۱ مربوط به P-04، باز، Draft و Mergeنشده است. Head اعتبارسنجی‌شده آزمون‌های اجرایی ترکیبی 0a6b8f992161cd9f9d760698b1c9d0c8e30867a9 است. پیش از اتکا به SHA فعلی پس از تغییرات مستندات، Metadata زنده PR را دوباره دریافت کن.
-- Integration ترکیبی P-05A/P-05B با شناسه [45532382323](https://github.com/tecpey/lottorito-platform/actions/runs/45532382323)، Integration شاخه با شناسه [45532372804](https://github.com/tecpey/lottorito-platform/actions/runs/45532372804) و Documentation Governance با شناسه [45532382310](https://github.com/tecpey/lottorito-platform/actions/runs/45532382310) روی Head اعتبارسنجی‌شده موفق شدند.
+- P-05B همچنان PR شماره ۵۳، باز، Draft و Mergeنشده است و روی PR شماره ۵۲ مربوط به P-05A قرار دارد؛ P-05A نیز روی PR شماره ۵۱ مربوط به P-04، باز، Draft و Mergeنشده است. Head اعتبارسنجی‌شده کد اجرایی آزمون‌های بازیابی ترکیبی 146a9bc635e3b03db568c423fb0958b62bc31c7b است. پیش از اتکا به Head فعلی مستندات، Metadata زنده PR را دوباره دریافت کن.
+- Integration نهایی ترکیبی P-05A/P-05B با شناسه [45532825694](https://github.com/tecpey/lottorito-platform/actions/runs/45532825694) و Documentation Governance با شناسه [45532825916](https://github.com/tecpey/lottorito-platform/actions/runs/45532825916) روی Head کد اجرایی 146a9bc635e3b03db568c423fb0958b62bc31c7b موفق شدند.
 - مسیر مثبت P-05A شامل Backup فیزیکی PostgreSQL 18.7، Verification و رد Manifest دست‌کاری‌شده، Restore Point نام‌گذاری‌شده، Assertionهای قبل/بعد Target، RLS مربوط به Tenant و تطبیق مالی Source/Ledger موفق شد.
 - آزمون‌های منفی P-05A موفق شدند: Staging ناقص Restore توسط pg_verifybackup و راه‌اندازی PostgreSQL رد شد؛ Segment دقیق WAL هدف از کپی‌های ایزوله Archive و Base Backup حذف شد و سرور بازیابی در Target درخواستی Ready نشد. Segment مفقود در Recovery Log پیدا شد. این فقط آزمایش ساختگی Staging ناقص/WAL مفقود است، نه قطع فرایند Restore زنده Production.
 - P-05B یک Object ساختگی ۴٬۴۰۹ بایتی را بازیابی کرد و SHA-256 برابر 2db4a9b021abba0ce01480ceda665284f023310ce909c0b0b9bcb084f771eaca را با مرجع PostgreSQL بازیابی‌شده تطبیق داد. نبود کلید، Ciphertext خراب و DEK بسته‌بندی‌شده خراب Fail-closed شدند. Replay مرتب، ادغام Duplicate، توقف در شکاف Sequence، Rollback/Retry اتمیک، دقیقاً دو اثر متوازن، No-op بودن Replay، تطبیق Source-to-Ledger و جداسازی Tenant موفق شدند.
