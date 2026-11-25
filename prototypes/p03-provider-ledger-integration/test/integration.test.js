@@ -348,6 +348,25 @@ test("unknown event type is rejected at signed ingress before inbox persistence"
   assert.equal(await inboxRow(affiliateA, affiliateInstallation.provider_id, fixture.eventId), null);
 });
 
+test("stored canonical scope corruption is quarantined before journal posting", async () => {
+  const fixture = webhook(affiliateInstallation);
+  assert.equal((await ingest(affiliateA, fixture)).http_status, 202);
+  await admin.query(
+    `UPDATE public.provider_event_inbox
+        SET canonical_event=jsonb_set(canonical_event, '{scope,id}', '"lottery"'::jsonb)
+      WHERE tenant_id=$1 AND product_id=$2 AND provider_id=$3 AND provider_event_id=$4`,
+    [TENANT_A, PRODUCT_AFFILIATE, affiliateInstallation.provider_id, fixture.eventId]
+  );
+  const { result } = await processOne(affiliateA, affiliateInstallation, fixture);
+  assert.equal(result.outcome, "quarantined");
+  assert.equal(result.error_code, "P03D_CONTRACT_IDENTITY_MISMATCH");
+  const stored = await inboxRow(affiliateA, affiliateInstallation.provider_id, fixture.eventId);
+  assert.equal(stored.status, "quarantined");
+  assert.equal(stored.journal_id, null);
+  assert.deepEqual(await journalCounts(TENANT_A, PRODUCT_AFFILIATE, stored.source_event_id),
+    { journals: 0, outbox_events: 0, delivery_rows: 0 });
+});
+
 test("lottery posting is isolated from affiliate accounts and its outbox", async () => {
   const fixture = webhook(lotteryInstallation);
   await ingest(lotteryA, fixture);
