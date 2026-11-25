@@ -1,6 +1,6 @@
 # P-07B — Shared Platform Ownership and Trust Boundaries
 
-**Document ID:** LOT-PROT-P07B-001 | **Version:** 0.1.0 | **Status:** Synthetic fixture validated in CI on PR head 872cfd8
+**Document ID:** LOT-PROT-P07B-001 | **Version:** 0.1.0 | **Status:** Synthetic fixture validated in CI on PR head 42083a2
 
 ## Decision question
 
@@ -105,7 +105,7 @@ python3 -m unittest discover -s prototypes/p07-shared-trust-boundaries/tests -v
 
 ## CI evidence
 
-- Integration [run 45570357262](https://github.com/tecpey/lottorito-platform/actions/runs/45570055150): PASS on PR head 78c69234; all 33 tests passed.
+- Integration [run 45570485750](https://github.com/tecpey/lottorito-platform/actions/runs/45570055150): PASS on PR head 78c69234; all 33 tests passed.
 - Push integration [run 45570199339](https://github.com/tecpey/lottorito-platform/actions/runs/45570037120): PASS.
-- Documentation Governance [run 45570357292](https://github.com/tecpey/lottorito-platform/actions/runs/45570055148): PASS on the same PR head.
+- Documentation Governance [run 45570485718](https://github.com/tecpey/lottorito-platform/actions/runs/45570055148): PASS on the same PR head.
 - PR [#57](https://github.com/tecpey/lottorito-platform/pull/57) remains Draft, open and unmerged.
