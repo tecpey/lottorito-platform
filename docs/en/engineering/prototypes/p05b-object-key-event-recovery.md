@@ -1,6 +1,6 @@
 # P-05B — Object, Key and Event Recovery
 
-**Document ID:** LOT-PROT-P05B-001 | **Version:** 0.3.0 | **Status:** Synthetic CI experiment passed on validated executable-code head 99ac76a68817116d05441a8165609252e7cd8ee9
+**Document ID:** LOT-PROT-P05B-001 | **Version:** 0.4.0 | **Status:** Combined P-05A/P-05B synthetic CI passed on validated branch head 0a6b8f992161cd9f9d760698b1c9d0c8e30867a9; production recovery not approved
 
 ## Authority and boundary
 
@@ -55,6 +55,10 @@ The experiment demonstrates database-transaction atomicity for this fixture, not
 
 ## Final CI evidence
 
+- Final combined P-05A/P-05B Integration [run 45532382323](https://github.com/tecpey/lottorito-platform/actions/runs/45532382323) and Documentation Governance [run 45532382310](https://github.com/tecpey/lottorito-platform/actions/runs/45532382310) both passed on branch head `0a6b8f992161cd9f9d760698b1c9d0c8e30867a9`.
+- The combined run also closed the two P-05A negative drills: incomplete restore staging was rejected by manifest verification and server startup; the missing target WAL segment prevented readiness at the requested restore point and was identified in the recovery log.
+
+
 - P-05A + P-05B Integration (pull request) [run 45526975173](https://github.com/tecpey/lottorito-platform/actions/runs/45526975173): passed on validated branch head e4820884194ecf1ab3acd539d77145904f14ab73.
 - Documentation Governance [run 45526975222](https://github.com/tecpey/lottorito-platform/actions/runs/45526975222): passed on the same head.
 - Restored object payload: 4,409 bytes; SHA-256 `2db4a9b021abba0ce01480ceda665284f023310ce909c0b0b9bcb084f771eaca`, matched against the restored PostgreSQL object reference.
@@ -64,7 +68,7 @@ The experiment demonstrates database-transaction atomicity for this fixture, not
 
 ## Safety, limitations and open work
 
-No live KMS/HSM, cloud object storage, external broker, provider, real credential, customer/player data or real funds are used. AES-GCM is a candidate experiment primitive, not an approved platform decision. The experiment does not test key rotation/revocation, key compromise, split custody, KMS outage, IAM policy, object versioning/immutability, retention/legal hold, large/multipart objects, regional replication, external broker replay, provider reconciliation, cross-service sagas, high concurrency, production load, RPO/RTO objectives or compliance. Missing-WAL and interrupted-restore P-05A negative drills remain open. P-05C failover/fencing/failback is not part of this work.
+No live KMS/HSM, cloud object storage, external broker, provider, real credential, customer/player data or real funds are used. AES-GCM is a candidate experiment primitive, not an approved platform decision. The experiment does not test key rotation/revocation, key compromise, split custody, KMS outage, IAM policy, object versioning/immutability, retention/legal hold, large/multipart objects, regional replication, external broker replay, provider reconciliation, cross-service sagas, high concurrency, production load, RPO/RTO objectives or compliance. P-05A missing-WAL and incomplete-restore negative drills now pass in the combined workflow; this proves only the synthetic fail-closed checks described in the P-05A report. P-05C failover/fencing/failback is not part of this work.
 
 RPO/RTO remain TBD under LOT-QA-001. CI timings are observations only. A successful synthetic test is not production readiness or approval of any technology/vendor.
 
