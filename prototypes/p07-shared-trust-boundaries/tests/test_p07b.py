@@ -23,6 +23,10 @@ def event(**overrides):
         "specversion": "1.0",
         "type": "com.lottorito.p07b.demo.signal.v1",
         "tenantid": "tenant-beta",
+        "scope": {"kind": "product", "id": "affiliate_agent"},
+        "sourceeventid": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+        "schemaversion": 1,
+        "traceparent": "00-0123456789abcdef0123456789abcdef-0123456789abcdef-01",
         "dataschema": "urn:lottorito:schema:affiliate.demo.signal:1",
         "classification": "internal",
         "data": {"reference": "synthetic-ref-001"},
@@ -119,6 +123,54 @@ class CrossProductEventContractTests(unittest.TestCase):
         result = dispatch_event(event(), AFFILIATE_TOKEN, LOTTERY_TOKEN)
         self.assertEqual(result["decision"], "allow")
         self.assertEqual(result["contract_id"], "p07b-synthetic-affiliate-to-lottery-signal")
+
+    def test_accepted_event_returns_canonical_source_identity_and_trace_id(self):
+        result = dispatch_event(event(), AFFILIATE_TOKEN, LOTTERY_TOKEN)
+        self.assertEqual(result["source_event_identity"], {
+            "tenant_id": "tenant-beta",
+            "scope_kind": "product",
+            "scope_id": "affiliate_agent",
+            "source_event_id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+        })
+        self.assertEqual(result["trace_id"], "0123456789abcdef0123456789abcdef")
+        self.assertEqual(result["schema_version"], 1)
+
+    def test_scope_must_match_authenticated_producer_product(self):
+        result = dispatch_event(event(scope={"kind": "product", "id": "lottery"}), AFFILIATE_TOKEN, LOTTERY_TOKEN)
+        self.assertEqual(result["reason"], "event_scope_mismatch")
+
+    def test_shared_and_platform_scopes_are_not_product_producer_scopes(self):
+        for scope in ({"kind": "product", "id": "shared"}, {"kind": "platform", "id": "lottorito"}):
+            with self.subTest(scope=scope):
+                result = dispatch_event(event(scope=scope), AFFILIATE_TOKEN, LOTTERY_TOKEN)
+                self.assertEqual(result["reason"], "event_scope_mismatch")
+
+    def test_source_event_id_must_be_a_canonical_uuid(self):
+        for value in ("not-a-uuid", "AAAAAAAA-AAAA-4AAA-8AAA-AAAAAAAAAAAA"):
+            with self.subTest(value=value):
+                result = dispatch_event(event(sourceeventid=value), AFFILIATE_TOKEN, LOTTERY_TOKEN)
+                self.assertEqual(result["reason"], "invalid_source_event_identity")
+
+    def test_schema_version_must_be_positive_integer_and_match_contract(self):
+        for value in (0, -1, True, "1", 2):
+            with self.subTest(value=value):
+                result = dispatch_event(event(schemaversion=value), AFFILIATE_TOKEN, LOTTERY_TOKEN)
+                expected = "invalid_schema_version" if isinstance(value, bool) or not isinstance(value, int) or value < 1 else "unsupported_schema_version"
+                self.assertEqual(result["reason"], expected)
+
+    def test_w3c_traceparent_is_required_and_validated(self):
+        for value in ("", "00-xyz-0123456789abcdef-01",
+                      "00-00000000000000000000000000000000-0123456789abcdef-01",
+                      "00-0123456789abcdef0123456789abcdef-0000000000000000-01"):
+            with self.subTest(value=value):
+                result = dispatch_event(event(traceparent=value), AFFILIATE_TOKEN, LOTTERY_TOKEN)
+                self.assertEqual(result["reason"], "invalid_event_envelope" if value == "" else "invalid_trace_context")
+
+    def test_registry_must_bind_the_authenticated_source_scope(self):
+        registry = json.loads((ROOT / "registry" / "event-contracts.json").read_text(encoding="utf-8"))
+        registry["contracts"][0]["source_scope"] = {"kind": "product", "id": "lottery"}
+        result = dispatch_event(event(), AFFILIATE_TOKEN, LOTTERY_TOKEN, contract_registry=registry)
+        self.assertEqual(result["reason"], "contract_source_scope_mismatch")
 
     def test_event_without_contract_is_denied(self):
         result = dispatch_event(event(type="com.lottorito.affiliate.unsolicited.v1"), AFFILIATE_TOKEN, LOTTERY_TOKEN)
