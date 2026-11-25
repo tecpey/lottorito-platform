@@ -1,6 +1,6 @@
 # وضعیت واقعی پروژه و نقطه ادامه کار
 
-**شناسه:** LOT-OPS-001 | **نسخه:** ۱.۲۸.۰ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۴
+**شناسه:** LOT-OPS-001 | **نسخه:** ۱.۲۹.۰ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۴
 
 ## وضعیت تأییدشده مخزن
 
@@ -11,6 +11,15 @@
 - P-05A از Container دورریختنی PostgreSQL 18.7 استفاده کرد. تست Physical Base Backup، pg_verifybackup، رد Manifest دست‌کاری‌شده، WAL آرشیوشده، PITR نام‌گذاری‌شده با Assertion قبل/بعد از Target، جداسازی خواندن/نوشتن Tenant با RLS و تطبیق ساختگی Journal/Source را بررسی کرد. زمان مشاهده‌شده Backup به‌همراه Verification در CI برابر ۱۲ تا ۱۳ ثانیه (اجرای نهایی روی Head فعلی: ۱۳ ثانیه) و راه‌اندازی Restore برابر ۱ ثانیه بود؛ این‌ها هدف عملیاتی RPO/RTO نیستند.
 - P-05A هنوز آزمون منفی WAL مفقود/Restore قطع‌شده، بازیابی بایت Object/کلید، Replay رویداد، بازیابی منطقه‌ای، Failover، Split-brain Fencing یا Failback را پوشش نمی‌دهد. P-05B/P-05C اجرا نشده‌اند. RPO/RTO همچنان TBD است؛ هیچ داده، Credential یا وجه Production استفاده و هیچ Deploy یا Merge انجام نشده است.
 - موارد قدیمی‌تر وضعیت پروژه در ادامه، Snapshotهای تاریخی هستند؛ این به‌روزرسانی در صورت تعارض، وضعیت P-04/P-05 را جایگزین می‌کند. پیش از هر تصمیم Merge، Metadata زنده PR و Runها دوباره دریافت شود.
+
+## به‌روزرسانی نقطه ادامه — ۲۰۲۶-۱۱-۲۵ (P-05B)
+
+- PR شماره ۵۳ مربوط به P-05B باز، Draft و Mergeنشده است و به‌صورت Stacked روی PR شماره ۵۲ مربوط به P-05A قرار دارد. Head نهایی: `99ac76a68817116d05441a8165609252e7cd8ee9`.
+- اجرای Integration مربوط به P-05B در Pull Request با شناسه [45526169535](https://github.com/tecpey/lottorito-platform/actions/runs/45526169535)، اجرای Integration شاخه با شناسه [45526158154](https://github.com/tecpey/lottorito-platform/actions/runs/45526158154) و Documentation Governance با شناسه [45526171881](https://github.com/tecpey/lottorito-platform/actions/runs/45526171881) روی همان Head موفق شدند.
+- Job یکپارچه CI دورریختنی ابتدا Base Backup، بررسی Manifest، PITR نام‌گذاری‌شده، RLS و Assertionهای مالی PostgreSQL 18.7 در P-05A را دوباره اجرا کرد و سپس P-05B را روی دیتابیس بازیابی‌شده اجرا کرد. بازیابی Object، ۴٬۴۰۹ بایت را برگرداند و SHA-256 برابر `2db4a9b021abba0ce01480ceda665284f023310ce909c0b0b9bcb084f771eaca` را با مرجع دیتابیس تطبیق داد. نبود کلید، Ciphertext خراب و DEK بسته‌بندی‌شده خراب رد شدند؛ جداسازی Object بین Tenantها موفق بود.
+- Replay رویداد، Sequence شماره ۲ را پیش از ۱ تحویل داد، شکاف Sequence، تحویل تکراری Source Event و Economic Effect ID تکراری را آزمود، پیش از Commit خطای تراکنش تزریق کرد، Rollback کامل Journal/Inbox/Cursor را بررسی کرد، دو اثر متوازن را Retry و مجموع Source را با Cash در Ledger تطبیق داد، No-op بودن Replay بعدی را اثبات و خواندن/نوشتن Inbox بین Tenantها را رد کرد.
+- آزمون‌های منفی WAL مفقود/Restore قطع‌شده در P-05A همچنان باز هستند. KMS/HSM زنده، Custody/Rotation کلید Production، بازیابی Object Store/Broker/Provider خارجی، بازیابی منطقه‌ای و Failover/Fencing/Failback در P-05C هنوز آزموده نشده‌اند. RPO/RTO همچنان TBD است. هیچ داده Production، Credential زنده، Provider، وجه واقعی، Merge یا Deploy استفاده نشد.
+- این به‌روزرسانی در صورت تعارض، اظهارات قدیمی‌تر وضعیت P-05 در ادامه را جایگزین می‌کند؛ موارد قدیمی‌تر Snapshotهای تاریخی باقی می‌مانند. پیش از هر تصمیم Merge، Metadata زنده PR و Runها دوباره دریافت شود.
 
 - مخزن tecpey/lottorito-platform؛ شاخه پیش‌فرض main؛ سطح دسترسی Public طبق تصمیم مالک.
 - در تاریخ ۲۰۲۶-۱۱-۲۴، PRهای ۱۹ تا ۲۵، ۲۷ تا ۳۶، ۳۹، ۴۲، ۴۵ و ۴۶ به‌صورت تغییرات Open/Draft هستند. PR شماره ۴۵ نسخه بازسازی‌شده آزمایش Credential/Pool هر Tenant بر مبنای آخرین Head مربوط به PR شماره ۴۲ است؛ PR شماره ۴۳ بدون Merge بسته شده است. PR شماره ۴۲ برای جداسازی Data Planeهای ثانویه روی PR شماره ۳۹ قرار دارد؛ PR شماره ۳۹ برای Support روی PR شماره ۳۶ قرار دارد. PR شماره ۳۷ پس از انشعاب تاریخچه شاخه Support به‌عنوان مورد جایگزین‌شده بسته شد؛ PR شماره ۳۹ از آخرین Head مربوط به PR شماره ۳۶ دوباره ساخته شده و آزمایش فعال Support است. زنجیره مستندات/محصول موردنظر چنین است: ۱۹ ← ۲۰ ← ۲۱ ← ۲۲ ← ۲۳ ← ۲۴ ← ۲۵ ← ۲۷ ← ۲۸ ← ۲۹ ← ۳۰ ← ۳۱ ← ۳۲ ← ۳۳ ← ۳۴ ← ۳۵ ← ۳۶ ← ۳۹ ← ۴۲ ← ۴۵ ← ۴۶. PR شماره ۲۶ یک شاخه مستقل Open/Draft بر مبنای main است و با فایل‌های حاکمیتی مشترک هم‌پوشانی دارد؛ پیش از ادغام باید با زنجیره اصلی تطبیق داده شود. هیچ‌یک از PRهای این زنجیره Merge نشده‌اند.
