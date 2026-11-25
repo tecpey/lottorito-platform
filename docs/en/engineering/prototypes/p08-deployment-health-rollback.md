@@ -1,6 +1,6 @@
 # P-08 — Deployment, Health Gates and Rollback Safety
 
-**Document ID:** LOT-PROT-P08-001 | **Version:** 0.2.0 | **Status:** Synthetic deployment-control implementation; CI evidence tracked on Draft PR #59; no deployment platform or production release approved
+**Document ID:** LOT-PROT-P08-001 | **Version:** 0.3.0 | **Status:** Synthetic deployment-control implementation; CI evidence tracked on Draft PR #59; no deployment platform or production release approved
 
 ## 1. Decision question and boundary
 
@@ -111,3 +111,7 @@ CI workflow: .github/workflows/p08-deployment-health-rollback.yml.
 ## 9. Completion gate
 
 P-08 is complete only when the exact PR head has a successful Integration run and Documentation Governance run, the deterministic artifact comparison succeeds, all positive and negative tests pass with zero skips, the bilingual pair is manually reviewed for semantic parity, and limitations remain explicit. Passing P-08 does not select a production platform, approve technology, authorize merge or authorize deployment.
+
+## P-09C product-aware artifact and provenance addendum (2026-11-25)
+
+P-08 now accepts an explicit allow-listed `--product` input (`affiliate_agent` or `lottery`). Product identity is embedded in the zipapp entrypoint, release metadata, artifact filename and SLSA-shaped provenance external parameters. Promotion verifies the artifact and provenance against the deployment state's product; rollback, rollback-target retirement and schema migration also reject cross-product artifacts. The P-08 CI run [45629980686](https://github.com/tecpey/lottorito-platform/actions/runs/45629980686) passed **53/53 tests**, including separate Affiliate/Lottery artifact builds, product-bound provenance, successful Lottery promotion, cross-product promotion denial and cross-product rollback denial. This remains a synthetic deployment-control experiment; no real environment was touched.
