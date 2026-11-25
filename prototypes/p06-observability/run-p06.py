@@ -77,7 +77,7 @@ def main():
     )
     ledger_result,_,_=psql(ledger_sql,user="tenant_a_ledger_runtime",password="p02-tenant-a-not-for-production")
     journal_id,duplicate=ledger_result.split("|")
-    if duplicate!="f": raise AssertionError("P-06 expected a new synthetic journal")
+    if duplicate.lower()!="false": raise AssertionError("P-06 expected a new synthetic journal; duplicate="+duplicate)
     journal_ref=ref(journal_id)
     CANARIES.extend([TENANT_A,TENANT_B,actor_id,source_event_id,effect_id,journal_id])
     if scalar(f"SELECT count(*) FROM public.ledger_journals WHERE tenant_id='{TENANT_A}' AND journal_id='{journal_id}' AND status='posted'")!="1":
