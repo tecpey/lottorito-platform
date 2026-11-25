@@ -365,6 +365,8 @@ class DeploymentController:
         })
 
     def migrate_schema(self, state: DeploymentState, target_version: int, phase: str, actor: str) -> None:
+        if state.environment not in ALLOWED_ENVIRONMENTS:
+            raise GateRejected("environment_not_allowed")
         _require_actor_identity(actor)
         if phase not in {"expand", "contract"} or target_version != state.schema_version + 1:
             raise GateRejected("migration_transition_invalid")
