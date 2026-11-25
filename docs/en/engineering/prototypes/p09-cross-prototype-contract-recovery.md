@@ -127,3 +127,12 @@ P-03C/P-03D workflow [45637659485](https://github.com/tecpey/lottorito-platform/
 PostgreSQL documents `FOR UPDATE SKIP LOCKED` as suitable for queue-like consumers, while warning it gives an inconsistent view unsuitable for general-purpose reads ([SELECT locking clause](https://www.postgresql.org/docs/18/sql-select.html), [row-level locks](https://www.postgresql.org/docs/18/explicit-locking.html)). Lease tokens provide an additional application-level fencing condition, not a substitute for row locks.
 
 This closes only the first P-09F concurrency/scope slice. Aggregate sequence semantics are not defined in P-03D; direct Node-worker replay on the P-09E restored cluster and broader failure interleavings remain open.
+
+
+### P-09A validator conformance correction — 2026-11-25
+
+An independent contract-to-validator review found that `contract.json` declared `traceparent` mandatory while `validate_event()` did not enforce its presence. The validator now requires the field and validates the W3C Trace Context version-00 shape, lowercase hexadecimal encoding, and non-zero trace-id and parent-id. The returned validated event includes the trace ID for downstream correlation. Bare correlation trace IDs also reject the all-zero value.
+
+Regression coverage now includes missing traceparent, malformed/version-invalid values, zero trace-id/parent-id, and all-zero correlation IDs. The paired P-09A suite is expected to contain 15 tests; CI must pass on the exact new PR head before acceptance is claimed. This correction does not yet validate RFC 3339 timestamps or URI-reference semantics, nor does it wire the validator into P-02–P-08.
+
+Research basis: [W3C Trace Context Recommendation](https://www.w3.org/TR/trace-context/) (version-00 traceparent format and invalid all-zero identifiers); [CloudEvents Core Specification](https://github.com/cloudevents/spec/blob/main/cloudevents/spec.md) (required core attributes and extension-attribute model).
