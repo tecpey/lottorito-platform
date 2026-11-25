@@ -77,3 +77,7 @@
 Schema دورریختنی P-02 اکنون فقط شناسه‌های Canonical محصول یعنی `affiliate_agent` و `lottery` را می‌پذیرد؛ مقدار مبهم Legacy یعنی `shared` توسط Check Constraintهای محصول رد می‌شود. یک تست منفی Integration درج مقدار `shared` را امتحان می‌کند و الزام دارد SQLSTATE برابر `23514` باشد.
 
 این تغییر عمداً Migration داده نیست. دیتابیس‌ها یا ردیف‌های Legacy دارای مقدار `shared` باید تا زمان ارائه نگاشت معتبر Tenant/Product از سوی مالک مسئول، شناسایی و قرنطینه شوند؛ هیچ تبدیل خودکاری به Affiliate، Lottery یا Platform Scope مجاز نیست. کار P-09J در P-05B نیز Scope محصول را به Inbox بازیابی و Replay Cursor اضافه می‌کند. کلیدهای مالی P-02 که هنوز فقط Tenant را دربرمی‌گیرند، یک کار پیگیری صریح باقی می‌مانند؛ این بخش ادعا نمی‌کند Migration کامل هویت مالی P-02 انجام شده است.
+
+### شواهد CI مربوط به P-09J
+
+اعتبارسنجی روی Source-code Head با شناسه `dfaa8120340cc6b4b80450dbf0e5755b21111080` انجام شد: [اجرای P-02 Ledger Posting با شناسه 45662750926](https://github.com/tecpey/lottorito-platform/actions/runs/45662750926) با **۲۶ تست از ۲۶ تست موفق** به پایان رسید. تست منفی مقدار Legacy، SQLSTATE مورد انتظار یعنی `23514` را دریافت کرد. هیچ Migration داده Legacy انجام نشد.

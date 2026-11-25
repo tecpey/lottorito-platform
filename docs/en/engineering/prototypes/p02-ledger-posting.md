@@ -77,3 +77,7 @@ All data and credentials are synthetic. P-02 run [45465421133](https://github.co
 The disposable P-02 schema now accepts only the canonical product identifiers `affiliate_agent` and `lottery`; the ambiguous legacy token `shared` is rejected by the product CHECK constraints. A negative integration test attempts to insert `shared` and requires SQLSTATE `23514`.
 
 This is deliberately not a data migration. Existing databases or legacy rows containing `shared` must be inventoried and quarantined until an authoritative owner supplies an explicit tenant/product mapping; no automatic conversion to Affiliate, Lottery, or platform scope is permitted. The separate P-09J P-05B work adds product scope to recovery inboxes and replay cursors. P-02's remaining tenant-only financial primary/unique keys are still an explicit follow-up; this section does not claim that the complete P-02 financial identity migration is finished.
+
+### P-09J CI evidence
+
+Validated on source-code head `dfaa8120340cc6b4b80450dbf0e5755b21111080`: [P-02 Ledger Posting run 45662750926](https://github.com/tecpey/lottorito-platform/actions/runs/45662750926) passed **26/26 integration tests**. The negative legacy-token case returned the expected check-constraint SQLSTATE `23514`. No legacy data migration was performed.
