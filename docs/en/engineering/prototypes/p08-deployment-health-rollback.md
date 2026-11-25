@@ -1,6 +1,6 @@
 # P-08 — Deployment, Health Gates and Rollback Safety
 
-**Document ID:** LOT-PROT-P08-001 | **Version:** 0.1.0 | **Status:** Synthetic deployment-control implementation; CI evidence tracked on Draft PR #59; no deployment platform or production release approved
+**Document ID:** LOT-PROT-P08-001 | **Version:** 0.2.0 | **Status:** Synthetic deployment-control implementation; CI evidence tracked on Draft PR #59; no deployment platform or production release approved
 
 ## 1. Decision question and boundary
 
@@ -52,6 +52,7 @@ The artifact store and deployment controller are in-memory test doubles. The zip
 | P08-12 | Audit records for promotion, rollback, rollback-target retirement and schema transitions require a non-empty actor identity and identify environment, artifact digest, action, outcome and schema version without recording runtime secret values. |
 | P08-13 | CI performs deterministic double-build comparison and runs every positive/adversarial test with zero skips. |
 | P08-14 | Persian and English documents preserve the same scope, constraints, acceptance IDs and limitations. |
+| P08-15 | Promotion, rollback, rollback-target retirement and schema migration must be rejected in the synthetic production environment without changing state. |
 
 A successful test run proves only these fixture behaviors. It does not prove a production rollout, actual database migration, zero-downtime release, service-level objective, production secret handling or financial safety under a live workload.
 

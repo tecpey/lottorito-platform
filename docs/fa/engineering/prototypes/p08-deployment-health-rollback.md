@@ -1,6 +1,6 @@
 # P-08 — استقرار، دروازه سلامت و ایمنی Rollback
 
-**شناسه سند:** LOT-PROT-P08-001 | **نسخه:** ۰.۱.۰ | **وضعیت:** پیاده‌سازی کنترل استقرار ساختگی؛ شواهد CI در PR شماره ۵۹ پیگیری می‌شود؛ بدون تصویب پلتفرم استقرار یا انتشار Production
+**شناسه سند:** LOT-PROT-P08-001 | **نسخه:** ۰.۲.۰ | **وضعیت:** پیاده‌سازی کنترل استقرار ساختگی؛ شواهد CI در PR شماره ۵۹ پیگیری می‌شود؛ بدون تصویب پلتفرم استقرار یا انتشار Production
 
 ## ۱. پرسش تصمیم و مرزبندی
 
@@ -52,6 +52,7 @@ Artifact Store و Deployment Controller، Test Doubleهای In-memory هستند
 | P08-12 | Audit مربوط به Promotion، Rollback، بازنشستگی Rollback Target و انتقال Schema باید هویت غیرخالی Actor را الزامی کند و Environment، Artifact Digest، Action، Outcome و Schema Version را بدون ثبت مقدار Secret Runtime ثبت کند. |
 | P08-13 | CI باید مقایسه Build قطعی و تمام تست‌های مثبت/خصمانه را با صفر Skip اجرا کند. |
 | P08-14 | اسناد فارسی و انگلیسی باید از نظر Scope، محدودیت‌ها، شناسه‌های پذیرش و قیود هم‌معنا باشند. |
+| P08-15 | Promotion، Rollback، بازنشستگی Rollback Target و Migration Schema در Environment ساختگی Production باید بدون تغییر State رد شوند. |
 
 اجرای موفق تست‌ها فقط رفتار Fixture را اثبات می‌کند. این نتیجه Rollout عملیاتی، Migration واقعی دیتابیس، انتشار بدون Downtime، SLO، مدیریت Secret Production یا ایمنی مالی زیر بار زنده را اثبات نمی‌کند.
 
