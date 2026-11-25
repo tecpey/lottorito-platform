@@ -7,6 +7,7 @@ on:
       - ".github/workflows/p06-observability-privacy.yml"
       - "prototypes/p06-observability/**"
       - "prototypes/p02-ledger-posting/db/schema.sql"
+      - "prototypes/p09-contract-recovery/**"
       - "docs/en/engineering/prototypes/p06-observability-privacy.md"
       - "docs/fa/engineering/prototypes/p06-observability-privacy.md"
   pull_request:
