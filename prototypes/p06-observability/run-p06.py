@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """Synthetic-only P-06 end-to-end telemetry, privacy and access-control drill."""
-import base64, hashlib, hmac, json, os, re, secrets, subprocess, uuid
+import base64, hashlib, hmac, json, os, re, secrets, subprocess, sys, uuid
 from datetime import datetime, timedelta, timezone
+
+sys.path.insert(0, "/workspace/p09")
+from contract import validate_event
 
 DB="lottorito_p06"
 ADMIN_PASSWORD="p06-admin-only-not-production"
@@ -108,6 +111,23 @@ def main():
     span_ids=[secrets.token_hex(8) for _ in stages]
     if len(set(span_ids))!=len(span_ids): raise AssertionError("span ID collision")
     start=datetime.now(timezone.utc)
+    canonical_event = {
+      "specversion": "1.0",
+      "id": "p06-" + source_event_id,
+      "source": "urn:lottorito:product:affiliate_agent",
+      "type": "affiliate.referral.converted",
+      "time": start.isoformat(),
+      "dataschema": "urn:lottorito:schema:affiliate.referral.converted:1",
+      "tenantid": TENANT_A,
+      "scope": {"kind": "product", "id": "affiliate_agent"},
+      "sourceeventid": source_event_id,
+      "schemaversion": 1,
+      "traceparent": f"00-{trace_id}-{span_ids[0]}-01",
+      "data": {"synthetic": True}
+    }
+    canonical_identity = validate_event(canonical_event)["identity"]
+    if canonical_identity != (TENANT_A, "product", "affiliate_agent", source_event_id):
+        raise AssertionError("P-09 canonical event identity did not survive into P-06")
     span_records=[]
     for i,(service,name,outcome) in enumerate(stages):
         span_id=span_ids[i]; parent=span_ids[i-1] if i else None
@@ -204,8 +224,8 @@ def main():
     psql(
       "INSERT INTO p06.correlation_map(tenant_id,scope_kind,scope_id,tenant_ref,actor_id,actor_ref,"
       "source_event_id,source_event_ref,economic_effect_id,economic_effect_ref,journal_id,journal_ref,trace_id) VALUES("
-      f"{q(TENANT_A)}::uuid,'product','affiliate_agent',{q(tenant_a_ref)},{q(actor_id)}::uuid,{q(actor_ref)},"
-      f"{q(source_event_id)}::uuid,{q(source_event_ref)},{q(effect_id)}::uuid,{q(effect_ref)},"
+      f"{q(canonical_event['tenantid'])}::uuid,{q(canonical_event['scope']['kind'])},{q(canonical_event['scope']['id'])},{q(tenant_a_ref)},{q(actor_id)}::uuid,{q(actor_ref)},"
+      f"{q(canonical_event['sourceeventid'])}::uuid,{q(source_event_ref)},{q(effect_id)}::uuid,{q(effect_ref)},"
       f"{q(journal_id)}::uuid,{q(journal_ref)},{q(trace_id)}),("
       f"{q(TENANT_A)}::uuid,'product','lottery',{q(tenant_a_ref)},{q(actor_id)}::uuid,{q(actor_ref)},"
       f"{q(source_event_id)}::uuid,{q(source_event_ref)},{q(lottery_effect_id)}::uuid,{q(lottery_effect_ref)},"
