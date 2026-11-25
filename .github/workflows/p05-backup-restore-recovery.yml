@@ -1,4 +1,4 @@
-name: P-05A Backup Restore PITR and Financial Integrity
+name: P-05 Backup Restore, Object, Key and Event Recovery
 on:
   workflow_dispatch:
   pull_request:
@@ -23,7 +23,7 @@ jobs:
         run: docker compose -f prototypes/p05-recovery/compose.yaml up -d --build --wait --wait-timeout 90
       - name: Run backup verification, PITR and integrity assertions
         run: docker compose -f prototypes/p05-recovery/compose.yaml exec -T postgres bash /workspace/scripts/run-p05.sh
-      - name: Capture PostgreSQL logs on failure
+      - name: Run P-05B object, key and event recovery assertions\n        run: docker compose -f prototypes/p05-recovery/compose.yaml exec -T postgres bash /workspace/p05b/run-p05b.sh\n      - name: Capture PostgreSQL logs on failure
         if: failure()
         run: docker compose -f prototypes/p05-recovery/compose.yaml logs --no-color
       - name: Destroy disposable database
