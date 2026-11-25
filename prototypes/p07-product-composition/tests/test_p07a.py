@@ -18,8 +18,9 @@ class ProductCompositionTests(unittest.TestCase):
         result = subprocess.run(
             [sys.executable, "run.py"], cwd=artifact,
             env={"PATH": os.environ["PATH"], "PYTHONPATH": str(artifact)},
-            check=True, capture_output=True, text=True,
+            check=False, capture_output=True, text=True,
         )
+        self.assertEqual(result.returncode, 0, result.stderr)
         return artifact, json.loads(result.stdout)
 
     def test_affiliate_agent_builds_and_runs_without_lottery(self):
