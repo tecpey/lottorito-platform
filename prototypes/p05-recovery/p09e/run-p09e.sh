@@ -106,7 +106,7 @@ assert_eq "$(restore_admin -At -c "SELECT count(*) FROM public.financial_effects
 
 echo "[P-09E] Corrupt a restored event scope and prove replay fails closed before any financial effect"
 restore_admin -c "UPDATE public.provider_event_inbox
-  SET canonical_event=jsonb_set(canonical_event,'{scope,id}','\\"lottery\\"'::jsonb)
+  SET canonical_event=jsonb_set(canonical_event,'{scope,id}',to_jsonb('lottery'::text))
   WHERE tenant_id='$TENANT_B' AND product_id='affiliate_agent' AND provider_id='synthetic-provider' AND provider_event_id='$EVENT_ID'"
 if restore_tenant_b -c "SELECT public.p09e_process_provider_event('$EVENT_ID','$TENANT_B_CASH','$TENANT_B_CLEARING','$AMOUNT','provider:p09e:tenant-b:$EVENT_ID')" >"$ROOT/corrupt-replay.log" 2>&1; then
   echo "P-09E corrupted canonical event unexpectedly replayed" >&2
@@ -115,7 +115,7 @@ fi
 assert_eq "$(restore_admin -At -c "SELECT count(*) FROM public.financial_effects")" "0" "corrupt replay creates no financial effect"
 assert_eq "$(restore_admin -At -c "SELECT status FROM public.provider_event_inbox WHERE tenant_id='$TENANT_B' AND product_id='affiliate_agent' AND provider_id='synthetic-provider' AND provider_event_id='$EVENT_ID'")" "accepted" "corrupt replay transaction rolls back claim"
 restore_admin -c "UPDATE public.provider_event_inbox
-  SET canonical_event=jsonb_set(canonical_event,'{scope,id}','\\"affiliate_agent\\"'::jsonb)
+  SET canonical_event=jsonb_set(canonical_event,'{scope,id}',to_jsonb('affiliate_agent'::text))
   WHERE tenant_id='$TENANT_B' AND product_id='affiliate_agent' AND provider_id='synthetic-provider' AND provider_event_id='$EVENT_ID'"
 echo "replay_contract_corruption_blocked=PASS"
 
