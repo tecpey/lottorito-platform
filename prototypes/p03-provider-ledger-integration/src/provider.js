@@ -100,7 +100,11 @@ export function verifyWebhook({ headers, rawBody, keys, now = Date.now(), maxAge
   return { valid: false, reason: "signature_mismatch" };
 }
 
-function canonicalize(payload, installation, eventId) {
+function newTraceparent() {
+  return "00-" + randomBytes(16).toString("hex") + "-" + randomBytes(8).toString("hex") + "-00";
+}
+
+function canonicalize(payload, installation, eventId, sourceEventId) {
   if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
     throw Object.assign(new Error("provider payload must be an object"), { code: "P03D_INVALID_PAYLOAD" });
   }
@@ -114,20 +118,41 @@ function canonicalize(payload, installation, eventId) {
   if (!data || typeof data !== "object" || Array.isArray(data)) {
     throw Object.assign(new Error("provider event data must be an object"), { code: "P03D_INVALID_DATA" });
   }
-  const occurredAt = payload.occurred_at ?? payload.time ?? null;
-  const parsed = occurredAt === null ? null : new Date(occurredAt);
-  if (parsed && Number.isNaN(parsed.getTime())) {
+  const mapping = installation.event_mappings?.[payload.type];
+  if (!mapping || typeof mapping.dataschema !== "string" || !Number.isSafeInteger(mapping.schema_version)) {
+    throw Object.assign(new Error("provider event has no trusted schema mapping"), { code: "P03D_UNMAPPED_SCHEMA" });
+  }
+  const occurredAt = payload.occurred_at ?? payload.time;
+  if (typeof occurredAt !== "string" || Number.isNaN(Date.parse(occurredAt))) {
     throw Object.assign(new Error("provider event time is invalid"), { code: "P03D_INVALID_EVENT_TIME" });
   }
-  return {
+  const productId = installation.product_id;
+  if (!["affiliate_agent", "lottery"].includes(productId) ||
+      typeof installation.tenant_id !== "string" || typeof sourceEventId !== "string") {
+    throw Object.assign(new Error("trusted installation identity is invalid"), { code: "P03D_INVALID_INSTALLATION_SCOPE" });
+  }
+  const canonicalEvent = {
     specversion: "1.0",
     id: eventId,
     source: installation.provider_source,
     type: payload.type,
-    ...(parsed ? { time: parsed.toISOString() } : {}),
+    time: new Date(occurredAt).toISOString(),
+    dataschema: mapping.dataschema,
+    tenantid: installation.tenant_id,
+    scope: { kind: "product", id: productId },
+    sourceeventid: sourceEventId,
+    schemaversion: mapping.schema_version,
+    traceparent: newTraceparent(),
     datacontenttype: "application/json",
     data
   };
+  try { validateEvent(canonicalEvent); }
+  catch (error) {
+    throw Object.assign(new Error("canonical provider event violates P-09 contract"), {
+      code: "P03D_CONTRACT_VIOLATION", cause: error
+    });
+  }
+  return canonicalEvent;
 }
 
 async function assertInstallationScope(pool, installation) {
