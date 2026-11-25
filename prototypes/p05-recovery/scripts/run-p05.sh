@@ -20,6 +20,8 @@ echo "[P05] Create pre-target marker, named restore point and post-target marker
 admin_psql -c "INSERT INTO public.recovery_markers(marker) VALUES('before-p05-restore-point')"
 RESTORE_LSN="$(admin_psql -At -c "SELECT pg_create_restore_point('p05_before_incident')")"
 RESTORE_WAL="$(admin_psql -At -c "SELECT pg_walfile_name('$RESTORE_LSN'::pg_lsn)")"
+printf "RESTORE_WAL=%s\\nRESTORE_LSN=%s\\n" "$RESTORE_WAL" "$RESTORE_LSN" > "$ROOT/restore.env"
+chmod 600 "$ROOT/restore.env"
 admin_psql -c "INSERT INTO public.recovery_markers(marker) VALUES('after-p05-restore-point')"
 admin_psql -c "SELECT pg_switch_wal()" >/dev/null
 for attempt in $(seq 1 40); do test -s "$ARCHIVE/$RESTORE_WAL" && break; sleep 1; done
@@ -40,6 +42,18 @@ EOF"
 RESTORE_START=$(date +%s)
 as_pg pg_ctl -D "$ROOT/restore" -l "$ROOT/restore.log" -o "-p 55432 -h 127.0.0.1 -c archive_mode=off" -w start
 RESTORE_SECONDS=$(( $(date +%s) - RESTORE_START ))
+# pg_ctl readiness can occur while hot standby is still read-only. Do not run
+# write/RLS acceptance assertions until PITR has actually completed promotion.
+RECOVERY_COMPLETE=0
+for attempt in $(seq 1 60); do
+  if test "$(restore_psql -At -c "SELECT pg_is_in_recovery()")" = "f"; then
+    RECOVERY_COMPLETE=1
+    break
+  fi
+  sleep 0.5
+done
+test "$RECOVERY_COMPLETE" = "1" || { echo "PITR target not fully completed/promoted" >&2; exit 1; }
+echo "pitr_recovery_complete=PASS"
 echo "[P05] Assert PITR and tenant RLS"
 test "$(tenant_count p05_tenant_a p05-tenant-a-not-production 55432)" = "1"
 test "$(tenant_count p05_tenant_b p05-tenant-b-not-production 55432)" = "1"
@@ -62,4 +76,3 @@ echo "restore_wal=$RESTORE_WAL"
 echo "backup_and_verify_seconds=$BACKUP_SECONDS"
 echo "restore_start_seconds=$RESTORE_SECONDS"
 echo "P05A_RESULT=PASS"
-as_pg pg_ctl -D "$ROOT/restore" -m fast -w stop
