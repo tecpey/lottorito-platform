@@ -96,3 +96,8 @@ P-02 regression passed on P-05A replacement code head 76650b0c799e2f2a5b2f3ae483
 ## P-05B downstream regression gate — 2026-11-25
 
 P-05B's object/key/event recovery fixture remains independent of the P-02 ledger schema. The 25-test P-02 integration suite must be rerun on the P-05B replacement head; event replay may not bypass P-02 ledger invariants or imply a production ledger migration.
+
+
+## P-05B downstream regression gate — 2026-11-25
+
+P-05B's object/key/event recovery fixture is independent of the P-02 ledger schema. The 25-test P-02 integration suite must be rerun on the P-05B replacement head; event replay may not bypass P-02 ledger invariants or imply a production ledger migration.
