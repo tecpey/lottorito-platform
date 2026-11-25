@@ -1,6 +1,6 @@
 # وضعیت واقعی پروژه و نقطه ادامه کار
 
-**شناسه:** LOT-OPS-001 | **نسخه:** ۱.۲۵.۰ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۴
+**شناسه:** LOT-OPS-001 | **نسخه:** ۱.۲۶.۰ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۵
 
 ## وضعیت تأییدشده مخزن
 - مخزن tecpey/lottorito-platform؛ شاخه پیش‌فرض main؛ سطح دسترسی Public طبق تصمیم مالک.
@@ -95,3 +95,14 @@ PR شماره ۵۰ مربوط به تحویل Outbox در P-03، به‌صورت
 
 ## انضباط شواهد
 این سند خلاصه بازبینی مخزن است، نه ممیزی بیرونی. پیش از اتکا به Head SHA یا وضعیت CI، Metadata و وضعیت Commit جاری را دوباره دریافت کن.
+
+
+## نقطه ادامه و شواهد جاری — ۲۰۲۶-۱۱-۲۵
+
+- PR شماره ۶۰ مربوط به P-03C همچنان Draft، باز و Mergeنشده و بر مبنای Head مربوط به PR شماره ۵۰ در P-03 یعنی 45b37700cb2b9ad633158ba8d5f00b8c7f0553d5 است؛ Head خود P-03C برابر 32b34f4c7c67b12874cdf6a14a2788d9a2f4c6dc است. Integration با شناسه [45576594884](https://github.com/tecpey/lottorito-platform/actions/runs/45576594884) تعداد ۱۵ تست موفق داشته و Documentation Governance با شناسه [45576594868](https://github.com/tecpey/lottorito-platform/actions/runs/45576594868) موفق شده است.
+- PR شماره ۶۱ مربوط به P-03D روی PR شماره ۶۰ قرار دارد و همچنان Draft، باز و Mergeنشده است. Head دقیق فعلی: 14d69ec5be1a9285049c1f88529f375782f2de51. اجرای P-02 با شناسه [45619908420](https://github.com/tecpey/lottorito-platform/actions/runs/45619908420) تعداد ۲۵ تست موفق؛ اجرای ترکیبی P-03C/P-03D با شناسه [45619908381](https://github.com/tecpey/lottorito-platform/actions/runs/45619908381) تعداد ۱۵ از ۱۵ تست P-03C و ۲۲ از ۲۲ تست P-03D را گذرانده است (۳۷ تست، صفر شکست و صفر Skip)؛ Documentation Governance با شناسه [45619908378](https://github.com/tecpey/lottorito-platform/actions/runs/45619908378) نیز روی همان Head دقیق موفق شده است.
+- تست‌های Regression افزوده‌شده P-03D، Marker ناقص Processed، عبور Attempt Count از حد مجاز، Base64 غیر Canonical و پیکربندی نامعتبر Replay Window/Body Size را رد می‌کنند. Constraintهای دیتابیس اکنون الزام می‌کنند processed_at و journal_id فقط در وضعیت Processed هر دو مقدار داشته باشند و attempt_count از max_attempts بیشتر نشود.
+- PR شماره ۵۱ مربوط به P-04 همچنان بر مبنای PR شماره ۵۰ در P-03 است، نه #۶۰/#۶۱. Head فعلی f701ab33a6357a892c2eff8e07f5f8ba05ae52ad است؛ Integration با شناسه [45619609686](https://github.com/tecpey/lottorito-platform/actions/runs/45619609686) هر ۸ تست را موفق گذرانده و Documentation Governance با شناسه [45619609509](https://github.com/tecpey/lottorito-platform/actions/runs/45619609509) موفق شده است.
+- PRهای ۵۱ تا ۵۹ یک زنجیره مستقل P-04 تا P-08 تشکیل می‌دهند که از Head مشترک P-03 یعنی 45b37700cb2b9ad633158ba8d5f00b8c7f0553d5 از خانواده P-03C/P-03D منشعب شده‌اند. P-04 دیتابیس و Schema موقت مستقل خود را دارد و Schemaهای P-02/P-03 را Import نمی‌کند، اما فایل‌های حاکمیتی و وضعیت مشترک هم‌پوشانی دارند. Ancestry شاخه‌ها و مستندات مشترک را آگاهانه تطبیق بده؛ Base را کورکورانه تغییر نده و Rebase نکن. دروازه بعدی، اجرای Regression یکپارچه P-02/P-03C/P-03D/P-04 تا P-08 روی یک Candidate واحد است.
+- PR شماره ۴۱ یک Fixture قدیمی Provider Event با مدل متفاوت P-02 است؛ فقط ورودی تحقیق است و نباید مدل Tenant/Product مبتنی بر GUC مشترک آن وارد مدل هویت فعلی مشتق‌شده از session_user شود.
+- هیچ Merge، تغییر main، Provider عملیاتی، KMS، انتقال شبکه، سیاست حسابداری، Migration مخرب یا Deploy مجاز نیست. تمام شواهد بالا فقط مربوط به آزمایش‌های ساختگی‌اند.

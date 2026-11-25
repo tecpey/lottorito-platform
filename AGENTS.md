@@ -40,3 +40,12 @@ Continue Lottorito from the repository's verified state. Do not restart planning
 
 ## Definition of done
 A task is done only when implementation exists, relevant tests pass, documentation is synchronized in both languages, security and tenant implications are reviewed, and commit/PR/CI evidence is linked.
+
+## P-03D continuation — 2026-11-25
+- Read both `docs/en/engineering/prototypes/p03-provider-ledger-integration.md` and `docs/fa/engineering/prototypes/p03-provider-ledger-integration.md`, plus the P-02, P-03C and LOT-FIN-POST-001 contracts before changing this integration.
+- Current working branch: `spike/p03d-provider-ledger-integration`, based on P-03C PR #60 head `32b34f4c7c67b12874cdf6a14a2788d9a2f4c6dc`. Keep it stacked on P-03C; do not retarget to main.
+- PR #41 is an older provider fixture based on an older P-02 branch and uses shared custom-GUC tenant/product scope. Reuse its signature/duplicate/conflict ideas only after review; do not cherry-pick its database model into the session_user-derived tenant/product identity design.
+- P-03D's atomic processing transaction must include P-02 `post_journal`, inbox processed state and the P-03C after-insert delivery-state trigger. The simulated HTTP 202 is allowed only after durable inbox commit.
+- Tenant and product must be derived from trusted installation configuration and the database LOGIN role mapping. Never trust payload tenant/product/account IDs. Product identity must remain present in ledger and delivery records; current tenant-wide unique constraints are conservative and must not be silently relaxed.
+- Run P-02, P-03C and P-03D integration workflows and bilingual Documentation Governance on the exact final branch head. Report each run, exact test count, failures/skips and synthetic limitations.
+- Do not add real provider credentials, live HTTP/network calls, commission/NGR formulas, payout rules or legal/accounting policy. No merge, main update, destructive migration or deployment without explicit owner approval.
