@@ -1,6 +1,6 @@
 # برنامه Prototype معماری و تولید شواهد Lottorito
 
-**شناسه سند:** LOT-PROT-001 | **نسخه:** ۱.۱۳.۰ | **وضعیت:** برنامه آزمایش پیشنهادی؛ اجرا و انتخاب فناوری تصویب نشده است
+**شناسه سند:** LOT-PROT-001 | **نسخه:** ۱.۱۶.۰ | **وضعیت:** برنامه آزمایش پیشنهادی؛ اجرا و انتخاب فناوری تصویب نشده است
 
 ## ۱. هدف و اعتبار
 
@@ -195,6 +195,29 @@
 **منابع:** صحت Checksum در AWS S3؛ اعتبارسنجی داده و Versioning در Google Cloud Storage؛ NIST SP 800-57 Part 1 Rev. 5 (Rev. 6 هنوز پیش‌نویس است)؛ راهنمای Transactional Outbox و تحویل At-least-once در AWS.
 
 **وضعیت:** CI ساختگی P-05B روی Head اعتبارسنجی‌شده شاخه با شناسه e4820884194ecf1ab3acd539d77145904f14ab73 موفق شد. اجرای Integration ترکیبی P-05A/P-05B در Pull Request با شناسه [45526975173](https://github.com/tecpey/lottorito-platform/actions/runs/45526975173) و Documentation Governance با شناسه [45526975222](https://github.com/tecpey/lottorito-platform/actions/runs/45526975222) موفق شدند. Object بازیابی‌شده ۴٬۴۰۹ بایتی با مرجع SHA-256 دیتابیس تطبیق داشت؛ حالت‌های کلید/Object مفقود یا خراب Fail-closed شدند؛ Assertionهای Duplicate/ترتیب Replay، قطع تراکنش و Retry، تطبیق Ledger و جداسازی Tenant موفق شدند. هیچ فناوری، فروشنده، آمادگی Production، RPO/RTO یا مجوز انتشار تصویب نشده است.
+
+### P-05C — Failover، Writer Fencing و Failback
+
+**پرسش:** آیا Prototype بازیابی می‌تواند Promotion کنترل‌شده Primary به Standby را نشان دهد، Writer قدیمی را رد کند، فقط یک گره Writable نگه دارد، Primary قبلی را Rewind کند و Failback کنترل‌شده را کامل سازد؟
+
+**توپولوژی ساختگی:** دو Cluster مستقل PostgreSQL 18.7 در یک Container دورریختنی؛ Physical Streaming Replication؛ Data Checksum و wal_log_hints؛ یک ردیف محلی Writer Epoch/Lease؛ بدون DCS خارجی، Cluster اجماع، Watchdog، Cloud Instance یا زیرساخت Production.
+
+**آزمایش‌ها:**
+۱. یک Event پایه Seed و Streaming Standby اثبات شود.
+۲. Gate محلی Promotion تا زمانی که فرایند Primary قبلی فعال است، Promotion را رد کند. Standby متوقف شود، یک Tail ساختگی و عمداً Replicateنشده روی Primary قدیمی Commit و سپس Primary قدیمی پیش از Promotion متوقف شود.
+۳. Standby راه‌اندازی و Promote شود؛ Epoch از ۱ به ۲ افزایش یابد. هویت/Epoch مربوط به Writer قدیمی و Lease منقضی‌شده Fail-closed شوند.
+۴. دو Promotion Claimant با Expected Epoch شماره ۲ رقابت کنند؛ دقیقاً یک Compare-and-Swap اتمیک باید برنده Epoch شماره ۳ شود و دیگری هیچ Token دریافت نکند.
+۵. Primary قبلی متوقف‌شده با pg_rewind Rewind و به‌عنوان Standby فقط‌خواندنی دوباره Join شود؛ Event مربوط به Primary ارتقایافته حاضر و Tail قدیمیِ عمداً Replicateنشده غایب باشد.
+۶. پس از Replay، Switchover کنترل‌شده به Node اولیه انجام شود، Epoch از ۳ به ۴ برسد، Marker مربوط به Failback نوشته شود، گره دیگر Rewind و به‌عنوان Standby Join شود.
+۷. پس از Failback، دقیقاً یک Primary قابل نوشتن، یک Standby فقط‌خواندنی و وضعیت سازگار Epoch/Active Writer اثبات شود.
+
+**معیار Pass:** رد Promotion تا زمان فعال بودن Primary قدیمی؛ توقف فرایند قدیمی پیش از Promotion؛ موفقیت Promotion Standby؛ رد Token قدیمی و Lease منقضی؛ برنده شدن دقیقاً یک Claimant هم‌زمان Epoch؛ موفقیت Rewind و Join؛ غیبت Tail واگرای Replicateنشده؛ Read-only بودن Primary قبلی پس از Join؛ موفقیت Failback کنترل‌شده و Rewind دوم؛ و دقیقاً یک Writer در توپولوژی نهایی.
+
+**محدودیت‌های حیاتی:** توقف فرایند فقط شبیه‌سازی Local CI برای Fence است، نه STONITH، Fencing میزبان/Storage یا Watchdog. ردیف Writer Epoch داده برنامه‌ای Replicateشده است، نه DCS مستقل با Quorum؛ نمی‌تواند جلوی Primary قدیمیِ جداافتاده از شبکه را برای پذیرش نوشتن محلی بگیرد. آزمایش عمداً یک Event ساختگی Commitشده اما Replicateنشده را از دست می‌دهد تا پنجره فقدان داده در Replication غیرهم‌زمان آشکار شود. Network Partition واقعی، از دست‌رفتن Quorum، Primaryهای زنده هم‌زمان، قطعی DCS، خرابی Watchdog، Failover منطقه‌ای، ترافیک Production، RPO یا RTO آزموده نمی‌شوند.
+
+**منابع:** Failover، Hot Standby و pg_rewind در PostgreSQL 18؛ راهنمای Lease/Watchdog در Patroni؛ تراکنش اتمیک، Lease و Linearizability در etcd.
+
+**وضعیت:** Integration مربوط به P-05C با شناسه [45533992674](https://github.com/tecpey/lottorito-platform/actions/runs/45533992674)، Integration بازگشتی P-05B با شناسه [45533992779](https://github.com/tecpey/lottorito-platform/actions/runs/45533992779) و Documentation Governance با شناسه [45533992863](https://github.com/tecpey/lottorito-platform/actions/runs/45533992863)، هر سه روی Head PR با شناسه 194c565c1471474a1d908efb3dfda89035d9d4cc موفق شدند. دو Timeline واگرا و دو عملیات واقعی pg_rewind با کپی ۳۵ و ۶۷ مگابایت، از جمله حذف Tail دوم در Failback، موفق شدند. PR شماره ۵۴ همچنان Draft و Stacked روی PR شماره ۵۳ است. هیچ فناوری HA، فروشنده، توپولوژی، RPO/RTO یا آمادگی Production تصویب نشده است.
 
 ### P-06 — Observability سرتاسری و حریم خصوصی
 

@@ -1,8 +1,41 @@
 # وضعیت واقعی پروژه و نقطه ادامه کار
 
-**شناسه:** LOT-OPS-001 | **نسخه:** ۱.۳۲.۰ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۵
+**شناسه:** LOT-OPS-001 | **نسخه:** ۱.۳۵.۰ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۵
 
 ## وضعیت تأییدشده مخزن
+
+## به‌روزرسانی نهایی اعتبارسنجی P-05C — ۲۰۲۶-۱۱-۲۵
+
+- P-05C PR شماره ۵۴ همچنان باز، Draft و Mergeنشده است و روی P-05B PR شماره ۵۳ قرار دارد. PRهای P-05B شماره ۵۳، P-05A شماره ۵۲ و P-04 شماره ۵۱ نیز باز، Draft و Mergeنشده هستند.
+- Integration مربوط به P-05C با شناسه [45533992674](https://github.com/tecpey/lottorito-platform/actions/runs/45533992674)، Integration بازگشتی P-05B با شناسه [45533992779](https://github.com/tecpey/lottorito-platform/actions/runs/45533992779) و Documentation Governance با شناسه [45533992863](https://github.com/tecpey/lottorito-platform/actions/runs/45533992863) روی Head PR با شناسه 194c565c1471474a1d908efb3dfda89035d9d4cc موفق شدند.
+- P-05C دو Timeline واقعاً واگرا را اثبات کرد. pg_rewind در Rejoin پس از Failover، ۳۵ مگابایت و در Failback کنترل‌شده، ۶۷ مگابایت کپی کرد. هر دو Tail ساختگیِ عمداً Replicateنشده پس از Promotion گره دریافت‌کننده غایب بودند؛ Epoch نهایی شماره ۴ و Active Writer برابر Node A روی هر دو گره تأیید شد.
+- P-05C همچنان Fencing در Production، رفتار Quorum، ایمنی در Network Partition، Watchdog، Failover منطقه‌ای یا RPO/RTO را اثبات نمی‌کند. توقف فرایند، شبیه‌سازی Local CI و مرجع Epoch/Lease یک ردیف دیتابیس Replicateشده است، نه DCS مستقل مبتنی بر Consensus. RPO/RTO همچنان TBD هستند.
+- هیچ Merge، Deploy، داده Production، Credential زنده یا وجه واقعی استفاده نشد. PRها تا تأیید صریح مالک برای اقدام بعدی Draft باقی می‌مانند.
+
+
+
+## آخرین به‌روزرسانی نقطه ادامه — ۲۰۲۶-۱۱-۲۵ (اجرای P-05C)
+
+- P-05C همچنان PR شماره ۵۴، باز و Draft است و روی P-05B PR شماره ۵۳ قرار دارد؛ Merge نشده است. PR شماره ۵۳ روی شماره ۵۲ و PR شماره ۵۲ روی شماره ۵۱ Stacked شده‌اند. هیچ‌یک از PRهای این زنجیره بازیابی Merge نشده‌اند.
+- Integration اجرایی P-05C در اجرای شاخه با شناسه [45533778752](https://github.com/tecpey/lottorito-platform/actions/runs/45533778752) روی Head کد اجرایی 4884a3c38d2da8ea9ab9961dc095eb0ddd469f4d موفق شد.
+- آزمایش دو Cluster PostgreSQL 18.7، Physical Streaming Replication، رد Promotion در زمان فعال بودن Primary قدیمی، Process Fencing محلی، Epoch از ۱ به ۲، رد Writer قدیمی، رد Lease منقضی و Compare-and-Swap هم‌زمان Epoch شماره ۳ با دقیقاً یک برنده را اجرا کرد.
+- pg_rewind واقعی اول ۳۵ مگابایت کپی کرد و Primary قبلی را به‌عنوان Standby فقط‌خواندنی برگرداند؛ Tail اول که عمداً Replicate نشده بود غایب بود.
+- Failback کنترل‌شده یک Tail ساختگی دوم و Replicateنشده ایجاد کرد، گره بازگشته را Promote کرد و pg_rewind واقعی دوم با کپی ۶۷ مگابایت انجام شد. Tail دوم غایب، Marker مربوط به Failback حاضر و Epoch شماره ۴/Active Writer برابر Node A روی هر دو گره تأیید شد.
+- Integration روی Head نهایی PR و Documentation Governance برای Commit نهایی مستندات هنوز باید بررسی شوند تا P-05C بسته اعلام شود. این آزمایش اثبات Fencing در Production نیست: توقف فرایند فقط شبیه‌سازی Local CI است و ردیف Epoch، DCS مستقل با Quorum نیست. هر دو Tail عمداً Replicateنشده، ریسک فقدان داده در Replication غیرهم‌زمان را نشان می‌دهند؛ RPO/RTO همچنان TBD هستند.
+- هیچ داده Production، Credential واقعی، وجه واقعی، منبع Cloud، Merge یا Deploy استفاده نشد. هیچ فروشنده HA، توپولوژی یا آمادگی Production تصویب نشده است.
+
+
+
+## آخرین به‌روزرسانی نقطه ادامه — ۲۰۲۶-۱۱-۲۵ (P-05C)
+
+- P-05C با PR شماره ۵۴ به‌صورت Draft باز شده و روی P-05B PR شماره ۵۳ Stacked است. هنوز Merge نشده است. PRهای P-05B شماره ۵۳، P-05A شماره ۵۲ و P-04 شماره ۵۱ نیز باز، Draft و Mergeنشده هستند.
+- آزمایش ساختگی جدید دو Cluster PostgreSQL 18.7 ایجاد می‌کند و Physical Streaming Replication، رد Promotion در زمان فعال بودن Primary قدیمی، Process Fencing محلی، رد نوشتن با Epoch/Lease نامعتبر، رقابت Compare-and-Swap برای Promotion، pg_rewind و Switchover کنترل‌شده به گره اولیه را می‌آزماید.
+- Fixture عمداً یک Event ساختگی را هنگامی که Standby قطع است روی Primary قدیمی Commit می‌کند و سپس بدون آن Event Failover می‌کند. نبود آن Event مورد انتظار است و پنجره فقدان داده در Replication غیرهم‌زمان را نشان می‌دهد؛ این Assertion به معنی RPO صفر نیست.
+- P-05C صریحاً اثبات Fencing در Production نیست: توقف فرایند فقط شبیه‌سازی Local CI است و وضعیت Epoch/Lease داده برنامه‌ای Replicateشده PostgreSQL است، نه DCS مستقل با Quorum. Primary قدیمیِ جداافتاده از شبکه، بدون Fencing خارجی همچنان ممکن است نوشتن محلی بپذیرد.
+- اعتبارسنجی CI روی Head فعلی P-05C در انتظار است. هیچ داده Production، Credential زنده، وجه، منبع Cloud، Merge یا Deploy استفاده نمی‌شود. RPO/RTO همچنان TBD است.
+- معیارهای Pass در P-05C شامل یک گره Writable، رد Writer قدیمی و Lease منقضی، دقیقاً یک Claimant برنده Epoch، Rewind/Join گره Primary قبلی، Failback کنترل‌شده و توپولوژی نهایی تک-Writer است. هر شکست پیش از اعلام تکمیل فاز، بررسی ریشه‌ای و اصلاح خواهد شد.
+
+
 
 ## آخرین به‌روزرسانی نقطه ادامه — ۲۰۲۶-۱۱-۲۵ (آزمون‌های منفی P-05A و P-05B)
 - مسیر مثبت PITR اکنون پیش از Assertionهای مالی/RLS نوشتنی، تا بازگشت `pg_is_in_recovery()` به مقدار `false` صبر می‌کند. این اصلاح Race در CI را برطرف کرد: `pg_ctl` زمانی Ready شده بود که PostgreSQL هنوز فقط اتصال Read-only در حالت Recovery می‌پذیرفت؛ آن اجرای قبلی به‌عنوان موفقیت RLS شمرده نشد. آزمون WAL مفقود نیز هر راه‌اندازی Writable پیش از Target درخواستی را رد می‌کند.

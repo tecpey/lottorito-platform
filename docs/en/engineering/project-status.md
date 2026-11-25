@@ -1,8 +1,41 @@
 # Verified Project Status and Continuation Point
 
-**Document ID:** LOT-OPS-001 | **Version:** 1.32.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-25
+**Document ID:** LOT-OPS-001 | **Version:** 1.35.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-25
 
 ## Verified repository state
+
+## Final P-05C validation update — 2026-11-25
+
+- P-05C PR #54 remains open, Draft and unmerged, stacked on P-05B PR #53. P-05B #53, P-05A #52 and P-04 #51 also remain open Draft/unmerged.
+- P-05C PR Integration [run 45533992674](https://github.com/tecpey/lottorito-platform/actions/runs/45533992674), P-05B regression Integration [run 45533992779](https://github.com/tecpey/lottorito-platform/actions/runs/45533992779), and Documentation Governance [run 45533992863](https://github.com/tecpey/lottorito-platform/actions/runs/45533992863) passed on PR head 194c565c1471474a1d908efb3dfda89035d9d4cc.
+- P-05C proved two actual divergent timelines. pg_rewind copied 35 MB during failover rejoin and 67 MB during controlled failback. Both intentionally unreplicated synthetic tails were absent after the receiving node was promoted; final epoch 4 and active writer node A were confirmed on both nodes.
+- P-05C still does not prove production fencing, quorum behavior, network-partition safety, watchdog, regional failover, or RPO/RTO. Its process stop is local CI simulation and its epoch/lease authority is a replicated database row, not an independent consensus-backed DCS. RPO/RTO remain TBD.
+- No merge, deployment, production data, live credentials or real funds were used. PRs remain Draft until the owner explicitly approves any next action.
+
+
+
+## Latest continuation update — 2026-11-25 (P-05C execution)
+
+- P-05C remains Draft PR #54, stacked on P-05B PR #53; it is open and unmerged. PR #53 is stacked on #52; #52 is stacked on #51. No PR in this recovery chain has been merged.
+- The P-05C executable integration passed on branch-push [run 45533778752](https://github.com/tecpey/lottorito-platform/actions/runs/45533778752) at code head 4884a3c38d2da8ea9ab9961dc095eb0ddd469f4d.
+- The test ran two PostgreSQL 18.7 clusters, physical streaming replication, promotion refusal while the old primary was alive, local process fencing, epoch 1→2, stale-writer rejection, expired-lease rejection and a concurrent epoch-3 compare-and-swap with exactly one winner.
+- The first real pg_rewind copied 35 MB and rejoined the former primary as a read-only standby; the intentionally unreplicated first tail was absent.
+- Controlled failback created a second intentionally unreplicated tail, promoted the returning node, and performed a second real pg_rewind that copied 67 MB. The second tail was absent, the failback marker was present, and epoch 4/active writer node A was confirmed on both nodes.
+- The PR-head Integration and Documentation Governance for the latest documentation commit are still required before calling P-05C closed. The experiment is not production fencing: process stop is local CI simulation, and the epoch row is not an independent quorum-backed DCS. Both intentionally unreplicated tails demonstrate asynchronous replication loss exposure; RPO/RTO remain TBD.
+- No production data, real credentials, real funds, cloud resources, merge or deployment were involved. No HA vendor, topology or production readiness is approved.
+
+
+
+## Latest continuation update — 2026-11-25 (P-05C)
+
+- P-05C is open as Draft PR #54, stacked on P-05B PR #53. It remains unmerged. P-05B #53, P-05A #52 and P-04 #51 remain open Draft/unmerged.
+- The new synthetic experiment creates two PostgreSQL 18.7 clusters and tests physical streaming replication, promotion refusal while the old primary is alive, local process fencing, epoch/lease write rejection, concurrent compare-and-swap promotion claims, pg_rewind, and a controlled switchover back.
+- The fixture intentionally commits one synthetic event on the old primary while the standby is disconnected, then fails over without that event. Its absence is expected and demonstrates the asynchronous replication loss window; it is not a zero-RPO assertion.
+- P-05C is explicitly not a production fencing proof: the process stop is local CI simulation, and the epoch/lease state is replicated PostgreSQL application data rather than an independent quorum-backed DCS. A partitioned old primary could still accept local writes without external fencing.
+- CI validation is pending on the latest P-05C head. No production data, live credentials, funds, cloud resources, merge or deployment are involved. RPO/RTO remain TBD.
+- P-05C pass criteria include one writable node, stale-writer and expired-lease rejection, exactly one concurrent epoch claimant, rewind/rejoin of the former primary, controlled failback and a final single-writer topology. Any failure will be diagnosed and corrected before the phase is called complete.
+
+
 
 ## Latest continuation update — 2026-11-25 (P-05A negative recovery + P-05B)
 - The positive PITR path now waits until `pg_is_in_recovery()` returns `false` before writable financial/RLS assertions. This fixes a CI race where `pg_ctl` readiness occurred while PostgreSQL still accepted only read-only recovery connections; that earlier run was not counted as an RLS pass. The missing-WAL test now also rejects any writable startup before the requested target.
