@@ -83,3 +83,8 @@ No production data, credentials, partner secrets, real funds or live endpoints. 
 - The run asserted manifest verification and tamper rejection, archived WAL presence, the named PITR log entry, pre-target marker present/post-target marker absent, tenant-scoped reads and denied cross-tenant insert, balanced journals, source-to-ledger totals, unique economic effects and valid object-reference hash format.
 - Negative drills passed on combined executable-code head `146a9bc635e3b03db568c423fb0958b62bc31c7b`: an incomplete restore staging directory was rejected by both `pg_verifybackup` and PostgreSQL startup; removal of the exact target WAL segment caused the recovery startup to fail closed before the requested named target. The missing-WAL log recorded the absent target segment. Object-byte/key recovery is covered by P-05B; failover/fencing/failback remains P-05C and has not run.
 - Synthetic success is not production readiness, a technology decision or RPO/RTO approval.
+
+
+## Reconciled P-05B continuation — 2026-11-25
+
+P-05B is being carried onto replacement branch `spike/p05b-object-key-event-recovery-p03d`, based on P-05A PR #63's latest synchronized head `481a0ab2ac15ee982745e0a3b48d4d93cc829431`. The branch includes the P-05A recovery-complete gate and both missing-WAL/incomplete-restore negative drills before the P-05B object/key/event suite. Original PR #53 evidence is historical; the replacement must pass its own complete P-05 workflow and upstream P-02/P-03C/P-03D/P-04 regressions.
