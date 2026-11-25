@@ -1,15 +1,15 @@
 # Verified Project Status and Continuation Point
 
-**Document ID:** LOT-OPS-001 | **Version:** 1.46.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-25
+**Document ID:** LOT-OPS-001 | **Version:** 1.47.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-25
 
 ## Verified repository state
 
 ## P-08 initial implementation — 2026-11-25
 
-- P-08 is being implemented on branch `spike/p08-deployment-health-rollback`, based on the current P-07C PR #58 head `7d349789ae8e57225dd67eaa8685685e71577fb8`. The branch is stacked on P-07C; no P-08 PR has been opened at this status snapshot.
+- P-08 is open as Draft PR [#59](https://github.com/tecpey/lottorito-platform/pull/59) on branch `spike/p08-deployment-health-rollback`, stacked on P-07C PR #58. Its base is the P-07C branch head `7d349789ae8e57225dd67eaa8685685e71577fb8`; PR #59 is not merged.
 - The synthetic fixture now contains a deterministic Python zipapp builder, detached digest-bound provenance metadata, runtime-only secret canary injection, separate startup/liveness/API-readiness/worker-readiness gates, digest-keyed in-memory artifact storage, exact-digest/environment approval checks, separation-of-duties checks, test/staging-only promotion, schema-aware rollback and forward-repair scenarios, and bilingual experiment documentation.
 - The fixture uses no real deployment platform, registry, secret manager, database migration, cloud resource, customer data, credential or money. Its provenance is unsigned metadata and is not SLSA conformance; its financial-state fingerprint is a synthetic sentinel, not a ledger.
-- CI is pending on the final branch head. No P-08 pass is claimed until deterministic build comparison, all tests, and Documentation Governance complete on the exact PR head. No merge or deployment is authorized or performed.
+- Integration and Documentation Governance evidence is tracked on PR #59. Review the latest checks against the current PR head; intermediate revisions had failures that were corrected in later commits, so only the latest exact-head checks determine status. No merge or deployment is authorized or performed.
 
 ## P-07C initial validation — 2026-11-25
 
