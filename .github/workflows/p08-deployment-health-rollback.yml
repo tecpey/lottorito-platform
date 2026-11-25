@@ -11,6 +11,12 @@ on:
       - "docs/fa/engineering/prototypes/p08-deployment-health-rollback.md"
       - "docs/en/engineering/project-status.md"
       - "docs/fa/engineering/project-status.md"
+      - "docs/en/engineering/architecture-prototype-plan.md"
+      - "docs/fa/engineering/architecture-prototype-plan.md"
+      - "docs/en/engineering/decision-register.md"
+      - "docs/fa/engineering/decision-register.md"
+      - "docs/en/README.md"
+      - "docs/fa/README.md"
   pull_request:
     paths:
       - ".github/workflows/p08-deployment-health-rollback.yml"
