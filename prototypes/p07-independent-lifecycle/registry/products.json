@@ -1,0 +1,20 @@
+{
+  "products": {
+    "affiliate_agent": {
+      "owner_team": "team-affiliate-agent",
+      "runbook_ref": "runbooks/affiliate-agent.md",
+      "schema_namespace": "affiliate_agent",
+      "config_namespace": "affiliate_agent"
+    },
+    "lottery": {
+      "owner_team": "team-lottery",
+      "runbook_ref": "runbooks/lottery.md",
+      "schema_namespace": "lottery",
+      "config_namespace": "lottery"
+    }
+  },
+  "shared_platform": {
+    "owner_team": "team-platform",
+    "capabilities": ["identity", "tenant", "finance", "notifications", "audit"]
+  }
+}
