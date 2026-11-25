@@ -1,0 +1,39 @@
+name: P-07B Shared Platform and Trust Boundaries
+on:
+  push:
+    branches:
+      - spike/p07b-shared-trust-boundaries
+    paths:
+      - ".github/workflows/p07b-shared-trust-boundaries.yml"
+      - "prototypes/p07-shared-trust-boundaries/**"
+      - "docs/en/engineering/prototypes/p07b-shared-trust-boundaries.md"
+      - "docs/fa/engineering/prototypes/p07b-shared-trust-boundaries.md"
+  pull_request:
+    paths:
+      - ".github/workflows/p07b-shared-trust-boundaries.yml"
+      - "prototypes/p07-shared-trust-boundaries/**"
+      - "docs/en/engineering/prototypes/p07b-shared-trust-boundaries.md"
+      - "docs/fa/engineering/prototypes/p07b-shared-trust-boundaries.md"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: p07b-shared-trust-boundaries-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  trust-boundaries:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Validate registry JSON
+        run: |
+          python3 -m json.tool prototypes/p07-shared-trust-boundaries/registry/capabilities.json > /dev/null
+          python3 -m json.tool prototypes/p07-shared-trust-boundaries/registry/tenant-entitlements.json > /dev/null
+          python3 -m json.tool prototypes/p07-shared-trust-boundaries/registry/event-contracts.json > /dev/null
+      - name: Verify Python syntax
+        run: python3 -m compileall -q prototypes/p07-shared-trust-boundaries
+      - name: Exercise capability and event trust boundaries
+        run: python3 -m unittest discover -s prototypes/p07-shared-trust-boundaries/tests -v

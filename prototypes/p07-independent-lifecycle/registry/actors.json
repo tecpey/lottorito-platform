@@ -1,0 +1,12 @@
+{
+  "actors": {
+    "operator-alpha-token": {"actor_id": "operator-alpha-admin", "role": "tenant_operator", "operator_id": "operator-alpha", "tenant_id": "tenant-alpha"},
+    "operator-beta-token": {"actor_id": "operator-beta-admin", "role": "tenant_operator", "operator_id": "operator-beta", "tenant_id": "tenant-beta"},
+    "affiliate-release-token": {"actor_id": "affiliate-release-manager", "role": "release_manager", "product_id": "affiliate_agent"},
+    "lottery-release-token": {"actor_id": "lottery-release-manager", "role": "release_manager", "product_id": "lottery"},
+    "affiliate-migration-token": {"actor_id": "affiliate-migration-runner", "role": "migration_runner", "product_id": "affiliate_agent", "allowed_tenants": ["tenant-alpha", "tenant-beta"]},
+    "lottery-migration-token": {"actor_id": "lottery-migration-runner", "role": "migration_runner", "product_id": "lottery", "allowed_tenants": ["tenant-beta"]},
+    "platform-migration-token": {"actor_id": "platform-migration-runner", "role": "platform_migration_runner", "allowed_tenants": ["tenant-alpha", "tenant-beta"]},
+    "platform-admin-token": {"actor_id": "platform-admin", "role": "platform_admin"}
+  }
+}

@@ -1,6 +1,6 @@
 # Lottorito Architecture Prototype and Evidence Plan
 
-**Document ID:** LOT-PROT-001 | **Version:** 1.6.0 | **Status:** Proposed experiment plan; execution and technology choices not approved
+**Document ID:** LOT-PROT-001 | **Version:** 1.26.0 | **Status:** Proposed experiment plan; execution and technology choices not approved
 
 ## 1. Purpose and authority
 
@@ -117,6 +117,12 @@ A prototype may be **Pass**, **Fail**, **Inconclusive** or **Not run**. “Pass�
 
 **Evidence:** simulator configuration, delivery timeline, inbox/outbox records, retry/dead-letter history, reconciliation exceptions and recovery runbook draft.
 
+**Execution evidence (2026-11-25):**
+- PR #41, [Provider Event Delivery](https://github.com/tecpey/lottorito-platform/pull/41), head 42ffdadb...: Integration [45418733151](https://github.com/tecpey/lottorito-platform/actions/runs/45418733151) and Documentation Governance [45418733003](https://github.com/tecpey/lottorito-platform/actions/runs/45418733003) passed; the PR reports 22 synthetic tests. It remains Draft and is based on an older P-02 branch.
+- PR #50, [Tenant-scoped Outbox Delivery](https://github.com/tecpey/lottorito-platform/pull/50), head 45b37700...: Integration [45469172124](https://github.com/tecpey/lottorito-platform/actions/runs/45469172124) and Documentation Governance [45469171778](https://github.com/tecpey/lottorito-platform/actions/runs/45469171778) passed; 10 synthetic tests. It remains Draft and is the base of the P-04–P-08 stack.
+- PR #60, [P-03C Ledger Outbox Integration](https://github.com/tecpey/lottorito-platform/pull/60), specified in [LOT-PROT-P03C-001](prototypes/p03-ledger-outbox-integration.md), head 32b34f4c...: Integration [45576594884](https://github.com/tecpey/lottorito-platform/actions/runs/45576594884) passed 15/15 tests; Documentation Governance [45576594868](https://github.com/tecpey/lottorito-platform/actions/runs/45576594868) passed. It connects P-02 ledger_outbox to P-03 delivery state in one PostgreSQL database and remains Draft.
+- **P-03 is still Partial:** PR #41 provider ingress and PR #50 delivery were separate fixtures; P-03C closes the P-02-to-P-03 outbound outbox bridge, but inbound provider callbacks are not yet connected to P-02 posting. A proposed P-03D should integrate signed provider inbox events with idempotent P-02 posting and the P-03C outbox path. No provider, broker or production transport is approved.
+
 ### P-04 — Schema evolution and compatibility
 
 **Question:** Can data structures evolve while supported application versions and background workers coexist without data loss or prolonged unsafe locks?
@@ -143,51 +149,105 @@ A prototype may be **Pass**, **Fail**, **Inconclusive** or **Not run**. “Pass�
 
 ### P-05 — Backup, restore and recovery
 
-**Question:** Can critical data and required dependencies be restored to a usable, internally consistent state within owner-approved recovery objectives?
+**Question:** Can a disposable Lottorito-like PostgreSQL cluster be backed up, verified, restored to a named recovery point, and shown to preserve tenant isolation and financial invariants?
 
-**Minimum fixture:** Isolated environment with synthetic database records, event history, ledger, object references, configuration and non-production keys. No production backup or secret.
+**Decision boundary:** P-05 has three independently accepted slices. P-05A proves physical base backup, WAL archive continuity, PITR, restore verification and synthetic financial reconciliation. P-05B separately tests object-byte recovery, key/configuration recovery and event replay. P-05C separately tests failover, writer fencing, split-brain prevention and failback. Passing P-05A does not imply P-05B or P-05C passed.
+
+**Minimum fixture:** Disposable PostgreSQL 18.7 cluster, two synthetic tenants with distinct login identities, source-event records, balanced journal fixtures, object-reference metadata and a post-restore-point incident marker. No production backup, real funds, live credentials, partner secrets or customer/player data.
+
+**P-05A experiments:**
+1. Enable WAL archiving before the base backup; create a physical backup with pg_basebackup and its manifest.
+2. Run pg_verifybackup; deliberately tamper with a copy of the manifest and prove verification fails closed.
+3. Create a named restore point, commit post-point synthetic financial/event data, force WAL switch and wait for the required segment to be archived.
+4. Restore the base backup into a second isolated data directory; configure restore_command, recovery.signal and the named recovery target; promote only after reaching the target.
+5. Prove pre-target data exists and post-target data does not; record restore logs and elapsed time.
+6. Recompute journal balance, source-event-to-ledger control totals, economic-effect uniqueness and object-reference metadata integrity.
+7. Connect using each tenant's distinct database login and prove RLS still prevents cross-tenant reads after restore.
+8. Record missing-WAL, invalid-manifest, interrupted-restore and unavailable-archive failures; do not silently skip scenarios.
+
+**P-05A pass criteria:** successful base backup and pg_verifybackup; rejection of the corrupted copy; exact named PITR boundary; restored cluster starts and accepts authenticated connections; zero unbalanced journals, duplicate economic effects, unexplained source-to-ledger differences or broken synthetic object references; zero cross-tenant visibility; required WAL continuity is explicit; exact versions, timings, commands and CI evidence are recorded.
+
+**P-05B (not in this slice):** restore object payloads from an isolated object-store emulator; verify content hashes; recover synthetic envelope/key material using a separate test-only key-encryption hierarchy; replay events with inbox/economic-effect idempotency and provider/source reconciliation. A database object-reference row does not prove object bytes are recoverable. Never put production keys in database backups or CI fixtures.
+
+**P-05C (not in this slice):** simulate primary/standby divergence, promotion, epoch-based writer fencing, stale-primary write rejection, timeline-aware rejoin and failback. pg_rewind is only a candidate: WAL availability, checksum-or-wal_log_hints prerequisites, clean shutdown, post-rewind WAL replay and failure fallback must be tested. A failed rewind may leave the target unusable and require a fresh base backup.
+
+**RPO/RTO authority:** Numeric targets remain TBD in LOT-QA-001 and require owner/domain approval. Report measured RPO, RTO and restore throughput without claiming target compliance. Cloud-provider example targets are not Lottorito commitments.
+
+**Evidence:** backup manifest and verification output, tamper-negative result, archived WAL inventory, restore-point LSN/timeline, restore logs and timing, pre/post-target assertions, tenant-isolation results, journal/reconciliation report, exact versions, runbook and limitations.
+
+**Status:** P-05A positive PITR and negative recovery drills passed in combined synthetic CI on executable-code head `146a9bc635e3b03db568c423fb0958b62bc31c7b`. Integration run [45532825694](https://github.com/tecpey/lottorito-platform/actions/runs/45532825694) and Documentation Governance run [45532825916](https://github.com/tecpey/lottorito-platform/actions/runs/45532825916) passed on that head. PostgreSQL 18.7 was used. Before writable assertions, the positive path explicitly waited for `pg_is_in_recovery() = false`; `pg_ctl` readiness alone was not treated as completed recovery. The negative path rejected an incomplete restore staging directory via `pg_verifybackup` and server startup, and removed the exact target WAL segment from isolated copies; recovery startup failed closed before the requested target and the missing segment was identified in the log. P-05B object-byte/key recovery and ordered idempotent replay also passed in the same job. P-05C failover/fencing/failback remains not run. This is not production readiness, an RPO/RTO commitment or technology approval.
+
+
+### P-05B — Object, key and event recovery
+
+**Question:** After P-05A restores the database, can the platform recover the exact object bytes and the independent key material needed to decrypt them, then replay pending events without losing or duplicating economic effects?
+
+**Synthetic fixture:** A binary object owned by Tenant A, SHA-256 reference stored in the restored database, AES-256-GCM encrypted payload with a random DEK, separately wrapped DEK and a synthetic recovery KEK stored in a separate backup set; tenant-scoped inbox, aggregate sequence cursor and two independent synthetic source events. No cloud, live KMS/HSM, broker, provider, production secret or real data.
 
 **Experiments:**
-1. Create encrypted backup and restore into a clean isolated environment.
-2. Exercise point-in-time recovery if the candidate supports it.
-3. Restore required object data and key material using the approved test-key process.
-4. Simulate database, worker and dependency interruption; establish recovery order.
-5. Replay events received during the outage and reconcile provider/source totals to restored state.
-6. Test failback and prevent split-brain writers during recovery.
+1. Encrypt the full object payload with AES-256-GCM and AAD bound to tenant/object/version; wrap the DEK with a separate KEK and AAD bound to key/object identity.
+2. Back up object bytes/manifest/envelope and synthetic key-recovery material independently; remove active copies; restore both sets and compare full plaintext byte count and SHA-256 to the trusted PostgreSQL object reference.
+3. Inject missing-key, modified-ciphertext and modified-wrapped-DEK faults; every path must fail closed. Verify plaintext is absent from the object backup.
+4. Deliver aggregate sequence 2 before 1, duplicate sequence 2 and submit a different event ID with a duplicate economic-effect ID. Sequence gaps must block cursor advancement; duplicate identities must collapse.
+5. Inject failure after the replay function's writes but before transaction commit; verify journal, lines, inbox status and cursor all roll back. Retry and assert exactly one balanced journal per effect, correct sequence cursor, source-to-ledger reconciliation and no-op subsequent replay.
+6. Verify Tenant B cannot read Tenant A object/inbox metadata and cannot write cross-tenant inbox rows.
 
-**Pass criteria:**
-- Restore is reproducible and produces integrity-checked data.
-- Tenant boundaries, journal balance, event uniqueness and object references remain valid.
-- Required keys/configuration can be recovered without exposing secrets.
-- Recovery steps, dependencies, roles and decision points are documented.
-- Measured recovery results are recorded against approved RPO/RTO; if targets are not approved, report measurements without claiming target compliance.
-- Backup existence alone is never treated as proof of recoverability.
+**Pass criteria:** exact object byte/hash match; missing/corrupt key or object rejected; tenant isolation enforced; duplicate event/economic-effect IDs deduplicated; no sequence-gap advancement; interrupted replay fully rolled back; retry yields exactly two effects and no duplicates; journals balance; source and ledger control totals reconcile; second replay is a no-op.
 
-**Evidence:** timed exercise log, restore manifest, integrity/reconciliation reports, key-recovery evidence, runbook and observed data-loss/downtime window.
+**Key custody limitation:** The raw KEK file is synthetic CI-only recovery material. It is not a production KMS/HSM design, exportable root-key recommendation, split-knowledge process, key ceremony or authorization model. AES-GCM is an experiment primitive, not a selected platform standard.
+
+**Not proven:** KMS/HSM outage/rotation/revocation/compromise, IAM and dual control, immutable/versioned object retention, legal hold, multipart/large objects, regional replication, external broker durability, provider reconciliation, cross-service saga, high concurrency, production throughput, RPO/RTO or compliance. P-05A missing-WAL and incomplete-restore negative drills passed only in the synthetic CI fixture; production restore orchestration and recovery acceptance controls remain unproven. The positive path now gates writable checks on `pg_is_in_recovery() = false`. P-05C failover/fencing/failback is separate.
+
+**References:** AWS S3 checksum validation; Google Cloud Storage data validation/versioning; NIST SP 800-57 Part 1 Rev. 5 (Rev. 6 remains a draft); AWS transactional outbox and at-least-once event processing guidance.
+
+**Status:** P-05B synthetic CI passed on validated branch head e4820884194ecf1ab3acd539d77145904f14ab73. Combined P-05A/P-05B Pull-request Integration [45526975173](https://github.com/tecpey/lottorito-platform/actions/runs/45526975173) and Documentation Governance [45526975222](https://github.com/tecpey/lottorito-platform/actions/runs/45526975222) passed. The restored 4,409-byte object matched its database SHA-256 reference; missing/corrupt key and object cases failed closed; duplicate/out-of-order replay, transaction interruption/retry, ledger reconciliation and tenant isolation assertions passed. No technology, vendor, production readiness, RPO/RTO or release approval is implied.
+
+### P-05C — Failover, writer fencing and failback
+
+**Question:** Can the recovery prototype demonstrate a controlled primary-to-standby promotion, reject stale writers, preserve a single writable node, rewind the former primary and complete a controlled failback?
+
+**Synthetic topology:** Two independent PostgreSQL 18.7 clusters in one disposable container; physical streaming replication; data checksums and wal_log_hints; a database-local writer epoch/lease row; no external DCS, consensus cluster, watchdog, cloud instance or production infrastructure.
+
+**Experiments:**
+1. Seed a baseline event and prove streaming standby recovery.
+2. Require a local promotion gate to refuse while the former primary process is still alive. Stop the standby, commit a deliberately unreplicated synthetic tail on the old primary, then stop the old primary before promotion.
+3. Start and promote the standby; increment epoch 1 → 2. Reject stale writer identity/epoch and expired lease.
+4. Race two promotion claimants against expected epoch 2; one atomic compare-and-swap must win epoch 3, the other must receive no token.
+5. Rewind the stopped former primary with pg_rewind, rejoin it as a read-only standby, and verify the promoted event exists while the intentionally unreplicated old-primary tail is absent.
+6. Wait for replay, perform a controlled switchover back to the original node, increment epoch 3 → 4, write a failback marker, rewind the other node and rejoin it as standby.
+7. Assert one writable primary, one read-only standby and consistent epoch/active-writer state after failback.
+
+**Pass criteria:** promotion refused while old primary is alive; old process stopped before promotion; standby promotion succeeds; stale token and expired lease fail closed; exactly one concurrent epoch claimant wins; pg_rewind rejoin succeeds; divergent unreplicated tail is absent; former primary is read-only after rejoin; controlled failback and second rewind succeed; final topology has exactly one writer.
+
+**Critical limitations:** The process stop is a local CI fence simulation, not STONITH, host/storage fencing or watchdog. The writer-epoch row is replicated application data, not an independent quorum-backed DCS; it cannot stop a partitioned old primary from accepting local writes. The experiment intentionally loses one committed-but-unreplicated synthetic event to expose asynchronous replication's data-loss window. It does not test a real network partition, quorum loss, simultaneous live primaries, DCS outage, watchdog failure, regional failover, production traffic, RPO or RTO.
+
+**References:** PostgreSQL 18 failover, hot standby and pg_rewind; Patroni lease/watchdog guidance; etcd atomic transactions, leases and linearizability.
+
+**Status:** P-05C PR Integration [45533992674](https://github.com/tecpey/lottorito-platform/actions/runs/45533992674), P-05B regression Integration [45533992779](https://github.com/tecpey/lottorito-platform/actions/runs/45533992779), and Documentation Governance [45533992863](https://github.com/tecpey/lottorito-platform/actions/runs/45533992863) all passed on PR head `194c565c1471474a1d908efb3dfda89035d9d4cc`. Two divergent timelines and two real pg_rewind operations (35 MB and 67 MB), including discarding the second tail during failback, passed. PR #54 remains Draft and stacked on PR #53. No HA technology, vendor, topology, RPO/RTO or production readiness is approved.
 
 ### P-06 — End-to-end observability and privacy
 
-**Question:** Can operators trace a synthetic partner event through attribution, commission decision and journal reference while preventing secrets and unnecessary personal/financial data from entering telemetry?
+**Question:** Can a synthetic affiliate/agent event be reconstructed from partner ingress through authentication, inbox, attribution, commission, outbox, worker, the real P-02 journal and reconciliation, without leaking secrets/PII or creating unbounded metric cardinality?
 
-**Minimum fixture:** Synthetic event and tenant identities, generated credentials, fake personal data and controlled secret canaries.
+**Synthetic fixture:** PostgreSQL 18.7 with the existing P-02 ledger schema; one real balanced synthetic journal; nine W3C Trace Context-compatible spans; HMAC-derived opaque references; structured logs; 500 synthetic tenant identities aggregated into bounded metrics; tenant-scoped telemetry readers; audited forensic mapping; append-only privileged audit.
 
 **Experiments:**
-1. Trace ingress through validation, inbox, domain processing, outbox, worker and ledger reference.
-2. Correlate request, actor, tenant, product, source event, economic effect and journal entry.
-3. Inspect logs, traces, metrics, exceptions, dashboards and alert payloads for canary secrets and sensitive fields.
-4. Test high-cardinality identifiers and tenant/customer labels in metrics.
-5. Trigger authorization denial, provider outage, queue backlog, reconciliation drift and ledger invariant violation.
-6. Verify privileged audit events and access to telemetry.
+1. Post a real P-02 journal using Tenant A's runtime role and link the journal to the event/economic-effect trace references.
+2. Build a parent-linked trace across ingress, authentication, inbox, attribution, commission, outbox, worker, ledger and reconciliation. Preserve trace context across the asynchronous boundary; do not put PII or credentials in traceparent/tracestate/baggage.
+3. Keep raw tenant/actor/event/effect/journal identifiers out of general telemetry. Store HMAC-derived opaque references in spans/logs and raw mapping in a restricted forensic table.
+4. Plant secret and PII canaries in in-memory event/exception input; assert they do not appear in spans, logs, metrics, alerts or audit. Normalize CR/LF event-name injection to a bounded validation failure.
+5. Enforce RLS for spans/logs using authenticated database-role-to-tenant mapping. Prove cross-tenant reads return no rows and telemetry readers cannot access raw correlation mapping.
+6. Require reason-coded forensic access in the same DB session before revealing raw mapping; record actor/action/target/reason/outcome in append-only audit.
+7. Simulate 500 tenant identities while aggregating metrics only on bounded operation/outcome/product/reason labels; assert metric series count remains bounded and schema has no tenant/user/event/actor/journal identifier labels.
+8. Seed five alert classes with severity, owner and stable runbook identifiers.
 
-**Pass criteria:**
-- Critical journey can be reconstructed from authorized telemetry without treating logs as the ledger.
-- Correlation is consistent across synchronous and asynchronous boundaries.
-- Secret canaries and prohibited fields do not appear in telemetry.
-- Metrics avoid unbounded tenant/customer cardinality; detailed identifiers remain access-controlled.
-- Alerts have an owner, severity, actionable runbook and bounded noise.
-- Telemetry access and privileged actions are auditable.
+**Pass criteria:** actual P-02 journal is linked to nine spans; trace parent graph and async context are valid; source/effect/journal references correlate; all canaries/raw identifiers are absent from telemetry; baggage and log injection are neutralized; RLS enforces tenant scope; raw forensic mapping requires reason-coded audited access; audit is append-only; 500 tenants do not increase cardinality; all alert classes have owners/severity/runbook identifiers.
 
-**Evidence:** redacted trace, metric/label inventory, log-field policy, secret-canary scan, alert/runbook mapping and access audit.
+**Critical limitations:** The harness uses W3C-compatible IDs and OTel-style spans but does not integrate an OpenTelemetry SDK or send OTLP to a Collector. HMAC key is ephemeral CI material. No production retention, encryption, residency, sampling, collector hardening, export policy, alert delivery, SLO, legal/privacy approval or full telemetry-platform authorization is tested. Logs/traces/metrics/audit are not the financial ledger.
+
+**References:** W3C Trace Context; OpenTelemetry context propagation and messaging conventions; OWASP Logging Cheat Sheet; Prometheus instrumentation/cardinality guidance; NIST SP 800-92 (published guide; Rev. 1 is not treated as final); OpenTelemetry Collector redaction processor maturity.
+
+**Status:** P-06 PR Integration [45535315659](https://github.com/tecpey/lottorito-platform/actions/runs/45535315659) and Documentation Governance [45535315503](https://github.com/tecpey/lottorito-platform/actions/runs/45535315503) passed on PR head `9f30a2966ce77aca8a7df6acf8e803733bd723dd`. Nine spans linked the actual P-02 journal; 500 unique synthetic tenants produced four metric series; privacy, RLS, forensic audit and alert assertions passed. PR #55 remains Draft and stacked on P-05C PR #54. No production instrumentation, vendor, retention policy, legal basis or production readiness is approved.
 
 ### P-07 — Independent product composition
 
@@ -213,6 +273,12 @@ A prototype may be **Pass**, **Fail**, **Inconclusive** or **Not run**. “Pass�
 
 **Evidence:** separate build/run records, dependency graph, configuration matrix, negative authorization tests, migration inventory and independent-product operational checklist.
 
+**Execution evidence (2026-11-25):**
+- **P-07A — Product boundaries:** [PR #56](https://github.com/tecpey/lottorito-platform/pull/56), head 3932c1fa...; Integration [45569616972](https://github.com/tecpey/lottorito-platform/actions/runs/45569616972) and Documentation Governance [45569616782](https://github.com/tecpey/lottorito-platform/actions/runs/45569616782) passed. The synthetic manifest/validator proves logical dependency constraints, not real application import/build isolation.
+- **P-07B — Shared platform and trust boundaries:** [PR #57](https://github.com/tecpey/lottorito-platform/pull/57), head a29bb2c5...; Integration [45570609387](https://github.com/tecpey/lottorito-platform/actions/runs/45570609387) and Documentation Governance [45570609463](https://github.com/tecpey/lottorito-platform/actions/runs/45570609463) passed. The synthetic contract/authorization fixtures do not prove production IAM, RLS or event-broker authorization.
+- **P-07C — Independent lifecycle:** [PR #58](https://github.com/tecpey/lottorito-platform/pull/58), head 7d349789...; Integration [45571662643](https://github.com/tecpey/lottorito-platform/actions/runs/45571662643) and Documentation Governance [45571662650](https://github.com/tecpey/lottorito-platform/actions/runs/45571662650) passed; 41 tests passed. The lifecycle fixture does not prove independent production binaries, deployment units or migrations.
+- All three PRs remain Draft, open and unmerged. P-07 has passed its three stated synthetic slices; this is not a production architecture approval or proof of live product independence.
+
 ### P-08 — Deployment, health gate and rollback
 
 **Question:** Can an immutable artifact be promoted safely with controlled secrets injection, health verification and a tested rollback/roll-forward path?
@@ -237,6 +303,7 @@ A prototype may be **Pass**, **Fail**, **Inconclusive** or **Not run**. “Pass�
 
 **Evidence:** artifact digest, deployment manifest, secret scan, health-check timeline, failure/rollback transcript, audit record and operator runbook.
 
+**Execution evidence (2026-11-25):** [PR #59](https://github.com/tecpey/lottorito-platform/pull/59), exact current PR head `94320c62f1997cd3e7ba58fe74e3049ac30414b7`; latest code-bearing revision `d0e120a2afecd966c4f4867438b16b1b9ff54479`. Integration [45602775479](https://github.com/tecpey/lottorito-platform/actions/runs/45602775479) and independent repeat [45602765868](https://github.com/tecpey/lottorito-platform/actions/runs/45602765868) both passed on the exact current head: compile, deterministic double-build byte comparison and 46/46 tests with zero failures/skips. Both artifacts had SHA-256 `f02fe8ad957ab9cf6b19c64d7f57cdac66edc86744b01dd9c5c2384c3c1c076c`. Documentation Governance [45602775407](https://github.com/tecpey/lottorito-platform/actions/runs/45602775407) passed on the same head. The Persian/English P-08 scope, acceptance criteria and limitations were manually compared. PR #59 remains Draft/open/unmerged while stacked on unmerged P-07C PR #58. The fixture is not a production deployment, signed SLSA attestation, real secret manager, database migration or financial-ledger proof.
 ## 5. Cross-prototype acceptance rules
 
 All prototypes must:
@@ -262,6 +329,9 @@ A prototype is **Pass** only if all mandatory criteria for its stated scope pass
 
 The sequence may be adjusted when dependencies require it, but every prototype remains required unless the owner records an explicit waiver.
 
+**Current evidence reconciliation (2026-11-25):** P-01 and P-02 have passing synthetic slices but remain partial against their broader acceptance scope. P-03 has passing provider-delivery and outbox slices plus the new P-03C integrated bridge; P-03 remains partial until inbound provider events are connected to P-02 posting and reconciliation. P-04, P-05A/B/C, P-06, P-07A/B/C and P-08 have passing synthetic evidence within their explicitly stated scopes. PRs #41 and #50–#60 remain open Draft/unmerged as applicable; no merge or production deployment is implied.
+
+**Recommended next experiment:** P-03D — provider inbox to idempotent P-02 posting and P-03C outbox. It should validate signature/timestamp/replay controls, durable inbox acceptance before HTTP acknowledgement, provider-event-to-canonical-effect mapping, one financial posting per provider event, atomic inbox-processing/posting/outbox state, retry/dead-letter/replay and reconciliation. It must not introduce commission/NGR rules or real provider credentials; those require separate owner decisions.
 ## 7. Experiment report template
 
 For each P-0x record:
@@ -297,3 +367,14 @@ The prototype phase is complete only when all eight experiments have reproducibl
 - LOT-OPS-001 — verified project status.
 
 **Status reminder:** the plan remains proposed. The partial P-01 HTTP/PostgreSQL RLS slice on PR #36 passed 20 defined CI tests in run [45412556456](https://github.com/tecpey/lottorito-platform/actions/runs/45412556456) on code head `f53caa4e801c9eeed94dfe706e03c6dfcf02a660`, using the committed npm lockfile and SHA-pinned GitHub Actions. It covers tenant-scoped async jobs, atomic outbox/dispatch writes, concurrent dispatcher claims, Ed25519 envelopes, worker-side membership re-authorization and a comparative per-tenant LOGIN-role/session_user RLS model across records, membership and jobs, including SECURITY DEFINER owner/search_path and temporary-schema shadowing checks, plus deterministic two-connection proof that membership revocation waits behind an in-flight `FOR SHARE` transaction. This does not pass the full P-01 experiment: secure credential brokering, pool scaling, cache/object storage/search/reporting, support/break-glass, load and recovery remain untested. The shared-role custom-GUC trust limitation is explicitly demonstrated. No technology approval is claimed.
+
+
+**Current P-04 experiment (2026-11-24):** Draft PR #51 on branch spike/p04-schema-evolution, based on P-03 head 45b37700cb2b9ad633158ba8d5f00b8c7f0553d5. The synthetic PostgreSQL candidate covers v1/v2 writer compatibility, additive expand, tenant-scoped resumable backfill, migration checksum/idempotency, lock-timeout failure, invalid concurrent-index recovery, staged constraint validation and a non-destructive contract rehearsal. Integration run 45471750215 passed 7 tests on head 15c536e5be2f61b1805191f5977a46b17eaf1971 and Documentation Governance run 45471750133 passed on the same head. This remains a synthetic experiment; no production migration, zero-downtime claim or technology approval is implied.
+
+## P-03C/P-03D evidence and stack reconciliation — 2026-11-25
+
+- P-03C links the immutable P-02 ledger outbox to tenant-scoped delivery state. P-03D connects signed provider inbox acceptance to atomic P-02 posting and P-03C delivery state. This completes the current synthetic inbound/outbound provider-to-ledger integration slice, not every P-03 platform requirement or production provider integration.
+- P-03D regression coverage includes raw-body HMAC verification, timestamp freshness, canonical Base64, bounded body/header/configuration limits, trusted installation and database identity, durable inbox acceptance, duplicate/conflict handling, atomic posting/outbox/delivery, retry/dead-letter/quarantine, lease fencing, product isolation, reconciliation and database-enforced inbox-state invariants.
+- PR #60 P-03C head 32b34f4c7c67b12874cdf6a14a2788d9a2f4c6dc passed 15 tests in [45576594884](https://github.com/tecpey/lottorito-platform/actions/runs/45576594884). PR #61 P-03D current head b75a2e128c4289f18366a52bbb50c07f6b62c136 passed P-02 25/25 in [45620428866](https://github.com/tecpey/lottorito-platform/actions/runs/45620428866), P-03C 15/15 and P-03D 22/22 in [45620428553](https://github.com/tecpey/lottorito-platform/actions/runs/45620428553), and Documentation Governance in [45620428404](https://github.com/tecpey/lottorito-platform/actions/runs/45620428404). All remain synthetic; no provider, KMS, transport, accounting policy or production migration is approved.
+- P-04 PR #51 remains on P-03 PR #50, not on PR #60/#61. Current P-04 head 016695c0b8b6f06fb91c563338f1e0fd6d928f72 passed 8/8 tests in [45620775017](https://github.com/tecpey/lottorito-platform/actions/runs/45620775017); Documentation Governance [45620774995](https://github.com/tecpey/lottorito-platform/actions/runs/45620774995) passed.
+- PRs #51–#59 form the P-04–P-08 stack; PRs #60–#61 form the P-03C/P-03D stack. Both diverged from common P-03 head 45b37700cb2b9ad633158ba8d5f00b8c7f0553d5. P-04 is an isolated schema/database fixture and does not import P-02/P-03 schema, but shared governance/status files overlap. Reconcile ancestry and shared documentation deliberately, then run the full P-02/P-03C/P-03D/P-04–P-08 regression on one candidate branch. No blind rebase, retarget, merge or deployment is authorized.

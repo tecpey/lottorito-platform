@@ -1,6 +1,6 @@
 # Lottorito — English Documentation
 
-**Document ID:** LOT-DOC-INDEX-EN-001 | **Version:** 2.5.0 | **Status:** Maintained index
+**Document ID:** LOT-DOC-INDEX-EN-001 | **Version:** 2.7.0 | **Status:** Maintained index
 
 This directory is the authoritative English documentation space for Lottorito. The Persian documentation under docs/fa/ is equally authoritative.
 
@@ -61,9 +61,21 @@ LOT-FIN-POST-001 defines proposed financial posting and reconciliation controls;
 | Engineering | [P-01 tenant isolation experiment](engineering/prototypes/p01-tenant-isolation.md) | LOT-PROT-P01-001; partial HTTP/PostgreSQL RLS and async-job experiment; 20 CI tests passed on the parent PR head; full P-01 remains inconclusive |
 | Engineering | [P-01 support access prototype](engineering/prototypes/p01-support-breakglass.md) | LOT-PROT-P01-SUPPORT-001; scoped, time-bound, read-only support access with append-only audit; 26 CI tests passed on PR #39, synthetic-only and not production-ready |
 | Engineering | [P-01 secondary data-plane isolation](engineering/prototypes/p01-data-plane-isolation.md) | LOT-PROT-P01-DATA-001; cache/object/search/reporting tenant boundaries; 30 CI tests passed on PR #42; synthetic adapters only, provider behavior unverified |
-| Engineering | [P-01 tenant credential and pool broker](engineering/prototypes/p01-tenant-pool-broker.md) | LOT-PROT-P01-POOL-001; trusted tenant credential resolution, bounded pools, DB identity verification, lease-safe eviction/revocation/shutdown; synthetic prototype, CI pending |
+| Engineering | [P-01 tenant credential and pool broker](engineering/prototypes/p01-tenant-pool-broker.md) | LOT-PROT-P01-POOL-001; trusted tenant credential resolution, bounded pools, DB identity verification, lease-safe eviction/revocation/shutdown; 48 CI tests passed on PR #49, synthetic-only and P-01 remains partial |
 | Engineering | [P-02 tenant-bound double-entry ledger](engineering/prototypes/p02-ledger-posting.md) | LOT-PROT-P02-001; exact integer amounts, per-currency balancing, immutable journal, request/effect idempotency, hardened SECURITY DEFINER boundary and transactional outbox; 25 CI tests passed on PR #46, synthetic only |
 | Engineering | [P-03 tenant-scoped outbox delivery](engineering/prototypes/p03-outbox-delivery.md) | LOT-PROT-P03-001; leased relay, bounded retries/dead-letter, stale-worker fencing, idempotent consumer inbox; 10 CI tests passed on PR #50, synthetic only |
+| Engineering | [P-04 schema evolution and compatibility](engineering/prototypes/p04-schema-evolution.md) | LOT-PROT-P04-001; additive expand, old/new app/worker compatibility, resumable tenant-scoped backfill, migration checksum, lock-timeout and concurrent-index recovery; 7 CI tests passed on PR #51, synthetic only |
+| Engineering | [P-03C ledger outbox integration](engineering/prototypes/p03-ledger-outbox-integration.md) | LOT-PROT-P03C-001; connects P-02 immutable ledger_outbox to P-03 tenant-scoped delivery state in one PostgreSQL transaction; 15 CI tests passed on PR #60, synthetic-only |
+| Engineering | [P-03D provider inbox to ledger integration](engineering/prototypes/p03-provider-ledger-integration.md) | LOT-PROT-P03D-001; signed provider inbox, atomic product-scoped P-02 posting + P-03C outbox; 22 P-03D, 15 P-03C and 25 P-02 CI tests passed on PR #61 head `b75a2e12`; synthetic only |
+| Engineering | [P-03 provider event delivery](https://github.com/tecpey/lottorito-platform/pull/41) | Parallel provider-ingress/delivery experiment; 22 synthetic tests reported on PR #41; remains separate from P-02 posting |
+| Engineering | [P-05A backup, restore and PITR](engineering/prototypes/p05-backup-restore-recovery.md) | LOT-PROT-P05A-001; physical backup, WAL archive, manifest validation and PITR drills; synthetic recovery proof |
+| Engineering | [P-05B object, key and event recovery](engineering/prototypes/p05b-object-key-event-recovery.md) | LOT-PROT-P05B-001; object checksum, wrapped-key failure, ordered replay, idempotency and ledger reconciliation; synthetic recovery proof |
+| Engineering | [P-05C failover, fencing and failback](engineering/prototypes/p05c-failover-fencing-failback.md) | LOT-PROT-P05C-001; replication divergence, fencing epochs, rewind and failback; synthetic HA proof, no production RPO/RTO claim |
+| Engineering | [P-06 observability and privacy](engineering/prototypes/p06-observability-privacy.md) | LOT-PROT-P06-001; trace/log correlation, HMAC references, tenant RLS, audited forensic access and cardinality controls; synthetic-only |
+| Engineering | [P-07A product boundaries](engineering/prototypes/p07a-product-isolation.md) | LOT-PROT-P07A-001; product dependency graph and deny-by-default shared capability ownership; synthetic architecture proof |
+| Engineering | [P-07B shared platform and trust boundaries](engineering/prototypes/p07b-shared-trust-boundaries.md) | LOT-PROT-P07B-001; shared capability ownership, contract and authorization boundaries; synthetic security proof |
+| Engineering | [P-07C independent product lifecycle](engineering/prototypes/p07c-independent-lifecycle.md) | LOT-PROT-P07C-001; product activation, schema/configuration isolation, promotion/rollback and white-label traceability; 41 CI tests passed, synthetic-only |
+| Engineering | [P-08 deployment, health gates and rollback](engineering/prototypes/p08-deployment-health-rollback.md) | LOT-PROT-P08-001; deterministic artifact, provenance consistency, runtime-only secrets, health gates and schema-aware recovery; 45 CI tests passed on PR #59, synthetic-only |
 | Engineering | [Agent operating manual](engineering/agent-operating-manual.md) | Low-context task routing and handoff |
 | Engineering | [Decision register](engineering/decision-register.md) | Owner directions, proposals and unresolved decisions |
 | Engineering | [Project status](engineering/project-status.md) | Verified state and continuation point |
@@ -71,7 +83,7 @@ LOT-FIN-POST-001 defines proposed financial posting and reconciliation controls;
 
 ## Automated documentation checks
 
-The structural validator at [scripts/check_docs.py](../../scripts/check_docs.py) checks paired Markdown paths, stable and unique document IDs, level-one titles, version/status metadata, and relative local links. GitHub Actions runs it through the [Documentation Governance workflow](../../.github/workflows/docs-governance.yml). These checks do not establish semantic translation parity; human review remains mandatory. The workflow has been added on the working branch; consult its run result before treating it as passing.
+The structural validator at [scripts/check_docs.py](../../scripts/check_docs.py) checks paired Markdown paths, stable and unique document IDs, level-one titles, version/status metadata, and relative local links. GitHub Actions runs it through the [Documentation Governance workflow](../../.github/workflows/docs-governance.yml). These checks do not establish semantic translation parity; human review remains mandatory. A prior P-08 PR #59 documentation revision (`1046b525...`) passed Documentation Governance in run [45577321154](https://github.com/tecpey/lottorito-platform/actions/runs/45577321154); consult PR #59 for the latest exact-head result. This is structural/link validation, not semantic translation certification.
 
 ## Evidence and status discipline
 

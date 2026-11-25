@@ -474,7 +474,7 @@ test("RLS policies bind the privileged posting function to the database session 
   assert.equal(policies.rowCount, 6);
   assert.equal(policies.rows.every((row) => row.roles.includes("ledger_executor")), true);
   const map = await tenantAPool.query(
-    "SELECT session_user::text AS role_name, private.current_tenant_id()::text AS tenant_id"
+    "SELECT database_role, tenant_id, product_id FROM private.tenant_role_map"
   ).catch((error) => ({ error }));
-  assert.ok(map.error, "tenant runtime roles must not have direct access to the private identity map");
+  assert.ok(map.error, "tenant runtime roles must not have direct SELECT access to the private identity map");
 });

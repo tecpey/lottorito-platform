@@ -1,0 +1,70 @@
+{
+  "releases": {
+    "affiliate-v1": {
+      "product_id": "affiliate_agent",
+      "version": "1.0.0",
+      "environment": "staging",
+      "status": "validated",
+      "artifact_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "source_revision": "1111111111111111111111111111111111111111",
+      "supported_schema_versions": [1, 2],
+      "provenance": {
+        "_type": "https://in-toto.io/Statement/v1",
+        "subject": [{"name": "affiliate-agent.tar", "digest": {"sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}}],
+        "predicateType": "https://slsa.dev/provenance/v1",
+        "predicate": {
+          "buildDefinition": {
+            "buildType": "https://example.invalid/lottorito/build-types/p07c-fixture/v1",
+            "externalParameters": {"source_revision": "1111111111111111111111111111111111111111"},
+            "resolvedDependencies": []
+          },
+          "runDetails": {"builder": {"id": "https://example.invalid/builders/synthetic-p07c"}}
+        }
+      }
+    },
+    "affiliate-v2": {
+      "product_id": "affiliate_agent",
+      "version": "2.0.0",
+      "environment": "staging",
+      "status": "validated",
+      "artifact_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "source_revision": "2222222222222222222222222222222222222222",
+      "supported_schema_versions": [1, 2, 3],
+      "provenance": {
+        "_type": "https://in-toto.io/Statement/v1",
+        "subject": [{"name": "affiliate-agent-v2.tar", "digest": {"sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}}],
+        "predicateType": "https://slsa.dev/provenance/v1",
+        "predicate": {
+          "buildDefinition": {
+            "buildType": "https://example.invalid/lottorito/build-types/p07c-fixture/v1",
+            "externalParameters": {"source_revision": "2222222222222222222222222222222222222222"},
+            "resolvedDependencies": []
+          },
+          "runDetails": {"builder": {"id": "https://example.invalid/builders/synthetic-p07c"}}
+        }
+      }
+    },
+    "lottery-v1": {
+      "product_id": "lottery",
+      "version": "1.0.0",
+      "environment": "staging",
+      "status": "validated",
+      "artifact_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "source_revision": "3333333333333333333333333333333333333333",
+      "supported_schema_versions": [1, 2],
+      "provenance": {
+        "_type": "https://in-toto.io/Statement/v1",
+        "subject": [{"name": "lottery-v1.tar", "digest": {"sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"}}],
+        "predicateType": "https://slsa.dev/provenance/v1",
+        "predicate": {
+          "buildDefinition": {
+            "buildType": "https://example.invalid/lottorito/build-types/p07c-fixture/v1",
+            "externalParameters": {"source_revision": "3333333333333333333333333333333333333333"},
+            "resolvedDependencies": []
+          },
+          "runDetails": {"builder": {"id": "https://example.invalid/builders/synthetic-p07c"}}
+        }
+      }
+    }
+  }
+}
