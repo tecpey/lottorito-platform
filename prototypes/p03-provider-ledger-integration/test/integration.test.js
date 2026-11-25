@@ -508,6 +508,13 @@ test("P-09F same provider event and source UUID remain isolated across Affiliate
       id: eventId,
       source: scope.installation.provider_source,
       type: EVENT_TYPE,
+      time: "2026-11-25T12:00:00Z",
+      dataschema: "urn:lottorito:schema:synthetic-settlement:1",
+      tenantid: scope.tenantId,
+      scope: { kind: "product", id: scope.productId },
+      sourceeventid: sourceEventId,
+      schemaversion: 1,
+      traceparent: "00-0123456789abcdef0123456789abcdef-0123456789abcdef-00",
       datacontenttype: "application/json",
       data: { amount_minor: "12500", currency_code: "USD" }
     };
