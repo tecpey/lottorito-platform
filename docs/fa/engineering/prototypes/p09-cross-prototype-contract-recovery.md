@@ -86,3 +86,7 @@ Event مالی باید Product Scope داشته باشد. Event پلتفرمی 
 ## ۷. خارج از محدوده
 
 هیچ Provider واقعی، KMS/HSM Production، Broker، Object Store، داده مشتری، Database Production، جابه‌جایی پول، سیاست حسابداری، تعهد RPO/RTO، Deploy Production یا مجوز Release در این کار نیست. هیچ PR Merge نمی‌شود و Ref شاخه Main تغییر نمی‌کند.
+
+## P-09B — Correlation محصول‌محور در Observability
+
+پیاده‌سازی P-06 اکنون از Tuple استاندارد Tenant/Scope/Source Event برای یکتایی Correlation، Grant دسترسی Forensic و فیلتر View استفاده می‌کند. یک سناریوی خصمانه قطعی، UUID یکسان Source Event و Trace ID را برای Affiliate و Lottery در یک Tenant تکرار می‌کند؛ Grant ممیزی‌شده هر محصول باید دقیقاً فقط ردیف خودش را نمایش دهد. این تغییر ابهام Correlation صرفاً Tenantمحور را در Slice ساختگی P-06 می‌بندد. بااین‌حال هنوز P-05 Recovery، مجوزدهی Event در P-07B یا Provenance Artifact در P-08 را منطبق نمی‌کند؛ آن‌ها Sliceهای مستقل بعدی P-09 هستند.
