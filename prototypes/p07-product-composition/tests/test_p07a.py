@@ -60,7 +60,7 @@ class ProductCompositionTests(unittest.TestCase):
 
     def test_importlib_dynamic_import_is_rejected(self):
         with self.assertRaisesRegex(ValueError, "importlib dynamic imports"):
-            assert_no_cross_product_imports("import importlib\\nimportlib.import_module('products.lottery')", "lottery")
+            assert_no_cross_product_imports("\\n".join(("import importlib", "importlib.import_module('products.lottery')")), "lottery")
 
     def test_smoke_audit_is_scoped_to_selected_product(self):
         for product_id in ("affiliate_agent", "lottery"):
