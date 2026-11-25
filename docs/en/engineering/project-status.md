@@ -1,8 +1,19 @@
 # Verified Project Status and Continuation Point
 
-**Document ID:** LOT-OPS-001 | **Version:** 1.32.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-25
+**Document ID:** LOT-OPS-001 | **Version:** 1.33.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-25
 
 ## Verified repository state
+
+## Latest continuation update — 2026-11-25 (P-05C)
+
+- P-05C is open as Draft PR #54, stacked on P-05B PR #53. It remains unmerged. P-05B #53, P-05A #52 and P-04 #51 remain open Draft/unmerged.
+- The new synthetic experiment creates two PostgreSQL 18.7 clusters and tests physical streaming replication, promotion refusal while the old primary is alive, local process fencing, epoch/lease write rejection, concurrent compare-and-swap promotion claims, pg_rewind, and a controlled switchover back.
+- The fixture intentionally commits one synthetic event on the old primary while the standby is disconnected, then fails over without that event. Its absence is expected and demonstrates the asynchronous replication loss window; it is not a zero-RPO assertion.
+- P-05C is explicitly not a production fencing proof: the process stop is local CI simulation, and the epoch/lease state is replicated PostgreSQL application data rather than an independent quorum-backed DCS. A partitioned old primary could still accept local writes without external fencing.
+- CI validation is pending on the latest P-05C head. No production data, live credentials, funds, cloud resources, merge or deployment are involved. RPO/RTO remain TBD.
+- P-05C pass criteria include one writable node, stale-writer and expired-lease rejection, exactly one concurrent epoch claimant, rewind/rejoin of the former primary, controlled failback and a final single-writer topology. Any failure will be diagnosed and corrected before the phase is called complete.
+
+
 
 ## Latest continuation update — 2026-11-25 (P-05A negative recovery + P-05B)
 - The positive PITR path now waits until `pg_is_in_recovery()` returns `false` before writable financial/RLS assertions. This fixes a CI race where `pg_ctl` readiness occurred while PostgreSQL still accepted only read-only recovery connections; that earlier run was not counted as an RLS pass. The missing-WAL test now also rejects any writable startup before the requested target.
