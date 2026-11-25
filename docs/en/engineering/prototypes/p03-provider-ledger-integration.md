@@ -126,3 +126,6 @@ The signed ingress path now builds its canonical CloudEvent from the trusted ins
 
 
 P-09H ingress regressions now also prove that provider-supplied `tenantid`, `scope`, `sourceeventid`, `traceparent`, `dataschema` and `schemaversion` cannot override trusted metadata, and that the same provider event ID can be accepted independently through signed ingress in Affiliate/Tenant-A, Lottery/Tenant-A and Affiliate/Tenant-B. The three rows receive distinct canonical source-event UUIDs. The final P-03C/P-03D workflow on the code-bearing head reported 15/15 and 28/28 tests passing, respectively.
+
+
+The P-03D test runner also includes a direct Node.js conformance suite for the shared P-09 validator. It exercises valid and adversarial envelope cases independently of the PostgreSQL-backed ingress tests, so a future worker change cannot silently bypass the validator's core rules.
