@@ -365,6 +365,19 @@ export async function processProviderEvent(pool, {
       return { outcome: "stale" };
     }
     const row = locked.rows[0];
+    if (row.tenant_id !== installation.tenant_id || row.product_id !== installation.product_id) {
+      throw Object.assign(new Error("provider inbox row differs from trusted installation scope"), { code: "P03D_INSTALLATION_SCOPE_MISMATCH" });
+    }
+    let validated;
+    try { validated = validateEvent(row.canonical_event); }
+    catch (error) {
+      throw Object.assign(new Error("stored provider event violates P-09 contract"), { code: "P03D_CONTRACT_VIOLATION", cause: error });
+    }
+    if (row.canonical_event.tenantid !== row.tenant_id || row.canonical_event.scope?.kind !== "product" ||
+        row.canonical_event.scope?.id !== row.product_id || row.canonical_event.sourceeventid !== row.source_event_id ||
+        validated.identity[0] !== row.tenant_id || validated.identity[3] !== row.source_event_id) {
+      throw Object.assign(new Error("stored provider event identity differs from inbox row"), { code: "P03D_CONTRACT_IDENTITY_MISMATCH" });
+    }
     const lines = journalLines(row.canonical_event, installation);
     const posted = await postJournal(client, {
       idempotency_key: idempotencyKey(row.product_id, row.provider_id, row.provider_event_id),
