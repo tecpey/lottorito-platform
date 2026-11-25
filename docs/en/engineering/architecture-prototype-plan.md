@@ -386,3 +386,7 @@ The P-06 correlation map, forensic grant and forensic view now bind tenant + sco
 ## P-09C — Product-aware deployment artifacts and provenance (2026-11-25)
 
 P-08 is no longer Affiliate-only in its synthetic build path. Product is an explicit allow-listed input; the selected product is bound into artifact bytes, release metadata, provenance external parameters and deployment lifecycle checks. CI [45629980686](https://github.com/tecpey/lottorito-platform/actions/runs/45629980686) passed 53/53 tests, including product-bound builds and cross-product promotion/rollback rejection. P-09C closes only the P-08 slice. P-05B recovery and P-07B canonical event mapping remain outstanding.
+
+## P-09D — Canonical event contract mapping (2026-11-25)
+
+P-07B's producer/consumer contract now carries canonical tenant UUID, product scope bound to the authenticated producer, source-event UUID, schema version and W3C traceparent. Its accepted dispatch result exposes `(tenant_id, scope_kind, scope_id, source_event_id)` plus trace ID for P-06 correlation. Synthetic tenant fixtures were normalized to UUIDs. P-07B CI [45631269584](https://github.com/tecpey/lottorito-platform/actions/runs/45631269584) passed 42/42 tests. Platform-originated events remain outside the product-service event profile. P-05B shared-record recovery is the remaining major cross-prototype integration gate.
