@@ -157,3 +157,6 @@ These are synthetic prototype integrations, not production deployment evidence. 
 
 
 P-09H also bounds `schemaversion` to the interoperable JSON safe-integer range (1 through 9007199254740991) in both language implementations, preventing Python's arbitrary-precision integers from accepting values that JavaScript cannot represent exactly.
+
+
+The Node.js contract implementation now has a dedicated direct conformance suite under the P-03D test runner, covering valid envelopes, malformed RFC3339 dates, URI-reference failures, zero trace identifiers, non-canonical UUIDs, unsafe schema versions and financial platform-scope rejection. This complements—not replaces—the Python P-09 unit suite and end-to-end signed-ingress tests.
