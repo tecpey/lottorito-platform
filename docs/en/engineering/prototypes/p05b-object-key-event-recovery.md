@@ -1,6 +1,6 @@
 # P-05B — Object, Key and Event Recovery
 
-**Document ID:** LOT-PROT-P05B-001 | **Version:** 0.4.0 | **Status:** Combined P-05A/P-05B synthetic CI passed on validated branch head 0a6b8f992161cd9f9d760698b1c9d0c8e30867a9; production recovery not approved
+**Document ID:** LOT-PROT-P05B-001 | **Version:** 0.5.0 | **Status:** Combined P-05A/P-05B synthetic CI passed on executable-code head 146a9bc635e3b03db568c423fb0958b62bc31c7b; production recovery not approved
 
 ## Authority and boundary
 
@@ -55,6 +55,9 @@ The experiment demonstrates database-transaction atomicity for this fixture, not
 
 ## Final CI evidence
 
+- Latest combined P-05A/P-05B Integration [run 45532825694](https://github.com/tecpey/lottorito-platform/actions/runs/45532825694) and Documentation Governance [run 45532825916](https://github.com/tecpey/lottorito-platform/actions/runs/45532825916) passed on executable-code head `146a9bc635e3b03db568c423fb0958b62bc31c7b`.
+- P-05A recovery-complete gate passed (`pg_is_in_recovery() = false`); missing-WAL startup failed closed; incomplete restore staging was rejected by manifest verification and server startup.
+
 - Final combined P-05A/P-05B Integration [run 45532382323](https://github.com/tecpey/lottorito-platform/actions/runs/45532382323) and Documentation Governance [run 45532382310](https://github.com/tecpey/lottorito-platform/actions/runs/45532382310) both passed on branch head `0a6b8f992161cd9f9d760698b1c9d0c8e30867a9`.
 - The combined run also closed the two P-05A negative drills: incomplete restore staging was rejected by manifest verification and server startup; the missing target WAL segment prevented readiness at the requested restore point and was identified in the recovery log.
 
@@ -64,7 +67,7 @@ The experiment demonstrates database-transaction atomicity for this fixture, not
 - Restored object payload: 4,409 bytes; SHA-256 `2db4a9b021abba0ce01480ceda665284f023310ce909c0b0b9bcb084f771eaca`, matched against the restored PostgreSQL object reference.
 - Object/key assertions passed: independent backup recovery, missing-key fail-closed, modified ciphertext rejection, modified wrapped-DEK rejection and tenant object-reference isolation.
 - Event assertions passed: out-of-order delivery (2, then 1), duplicate delivery/economic-effect collapse, sequence-gap block, interrupted transaction rollback, retry with exactly two effects, balanced ledger, source-to-ledger reconciliation, no-op replay and tenant inbox isolation.
-- The same integration job reran P-05A backup verification/PITR and its financial/RLS assertions before P-05B. PostgreSQL 18.7 was used in a disposable container; no production RPO/RTO claim is made.
+- The same integration job reran P-05A backup verification/PITR and its financial/RLS assertions before P-05B. The P-05A positive path explicitly waited for `pg_is_in_recovery() = false` before write assertions. The job also reran missing-WAL and incomplete-restore negative drills. PostgreSQL 18.7 was used in a disposable container; no production RPO/RTO claim is made.
 
 ## Safety, limitations and open work
 
