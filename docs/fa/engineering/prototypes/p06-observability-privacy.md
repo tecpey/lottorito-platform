@@ -1,6 +1,6 @@
 # P-06 — مشاهده‌پذیری سرتاسری و حریم خصوصی
 
-**شناسه سند:** LOT-PROT-P06-001 | **نسخه:** ۰.۱.۰ | **وضعیت:** پیاده‌سازی آزمایش ساختگی؛ اعتبارسنجی CI در انتظار
+**شناسه سند:** LOT-PROT-P06-001 | **نسخه:** ۰.۲.۰ | **وضعیت:** Integration ساختگی P-06 و Documentation Governance روی Head PR با شناسه 9f30a2966ce77aca8a7df6acf8e803733bd723dd موفق شدند؛ تصویب Instrumentation/حریم خصوصی Production از این نتیجه برداشت نمی‌شود
 
 ## اعتبار و مرز
 
@@ -75,6 +75,15 @@ P-06 بررسی می‌کند آیا یک رویداد ساختگی Affiliate & 
 - Owner/Runbook مربوط به Alert فقط به‌عنوان Metadata بررسی می‌شود؛ Routing واقعی Alert انجام نمی‌شود.
 - Log، Span، Metric و Audit دفترکل نیستند و هرگز نباید برای محاسبه موجودی یا مجازکردن انتقال مالی استفاده شوند.
 - RPO/RTO، مبنای قانونی، الزامات حریم خصوصی هر حوزه قضایی و سیاست دسترسی Telemetry در Production نیازمند تصمیم مالک/امنیت/حقوقی هستند.
+
+
+
+## شواهد نهایی CI
+
+- Integration مربوط به P-06 با شناسه [45535315659](https://github.com/tecpey/lottorito-platform/actions/runs/45535315659) و Documentation Governance با شناسه [45535315503](https://github.com/tecpey/lottorito-platform/actions/runs/45535315503) روی Head PR با شناسه `9f30a2966ce77aca8a7df6acf8e803733bd723dd` موفق شدند.
+- نه Span مرتبط، Journal واقعی P-02 را از Ingress شریک تا Reconciliation متصل کردند. اجرا ۵۰۰ ارجاع یکتای Tenant ساختگی تولید کرد، در حالی که فقط چهار Metric Series باقی ماند.
+- همه Assertionها موفق شدند: Journal مربوط به P-02، Parent Chain سازگار با W3C، ارتباط Trace ناهمزمان، نبود Secret/PII Canary، فیلتر Baggage، نرمال‌سازی Log Injection، RLS مربوط به Tenant، دسترسی Forensic ممیزی‌شده، Least Privilege، Audit فقط‌افزودنی، Cardinality محدود و Owner/Severity/Runbook مربوط به Alert.
+- اجرای اولیه Harness فقط به‌دلیل مقایسه متن Boolean در PostgreSQL با مقدار اشتباه شکست خورد: خروجی `false` با شکل نمایشی psql یعنی `f` مقایسه شده بود؛ Assertion اصلاح شد و اجرای نهایی PR موفق شد.
 
 ## منابع
 
