@@ -1,4 +1,5 @@
-import { createHash, createHmac, timingSafeEqual } from "node:crypto";
+import { createHash, createHmac, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
+import { validateEvent } from "../../p09-contract-recovery/contract.mjs";
 import { postJournal } from "../../p02-ledger-posting/src/posting.js";
 
 const AMOUNT = /^[1-9][0-9]{0,37}$/;
