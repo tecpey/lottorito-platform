@@ -1,6 +1,6 @@
 # P-07C — چرخه عمر مستقل محصول، انتشار و ردیابی White-label
 
-**شناسه سند:** LOT-PROT-P07C-001 | **نسخه:** ۰.۱.۰ | **وضعیت:** پیاده‌سازی ساختگی؛ اعتبارسنجی CI در انتظار اجرا
+**شناسه سند:** LOT-PROT-P07C-001 | **نسخه:** ۰.۱.۰ | **وضعیت:** Fixture ساختگی در CI روی Head شماره f488f34 اعتبارسنجی شده است
 
 ## پرسش تصمیم
 
@@ -107,3 +107,10 @@ python3 -m unittest discover -s prototypes/p07-independent-lifecycle/tests -v
 - AWS Prescriptive Guidance، [راهبردهای Migration دیتابیس](https://docs.aws.amazon.com/prescriptive-guidance/latest/strategy-database-migration/welcome.html).
 - SLSA، [مشخصات Provenance نسخه ۱](https://slsa.dev/spec/v1.1/provenance).
 - in-toto، [چارچوب Attestation](https://github.com/in-toto/attestation).
+
+
+## شواهد CI
+
+- Integration با شناسه [45571477383](https://github.com/tecpey/lottorito-platform/actions/runs/45571477383): موفق روی Head شماره f488f34؛ هر ۴۱ تست قبول شدند.
+- Documentation Governance با شناسه [45571477357](https://github.com/tecpey/lottorito-platform/actions/runs/45571477357): روی همان Head PR موفق.
+- PR شماره [۵۸](https://github.com/tecpey/lottorito-platform/pull/58) همچنان Draft، باز و Mergeنشده است.
