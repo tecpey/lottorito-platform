@@ -95,3 +95,14 @@ Legal entity and operating model; initial jurisdiction; provider and source-of-t
 
 ## Evidence discipline
 This record summarizes repository inspection, not an external audit. Re-fetch PR metadata and commit statuses before relying on a head SHA or CI state.
+
+
+## P-03D continuation — 2026-11-25
+
+- LOT-PROT-001 identifies P-03D as the next required experiment: provider inbox to idempotent P-02 posting and P-03C outbox. P-09 is not being invented while this P-03 integration gap remains.
+- PR #41 is an older provider-event fixture based on P-02 base `90cc45464c25c325befd35bd7af1c8a16c1f78d3`; the current P-02 line is PR #46 head `76d1f421ecdf8e921c7e8a116e2c23dcdaef4b7b`, followed by P-03 PR #50 head `45b37700cb2b9ad633158ba8d5f00b8c7f0553d5`. Reuse PR #41 only as a research input; do not cherry-pick its shared-GUC tenant/product model into the current session-identity design.
+- PR #60 P-03C is based on PR #50 head `45b37700cb2b9ad633158ba8d5f00b8c7f0553d5`; its Integration run [45576594884](https://github.com/tecpey/lottorito-platform/actions/runs/45576594884) passed 15 tests and Documentation Governance run [45576594868](https://github.com/tecpey/lottorito-platform/actions/runs/45576594868) passed. It remains Draft/open/unmerged.
+- PR #51 P-04 is a sibling of PR #60 on the same P-03 base, not a descendant of P-03C. The P-04–P-08 stack therefore requires a later ancestry/retest reconciliation; do not assume P-08 CI includes P-03C.
+- New branch `spike/p03d-provider-ledger-integration` starts from P-03C head `32b34f4c7c67b12874cdf6a14a2788d9a2f4c6dc`. It adds a product identity to the synthetic P-02 role map and ledger rows, product-aware P-03C delivery/consumer state, signed provider inbox ingestion, same-transaction P-02 posting + inbox completion + P-03C delivery-state creation, retry/fencing/quarantine and reconciliation. P-03D CI is pending; do not mark this work verified yet.
+- Some existing P-02 uniqueness constraints remain tenant-wide (conservative and fail-closed), even though product attribution and RLS are added. Fully product-local composite identity semantics remain a review item. No commission/NGR, real provider, account policy, legal entity, payout, or production schema decision is made.
+- Re-run P-02, P-03C and P-03D integration workflows plus bilingual Documentation Governance on the exact final branch head. Preserve synthetic-only limits. No PR merge, main change or deployment is authorized.
