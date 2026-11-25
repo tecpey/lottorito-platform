@@ -55,7 +55,7 @@
       "tenantid": "UUID string identifying the tenant",
       "scope": "Discriminated object: {kind: product, id: affiliate_agent|lottery} or {kind: platform, id: lottorito}",
       "sourceeventid": "UUID string; identity is composite with tenant and scope",
-      "schemaversion": "Positive integer schema version",
+      "schemaversion": "Positive safe integer schema version (1..9007199254740991)",
       "traceparent": "W3C Trace Context version 00; trace and parent-span identifiers are validated"
     },
     "trace_context": "W3C Trace Context traceparent; trace_id is 32 lowercase hexadecimal characters",
