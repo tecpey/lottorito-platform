@@ -1,15 +1,25 @@
 # Verified Project Status and Continuation Point
 
-**Document ID:** LOT-OPS-001 | **Version:** 1.40.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-25
+**Document ID:** LOT-OPS-001 | **Version:** 1.44.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-25
 
 ## Verified repository state
+
+## P-07B initial validation — 2026-11-25
+
+- P-07B is open as Draft PR [#57](https://github.com/tecpey/lottorito-platform/pull/57), stacked on P-07A PR #56. It is not merged.
+- Exact validated P-07B head: `42083a21b8d9df3b125dee30e141e298adb15158`.
+- P-07B Integration [run 45570485750](https://github.com/tecpey/lottorito-platform/actions/runs/45570055150) passed on the exact PR head; registry JSON validation, Python syntax validation and all 33 tests passed. Push validation [run 45570037120](https://github.com/tecpey/lottorito-platform/actions/runs/45570037120) also passed.
+- Documentation Governance [run 45570485718](https://github.com/tecpey/lottorito-platform/actions/runs/45570055148) passed on the same PR head.
+- The fixture proves explicit operation-level ownership and grants for shared Identity, Tenant, Finance, Notifications and Audit capabilities; product-owned resource isolation; independent service-to-tenant scope and product entitlement checks; deny-by-default/fail-closed decisions; authenticated producer/source binding; explicit consumer contracts; CloudEvents profile and dataschema checks; event classification; sensitive-key/extension rejection; and audit redaction.
+- The cross-product Affiliate-to-Lottery event is test-only and synthetic. No production integration is approved. Static service tokens, JSON registries, local PDP/PEP functions and an in-memory audit list are not production controls.
+- No cryptographic identity, OAuth/OIDC, AuthZEN protocol, event broker, delivery/replay guarantees, database/RLS, real tenant isolation, immutable audit, merge or deployment is proven/performed.
 
 ## P-07A initial validation — 2026-11-25
 
 - P-07A is open as Draft PR [#56](https://github.com/tecpey/lottorito-platform/pull/56), stacked on P-06 PR #55. It is not merged. PR #55 and the preceding P-04/P-05 chain remain unmerged.
-- Exact validated P-07A head: `6e57296b88a1394d25d282f50ad0f02c410811fe`.
-- P-07A Integration [run 45569492121](https://github.com/tecpey/lottorito-platform/actions/runs/45569336694) passed on that exact PR head. Python syntax validation passed and all 11 tests passed.
-- Documentation Governance [run 45569492139](https://github.com/tecpey/lottorito-platform/actions/runs/45569336699) also passed on the same PR head.
+- Exact validated P-07A head: `3932c1fa44fed1a5f48e1a10805bb7527b0c533b`.
+- P-07A Integration [run 45569616972](https://github.com/tecpey/lottorito-platform/actions/runs/45569336694) passed on that exact PR head. Python syntax validation passed and all 11 tests passed.
+- Documentation Governance [run 45569616782](https://github.com/tecpey/lottorito-platform/actions/runs/45569336699) also passed on the same PR head.
 - The synthetic fixture independently built and launched Affiliate & Agent and Lottery artifacts in fresh processes. Each artifact contained only the selected product entrypoint, the synthetic shared-platform port, its manifest and runner. Negative tests rejected direct, package-qualified, relative and dynamic sibling imports; manifests rejected product dependencies; stale/non-empty output directories were rejected; synthetic audit attribution remained product-scoped.
 - This proves only the P-07A composition/build/runtime fixture. It does not prove actual Affiliate referral/commission journeys, Lottery ticket/draw/prize workflows, shared-capability authorization, tenant RLS, event contracts, product disablement, independent migrations/deployments or production readiness. Shared identity/tenant/audit ports are synthetic stubs.
 - P-07 is now explicitly split into P-07A (product isolation), P-07B (shared platform and trust boundaries) and P-07C (independent lifecycle). P-07B and P-07C are not yet implemented.

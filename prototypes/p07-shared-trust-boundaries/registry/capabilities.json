@@ -1,0 +1,39 @@
+{
+  "capabilities": {
+    "identity": {
+      "owner": "platform.identity",
+      "operations": ["resolve_subject"],
+      "consumers": {"affiliate_agent": ["resolve_subject"], "lottery": ["resolve_subject"]}
+    },
+    "tenant": {
+      "owner": "platform.tenant",
+      "operations": ["resolve_membership"],
+      "consumers": {"affiliate_agent": ["resolve_membership"], "lottery": ["resolve_membership"]}
+    },
+    "finance": {
+      "owner": "platform.finance",
+      "operations": ["post_journal"],
+      "consumers": {"affiliate_agent": ["post_journal"]}
+    },
+    "notifications": {
+      "owner": "platform.notifications",
+      "operations": ["request_delivery"],
+      "consumers": {"affiliate_agent": ["request_delivery"], "lottery": ["request_delivery"]}
+    },
+    "audit": {
+      "owner": "platform.audit",
+      "operations": ["append_event"],
+      "consumers": {"affiliate_agent": ["append_event"], "lottery": ["append_event"]}
+    },
+    "affiliate_network": {
+      "owner": "affiliate_agent",
+      "operations": ["read", "write"],
+      "consumers": {"affiliate_agent": ["read", "write"]}
+    },
+    "lottery_domain": {
+      "owner": "lottery",
+      "operations": ["read", "write"],
+      "consumers": {"lottery": ["read", "write"]}
+    }
+  }
+}

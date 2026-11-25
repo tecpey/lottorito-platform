@@ -1,15 +1,25 @@
 # وضعیت واقعی پروژه و نقطه ادامه کار
 
-**شناسه:** LOT-OPS-001 | **نسخه:** ۱.۴۰.۰ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۵
+**شناسه:** LOT-OPS-001 | **نسخه:** ۱.۴۴.۰ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۵
 
 ## وضعیت تأییدشده مخزن
+
+## اعتبارسنجی اولیه P-07B — ۲۰۲۶-۱۱-۲۵
+
+- P-07B با PR شماره [۵۷](https://github.com/tecpey/lottorito-platform/pull/57) به‌صورت Draft باز است و روی P-07A PR شماره ۵۶ قرار دارد. Merge نشده است.
+- Head دقیق اعتبارسنجی‌شده P-07B: `42083a21b8d9df3b125dee30e141e298adb15158`.
+- Integration مربوط به P-07B با شناسه [45570485750](https://github.com/tecpey/lottorito-platform/actions/runs/45570055150) روی Head دقیق PR موفق شد؛ اعتبارسنجی JSON Registry، بررسی Syntax پایتون و هر ۳۳ تست موفق بودند. اجرای Push با شناسه [45570037120](https://github.com/tecpey/lottorito-platform/actions/runs/45570037120) نیز موفق شد.
+- Documentation Governance با شناسه [45570485718](https://github.com/tecpey/lottorito-platform/actions/runs/45570055148) روی همان Head PR موفق شد.
+- Fixture مالکیت و مجوزهای سطح عملیات برای قابلیت‌های مشترک Identity، Tenant، Finance، Notifications و Audit را اثبات می‌کند؛ همچنین جداسازی منابع متعلق به محصول، بررسی مستقل Service-to-Tenant Scope و Product Entitlement، تصمیم‌های Deny-by-Default/Fail-Closed، تطبیق هویت Producer و Source، قرارداد صریح Consumer، بررسی پروفایل CloudEvents و dataschema، طبقه‌بندی رویداد، رد کلید/Extension حساس و حذف Credential از Audit را آزمایش می‌کند.
+- رویداد بین Affiliate و Lottery صرفاً آزمایشی و ساختگی است. هیچ یکپارچگی Production تصویب نشده است. Tokenهای ثابت، Registryهای JSON، توابع محلی PDP/PEP و فهرست Audit در حافظه کنترل Production نیستند.
+- هویت رمزنگاری‌شده، OAuth/OIDC، پروتکل AuthZEN، Event Broker، تضمین تحویل/Replay، دیتابیس/RLS، جداسازی واقعی Tenant، Audit تغییرناپذیر، Merge یا Deploy اثبات/انجام نشده‌اند.
 
 ## اعتبارسنجی اولیه P-07A — ۲۰۲۶-۱۱-۲۵
 
 - P-07A با PR شماره [۵۶](https://github.com/tecpey/lottorito-platform/pull/56) به‌صورت Draft باز است و روی P-06 PR شماره ۵۵ قرار دارد. Merge نشده است. PR شماره ۵۵ و زنجیره قبلی P-04/P-05 نیز Merge نشده‌اند.
-- Head دقیق اعتبارسنجی‌شده P-07A: `6e57296b88a1394d25d282f50ad0f02c410811fe`.
-- Integration مربوط به P-07A با شناسه [45569492121](https://github.com/tecpey/lottorito-platform/actions/runs/45569336694) روی همین Head دقیق PR موفق شد. بررسی Syntax پایتون موفق بود و هر ۱۱ تست قبول شدند.
-- Documentation Governance با شناسه [45569492139](https://github.com/tecpey/lottorito-platform/actions/runs/45569336699) نیز روی همان Head PR موفق شد.
+- Head دقیق اعتبارسنجی‌شده P-07A: `3932c1fa44fed1a5f48e1a10805bb7527b0c533b`.
+- Integration مربوط به P-07A با شناسه [45569616972](https://github.com/tecpey/lottorito-platform/actions/runs/45569336694) روی همین Head دقیق PR موفق شد. بررسی Syntax پایتون موفق بود و هر ۱۱ تست قبول شدند.
+- Documentation Governance با شناسه [45569616782](https://github.com/tecpey/lottorito-platform/actions/runs/45569336699) نیز روی همان Head PR موفق شد.
 - Fixture ساختگی، Artifactهای Affiliate & Agent و Lottery را مستقل Build کرد و در فرایندهای تازه اجرا کرد. هر Artifact فقط شامل Entry Point محصول منتخب، Port ساختگی پلتفرم مشترک، Manifest و Runner بود. تست‌های منفی Import مستقیم، Package-qualified، نسبی و Dynamic محصول خواهر را رد کردند؛ Manifest وابستگی محصولی را رد کرد؛ پوشه خروجی قدیمی/غیرخالی رد شد؛ انتساب Audit ساختگی در محدوده محصول باقی ماند.
 - این نتیجه فقط ترکیب، Build و Runtime در Fixture مربوط به P-07A را اثبات می‌کند. مسیرهای واقعی Referral/Commission در Affiliate، جریان‌های Ticket/Draw/Prize در Lottery، مجوزدهی قابلیت‌های مشترک، Tenant RLS، Event Contract، غیرفعال‌سازی محصول، Migration/Deployment مستقل یا آمادگی Production اثبات نشده‌اند. Portهای هویت/Tenant/Audit مشترک، Stub ساختگی هستند.
 - P-07 اکنون صریحاً به P-07A (جداسازی محصول)، P-07B (پلتفرم مشترک و مرزهای اعتماد) و P-07C (چرخه عمر مستقل) تقسیم شده است. P-07B و P-07C هنوز پیاده‌سازی نشده‌اند.
