@@ -301,7 +301,7 @@ class PromotionAndRollbackTests(unittest.TestCase):
         self.controller.migrate_schema(self.stage_state, 2, "expand")
         with self.assertRaisesRegex(GateRejected, "rollback_target_incompatible"):
             self.controller.migrate_schema(self.stage_state, 3, "expand")
-        self.assertEqual(self.stage_state.schema_version, 1)
+        self.assertEqual(self.stage_state.schema_version, 2)
 
     def test_rollback_target_retirement_requires_two_person_approval(self):
         self.promote(self.stage_state, "v2")
