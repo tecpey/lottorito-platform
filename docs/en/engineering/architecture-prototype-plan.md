@@ -1,6 +1,6 @@
 # Lottorito Architecture Prototype and Evidence Plan
 
-**Document ID:** LOT-PROT-001 | **Version:** 1.7.0 | **Status:** Proposed experiment plan; execution and technology choices not approved
+**Document ID:** LOT-PROT-001 | **Version:** 1.8.0 | **Status:** Proposed experiment plan; execution and technology choices not approved
 
 ## 1. Purpose and authority
 
@@ -169,7 +169,7 @@ A prototype may be **Pass**, **Fail**, **Inconclusive** or **Not run**. “Pass�
 
 **Evidence:** backup manifest and verification output, tamper-negative result, archived WAL inventory, restore-point LSN/timeline, restore logs and timing, pre/post-target assertions, tenant-isolation results, journal/reconciliation report, exact versions, runbook and limitations.
 
-**Status:** P-05A is an isolated synthetic experiment. No technology selection, production recovery claim or RPO/RTO approval is implied.
+**Status:** P-05A synthetic CI verification passed on head f2303a647aefd5bd8d48ba9d2e1830c881f60041. Integration run [45524388676](https://github.com/tecpey/lottorito-platform/actions/runs/45524388676) and Documentation Governance run [45524388734](https://github.com/tecpey/lottorito-platform/actions/runs/45524388734) passed. PostgreSQL 18.7 was used; CI measured 12 seconds for backup plus verification and 1 second for restore startup in this disposable runner only. The named restore-point log was asserted, the pre-target marker was present, the post-target marker absent, tenant RLS read/write denial held, and synthetic ledger/source totals reconciled. Missing-WAL and interrupted-restore negative drills remain untested; object-byte/key recovery and failover/fencing/failback are P-05B/P-05C and not run. This is not production readiness, an RPO/RTO commitment or technology approval.
 
 ### P-06 — End-to-end observability and privacy
 

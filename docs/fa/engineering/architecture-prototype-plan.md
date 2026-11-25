@@ -1,6 +1,6 @@
 # برنامه Prototype معماری و تولید شواهد Lottorito
 
-**شناسه سند:** LOT-PROT-001 | **نسخه:** ۱.۷.۰ | **وضعیت:** برنامه آزمایش پیشنهادی؛ اجرا و انتخاب فناوری تصویب نشده است
+**شناسه سند:** LOT-PROT-001 | **نسخه:** ۱.۸.۰ | **وضعیت:** برنامه آزمایش پیشنهادی؛ اجرا و انتخاب فناوری تصویب نشده است
 
 ## ۱. هدف و اعتبار
 
@@ -169,7 +169,7 @@
 
 **شواهد:** Manifest و خروجی صحت‌سنجی Backup، نتیجه تست منفی دست‌کاری، فهرست WAL آرشیوشده، LSN/Timeline نقطه بازیابی، Log و زمان Restore، Assertions قبل/بعد از Target، نتایج جداسازی Tenant، گزارش Ledger/Reconciliation، نسخه دقیق نرم‌افزار، Runbook و محدودیت‌ها.
 
-**وضعیت:** P-05A یک آزمایش ساختگی و ایزوله است. هیچ انتخاب فناوری، ادعای بازیابی Production یا تصویب RPO/RTO مطرح نیست.
+**وضعیت:** راستی‌آزمایی ساختگی P-05A در CI روی Head با شناسه f2303a647aefd5bd8d48ba9d2e1830c881f60041 موفق شد. اجرای Integration با شناسه [45524388676](https://github.com/tecpey/lottorito-platform/actions/runs/45524388676) و Documentation Governance با شناسه [45524388734](https://github.com/tecpey/lottorito-platform/actions/runs/45524388734) موفق بودند. PostgreSQL 18.7 استفاده شد؛ در Runner دورریختنی CI، زمان Backup به‌همراه Verification برابر ۱۲ ثانیه و زمان راه‌اندازی Restore برابر ۱ ثانیه اندازه‌گیری شد. Log رسیدن به Restore Point نام‌گذاری‌شده بررسی شد، نشانگر قبل از Target حاضر و نشانگر بعد از Target غایب بود، RLS خواندن/نوشتن بین Tenantها را رد کرد و مجموع ساختگی Ledger/Source تطبیق داشت. آزمون منفی WAL مفقود و Restore قطع‌شده هنوز اجرا نشده‌اند؛ بازیابی بایت Object/کلید و Failover/Fencing/Failback در P-05B/P-05C قرار دارند و اجرا نشده‌اند. این نتیجه آمادگی Production، تعهد RPO/RTO یا تصویب فناوری نیست.
 
 ### P-06 — Observability سرتاسری و حریم خصوصی
 
