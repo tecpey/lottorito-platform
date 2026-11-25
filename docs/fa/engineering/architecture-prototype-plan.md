@@ -1,6 +1,6 @@
 # برنامه Prototype معماری و تولید شواهد Lottorito
 
-**شناسه سند:** LOT-PROT-001 | **نسخه:** ۱.۱۲.۰ | **وضعیت:** برنامه آزمایش پیشنهادی؛ اجرا و انتخاب فناوری تصویب نشده است
+**شناسه سند:** LOT-PROT-001 | **نسخه:** ۱.۱۳.۰ | **وضعیت:** برنامه آزمایش پیشنهادی؛ اجرا و انتخاب فناوری تصویب نشده است
 
 ## ۱. هدف و اعتبار
 
@@ -169,7 +169,7 @@
 
 **شواهد:** Manifest و خروجی صحت‌سنجی Backup، نتیجه تست منفی دست‌کاری، فهرست WAL آرشیوشده، LSN/Timeline نقطه بازیابی، Log و زمان Restore، Assertions قبل/بعد از Target، نتایج جداسازی Tenant، گزارش Ledger/Reconciliation، نسخه دقیق نرم‌افزار، Runbook و محدودیت‌ها.
 
-**وضعیت:** مسیر مثبت PITR و آزمون‌های منفی بازیابی P-05A در CI ساختگی ترکیبی روی Head شاخه `0a6b8f992161cd9f9d760698b1c9d0c8e30867a9` موفق شدند. Integration با شناسه [45532382323](https://github.com/tecpey/lottorito-platform/actions/runs/45532382323) و Documentation Governance با شناسه [45532382310](https://github.com/tecpey/lottorito-platform/actions/runs/45532382310) روی همان Head موفق بودند. PostgreSQL 18.7 استفاده شد؛ مسیر مثبت Restore Point نام‌گذاری‌شده، نشانگرهای قبل/بعد Target، RLS مربوط به Tenant و تطبیق مالی را بررسی کرد. مسیر منفی، Staging ناقص Restore را با `pg_verifybackup` و راه‌اندازی سرور رد کرد و Segment دقیق WAL هدف را از کپی‌های ایزوله حذف کرد؛ سرور در Recovery Target درخواستی Ready نشد و Segment مفقود در Log شناسایی شد. بازیابی بایت Object/کلید و Replay مرتب و Idempotent در P-05B نیز در همان Job موفق شدند. Failover/Fencing/Failback در P-05C هنوز اجرا نشده است. این نتیجه آمادگی Production، تعهد RPO/RTO یا تصویب فناوری نیست.
+**وضعیت:** مسیر مثبت PITR و آزمون‌های منفی بازیابی P-05A در CI ساختگی ترکیبی روی Head کد اجرایی `146a9bc635e3b03db568c423fb0958b62bc31c7b` موفق شدند. Integration با شناسه [45532825694](https://github.com/tecpey/lottorito-platform/actions/runs/45532825694) و Documentation Governance با شناسه [45532825916](https://github.com/tecpey/lottorito-platform/actions/runs/45532825916) روی همان Head موفق بودند. PostgreSQL 18.7 استفاده شد. مسیر مثبت پیش از Assertionهای نوشتنی صریحاً منتظر `pg_is_in_recovery() = false` ماند؛ Ready شدن توسط `pg_ctl` به‌تنهایی پایان Recovery محسوب نشد. مسیر منفی، Staging ناقص Restore را با `pg_verifybackup` و راه‌اندازی سرور رد کرد و Segment دقیق WAL هدف را از کپی‌های ایزوله حذف کرد؛ راه‌اندازی Recovery پیش از Target درخواستی Fail-closed شد و Segment مفقود در Log شناسایی شد. بازیابی بایت Object/کلید و Replay مرتب و Idempotent در P-05B نیز در همان Job موفق شدند. Failover/Fencing/Failback در P-05C هنوز اجرا نشده است. این نتیجه آمادگی Production، تعهد RPO/RTO یا تصویب فناوری نیست.
 
 
 ### P-05B — بازیابی Object، کلید و رویداد
@@ -190,7 +190,7 @@
 
 **محدودیت Custody کلید:** فایل خام KEK صرفاً مواد بازیابی ساختگی CI است. این فایل طراحی Production برای KMS/HSM، توصیه به Export کلید ریشه، Split-Knowledge، مراسم کلید یا مدل مجوزدهی نیست. AES-GCM Primitive آزمایشی است، نه استاندارد منتخب پلتفرم.
 
-**اثبات‌نشده:** قطعی/Rotation/Revocation/Compromise در KMS/HSM، IAM و کنترل دوگانه، نگهداری Immutable/Versioned Object، Legal Hold، فایل بزرگ/Multipart، Replication منطقه‌ای، دوام Broker خارجی، تطبیق Provider، Saga بین سرویس‌ها، هم‌زمانی بالا، Throughput Production، RPO/RTO یا انطباق. آزمون‌های منفی WAL مفقود و Staging ناقص Restore در P-05A فقط در Fixture ساختگی CI موفق شده‌اند؛ Orchestration بازیابی Production و کنترل پذیرش نتیجه بازیابی هنوز اثبات نشده‌اند. Failover/Fencing/Failback در P-05C مستقل است.
+**اثبات‌نشده:** قطعی/Rotation/Revocation/Compromise در KMS/HSM، IAM و کنترل دوگانه، نگهداری Immutable/Versioned Object، Legal Hold، فایل بزرگ/Multipart، Replication منطقه‌ای، دوام Broker خارجی، تطبیق Provider، Saga بین سرویس‌ها، هم‌زمانی بالا، Throughput Production، RPO/RTO یا انطباق. آزمون‌های منفی WAL مفقود و Staging ناقص Restore در P-05A فقط در Fixture ساختگی CI موفق شده‌اند؛ Orchestration بازیابی Production و کنترل پذیرش نتیجه بازیابی هنوز اثبات نشده‌اند. مسیر مثبت اکنون بررسی‌های نوشتنی را به `pg_is_in_recovery() = false` مشروط می‌کند. Failover/Fencing/Failback در P-05C مستقل است.
 
 **منابع:** صحت Checksum در AWS S3؛ اعتبارسنجی داده و Versioning در Google Cloud Storage؛ NIST SP 800-57 Part 1 Rev. 5 (Rev. 6 هنوز پیش‌نویس است)؛ راهنمای Transactional Outbox و تحویل At-least-once در AWS.
 
