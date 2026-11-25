@@ -112,7 +112,7 @@ class ScopeContractTests(unittest.TestCase):
             correlation_identity(TENANT, {"kind": "product", "id": "lottery"}, EVENT, "0" * 32)
 
     def test_event_rejects_non_integer_or_boolean_schema_version(self):
-        for value in (0, -1, True, "1"):
+        for value in (0, -1, True, "1", 9007199254740992):
             candidate = event({"kind": "product", "id": "lottery"})
             candidate["schemaversion"] = value
             with self.subTest(value=value), self.assertRaises(ContractViolation):
