@@ -1,6 +1,6 @@
 # P-05B — بازیابی Object، کلید و رویداد
 
-**شناسه سند:** LOT-PROT-P05B-001 | **نسخه:** ۰.۴.۰ | **وضعیت:** Integration ترکیبی ساختگی P-05A/P-05B روی Head اعتبارسنجی‌شده شاخه 0a6b8f992161cd9f9d760698b1c9d0c8e30867a9 موفق شد؛ بازیابی Production تصویب نشده است
+**شناسه سند:** LOT-PROT-P05B-001 | **نسخه:** ۰.۵.۰ | **وضعیت:** Integration ترکیبی ساختگی P-05A/P-05B روی Head کد اجرایی 146a9bc635e3b03db568c423fb0958b62bc31c7b موفق شد؛ بازیابی Production تصویب نشده است
 
 ## اعتبار و مرز
 
@@ -55,6 +55,9 @@ P-05B آزمایش PITR دیتابیس در P-05A را با بازیابی مس�
 
 ## شواهد نهایی CI
 
+- آخرین Integration ترکیبی P-05A/P-05B با شناسه [45532825694](https://github.com/tecpey/lottorito-platform/actions/runs/45532825694) و Documentation Governance با شناسه [45532825916](https://github.com/tecpey/lottorito-platform/actions/runs/45532825916) روی Head کد اجرایی `146a9bc635e3b03db568c423fb0958b62bc31c7b` موفق شدند.
+- Gate پایان Recovery در P-05A موفق شد (`pg_is_in_recovery() = false`)؛ راه‌اندازی با WAL مفقود Fail-closed شد؛ Staging ناقص Restore نیز توسط Manifest Verification و راه‌اندازی سرور رد شد.
+
 - Integration نهایی ترکیبی P-05A/P-05B با شناسه [45532382323](https://github.com/tecpey/lottorito-platform/actions/runs/45532382323) و Documentation Governance با شناسه [45532382310](https://github.com/tecpey/lottorito-platform/actions/runs/45532382310)، هر دو روی Head شاخه `0a6b8f992161cd9f9d760698b1c9d0c8e30867a9` موفق شدند.
 - همان اجرای ترکیبی دو آزمون منفی P-05A را نیز بست: Staging ناقص Restore توسط Manifest Verification و راه‌اندازی سرور رد شد؛ Segment هدف WAL مفقود مانع Ready شدن بازیابی در Restore Point درخواستی شد و در Recovery Log شناسایی شد.
 
@@ -64,7 +67,7 @@ P-05B آزمایش PITR دیتابیس در P-05A را با بازیابی مس�
 - Payload بازیابی‌شده ۴٬۴۰۹ بایت بود؛ SHA-256 آن `2db4a9b021abba0ce01480ceda665284f023310ce909c0b0b9bcb084f771eaca` با مرجع Object در PostgreSQL بازیابی‌شده تطبیق داشت.
 - Assertionهای Object/Key موفق بودند: بازیابی از Backupهای مستقل، Fail-closed در نبود کلید، رد Ciphertext تغییرکرده، رد DEK بسته‌بندی‌شده تغییرکرده و جداسازی مرجع Object بین Tenantها.
 - Assertionهای Event موفق بودند: تحویل نامرتب (ابتدا ۲ سپس ۱)، تقلیل Duplicate تحویل/Economic Effect، توقف در شکاف Sequence، Rollback تراکنش قطع‌شده، Retry با دقیقاً دو اثر، توازن Ledger، تطبیق Source-to-Ledger، No-op بودن Replay بعدی و جداسازی Inbox بین Tenantها.
-- همان Job یکپارچه پیش از P-05B، Backup Verification/PITR در P-05A و Assertionهای مالی/RLS آن را نیز دوباره اجرا کرد. PostgreSQL 18.7 در Container دورریختنی استفاده شد؛ هیچ ادعای RPO/RTO عملیاتی مطرح نیست.
+- همان Job یکپارچه پیش از P-05B، Backup Verification/PITR در P-05A و Assertionهای مالی/RLS آن را نیز دوباره اجرا کرد. مسیر مثبت P-05A پیش از Assertionهای نوشتنی صریحاً منتظر `pg_is_in_recovery() = false` ماند. Job آزمون‌های منفی WAL مفقود و Staging ناقص Restore را نیز دوباره اجرا کرد. PostgreSQL 18.7 در Container دورریختنی استفاده شد؛ هیچ ادعای RPO/RTO عملیاتی مطرح نیست.
 
 ## ایمنی، محدودیت‌ها و کارهای باز
 
