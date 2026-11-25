@@ -1,6 +1,7 @@
 {
   "tenants": {
     "tenant-alpha": {"affiliate_agent": true, "lottery": false},
-    "tenant-beta": {"affiliate_agent": true, "lottery": true}
+    "tenant-beta": {"affiliate_agent": true, "lottery": true},
+    "tenant-gamma": {"affiliate_agent": true, "lottery": true}
   }
 }
