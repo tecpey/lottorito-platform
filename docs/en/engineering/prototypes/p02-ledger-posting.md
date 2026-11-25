@@ -81,3 +81,8 @@ P-04 is being carried onto a clean branch based on the verified synthetic P-03D 
 ## Reconciled P-04 stack regression result — 2026-11-25
 
 P-02 was re-run as part of P-04 PR #62 on code head `dca0762678ed45da122ba109276c54ce61ac0846`. [Run 119](https://github.com/tecpey/lottorito-platform/actions/runs/45608274029) passed all 25 tests with 0 failures and 0 skips. This is a regression check only; P-04 remains a separate synthetic schema-evolution experiment and does not alter P-02's ledger schema.
+
+
+## P-05A downstream regression gate — 2026-11-25
+
+P-05A is being replayed onto the reconciled P-04 branch. Its backup/PITR fixture is synthetic and independent; it does not modify P-02 schema. Re-run the P-02 25-test suite as a regression gate on the P-05A replacement head before accepting the downstream stack.
