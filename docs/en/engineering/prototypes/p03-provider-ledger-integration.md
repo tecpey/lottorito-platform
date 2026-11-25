@@ -90,3 +90,16 @@ Local execution must use only the disposable database in `compose.yaml`. The set
 ## Stack and authority
 
 This is a Draft experiment branch based on P-03C PR #60 head `32b34f4c7c67b12874cdf6a14a2788d9a2f4c6dc`. PR #41 is an older provider-delivery fixture based on an older P-02 branch; its raw-body verification and duplicate/conflict patterns are research inputs, not code to cherry-pick without the current session-identity and product-scope model. No PR is merged and no production deployment or destructive operation is authorized.
+
+
+## CI failure analysis and corrective pass — 2026-11-25
+
+The first combined CI attempt exposed three setup/contract issues before P-03D's dedicated test file could run:
+
+1. P-02's security assertion queried the SECURITY DEFINER identity helper rather than the private mapping table. The assertion now tests direct SELECT denial against `private.tenant_role_map`, which is the actual protected object; the helper remains available to RLS policies and trusted SECURITY DEFINER boundaries.
+2. P-03C created the composite unique index on `ledger_outbox(tenant_id, product_id, event_id)` after declaring foreign keys that reference it. The index is now created before the referencing tables.
+3. The P-03D schema had a malformed provider-event identifier CHECK and a duplicated SQL tail. The schema is reduced to one complete definition, the identifier constraint is syntactically complete, and schema CREATE privileges for the no-login provider owner are granted only during ownership setup and revoked immediately afterward.
+
+The plain-text synthetic signing-secret path now enforces the same minimum 128-bit length as Buffer and `whsec_` inputs; a regression test covers undersized secrets.
+
+**Validation status:** these are code corrections only. P-02, P-03C and P-03D integration workflows must all pass on the exact resulting commit before any acceptance claim is made.
