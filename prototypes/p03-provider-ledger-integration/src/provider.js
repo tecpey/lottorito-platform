@@ -10,7 +10,10 @@ function digest(value) {
 }
 
 function secretBytes(secret) {
-  if (Buffer.isBuffer(secret)) return secret;
+  if (Buffer.isBuffer(secret)) {
+    if (secret.length < 16) throw new TypeError("webhook secret must contain at least 128 bits");
+    return secret;
+  }
   if (typeof secret !== "string" || secret.length === 0) throw new TypeError("webhook secret is required");
   if (secret.startsWith("whsec_")) {
     const decoded = Buffer.from(secret.slice(6), "base64");
@@ -286,6 +289,8 @@ export async function processProviderEvent(pool, {
   claim, installation, now = null, simulateBeforeCommit = false, retryDelaySeconds = 5
 }) {
   if (!claim?.provider_event_id || !claim.lease_token || !installation) throw new TypeError("claim and trusted installation are required");
+  if (claim.provider_id !== installation.provider_id) throw new TypeError("claim provider does not match trusted installation");
+  if (!Number.isInteger(retryDelaySeconds) || retryDelaySeconds < 0 || retryDelaySeconds > 86400) throw new RangeError("retryDelaySeconds must be 0..86400");
   await assertInstallationScope(pool, installation);
   const client = await pool.connect();
   try {
