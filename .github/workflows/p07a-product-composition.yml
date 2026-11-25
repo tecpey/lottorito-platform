@@ -8,6 +8,8 @@ on:
       - "prototypes/p07-product-composition/**"
       - "docs/en/engineering/prototypes/p07a-product-isolation.md"
       - "docs/fa/engineering/prototypes/p07a-product-isolation.md"
+      - "docs/en/engineering/architecture-prototype-plan.md"
+      - "docs/fa/engineering/architecture-prototype-plan.md"
   pull_request:
     paths:
       - ".github/workflows/p07a-product-composition.yml"
