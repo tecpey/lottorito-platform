@@ -232,6 +232,8 @@ class DeploymentController:
                 actor: str, expected_current_digest: str,
                 api_health: HealthSnapshot, worker_health: HealthSnapshot,
                 provenance: Mapping[str, Any], expected_source_revision: str) -> dict[str, Any]:
+        if state.environment not in ALLOWED_ENVIRONMENTS:
+            raise GateRejected("environment_not_allowed")
         if state.current_digest != expected_current_digest:
             raise DeploymentConflict("stale_current_release")
         if state.api_digest != state.current_digest or state.worker_digest != state.current_digest:
