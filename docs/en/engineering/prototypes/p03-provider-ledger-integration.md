@@ -114,3 +114,8 @@ Exact validated PR head: `40d002a2af5875a6ead178604b90dc92aa678dc5`.
 
 This verifies the synthetic acceptance matrix on the cited branch head only. PR #61 remains Draft/open and stacked on PR #60; no merge, production provider integration, production database migration, technology approval or deployment is implied.
 
+
+
+## Downstream stack handoff — 2026-11-25
+
+P-04 PR #51 was a sibling of P-03C/P-03D, not a descendant. Its P-04-only files are being carried onto branch `spike/p04-schema-evolution-p03d`, based on P-03D PR #61's docs-synchronized head `11f2069b537d4cf74175fd7b628a331650c45f52`. P-04 is independent of the P-02/P-03 schema, but the new branch must re-run P-02, P-03C/P-03D and P-04 workflows together before its acceptance. PR #51 remains untouched as the original review source; no merge or retarget is authorized.
