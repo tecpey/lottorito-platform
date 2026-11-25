@@ -80,3 +80,12 @@ A task is done only when implementation exists, relevant tests pass, documentati
 - Keep PR #63 Draft/open stacked on reconciled P-04 PR #62. Original PR #52 remains open/Draft as historical context.
 - Next: P-05B object/key/idempotent-event recovery. Rebase/replay onto PR #63, keep original PRs as review references, and rerun the complete P-02/P-03C/P-03D/P-04/P-05A/P-05B chain on the exact final head.
 - No production recovery claim, real credentials, merge, main update, destructive migration or deployment without explicit owner approval.
+
+
+## P-05B reconciled continuation — 2026-11-25
+- Original P-05B PR #53 is based on original P-05A PR #52 and omits reconciled P-03C/P-03D ancestry. Work on replacement branch `spike/p05b-object-key-event-recovery-p03d`, based on P-05A PR #63 docs-synchronized head `481a0ab2ac15ee982745e0a3b48d4d93cc829431`.
+- This branch includes P-05A recovery-complete gating and missing-WAL/incomplete-restore negative drills, plus P-05B AES-GCM object/key recovery and ordered event replay. Preserve synthetic-only boundaries.
+- P-05B hardening added manifest tenant/object/key/format/version checks, tenant-bound wrapped-DEK AAD, strict base64/nonce/size validation, plaintext size/hash comparison, unique aggregate sequence and pg_temp-last SECURITY DEFINER search_path.
+- Create a new Draft PR stacked on reconciled P-05A PR #63; leave original PR #53 open/Draft and untouched.
+- Run P-02, P-03C/P-03D, P-04, combined P-05A/P-05B plus negative drills, and bilingual Documentation Governance on the exact final replacement head. Historical PR #53 CI does not validate this branch.
+- No real KMS/HSM, object store, broker, provider, key custody, production data, merge, main update, destructive migration or deployment without explicit owner approval.
