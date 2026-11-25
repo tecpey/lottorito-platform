@@ -298,6 +298,7 @@ class PromotionAndRollbackTests(unittest.TestCase):
 
     def test_expand_migration_preserves_previous_release_compatibility(self):
         self.promote(self.stage_state, "v2")
+        self.controller.migrate_schema(self.stage_state, 2, "expand")
         with self.assertRaisesRegex(GateRejected, "rollback_target_incompatible"):
             self.controller.migrate_schema(self.stage_state, 3, "expand")
         self.assertEqual(self.stage_state.schema_version, 1)
