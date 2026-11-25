@@ -1,6 +1,6 @@
 # وضعیت واقعی پروژه و نقطه ادامه کار
 
-**شناسه:** LOT-OPS-001 | **نسخه:** ۱.۴۸.۰ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۵
+**شناسه:** LOT-OPS-001 | **نسخه:** ۱.۴۹.۰ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۵
 
 ## وضعیت تأییدشده مخزن
 
@@ -9,7 +9,7 @@
 - P-08 با PR شماره [۵۹](https://github.com/tecpey/lottorito-platform/pull/59) به‌صورت Draft روی شاخه `spike/p08-deployment-health-rollback` باز است و روی PR شماره ۵۸ مربوط به P-07C قرار دارد. Base آن Head شاخه P-07C یعنی `7d349789ae8e57225dd67eaa8685685e71577fb8` است؛ PR شماره ۵۹ هنوز Merge نشده است.
 - Fixture ساختگی اکنون شامل Builder قطعی Python zipapp، Metadata جداگانه Provenance متصل به Digest، تزریق Canary Secret فقط در Runtime، دروازه‌های مستقل Startup/Liveness/API Readiness/Worker Readiness، Artifact Store در حافظه با کلید Digest، بررسی Approval بر اساس Digest و Environment دقیق، تفکیک وظایف، Promotion محدود به Test/Staging، سناریوهای Rollback آگاه از Schema و Forward Repair و مستندات آزمایش دوزبانه است.
 - این Fixture از پلتفرم استقرار، Registry، Secret Manager، Migration دیتابیس، منبع Cloud، داده مشتری، Credential یا وجه واقعی استفاده نمی‌کند. Provenance آن Metadata بدون امضاست و انطباق با SLSA نیست؛ Fingerprint وضعیت مالی نیز Sentinel ساختگی است، نه Ledger.
-- آخرین Head پیاده‌سازی P-08 که Integration روی آن موفق شده است: `1046b525383ce2d1e40daacaa7bb476c6574d016`. Commitهای بعدی PR شماره ۵۹ فقط مستندات دوزبانه و Indexها را به‌روزرسانی می‌کنند؛ برای وضعیت نهایی فعلی باید آخرین Checkهای Head دقیق در خود PR بررسی شوند. Integration با شناسه [45577321059](https://github.com/tecpey/lottorito-platform/actions/runs/45577321059) و اجرای تکراری Integration با شناسه [45577315319](https://github.com/tecpey/lottorito-platform/actions/runs/45577315319)، هر دو ۴۵ از ۴۵ تست، صفر شکست و صفر Skip داشتند؛ Documentation Governance با شناسه [45577321154](https://github.com/tecpey/lottorito-platform/actions/runs/45577321154) روی همان Head موفق شد. دو Build قطعی SHA-256 یکسان `f02fe8ad957ab9cf6b19c64d7f57cdac66edc86744b01dd9c5c2384c3c1c076c` تولید کردند. نسخه‌های میانی دارای شکست بودند که اصلاح شدند؛ فقط Checkهای Head دقیق ملاک‌اند. PR شماره ۵۹ همچنان Draft، باز و Mergeنشده است. هیچ Merge یا Deploy مجاز یا انجام نشده است.
+- Head دقیق اعتبارسنجی‌شده P-08: `d0e120a2afecd966c4f4867438b16b1b9ff54479`. در بازبینی کد مشخص شد مسیر `migrate_schema` برخلاف Promotion، Rollback و بازنشستگی Rollback Target، محدودیت Environment غیرProduction را اعمال نمی‌کرد. این شکاف بسته شد: اکنون Migration در هر Environment خارج از `test` و `staging` با `environment_not_allowed` رد می‌شود و تست منفی عدم تغییر Schema، Release و Audit برای Production اضافه شده است. Integration با شناسه [45602199976](https://github.com/tecpey/lottorito-platform/actions/runs/45602199976) روی همین Head موفق شد: ۴۶ تست، صفر شکست و صفر Skip؛ Build قطعی دو بار SHA-256 یکسان `f02fe8ad957ab9cf6b19c64d7f57cdac66edc86744b01dd9c5c2384c3c1c076c` تولید کرد. Documentation Governance با شناسه [45602200029](https://github.com/tecpey/lottorito-platform/actions/runs/45602200029) نیز روی همین Head موفق شد. PR شماره ۵۹ همچنان Draft، باز و Mergeنشده است. این نتایج فقط Fixture ساختگی P-08 را تأیید می‌کنند؛ Merge یا Deploy انجام یا مجاز نشده است.
 
 ## اعتبارسنجی P-03C و تطبیق وضعیت Prototypeها — ۲۰۲۶-۱۱-۲۵
 
