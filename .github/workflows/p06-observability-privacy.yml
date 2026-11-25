@@ -4,6 +4,7 @@ on:
     branches:
       - spike/p06-observability-privacy
     paths:
+      - ".github/workflows/p06-observability-privacy.yml"
       - "prototypes/p06-observability/**"
       - "prototypes/p02-ledger-posting/db/schema.sql"
       - "docs/en/engineering/prototypes/p06-observability-privacy.md"
