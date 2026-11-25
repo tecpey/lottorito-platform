@@ -22,7 +22,7 @@ def _uuid(value: Any, field: str) -> str:
         parsed = uuid.UUID(value)
     except (ValueError, AttributeError):
         raise ContractViolation(f"{field}_invalid") from None
-    if str(parsed) != value.lower():
+    if str(parsed) != value:
         raise ContractViolation(f"{field}_noncanonical")
     return str(parsed)
 
@@ -31,9 +31,9 @@ def normalize_scope(scope: Any) -> tuple[str, str]:
     if not isinstance(scope, dict) or set(scope) != {"kind", "id"}:
         raise ContractViolation("scope_shape_invalid")
     kind, identifier = scope["kind"], scope["id"]
-    if kind == "product" and identifier in PRODUCT_IDS:
+    if kind == "product" and isinstance(identifier, str) and identifier in PRODUCT_IDS:
         return kind, identifier
-    if kind == "platform" and identifier == PLATFORM_ID:
+    if kind == "platform" and isinstance(identifier, str) and identifier == PLATFORM_ID:
         return kind, identifier
     raise ContractViolation("scope_unknown_or_mismatched")
 
@@ -47,7 +47,7 @@ def source_event_identity(tenant_id: Any, scope: Any, source_event_id: Any) -> t
 
 def financial_identity(tenant_id: Any, product_id: Any, identifier: Any, field: str) -> tuple[str, str, str]:
     tenant = _uuid(tenant_id, "tenant_id")
-    if product_id not in PRODUCT_IDS:
+    if not isinstance(product_id, str) or product_id not in PRODUCT_IDS:
         raise ContractViolation("financial_scope_must_be_product")
     value = _uuid(identifier, field)
     return tenant, product_id, value
