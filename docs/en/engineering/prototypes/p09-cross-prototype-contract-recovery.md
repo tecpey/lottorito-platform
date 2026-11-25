@@ -1,5 +1,7 @@
 # P-09 — Cross-Prototype Contract & Recovery Integration
 
+**Document ID:** LOT-PROT-P09-001 | **Version:** 0.1.0 | **Status:** Proposed cross-prototype contract; synthetic P-09A baseline only; no production approval
+
 **Status:** Proposed contract baseline; implementation and owner approval remain open.  
 **Baseline:** `integration/p03d-p04-p08-candidate` at `c7f9ffa1f499fbd34d260b2aa6d3122d32e1ac7f`.  
 **Execution branch:** `spike/p09-cross-prototype-contract-recovery`.  
