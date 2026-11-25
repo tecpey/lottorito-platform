@@ -45,8 +45,9 @@ jobs:
       - name: Build deterministic release artifacts
         run: |
           REVISION="${GITHUB_SHA}"
-          python3 prototypes/p08-deployment/build.py v1 --out /tmp/p08-build-a --source-revision "$REVISION"
-          python3 prototypes/p08-deployment/build.py v1 --out /tmp/p08-build-b --source-revision "$REVISION"
+          python3 prototypes/p08-deployment/build.py v1 --out /tmp/p08-build-a --source-revision "$REVISION" --product affiliate_agent
+          python3 prototypes/p08-deployment/build.py v1 --out /tmp/p08-build-b --source-revision "$REVISION" --product affiliate_agent
+          python3 prototypes/p08-deployment/build.py v1 --out /tmp/p08-lottery-build --source-revision "$REVISION" --product lottery
           cmp /tmp/p08-build-a/affiliate-agent-v1.pyz /tmp/p08-build-b/affiliate-agent-v1.pyz
       - name: Run positive and adversarial deployment tests
         run: python3 -m unittest discover -s prototypes/p08-deployment/tests -v
