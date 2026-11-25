@@ -119,3 +119,8 @@ This verifies the synthetic acceptance matrix on the cited branch head only. PR 
 ## Downstream stack handoff — 2026-11-25
 
 P-04 PR #51 was a sibling of P-03C/P-03D, not a descendant. Its P-04-only files are being carried onto branch `spike/p04-schema-evolution-p03d`, based on P-03D PR #61's docs-synchronized head `11f2069b537d4cf74175fd7b628a331650c45f52`. P-04 is independent of the P-02/P-03 schema, but the new branch must re-run P-02, P-03C/P-03D and P-04 workflows together before its acceptance. PR #51 remains untouched as the original review source; no merge or retarget is authorized.
+
+
+## P-04 downstream regression result — 2026-11-25
+
+The P-04 continuation is now stacked on this P-03D branch through PR #62. On PR #62 code head `dca0762678ed45da122ba109276c54ce61ac0846`, the combined P-03C/P-03D run [45608274098](https://github.com/tecpey/lottorito-platform/actions/runs/45608274098) passed 15 P-03C and 19 P-03D tests (34 total; 0 failed, 0 skipped). P-02 run [45608274029](https://github.com/tecpey/lottorito-platform/actions/runs/45608274029) passed 25 tests, P-04 run [45608274118](https://github.com/tecpey/lottorito-platform/actions/runs/45608274118) passed 7, and Documentation Governance [45608274060](https://github.com/tecpey/lottorito-platform/actions/runs/45608274060) passed. This confirms regression on the new branch; it does not upgrade the synthetic prototype to production readiness.
