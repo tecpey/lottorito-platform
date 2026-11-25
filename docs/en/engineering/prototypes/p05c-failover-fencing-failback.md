@@ -1,6 +1,6 @@
 # P-05C — Failover, Writer Fencing and Failback
 
-**Document ID:** LOT-PROT-P05C-001 | **Version:** 0.1.0 | **Status:** Synthetic implementation; CI validation pending
+**Document ID:** LOT-PROT-P05C-001 | **Version:** 0.2.0 | **Status:** Synthetic implementation; CI validation pending
 
 ## Authority and boundary
 
@@ -47,7 +47,8 @@ This demonstrates a transactional epoch-checking primitive only. The row is repl
 - Rewind the stopped former primary to the promoted node with pg_rewind --write-recovery-conf.
 - Rejoin it as a standby and assert it remains read-only, receives the promoted node's event and no longer contains the unreplicated divergent tail.
 - Wait until the standby has replayed the new primary's current WAL position.
-- Perform a controlled switchover back to the original node, advance the writer epoch to 4, write a failback marker, rewind the former primary and rejoin it as a standby.
+- Wait for the returning standby to catch up, stop it, create a second explicitly unreplicated synthetic tail on the current primary, then stop the current primary and promote the returning node. Verify the second tail is absent, advance the writer epoch to 4, and write a failback marker.
+- Run pg_rewind against the second divergent timeline; rejoin the former primary as a standby and verify the failback marker is present while the second unreplicated tail is absent.
 - Verify exactly one writable primary, one read-only standby, epoch 4/active writer node A on both nodes, and visibility of the failback marker.
 
 ## Acceptance criteria
@@ -61,17 +62,26 @@ This demonstrates a transactional epoch-checking primitive only. The row is repl
 - P05C-CAS: two concurrent claimants produce exactly one epoch-3 winner.
 - P05C-REWIND: old primary is rewound and rejoins in recovery; the promoted event is present and the deliberately unreplicated tail is absent.
 - P05C-READONLY: rewound standby rejects writes.
-- P05C-FAILBACK: controlled switchover returns primary role to node A; epoch advances to 4; former primary is rewound and rejoins as standby.
+- P05C-FAILBACK: controlled switchover returns primary role to node A; epoch advances to 4; a second divergent tail is discarded by an actual pg_rewind and the former primary rejoins as standby.
 - P05C-SINGLE-WRITER: after failback exactly one node is writable and the other remains in recovery.
 
 ## Safety and limitations
 
 - The process stop is a local CI fence simulation, not host power fencing, cloud instance isolation, storage fencing, watchdog enforcement or proof against network partitions.
 - The epoch/lease row is local PostgreSQL application state, not a consensus system. No etcd/Consul/Kubernetes DCS or Patroni controller is deployed.
-- The experiment intentionally loses one old-primary event that was committed while the standby was disconnected. This demonstrates asynchronous replication's data-loss window. It does not establish a production RPO.
+- The experiment intentionally loses two synthetic events, one at failover and one at failback, each committed while the receiving standby was disconnected. This demonstrates asynchronous replication's data-loss window. It does not establish a production RPO.
 - No quorum loss, simultaneous partitioned writers, controller crash, watchdog failure, storage-level split brain, multi-region failover, provider-side fencing, concurrent transaction load, real traffic or production RTO is tested.
 - pg_rewind prerequisites and WAL-retention constraints are exercised only with tiny synthetic clusters. Failure during rewind can leave the target unusable; a fresh base backup may be required.
 - RPO/RTO remain TBD under LOT-QA-001. A passing test does not approve a HA technology, topology, provider, operational runbook or production rollout.
+
+
+
+## Initial CI evidence
+
+- P-05C isolated integration [run 45533778752](https://github.com/tecpey/lottorito-platform/actions/runs/45533778752) passed on executable-code head `4884a3c38d2da8ea9ab9961dc095eb0ddd469f4d`.
+- The test completed two real timeline divergences and two pg_rewind operations. The second rewind copied 67 MB and proved the controlled failback path was not merely a no-op rewind.
+- Assertions passed for physical standby, promotion refusal while old primary was alive, process fence, epoch 1→2, stale-writer and expired-lease rejection, single CAS winner for epoch 3, first divergent tail discarded, rewound standby read-only, second divergent tail discarded, actual second rewind, and final epoch 4/active writer node A.
+- PR-head Integration and Documentation Governance are still required before final phase status is recorded.
 
 ## References
 
