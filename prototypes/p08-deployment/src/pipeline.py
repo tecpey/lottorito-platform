@@ -386,6 +386,8 @@ class DeploymentController:
         if state.api_digest != state.current_digest or state.worker_digest != state.current_digest:
             raise DeploymentConflict("active_component_release_drift")
         active = self._metadata(state.current_digest)
+        if state.product_id not in PRODUCT_IDS or active["product"] != state.product_id:
+            raise GateRejected("active_release_product_mismatch")
         if not (active["min_schema"] <= state.schema_version <= active["max_schema"]):
             raise GateRejected("active_release_current_schema_incompatible")
         if not (active["min_schema"] <= target_version <= active["max_schema"]):
