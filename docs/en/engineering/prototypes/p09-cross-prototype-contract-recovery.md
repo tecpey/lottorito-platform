@@ -136,3 +136,10 @@ An independent contract-to-validator review found that `contract.json` declared 
 Regression coverage now includes missing traceparent, malformed/version-invalid values, zero trace-id/parent-id, and all-zero correlation IDs. The paired P-09A suite is expected to contain 15 tests; CI must pass on the exact new PR head before acceptance is claimed. This correction does not yet validate RFC 3339 timestamps or URI-reference semantics, nor does it wire the validator into P-02–P-08.
 
 Research basis: [W3C Trace Context Recommendation](https://www.w3.org/TR/trace-context/) (version-00 traceparent format and invalid all-zero identifiers); [CloudEvents Core Specification](https://github.com/cloudevents/spec/blob/main/cloudevents/spec.md) (required core attributes and extension-attribute model).
+
+
+### P-09G — Semantic event validation (2026-11-25)
+
+P-09 now validates non-empty CloudEvents `id` and `type`, non-empty RFC 3986 URI-reference forms for `source` and `dataschema`, and RFC 3339 date-time syntax with calendar, clock and offset range checks. CloudEvents extension attributes remain permitted. The Lottorito-specific required envelope remains declared in `contract.json`.
+
+The explicit `ledger.journal.posted` event type is product-scope-only: platform-scoped financial events are rejected, while non-financial platform events remain structurally valid. This is a narrow policy rule, not a complete event-type registry. P-07B remains responsible for producer-bound authorization. Runtime ingress/dispatch wiring is a separate P-09H gate.
