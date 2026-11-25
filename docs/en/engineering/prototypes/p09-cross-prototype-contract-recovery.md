@@ -160,3 +160,8 @@ P-09H also bounds `schemaversion` to the interoperable JSON safe-integer range (
 
 
 The Node.js contract implementation now has a dedicated direct conformance suite under the P-03D test runner, covering valid envelopes, malformed RFC3339 dates, URI-reference failures, zero trace identifiers, non-canonical UUIDs, unsafe schema versions and financial platform-scope rejection. This complements—not replaces—the Python P-09 unit suite and end-to-end signed-ingress tests.
+
+
+### P-09I — Observability and release-provenance identity (2026-11-25)
+
+The contract inventory was reconciled with the actual P-06 and P-07B schemas: P-06 already stores tenant, scope kind, scope ID and source-event identity in its composite correlation key, while P-07B already enforces source-event identity and trace context. P-09I removes the stale inventory claims and makes the integration executable. P-06 imports the P-09 validator and derives its correlation identity from a validated CloudEvent; P-08 imports the P-09 product registry and binds a canonical product scope into both artifact metadata and detached provenance. The P-08 gate rejects product/scope substitution. Acceptance is pending the complete CI matrix on the final P-09I head.
