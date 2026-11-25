@@ -135,13 +135,14 @@ CREATE TABLE p06.forensic_access_sessions(
 );
 CREATE FUNCTION p06.record_forensic_access(
  p_tenant_id uuid,p_scope_kind text,p_scope_id text,p_source_event_id uuid,
- p_trace_id text,p_reason_code text,p_actor_ref text
+ p_source_event_ref text,p_trace_id text,p_reason_code text,p_actor_ref text
 )
 RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,p06 AS $p06$
 BEGIN
  IF session_user <> 'p06_forensic_reader' THEN RAISE EXCEPTION 'P06_FORENSIC_ROLE_REQUIRED'; END IF;
  IF p_tenant_id IS NULL OR p_source_event_id IS NULL
     OR COALESCE(p_scope_kind || ':' || p_scope_id,'') NOT IN('product:affiliate_agent','product:lottery','platform:lottorito')
+    OR p_source_event_ref IS NULL OR length(p_source_event_ref)<>64 OR p_source_event_ref !~ '^[0-9a-f]{64}'
     OR p_trace_id IS NULL OR length(p_trace_id)<>32 OR p_trace_id !~ '^[0-9a-f]{32}'
     OR p_reason_code NOT IN('incident_review','export_approved','replay_authorized','configuration_approved')
     OR p_actor_ref IS NULL OR length(p_actor_ref)<>64 OR p_actor_ref !~ '^[0-9a-f]{64}' THEN
@@ -149,7 +150,7 @@ BEGIN
  END IF;
  INSERT INTO p06.privileged_audit(actor_ref,action,target_ref,reason_code,trace_id,outcome)
  VALUES(p_actor_ref,'telemetry.correlation_map.read',
-        p_scope_kind || ':' || p_scope_id || ':' || p_source_event_id::text,
+        p_scope_kind || ':' || p_scope_id || ':' || p_source_event_ref,
         p_reason_code,p_trace_id,'allowed');
  INSERT INTO p06.forensic_access_sessions(
    backend_pid,actor_role,tenant_id,scope_kind,scope_id,source_event_id,trace_id,reason_code
@@ -157,7 +158,7 @@ BEGIN
  VALUES(pg_backend_pid(),session_user,p_tenant_id,p_scope_kind,p_scope_id,p_source_event_id,p_trace_id,p_reason_code);
 END
 $p06$;
-REVOKE ALL ON FUNCTION p06.record_forensic_access(uuid,text,text,uuid,text,text,text) FROM PUBLIC;
+REVOKE ALL ON FUNCTION p06.record_forensic_access(uuid,text,text,uuid,text,text,text,text) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION p06.record_forensic_access(uuid,text,text,uuid,text,text,text) TO p06_forensic_reader;
 GRANT SELECT ON p06.privileged_audit TO p06_forensic_reader;
 
