@@ -124,3 +124,8 @@ PR شماره ۵۱ در P-04 شاخه‌ای هم‌سطح P-03C/P-03D بود، 
 ## نتیجه Regression پایین‌دستی P-04 — ۲۰۲۶-۱۱-۲۵
 
 ادامه P-04 اکنون از طریق PR شماره ۶۲ روی این شاخه P-03D قرار گرفته است. روی Head کد PR شماره ۶۲ با SHA `dca0762678ed45da122ba109276c54ce61ac0846`، اجرای ترکیبی P-03C/P-03D با شناسه [45608274098](https://github.com/tecpey/lottorito-platform/actions/runs/45608274098) تعداد ۱۵ تست P-03C و ۱۹ تست P-03D را گذراند (در مجموع ۳۴ تست؛ صفر شکست و صفر Skip). اجرای P-02 با شناسه [45608274029](https://github.com/tecpey/lottorito-platform/actions/runs/45608274029) تعداد ۲۵ تست، اجرای P-04 با شناسه [45608274118](https://github.com/tecpey/lottorito-platform/actions/runs/45608274118) تعداد ۷ تست را گذراند و Documentation Governance با شناسه [45608274060](https://github.com/tecpey/lottorito-platform/actions/runs/45608274060) موفق شد. این نتیجه Regression روی شاخه جدید را تأیید می‌کند؛ Prototype ساختگی را به آمادگی Production ارتقا نمی‌دهد.
+
+
+## دروازه Regression پایین‌دستی P-05A — ۲۰۲۶-۱۱-۲۵
+
+P-05A روی PR تطبیق‌یافته شماره ۶۲ در P-04 بازپخش می‌شود که فرزند این شاخه P-03D است. Workflow ترکیبی ۳۴ تستی P-03C/P-03D باید روی Head جایگزین P-05A دوباره اجرا شود تا حضور پل Ledger/Outbox/Provider اثبات شود. Fixture بازیابی دیتابیس در P-05A مستقل و ساختگی است و جایگزین پذیرش Provider Event یا Posting دفترکل نیست.
