@@ -385,3 +385,7 @@ Correlation Map، Grant دسترسی Forensic و View مربوط به P-06 اک�
 ## P-09C — Artifact و Provenance استقرار محصول‌محور (۲۰۲۶-۱۱-۲۵)
 
 مسیر Build ساختگی P-08 دیگر فقط به Affiliate محدود نیست. Product ورودی صریح و Allow-listشده است؛ Product انتخاب‌شده در بایت‌های Artifact، Release Metadata، External Parameterهای Provenance و کنترل‌های چرخه عمر Deployment مقید می‌شود. CI با شناسه [45629980686](https://github.com/tecpey/lottorito-platform/actions/runs/45629980686) با ۵۳ تست از ۵۳ تست موفق شد؛ شامل Buildهای مقید به Product و رد Promotion/Rollback بین دو Product. P-09C فقط Slice مربوط به P-08 را می‌بندد. Recovery در P-05B و نگاشت Canonical Event در P-07B همچنان باقی است.
+
+## P-09D — نگاشت قرارداد Canonical رویداد (۲۰۲۶-۱۱-۲۵)
+
+قرارداد Producer/Consumer در P-07B اکنون UUID استاندارد Tenant، Product Scope مقید به Producer احراز‌شده، UUID مربوط به Source Event، Schema Version و W3C Traceparent را حمل می‌کند. خروجی Dispatch پذیرفته‌شده، `(tenant_id, scope_kind, scope_id, source_event_id)` به‌همراه Trace ID را برای Correlation در P-06 ارائه می‌دهد. Fixtureهای Tenant ساختگی به UUID استاندارد تبدیل شدند. CI مربوط به P-07B با شناسه [45631269584](https://github.com/tecpey/lottorito-platform/actions/runs/45631269584) با ۴۲ تست از ۴۲ تست موفق شد. رویدادهای Platform-originated خارج از Profile رویداد Serviceهای محصول باقی می‌مانند. Recovery روی Recordهای مشترک در P-05B مهم‌ترین دروازه یکپارچه‌سازی باقی‌مانده است.
