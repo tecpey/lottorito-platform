@@ -49,3 +49,19 @@ A task is done only when implementation exists, relevant tests pass, documentati
 - Tenant and product must be derived from trusted installation configuration and the database LOGIN role mapping. Never trust payload tenant/product/account IDs. Product identity must remain present in ledger and delivery records; current tenant-wide unique constraints are conservative and must not be silently relaxed.
 - Run P-02, P-03C and P-03D integration workflows and bilingual Documentation Governance on the exact final branch head. Report each run, exact test count, failures/skips and synthetic limitations.
 - Do not add real provider credentials, live HTTP/network calls, commission/NGR formulas, payout rules or legal/accounting policy. No merge, main update, destructive migration or deployment without explicit owner approval.
+
+
+## P-04 reconciled continuation — 2026-11-25
+- P-04 PR #51 is a sibling of P-03C PR #60 and P-03D PR #61; its base is P-03 PR #50, not P-03D. Do not assume the P-04–P-08 chain contains the inbound/outbound ledger bridge.
+- Work on branch `spike/p04-schema-evolution-p03d`, created from P-03D PR #61 docs-synchronized head `11f2069b537d4cf74175fd7b628a331650c45f52`. The P-04 prototype is intentionally isolated from P-02/P-03 database schemas.
+- Original P-04 PR #51 is historical review context only. Do not retarget or merge it. Create a new Draft PR stacked on P-03D after bilingual docs and code review.
+- Re-run P-02, combined P-03C/P-03D, P-04 and Documentation Governance on the exact new PR head. P-03D implementation evidence is on code head `40d002a2af5875a6ead178604b90dc92aa678dc5` (P-02 25, P-03C 15, P-03D 19, docs governance passed); this does not replace regression on the new branch.
+- After P-04 passes, replay P-05A, P-05B, P-05C, P-06, P-07A, P-07B, P-07C and P-08 in dependency order onto the reconciled chain, preserving each experiment's boundaries. Reconcile shared documentation semantically; never copy an older branch's whole README/status/AGENTS over newer P-03D evidence.
+- No merge, main update, destructive migration, production credential, real provider integration or deployment without explicit owner approval.
+
+
+## P-04 reconciled verification and next handoff — 2026-11-25
+- Reconciled PR #62 code head `dca0762678ed45da122ba109276c54ce61ac0846` passed P-02 (25), P-03C (15), P-03D (19), P-04 (7) and Documentation Governance. Runs: 45608274029, 45608274098, 45608274118, 45608274060. All completed successfully with 0 failures and 0 skipped tests.
+- Keep PR #62 Draft/open stacked on P-03D PR #61. Original P-04 PR #51 remains open/Draft as historical review context; do not retarget or merge it.
+- Next sequence is P-05A -> P-05B -> P-05C -> P-06 -> P-07A -> P-07B -> P-07C -> P-08. Rebase/replay each in dependency order onto the reconciled P-04 head, reconcile bilingual shared docs semantically, and run the complete P-02/P-03C/P-03D/P-04 plus downstream regression on every new final head.
+- Preserve synthetic-only claims. No production migration, provider credential, merge, main update, destructive operation or deployment without explicit owner approval.

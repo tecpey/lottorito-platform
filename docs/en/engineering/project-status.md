@@ -106,3 +106,24 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 - Branch `spike/p03d-provider-ledger-integration` is based on P-03C head `32b34f4c7c67b12874cdf6a14a2788d9a2f4c6dc`. It adds signed provider inbox ingestion, trusted installation/database identity checks, product-aware P-02/P-03C records, same-transaction P-02 posting + inbox completion + P-03C delivery-state creation, retry/fencing/quarantine and reconciliation. Synthetic acceptance is verified on PR #61 head `40d002a2af5875a6ead178604b90dc92aa678dc5`: P-02 25/25, P-03C 15/15, P-03D 19/19 and Documentation Governance all passed (runs 45607187120, 45607186885 and 45607186745).
 - Some existing P-02 uniqueness constraints remain tenant-wide (conservative and fail-closed), even though product attribution and RLS are added. Fully product-local composite identity semantics remain a review item. No commission/NGR, real provider, account policy, legal entity, payout, or production schema decision is made.
 - P-03D synthetic acceptance is complete on the cited head; re-run validation if any later commit changes implementation or docs. Next: reconcile P-04 PR #51 and the P-04–P-08 stack ancestry against P-03C PR #60, then plan P-04 regression gates without merging either stack. PR #61 remains Draft/open and stacked on PR #60. No PR merge, main change or deployment is authorized.
+
+
+## P-04 ancestry reconciliation — 2026-11-25
+
+- PR #51 P-04 head `d143c213a4c3cedcf64fcbe2edb17f21ad2b3a85` is based on P-03 PR #50 head `45b37700cb2b9ad633158ba8d5f00b8c7f0553d5`. PR #60 P-03C and PR #61 P-03D are separate descendants from that same P-03 base. Thus the original P-04–P-08 stack omits the P-03C/P-03D bridge.
+- P-03D PR #61 implementation acceptance was verified on code head `40d002a2af5875a6ead178604b90dc92aa678dc5`: P-02 25/25, P-03C 15/15, P-03D 19/19, and Documentation Governance passed. PR #61 latest synchronized head is `11f2069b537d4cf74175fd7b628a331650c45f52`.
+- New P-04 continuation branch `spike/p04-schema-evolution-p03d` is created from that PR #61 head. It carries the ten P-04-specific workflow, prototype and bilingual report files; README, architecture plan and P-02/P-03D docs are synchronized without replacing the newer P-03D documentation.
+- Original PR #51 remains open/Draft as a historical review source. It is not retargeted or merged. The replacement P-04 PR is pending creation/CI; do not call P-04 verified on the reconciled stack until P-02, P-03C/P-03D, P-04 and Documentation Governance pass on the exact new head.
+- After P-04 verification, replay P-05A, P-05B, P-05C, P-06, P-07A, P-07B, P-07C and P-08 in dependency order onto the reconciled branch chain. Preserve each experiment's limits and re-run the complete regression chain. No merge, main update, destructive migration or deployment is authorized.
+
+
+## P-04 reconciled stack verification — 2026-11-25
+
+- PR #62 branch `spike/p04-schema-evolution-p03d` is based on P-03D PR #61; original P-04 PR #51 remains open/Draft and is not retargeted or merged.
+- Exact tested code head: `dca0762678ed45da122ba109276c54ce61ac0846`.
+- P-02 run [45608274029](https://github.com/tecpey/lottorito-platform/actions/runs/45608274029): 25/25 passed.
+- P-03C/P-03D run [45608274098](https://github.com/tecpey/lottorito-platform/actions/runs/45608274098): P-03C 15/15 and P-03D 19/19 passed.
+- P-04 run [45608274118](https://github.com/tecpey/lottorito-platform/actions/runs/45608274118): 7/7 passed.
+- Documentation Governance run [45608274060](https://github.com/tecpey/lottorito-platform/actions/runs/45608274060): passed.
+- All four workflows completed successfully with zero failures and zero skipped tests on the same head. Total integration coverage: 66 tests (25 + 15 + 19 + 7). This is synthetic acceptance only.
+- Next: rebase/replay P-05A, P-05B, P-05C, P-06, P-07A, P-07B, P-07C and P-08 onto the reconciled stack in dependency order; preserve original PRs as historical review references until replacements pass full CI. No merge, main update, destructive migration or deployment is authorized.
