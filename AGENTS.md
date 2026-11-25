@@ -89,3 +89,9 @@ A task is done only when implementation exists, relevant tests pass, documentati
 - Create a new Draft PR stacked on reconciled P-05A PR #63; leave original PR #53 open/Draft and untouched.
 - Run P-02, P-03C/P-03D, P-04, combined P-05A/P-05B plus negative drills, and bilingual Documentation Governance on the exact final replacement head. Historical PR #53 CI does not validate this branch.
 - No real KMS/HSM, object store, broker, provider, key custody, production data, merge, main update, destructive migration or deployment without explicit owner approval.
+
+
+## P-05B reconciled verification and next handoff — 2026-11-25
+- PR #64 code head bbad5969fc3c952ebafdaed3c8d2306dbd018ad4 passed P-02 (25), P-03C (15), P-03D (19), P-04 (7), combined P-05A/P-05B positive and negative recovery, and Documentation Governance. Runs: 45611209596, 45611209613, 45611209559, 45611209642 and 45611209546.
+- P-05B hardening includes strict manifest context, tenant-bound wrapped-DEK AAD, nonce/base64/size checks, plaintext size/hash verification, unique aggregate sequence and pg_temp-last SECURITY DEFINER search_path. P-05A negative restore/WAL drills passed.
+- Next: P-05C failover/fencing/failback. Keep PR #64 Draft/open and original PR #53 open/Draft. RPO/RTO remain TBD; no production recovery claim, merge, main update, destructive migration or deployment.

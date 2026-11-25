@@ -347,3 +347,10 @@ Prototype فقط زمانی **Pass** است که تمام معیارهای اج�
 - Workflow ترکیبی PR اصلی شماره ۵۳ با شناسه [45533100486](https://github.com/tecpey/lottorito-platform/actions/runs/45533100486) و Documentation Governance با شناسه [45533100369](https://github.com/tecpey/lottorito-platform/actions/runs/45533100369) موفق بوده‌اند و آزمون‌های مثبت/منفی P05A، بازیابی Object/Key و Replay رویداد P05B را اجرا کرده‌اند. این شواهد تاریخی‌اند.
 - Workflow ترکیبی P-05 و Regressionهای P-02/P-03C/P-03D/P-04 همراه Documentation Governance دوزبانه باید روی Head جایگزین PR دوباره اجرا شوند. تا زمانی که همه روی Head دقیق نهایی موفق نشده‌اند، P-05B Verified اعلام نشود.
 - هیچ KMS/HSM، Object Store، Broker، Provider، Custody کلید، داده Production، RPO/RTO یا تصمیم بازیابی Production تصویب نمی‌شود. Failover/Fencing/Failback در P-05C آزمایش مستقل بعدی است.
+
+
+## تأیید P-05B روی زنجیره تطبیق‌یافته — ۲۰۲۶-۱۱-۲۵
+
+- Head مربوط به PR شماره ۶۴ با SHA bbad5969fc3c952ebafdaed3c8d2306dbd018ad4، P-02 با ۲۵ تست، P-03C با ۱۵ تست، P-03D با ۱۹ تست، P-04 با ۷ تست، بازیابی مثبت/منفی ترکیبی P-05A/P-05B و Documentation Governance را با موفقیت گذراند. اجراها: 45611209596، 45611209613، 45611209559، 45611209642 و 45611209546.
+- سخت‌سازی P-05B شامل Context سخت‌گیرانه Manifest، AAD محدود به Tenant برای Wrapped-DEK، کنترل Nonce/Base64/Size، اندازه و Hash متن بازیابی‌شده، یکتایی Aggregate Sequence و پردازش قطعی Event با Lock است. آزمون‌های منفی بازیابی P-05A نیز موفق‌اند.
+- P-05B فقط ساختگی باقی می‌ماند. آزمایش بعدی P-05C برای Failover/Fencing/Failback با ایمنی Lease/Fencing، آمادگی Promotion و سازگاری مالی است؛ RPO/RTO همچنان TBD است. PR اصلی شماره ۵۳ به‌عنوان سابقه بازبینی باز و Draft می‌ماند؛ PR شماره ۶۴ نیز Draft و باز است. هیچ Merge یا Deploy انجام نمی‌شود.

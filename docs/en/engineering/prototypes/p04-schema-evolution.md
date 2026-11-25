@@ -73,3 +73,8 @@ P-05B extends the reconciled P-04/P-05A chain with synthetic object/key/event re
 ## P-05B downstream regression gate — 2026-11-25
 
 P-05B extends the reconciled P-04/P-05A chain with synthetic object/key/event recovery. Re-run the 7-test P-04 compatibility suite on the P-05B replacement head; no P-04 schema contract or production migration is changed.
+
+
+## P-05B reconciled regression result — 2026-11-25
+
+P-04 passed on PR #64 head bbad5969fc3c952ebafdaed3c8d2306dbd018ad4: [run 45611209559](https://github.com/tecpey/lottorito-platform/actions/runs/45611209559), 7/7, zero failures/skips. P-05B does not alter the P-04 schema-evolution contract.

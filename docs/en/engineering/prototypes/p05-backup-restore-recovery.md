@@ -88,3 +88,17 @@ No production data, credentials, partner secrets, real funds or live endpoints. 
 ## Reconciled P-05B continuation — 2026-11-25
 
 P-05B is being carried onto replacement branch `spike/p05b-object-key-event-recovery-p03d`, based on P-05A PR #63's latest synchronized head `481a0ab2ac15ee982745e0a3b48d4d93cc829431`. The branch includes the P-05A recovery-complete gate and both missing-WAL/incomplete-restore negative drills before the P-05B object/key/event suite. Original PR #53 evidence is historical; the replacement must pass its own complete P-05 workflow and upstream P-02/P-03C/P-03D/P-04 regressions.
+
+
+
+## Verified reconciled-stack CI — 2026-11-25
+
+Exact tested PR #64 head: bbad5969fc3c952ebafdaed3c8d2306dbd018ad4.
+
+- P-02 [run 45611209596](https://github.com/tecpey/lottorito-platform/actions/runs/45611209596): 25 passed, 0 failed, 0 skipped.
+- P-03C/P-03D [run 45611209613](https://github.com/tecpey/lottorito-platform/actions/runs/45611209613): 15 + 19 passed, 0 failed, 0 skipped.
+- P-04 [run 45611209559](https://github.com/tecpey/lottorito-platform/actions/runs/45611209559): 7 passed, 0 failed, 0 skipped.
+- Combined P-05A/P-05B [run 45611209642](https://github.com/tecpey/lottorito-platform/actions/runs/45611209642): P05A_RESULT=PASS, P05B_OBJECT_KEY_RESULT=PASS, P05B_EVENT_RESULT=PASS, P05B_RESULT=PASS, P05A_NEGATIVE_RESULT=PASS. Incomplete restore manifest/server startup were rejected; missing target WAL failed closed.
+- Documentation Governance [run 45611209546](https://github.com/tecpey/lottorito-platform/actions/runs/45611209546): passed.
+
+All five workflows passed on the same exact PR head. The P-02 through P-04 automated suites total 66 tests, all passed with zero skips; P-05 assertions also passed. This is synthetic-only recovery evidence, not production readiness or RPO/RTO approval.

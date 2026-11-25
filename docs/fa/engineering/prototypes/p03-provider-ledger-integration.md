@@ -144,3 +144,8 @@ Replay رویداد در P-05B یک Projection ساختگی برای بازیا�
 ## دروازه Regression پایین‌دستی P-05B — ۲۰۲۶-۱۱-۲۵
 
 Replay رویداد در P-05B یک Projection ساختگی برای بازیابی است، نه جایگزین Provider Inbox در P-03D یا وضعیت Delivery در P-03C. مجموعه ۳۴ تست P-03C/P-03D باید روی Head جایگزین P-05B دوباره اجرا شود تا پل Provider-to-Ledger و جداسازی Tenant/Product حفظ شوند.
+
+
+## نتیجه Regression تطبیق‌یافته P-05B — ۲۰۲۶-۱۱-۲۵
+
+P-03C/P-03D روی Head مربوط به PR شماره ۶۴ با SHA bbad5969fc3c952ebafdaed3c8d2306dbd018ad4 موفق شدند: [اجرای 45611209613](https://github.com/tecpey/lottorito-platform/actions/runs/45611209613)، ۱۵ + ۱۹ تست موفق، بدون شکست و Skip. Replay بازیابی P-05B جایگزین Provider Inbox یا Delivery State نمی‌شود.

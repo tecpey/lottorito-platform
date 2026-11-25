@@ -347,3 +347,10 @@ The prototype phase is complete only when all eight experiments have reproducibl
 - Original PR #53 combined workflow [45533100486](https://github.com/tecpey/lottorito-platform/actions/runs/45533100486) and Documentation Governance [45533100369](https://github.com/tecpey/lottorito-platform/actions/runs/45533100369) passed, including P05A positive/negative drills, P05B object/key recovery and event replay. Historical evidence only.
 - Re-run the combined P-05 workflow and P-02/P-03C/P-03D/P-04 regression plus bilingual Documentation Governance on the replacement PR head. Do not mark P-05B verified until all pass on the exact final head.
 - No real KMS/HSM, object store, broker, provider, key custody, production data, RPO/RTO or production recovery decision is approved. P-05C failover/fencing/failback remains a separate next experiment.
+
+
+## P-05B verified on reconciled stack — 2026-11-25
+
+- PR #64 head bbad5969fc3c952ebafdaed3c8d2306dbd018ad4 passed P-02 25, P-03C 15, P-03D 19, P-04 7, combined P-05A/P-05B positive and negative recovery, and Documentation Governance. Runs: 45611209596, 45611209613, 45611209559, 45611209642 and 45611209546.
+- P-05B hardening covers strict manifest context, tenant-bound wrapped-DEK AAD, nonce/base64/size checks, plaintext size/hash, unique aggregate sequence and deterministic locked event processing. P-05A negative recovery checks pass.
+- P-05B remains synthetic only. Next experiment: P-05C failover/fencing/failback, with explicit lease/fencing safety, promotion readiness and financial consistency; RPO/RTO remain TBD. Original PR #53 stays open/Draft as historical review context; PR #64 remains Draft/open. No merge or deployment.

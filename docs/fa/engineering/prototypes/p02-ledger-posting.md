@@ -101,3 +101,8 @@ Fixture بازیابی Object/Key/Event در P-05B مستقل از Schema دفت
 ## دروازه Regression پایین‌دستی P-05B — ۲۰۲۶-۱۱-۲۵
 
 Fixture بازیابی Object/Key/Event در P-05B مستقل از Schema دفترکل P-02 باقی می‌ماند. مجموعه ۲۵ تست Integration مربوط به P-02 باید روی Head جایگزین P-05B دوباره اجرا شود؛ Replay رویداد نباید از Invariantهای دفترکل P-02 عبور کند یا به معنی Migration عملیاتی Ledger تلقی شود.
+
+
+## نتیجه Regression تطبیق‌یافته P-05B — ۲۰۲۶-۱۱-۲۵
+
+P-02 روی Head مربوط به PR شماره ۶۴ با SHA bbad5969fc3c952ebafdaed3c8d2306dbd018ad4 موفق شد: [اجرای 45611209596](https://github.com/tecpey/lottorito-platform/actions/runs/45611209596)، ۲۵/۲۵، بدون شکست و Skip. P-05B از Schema مربوط به P-02 مستقل است و نباید از Invariantهای Posting دفترکل عبور کند.

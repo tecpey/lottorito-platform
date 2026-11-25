@@ -89,3 +89,17 @@ Workflow ترکیبی P-05 دو کنترل Fail-closed را علاوه بر مس
 ## ادامه P-05B روی زنجیره تطبیق‌یافته — ۲۰۲۶-۱۱-۲۵
 
 P-05B به شاخه جایگزین `spike/p05b-object-key-event-recovery-p03d` منتقل می‌شود که بر مبنای آخرین Head همگام‌شده PR شماره ۶۳ در P-05A یعنی `481a0ab2ac15ee982745e0a3b48d4d93cc829431` است. این شاخه دروازه Recovery-complete در P-05A و هر دو آزمون منفی WAL مفقود و Restore ناقص را پیش از مجموعه تست Object/Key/Event در P-05B اجرا می‌کند. شواهد PR اصلی شماره ۵۳ تاریخی‌اند؛ شاخه جایگزین باید Workflow کامل P-05 و Regressionهای بالادستی P-02/P-03C/P-03D/P-04 را خودش بگذراند.
+
+
+
+## CI تأییدشده روی زنجیره تطبیق‌یافته — ۲۰۲۶-۱۱-۲۵
+
+Head دقیق PR شماره ۶۴: bbad5969fc3c952ebafdaed3c8d2306dbd018ad4.
+
+- P-02 با [اجرای 45611209596](https://github.com/tecpey/lottorito-platform/actions/runs/45611209596): ۲۵ موفق، صفر شکست و صفر Skip.
+- P-03C/P-03D با [اجرای 45611209613](https://github.com/tecpey/lottorito-platform/actions/runs/45611209613): ۱۵ + ۱۹ موفق، صفر شکست و صفر Skip.
+- P-04 با [اجرای 45611209559](https://github.com/tecpey/lottorito-platform/actions/runs/45611209559): ۷ موفق، صفر شکست و صفر Skip.
+- P-05A/P-05B ترکیبی با [اجرای 45611209642](https://github.com/tecpey/lottorito-platform/actions/runs/45611209642): نتایج P05A_RESULT=PASS، P05B_OBJECT_KEY_RESULT=PASS، P05B_EVENT_RESULT=PASS، P05B_RESULT=PASS و P05A_NEGATIVE_RESULT=PASS. Manifest/راه‌اندازی Restore ناقص رد شد و WAL هدف مفقود به‌صورت Fail-closed عمل کرد.
+- Documentation Governance با [اجرای 45611209546](https://github.com/tecpey/lottorito-platform/actions/runs/45611209546): موفق.
+
+هر پنج Workflow روی یک Head دقیق PR موفق شدند. مجموعه خودکار P-02 تا P-04 در مجموع ۶۶ تست داشت که همگی موفق و بدون Skip بودند؛ Assertionهای P-05 نیز موفق شدند. این فقط شواهد بازیابی ساختگی است، نه آمادگی Production یا تصویب RPO/RTO.
