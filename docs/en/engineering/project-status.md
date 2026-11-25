@@ -1,8 +1,18 @@
 # Verified Project Status and Continuation Point
 
-**Document ID:** LOT-OPS-001 | **Version:** 1.34.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-25
+**Document ID:** LOT-OPS-001 | **Version:** 1.35.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-25
 
 ## Verified repository state
+
+## Final P-05C validation update — 2026-11-25
+
+- P-05C PR #54 remains open, Draft and unmerged, stacked on P-05B PR #53. P-05B #53, P-05A #52 and P-04 #51 also remain open Draft/unmerged.
+- P-05C PR Integration [run 45533992674](https://github.com/tecpey/lottorito-platform/actions/runs/45533992674), P-05B regression Integration [run 45533992779](https://github.com/tecpey/lottorito-platform/actions/runs/45533992779), and Documentation Governance [run 45533992863](https://github.com/tecpey/lottorito-platform/actions/runs/45533992863) passed on PR head 194c565c1471474a1d908efb3dfda89035d9d4cc.
+- P-05C proved two actual divergent timelines. pg_rewind copied 35 MB during failover rejoin and 67 MB during controlled failback. Both intentionally unreplicated synthetic tails were absent after the receiving node was promoted; final epoch 4 and active writer node A were confirmed on both nodes.
+- P-05C still does not prove production fencing, quorum behavior, network-partition safety, watchdog, regional failover, or RPO/RTO. Its process stop is local CI simulation and its epoch/lease authority is a replicated database row, not an independent consensus-backed DCS. RPO/RTO remain TBD.
+- No merge, deployment, production data, live credentials or real funds were used. PRs remain Draft until the owner explicitly approves any next action.
+
+
 
 ## Latest continuation update — 2026-11-25 (P-05C execution)
 
