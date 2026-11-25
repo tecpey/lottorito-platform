@@ -51,7 +51,7 @@ test "$(as_pg env PGPASSWORD=p05-tenant-a-not-production psql -X -h 127.0.0.1 -p
 test "$(as_pg env PGPASSWORD=p05-tenant-b-not-production psql -X -h 127.0.0.1 -p 55432 -U p05_tenant_b -d lottorito_p05 -At -c "SELECT count(*) FROM public.ledger_journals WHERE tenant_id='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'")" = "0"
 echo "[P05] Prove cross-tenant writes are denied"
 if as_pg env PGPASSWORD=p05-tenant-a-not-production psql -X -h 127.0.0.1 -p 55432 -U p05_tenant_a -d lottorito_p05 -v ON_ERROR_STOP=1 -c "INSERT INTO public.ledger_journals VALUES ('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb','10000000-0000-4000-8000-000000000099','20000000-0000-4000-8000-000000000099','USD','30000000-0000-4000-8000-000000000099')" >/tmp/p05-cross-tenant.log 2>&1; then echo "cross-tenant insert unexpectedly succeeded" >&2; exit 1; fi
-grep -qi "row-level security" /tmp/p05-cross-tenant.log
+if ! grep -qi "row-level security" /tmp/p05-cross-tenant.log; then cat /tmp/p05-cross-tenant.log >&2; exit 1; fi
 echo "[P05] Reconcile journals and source totals"
 test "$(restore_psql -At -c "SELECT count(*) FROM (SELECT tenant_id,journal_id FROM public.ledger_lines GROUP BY tenant_id,journal_id HAVING sum(CASE WHEN direction='debit' THEN amount_minor ELSE -amount_minor END)<>0) q")" = "0"
 test "$(restore_psql -At -c "WITH cash AS (SELECT tenant_id,sum(amount_minor) n FROM public.ledger_lines WHERE account_code='cash' AND direction='debit' GROUP BY tenant_id), src AS (SELECT tenant_id,sum(amount_minor) n FROM public.source_events GROUP BY tenant_id) SELECT count(*) FROM src FULL JOIN cash USING(tenant_id) WHERE coalesce(src.n,0)<>coalesce(cash.n,0)")" = "0"

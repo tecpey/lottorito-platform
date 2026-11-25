@@ -43,3 +43,4 @@ BEGIN
  END LOOP;
 END $$;
 GRANT SELECT ON public.ledger_journals,public.ledger_lines,public.source_events,public.object_refs TO p05_tenant_a,p05_tenant_b;
+GRANT INSERT ON public.ledger_journals TO p05_tenant_a,p05_tenant_b;
