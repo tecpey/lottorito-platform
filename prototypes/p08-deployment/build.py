@@ -10,6 +10,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 SOURCE_REVISION_LENGTH = 40
+PRODUCT_IDS = ("affiliate_agent", "lottery")
+PRODUCT_SLUGS = {"affiliate_agent": "affiliate-agent", "lottery": "lottery"}
 SCHEMA_SUPPORT = {
     "v1": {"version": "1.0.0", "min_schema": 1, "max_schema": 2},
     "v2": {"version": "2.0.0", "min_schema": 1, "max_schema": 3},
@@ -27,20 +29,24 @@ def sha256(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
-def build(version_key: str, output_dir: Path, source_revision: str) -> tuple[Path, Path, str]:
+def build(version_key: str, output_dir: Path, source_revision: str, product_id: str = "affiliate_agent") -> tuple[Path, Path, str]:
     if version_key not in SCHEMA_SUPPORT:
         raise ValueError("unknown_fixture_version")
+    if product_id not in PRODUCT_IDS:
+        raise ValueError("unknown_product_id")
     if len(source_revision) != SOURCE_REVISION_LENGTH or any(ch not in "0123456789abcdef" for ch in source_revision):
         raise ValueError("source_revision_must_be_40_lowercase_hex")
     output_dir.mkdir(parents=True, exist_ok=True)
     if any(output_dir.iterdir()):
         raise FileExistsError("build_output_directory_must_be_empty")
-    artifact_path = output_dir / f"affiliate-agent-{version_key}.pyz"
-    provenance_path = output_dir / f"affiliate-agent-{version_key}.provenance.json"
+    product_slug = PRODUCT_SLUGS[product_id]
+    artifact_path = output_dir / f"{product_slug}-{version_key}.pyz"
+    provenance_path = output_dir / f"{product_slug}-{version_key}.provenance.json"
 
-    entrypoint = (ROOT / "fixtures" / version_key / "__main__.py").read_bytes()
+    entrypoint_template = (ROOT / "fixtures" / version_key / "__main__.py").read_bytes()
+    entrypoint = entrypoint_template.replace(b"__P08_PRODUCT_ID__", product_id.encode("ascii"))
     metadata = {
-        "product": "affiliate_agent",
+        "product": product_id,
         "version": SCHEMA_SUPPORT[version_key]["version"],
         "min_schema": SCHEMA_SUPPORT[version_key]["min_schema"],
         "max_schema": SCHEMA_SUPPORT[version_key]["max_schema"],
@@ -88,8 +94,9 @@ def main() -> int:
     parser.add_argument("version", choices=sorted(SCHEMA_SUPPORT))
     parser.add_argument("--out", required=True, type=Path)
     parser.add_argument("--source-revision", required=True)
+    parser.add_argument("--product", choices=PRODUCT_IDS, required=True)
     args = parser.parse_args()
-    artifact, provenance, digest = build(args.version, args.out, args.source_revision)
+    artifact, provenance, digest = build(args.version, args.out, args.source_revision, args.product)
     print(f"artifact={artifact.name}")
     print(f"sha256={digest}")
     print(f"provenance={provenance.name}")
