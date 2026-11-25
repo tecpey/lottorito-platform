@@ -93,6 +93,12 @@ def dispatch_event(
 
     source_product = producer["product_id"]
     tenant_id = event["tenantid"]
+    try:
+        canonical_tenant_id = str(uuid.UUID(tenant_id))
+    except (ValueError, AttributeError):
+        return _deny("invalid_tenant_identity", source_product, tenant_id)
+    if canonical_tenant_id != tenant_id:
+        return _deny("invalid_tenant_identity", source_product, tenant_id)
     expected_scope = {"kind": "product", "id": source_product}
     if event["scope"] != expected_scope:
         return _deny("event_scope_mismatch", source_product, tenant_id)
