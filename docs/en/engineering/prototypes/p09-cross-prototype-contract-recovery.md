@@ -1,6 +1,6 @@
 # P-09 — Cross-Prototype Contract & Recovery Integration
 
-**Document ID:** LOT-PROT-P09-001 | **Version:** 0.6.0 | **Status:** Proposed cross-prototype contract; P-09A passed and P-09B scope-aware P-06 correlation passed on synthetic CI; no production approval
+**Document ID:** LOT-PROT-P09-001 | **Version:** 0.7.0 | **Status:** Synthetic cross-prototype slices P-09A–P-09L validated; P-09M explicit-product hardening under validation; no production approval
 
 **Status:** Proposed contract baseline; implementation and owner approval remain open.  
 **Baseline:** `integration/p03d-p04-p08-candidate` at `c7f9ffa1f499fbd34d260b2aa6d3122d32e1ac7f`.  
@@ -192,13 +192,13 @@ All results below ran on source-code head dfaa8120340cc6b4b80450dbf0e5755b211110
 
 P-05B's exact assertions included duplicate aggregate-sequence rejection, product-scoped event/effect identity, independent cursors, concurrent same-product serialization, cross-product RLS on Inbox/source events/journals/lines, rollback and ledger reconciliation. P-02's 26/26 tests include rejection of new legacy shared values. Existing legacy data was not rewritten.
 
-These results establish synthetic prototype acceptance only. P-02 tenant-only financial keys remain open. No production migration, merge or deployment was performed.
+These results establish synthetic prototype acceptance only. The tenant-only P-02 key gap recorded at the P-09J checkpoint was addressed by P-09K; production migration and legacy-data reconciliation remain separate gates. No production migration, merge or deployment was performed.
 
 ### P-09K — Product-qualified financial keys across P-02, P-03C, P-03D and P-09E (2026-11-26)
 
 P-02 now uses `(tenant_id, product_id, ...)` for every financial primary/unique key and every financial foreign-key relationship. P-03C delivery state and consumer inbox now reference the immutable P-02 outbox with `(tenant_id, product_id, event_id)`; claim/update/expiry operations preserve the product dimension. P-03D provider inbox, conflict and expectation records accept canonical product IDs only and retain product-qualified journal references. The same account UUIDs are deliberately reused by Affiliate & Agent and Lottery, with access resolved exclusively by database session product identity. P-09E physical recovery/replay uses those same identifiers to verify that the composite product boundary survives backup and restore.
 
-The first P-09K CI cycle exposed dependent fixtures that still assumed product-specific account UUIDs and a tenant-only outbox event key. Those were corrected at P-03C/P-03D/P-09E boundaries. Exact-head CI remains pending. No production migration is implied; legacy data still requires inventory, collision analysis, and an approved staged migration plan.
+The first P-09K CI cycle exposed dependent fixtures that still assumed product-specific account UUIDs and a tenant-only outbox event key. Those were corrected at P-03C/P-03D/P-09E boundaries. Exact-head validation is recorded below. No production migration is implied; legacy data still requires inventory, collision analysis, and an approved staged migration plan.
 
 ### P-09K exact-head validation (2026-11-26)
 
@@ -220,7 +220,7 @@ P-09K is synthetic acceptance only. No production migration, merge or deployment
 
 ### P-09L — Product-qualified schema evolution in P-04 (2026-11-26)
 
-The independent P-04 migration lab now binds database roles to tenant and product. Partner event PK/RLS/backfill, journal and line PK/FK, and reporting keys/RLS all include product scope. Affiliate & Agent and Lottery deliberately reuse the same event and journal UUIDs for Tenant A, while v1/v2 roles coexist independently in each product. The lab verifies cross-product read/write denial, per-product resumable backfill and unchanged product-level ledger/reporting totals. CI is pending exact-head validation. This does not modify production schemas or imply a production migration.
+The independent P-04 migration lab now binds database roles to tenant and product. Partner event PK/RLS/backfill, journal and line PK/FK, and reporting keys/RLS all include product scope. Affiliate & Agent and Lottery deliberately reuse the same event and journal UUIDs for Tenant A, while v1/v2 roles coexist independently in each product. The lab verifies cross-product read/write denial, per-product resumable backfill and unchanged product-level ledger/reporting totals. Exact-head validation is recorded below. This does not modify production schemas or imply a production migration.
 
 ### P-09L exact-head validation (2026-11-26)
 
@@ -234,8 +234,15 @@ Exact code head `75fd23701d4e28f047f8ebb73ea0b684bb144c7a` passed all 10 relevan
 
 P-04's migration recovery contract now requires a pinned database session and a nonblocking `pg_try_advisory_lock` scoped to the index identity. A competing caller returns `busy` immediately instead of waiting while holding a snapshot; the lock holder explicitly unlocks on completion, and the pooled connection is destroyed if unlock state is uncertain. Recovery inspects `indisvalid` and `indisready`, compares the full catalog definition, repairs invalid indexes, and rejects valid-but-drifted definitions. Concurrent callers converge to one repair plus one `busy` or post-repair `valid` result. The blocking-lock predecessor deadlocked with `CREATE INDEX CONCURRENTLY` and was replaced.
 
-P-04 exact-head validation: [workflow 45864404159](https://github.com/tecpey/lottorito-platform/actions/runs/45864404159), 8/8 tests, commit `6528003dd867bb19a289fab0bdf0943a537ecd7d`. The broader exact-head workflow set is still being revalidated after this code change.
+P-04 exact-head validation: [workflow 45864404159](https://github.com/tecpey/lottorito-platform/actions/runs/45864404159), 8/8 tests, commit `6528003dd867bb19a289fab0bdf0943a537ecd7d`. The broader exact-head workflow set was subsequently revalidated; see the final P-09L exact-head acceptance below.
 
 ## Final P-09L exact-head acceptance (2026-11-26)
 
 All 10 relevant workflows passed on code head `7cb0598a163f40e53a4412a44b476b0404685b75`: P-02 [45864973900](https://github.com/tecpey/lottorito-platform/actions/runs/45864973900) (27/27); P-03C/P-03D [45864973911](https://github.com/tecpey/lottorito-platform/actions/runs/45864973911) (16/16 and 35/35); P-04 [45864974941](https://github.com/tecpey/lottorito-platform/actions/runs/45864974941) (8/8); P-05 recovery [45864973907](https://github.com/tecpey/lottorito-platform/actions/runs/45864973907) (all six positive/negative markers); P-05C [45864973943](https://github.com/tecpey/lottorito-platform/actions/runs/45864973943) (`P05C_RESULT=PASS)); P-06 [45864973966](https://github.com/tecpey/lottorito-platform/actions/runs/45864973966); P-07B [45864973777](https://github.com/tecpey/lottorito-platform/actions/runs/45864973777); P-08 [45864973893](https://github.com/tecpey/lottorito-platform/actions/runs/45864973893); P-09 [45864973951](https://github.com/tecpey/lottorito-platform/actions/runs/45864973951); Documentation Governance [45864973989](https://github.com/tecpey/lottorito-platform/actions/runs/45864973989) (58 bilingual pairs, 136 local links). P-04's blocking-lock deadlock was caught, replaced with nonblocking try-lock, and the corrected 8/8 suite passed. The following commit updates documentation only; it does not change the validated runtime code. PR #68 remains open and Draft; no merge or deployment was performed.
+
+
+## P-09M — Explicit product identity; remove implicit Affiliate fallback (2026-11-26)
+
+The P-09K composite-key migration exposed a remaining fail-open schema convention: P-02's tenant/product role map and financial tables, plus P-03C delivery-state and consumer tables, still defaulted an omitted `product_id` to `affiliate_agent`. That default could silently misclassify a future insert whose caller forgot to provide product identity. P-09M removes those defaults while retaining NOT NULL and canonical product CHECK constraints. Product identity must now be supplied explicitly at every insert boundary. Regression tests inspect all seven P-02 product columns and all three P-03C product columns for absence of defaults, and verify that an insert omitting product_id fails with SQLSTATE 23502. No data migration is involved; the changed schemas are disposable fixtures only.
+
+P-09M CI is pending on the new exact PR head. Acceptance requires P-02, P-03C/P-03D, P-09 and Documentation Governance on the exact same head, plus the full candidate regression before any integration decision. No merge, production migration or deployment is authorized.
