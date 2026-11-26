@@ -7,9 +7,11 @@ import { normalizeJournalRequest, postJournal } from "../src/posting.js";
 const adminUrl = process.env.ADMIN_DATABASE_URL;
 const tenantAUrl = process.env.TENANT_A_DATABASE_URL;
 const tenantBUrl = process.env.TENANT_B_DATABASE_URL;
+const tenantALotteryUrl = process.env.TENANT_A_LOTTERY_DATABASE_URL;
 assert.ok(adminUrl, "ADMIN_DATABASE_URL must target the disposable P-02 database");
 assert.ok(tenantAUrl, "TENANT_A_DATABASE_URL must authenticate as tenant_a_ledger_runtime");
 assert.ok(tenantBUrl, "TENANT_B_DATABASE_URL must authenticate as tenant_b_ledger_runtime");
+assert.ok(tenantALotteryUrl, "TENANT_A_LOTTERY_DATABASE_URL must authenticate as tenant_a_lottery_runtime");
 
 const TENANT_A = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
 const TENANT_B = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
@@ -27,6 +29,7 @@ const adminPool = new Pool({ connectionString: adminUrl, max: 2 });
 const tenantAPool = new Pool({ connectionString: tenantAUrl, max: 2 });
 const tenantASecondPool = new Pool({ connectionString: tenantAUrl, max: 1 });
 const tenantBPool = new Pool({ connectionString: tenantBUrl, max: 2 });
+const tenantALotteryPool = new Pool({ connectionString: tenantALotteryUrl, max: 2 });
 
 function effectIdFor(key) {
   const chars = createHash("sha256").update(key).digest("hex").slice(0, 32).split("");
@@ -47,10 +50,10 @@ function balancedUsd(amount = "12500", accountDebit = A_USD_CASH, accountCredit 
   ];
 }
 
-async function journalCount(tenantId, idempotencyKey) {
+async function journalCount(tenantId, idempotencyKey, productId = "affiliate_agent") {
   const result = await adminPool.query(
-    "SELECT count(*)::int AS count FROM public.posting_requests WHERE tenant_id = $1 AND idempotency_key = $2",
-    [tenantId, idempotencyKey]
+    "SELECT count(*)::int AS count FROM public.posting_requests WHERE tenant_id = $1 AND product_id = $2 AND idempotency_key = $3",
+    [tenantId, productId, idempotencyKey]
   );
   return result.rows[0].count;
 }
@@ -59,6 +62,7 @@ test.after(async () => {
   await tenantAPool.end();
   await tenantASecondPool.end();
   await tenantBPool.end();
+  await tenantALotteryPool.end();
   await adminPool.end();
 });
 
@@ -274,7 +278,7 @@ test("tenant A cannot post against tenant B accounts and receives no cross-tenan
   assert.equal(await journalCount(TENANT_A, "p02-cross-tenant-account-001"), 0);
 });
 
-test("idempotency keys are scoped by tenant rather than globally", async () => {
+test("idempotency keys are scoped by tenant and product rather than globally", async () => {
   const a = await postJournal(tenantAPool, request("same-token", balancedUsd("500")));
   const bLines = [
     { line_no: 1, account_id: B_USD_CASH, currency_code: "USD", direction: "debit", amount_minor: "500" },
@@ -286,6 +290,48 @@ test("idempotency keys are scoped by tenant rather than globally", async () => {
   assert.equal(b.duplicate, false);
   assert.equal(await journalCount(TENANT_A, "same-token"), 1);
   assert.equal(await journalCount(TENANT_B, "same-token"), 1);
+});
+
+
+test("the same tenant can reuse account, effect, journal request and event identities across products without collision", async () => {
+  const sharedKey = "same-tenant-product-key";
+  const sharedEffect = effectIdFor("same-tenant-product-effect");
+  const sharedEvent = EVENT_1;
+  const affiliate = await postJournal(
+    tenantAPool,
+    request(sharedKey, balancedUsd("777"), sharedEvent, sharedEffect)
+  );
+  const lottery = await postJournal(
+    tenantALotteryPool,
+    request(sharedKey, balancedUsd("777"), sharedEvent, sharedEffect)
+  );
+  assert.notEqual(affiliate.journal_id, lottery.journal_id);
+  assert.equal(affiliate.duplicate, false);
+  assert.equal(lottery.duplicate, false);
+  assert.equal(await journalCount(TENANT_A, sharedKey, "affiliate_agent"), 1);
+  assert.equal(await journalCount(TENANT_A, sharedKey, "lottery"), 1);
+
+  const accounts = await adminPool.query(
+    "SELECT product_id, account_id, count(*)::int AS rows FROM public.ledger_accounts WHERE tenant_id = $1 AND account_id IN ($2,$3) GROUP BY product_id, account_id ORDER BY product_id, account_id",
+    [TENANT_A, A_USD_CASH, A_USD_CLEARING]
+  );
+  assert.equal(accounts.rowCount, 4);
+  const journals = await adminPool.query(
+    "SELECT product_id, journal_id FROM public.ledger_journals WHERE tenant_id = $1 AND journal_id IN ($2,$3) ORDER BY product_id",
+    [TENANT_A, affiliate.journal_id, lottery.journal_id]
+  );
+  assert.deepEqual(journals.rows, [
+    { product_id: "affiliate_agent", journal_id: affiliate.journal_id },
+    { product_id: "lottery", journal_id: lottery.journal_id }
+  ]);
+  const effects = await adminPool.query(
+    "SELECT product_id, effect_id, count(*)::int AS rows FROM public.financial_effects WHERE tenant_id = $1 AND effect_id = $2 GROUP BY product_id, effect_id ORDER BY product_id",
+    [TENANT_A, sharedEffect]
+  );
+  assert.deepEqual(effects.rows, [
+    { product_id: "affiliate_agent", effect_id: sharedEffect, rows: 1 },
+    { product_id: "lottery", effect_id: sharedEffect, rows: 1 }
+  ]);
 });
 
 test("legacy shared product scope is rejected rather than silently aliased", async () => {

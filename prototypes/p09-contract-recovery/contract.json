@@ -74,7 +74,8 @@
     "p06.correlation_map": "tenant_id + scope_kind + scope_id + source_event_id composite; trace_id is persisted; P-09I validates the source event envelope before correlation",
     "p06.product_domain": "affiliate_agent|lottery|platform; platform must map to platform scope, never to a product id",
     "p07b.event_contracts": "source_product and allowed_consumers map to product scope; dispatch enforces sourceeventid, schemaversion and traceparent through the shared P-09 validator",
-    "p08.artifact": "P-09I binds the canonical product scope object and canonical product registry into release metadata and detached provenance"
+    "p08.artifact": "P-09I binds the canonical product scope object and canonical product registry into release metadata and detached provenance",
+    "p02.financial_identity": "P-09K: all P-02 disposable financial PK/UNIQUE/FK constraints, effect conflict arbiters, request/effect joins and outbox polling index include tenant_id + product_id. Same tenant/account/effect/event/idempotency identifiers are integration-tested independently in affiliate_agent and lottery. No production migration or historical shared-data reassignment is implied."
   },
   "migration_rules": [
     "Never collapse shared and platform into a product identifier.",

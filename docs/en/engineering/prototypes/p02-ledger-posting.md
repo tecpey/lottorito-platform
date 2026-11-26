@@ -81,3 +81,9 @@ This is deliberately not a data migration. Existing databases or legacy rows con
 ### P-09J CI evidence
 
 Validated on source-code head `dfaa8120340cc6b4b80450dbf0e5755b21111080`: [P-02 Ledger Posting run 45662750926](https://github.com/tecpey/lottorito-platform/actions/runs/45662750926) passed **26/26 integration tests**. The negative legacy-token case returned the expected check-constraint SQLSTATE `23514`. No legacy data migration was performed.
+
+## P-09K — Product-qualified financial keys and referential integrity (2026-11-26)
+
+P-02 now includes `product_id` in every financial primary key and unique constraint: accounts, financial effects, posting requests, journals, journal lines and outbox events. All foreign keys carry the same tenant+product tuple, including journal-to-effect, line-to-journal, line-to-account and outbox-to-journal references. The effect conflict arbiter and all request/effect joins are product-qualified. The outbox polling index is also tenant+product qualified.
+
+A new integration test reuses the same tenant, account UUIDs, source-event UUID, effect UUID and idempotency key in Affiliate & Agent and Lottery. Both products must independently post exactly one balanced journal, and the database must preserve separate product-qualified rows. This is a disposable PostgreSQL 18.7 fixture only; it is not a production migration. Existing production rows and IDs require inventory, collision analysis and an approved expand/backfill/validate/contract migration plan before any schema change.

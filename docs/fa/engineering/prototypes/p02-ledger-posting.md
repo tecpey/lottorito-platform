@@ -81,3 +81,9 @@ Schema دورریختنی P-02 اکنون فقط شناسه‌های Canonical �
 ### شواهد CI مربوط به P-09J
 
 اعتبارسنجی روی Source-code Head با شناسه `dfaa8120340cc6b4b80450dbf0e5755b21111080` انجام شد: [اجرای P-02 Ledger Posting با شناسه 45662750926](https://github.com/tecpey/lottorito-platform/actions/runs/45662750926) با **۲۶ تست از ۲۶ تست موفق** به پایان رسید. تست منفی مقدار Legacy، SQLSTATE مورد انتظار یعنی `23514` را دریافت کرد. هیچ Migration داده Legacy انجام نشد.
+
+## P-09K — کلیدهای مالی و یکپارچگی ارجاعی با Scope محصول (۲۰۲۶-۱۱-۲۶)
+
+در P-02 اکنون `product_id` در تمام Primary Keyها و Unique Constraintهای مالی حضور دارد: حساب‌ها، اثرهای مالی، درخواست‌های Posting، Journalها، خطوط Journal و رویدادهای Outbox. تمام Foreign Keyها نیز همان Tuple شامل Tenant و Product را حمل می‌کنند؛ از جمله ارجاع Journal به Effect، Line به Journal، Line به Account و Outbox به Journal. Conflict Arbiter مربوط به Effect و تمام Joinهای Request/Effect نیز محصول‌محور شده‌اند. ایندکس Polling مربوط به Outbox هم Tenant و Product را دربرمی‌گیرد.
+
+یک Integration Test جدید همان Tenant، UUID حساب‌ها، UUID رویداد مبدأ، UUID اثر اقتصادی و Idempotency Key را در Affiliate & Agent و Lottery دوباره استفاده می‌کند. هر دو محصول باید مستقلاً دقیقاً یک Journal متوازن ثبت کنند و دیتابیس باید ردیف‌های مجزای دارای Scope محصول را حفظ کند. این فقط Fixture دورریختنی PostgreSQL 18.7 است و Migration مربوط به Production نیست. ردیف‌ها و شناسه‌های موجود در Production پیش از هر تغییر Schema نیازمند Inventory، تحلیل برخورد شناسه‌ها و طرح Migration تأییدشده از نوع Expand/Backfill/Validate/Contract هستند.
