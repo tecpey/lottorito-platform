@@ -1,6 +1,13 @@
 # وضعیت واقعی پروژه و نقطه ادامه کار
 
-**شناسه:** LOT-OPS-001 | **نسخه:** ۱.۵۳.۰ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۶
+**شناسه:** LOT-OPS-001 | **نسخه:** ۱.۵۴.۰ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۶
+
+## نقطه ادامه جاری — معماری امنیت و حاکمیت P-10D (۲۰۲۶-۱۱-۲۶)
+
+- معماری امنیت/حاکمیت دوزبانه و مستقل از منبع P-10D در شاخه spike/p10d-security-governance اضافه شد. این سند Zero Trust، Authorization ترکیبی و Scopeدار RBAC/ABAC/Object، جداسازی Tenant در همه Data Planeها، کنترل‌های RLS/Role/Pool، هویت انسانی و Workload، چرخه عمر Secret/Key، Audit، Privacy، Threat Model، Gateهای Verification و حاکمیت Incident را تعریف می‌کند.
+- P-10B همچنان پروتکل Inventory فقط‌خواندنیِ اجرا‌نشده است؛ هیچ Endpoint یا دیتابیس منبعی بررسی نشده است. P-10C چارچوب مهاجرت مستقل از منبع باقی می‌ماند. هیچ سیستم Production، Credential یا داده شخصی بررسی نشده است.
+- پیاده‌سازی Authentication/Authorization/RLS/KMS، دسترسی Production، DDL/DML، Migration، Penetration Test، بررسی حقوقی، Certification، Merge یا Deploy انجام نشده است.
+- حوزه قضایی، شمول حقوقی، قرارداد Provider، Vendor مربوط به KMS، IAM/RLS مستقر، طبقه‌بندی داده و Ownerهای عملیاتی تأیید نشده‌اند؛ این موارد Blocker پیاده‌سازی‌اند و فرض محسوب نمی‌شوند.
 
 ## نقطه ادامه جاری — چارچوب معماری مهاجرت P-10C (۲۰۲۶-۱۱-۲۶)
 
