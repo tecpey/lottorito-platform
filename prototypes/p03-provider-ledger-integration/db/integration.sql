@@ -12,12 +12,9 @@ ALTER ROLE provider_event_owner NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOIN
 GRANT CREATE ON SCHEMA public TO provider_event_owner;
 GRANT CREATE ON SCHEMA private TO provider_event_owner;
 
-CREATE UNIQUE INDEX IF NOT EXISTS ledger_journals_tenant_product_journal_uidx
-  ON public.ledger_journals (tenant_id, product_id, journal_id);
-
 CREATE TABLE public.provider_event_inbox (
   tenant_id uuid NOT NULL,
-  product_id text NOT NULL CHECK (product_id IN ('affiliate_agent', 'lottery', 'shared')),
+  product_id text NOT NULL CHECK (product_id IN ('affiliate_agent', 'lottery')),
   provider_id text NOT NULL CHECK (provider_id ~ '^[A-Za-z0-9._:-]{1,80}$'),
   provider_event_id text NOT NULL CHECK (provider_event_id ~ '^[A-Za-z0-9._:-]{1,80}$'),
   event_type text NOT NULL CHECK (length(event_type) BETWEEN 1 AND 160),
@@ -60,7 +57,7 @@ ALTER TABLE public.provider_event_inbox OWNER TO provider_event_owner;
 
 CREATE TABLE public.provider_event_conflicts (
   tenant_id uuid NOT NULL,
-  product_id text NOT NULL,
+  product_id text NOT NULL CHECK (product_id IN ('affiliate_agent', 'lottery')),
   provider_id text NOT NULL,
   provider_event_id text NOT NULL,
   accepted_payload_hash text NOT NULL CHECK (accepted_payload_hash ~ '^[0-9a-f]{64}$'),
@@ -73,7 +70,7 @@ ALTER TABLE public.provider_event_conflicts OWNER TO provider_event_owner;
 
 CREATE TABLE public.provider_event_expectations (
   tenant_id uuid NOT NULL,
-  product_id text NOT NULL,
+  product_id text NOT NULL CHECK (product_id IN ('affiliate_agent', 'lottery')),
   provider_id text NOT NULL,
   provider_event_id text NOT NULL,
   expected_at timestamptz NOT NULL DEFAULT clock_timestamp(),

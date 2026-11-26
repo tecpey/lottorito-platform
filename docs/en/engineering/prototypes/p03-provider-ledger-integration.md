@@ -129,3 +129,7 @@ P-09H ingress regressions now also prove that provider-supplied `tenantid`, `sco
 
 
 The P-03D test runner also includes a direct Node.js conformance suite for the shared P-09 validator. It exercises valid and adversarial envelope cases independently of the PostgreSQL-backed ingress tests, so a future worker change cannot silently bypass the validator's core rules.
+
+## P-09K — Product-qualified account and outbox references (2026-11-26)
+
+P-03D deliberately reuses the same account UUIDs for the same tenant in Affiliate & Agent and Lottery. P-02's composite key `(tenant_id, product_id, account_id)` keeps these identifiers independent; posting and account foreign keys preserve product scope end to end. The Lottery provider integration must post with those reused identifiers without seeing or mutating Affiliate account rows. P-03D removes a redundant journal unique index already guaranteed by P-02's composite primary key and rejects legacy `shared` product tokens in provider inbox/conflict/expectation state. CI is pending exact-head validation.
