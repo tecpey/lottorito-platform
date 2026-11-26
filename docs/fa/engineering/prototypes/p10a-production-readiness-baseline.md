@@ -160,8 +160,8 @@ Issueهای موجود:
 - CREATE INDEX در PostgreSQL: گزینه CONCURRENTLY از Lockهای مانع Write اجتناب می‌کند، اما Scan/Wait بیشتر و حالت Index نامعتبر پس از شکست دارد: https://www.postgresql.org/docs/current/sql-createindex.html
 - Transaction Isolation و Explicit Locking در PostgreSQL: سطح Isolation، Serialization Anomaly، Lock Mode و Monitoring باید در طراحی هم‌زمانی لحاظ شوند: https://www.postgresql.org/docs/current/transaction-iso.html و https://www.postgresql.org/docs/current/explicit-locking.html
 - NIST SP 800-207: معماری Zero Trust اعتماد ضمنی مبتنی بر محل شبکه یا مالکیت دارایی را حذف می‌کند و بر حفاظت از منابع مشخص متمرکز است: https://csrc.nist.gov/pubs/sp/800/207/final
-- راهنمای Well-Architected گوگل برای آزمون بازیابی: موفقیت بازیابی با یکپارچگی داده، RTO و RPO ارزیابی می‌شود و سناریوهای Restore پس از فقدان/خرابی باید آزمایش شوند: https://docs.cloud.google.com/architecture/framework/reliability/perform-testing-for-data-loss
-- AWS Prescriptive Guidance برای Migration دیتابیس رابطه‌ای: آماده‌سازی، برنامه‌ریزی، Migration، تست، Cutover و عملیات؛ Migration تدریجی و Qualification بار نیز گزینه‌های صریح راهبرد هستند: https://docs.aws.amazon.com/prescriptive-guidance/latest/strategy-database-migration/welcome.html
+- راهنمای Well-Architected گوگل برای آزمون بازیابی: موفقیت بازیابی با یکپارچگی داده، RTO و RPO ارزیابی می‌شود و سناریوهای Restore پس از فقدان/خرابی باید آزمایش شوند: https://docs.cloud.google.com/architecture/framework/reliability/perform-testing-for-recovery-from-failures
+- AWS Prescriptive Guidance برای Migration دیتابیس رابطه‌ای: آماده‌سازی، برنامه‌ریزی، Migration، تست، Cutover و عملیات؛ Migration تدریجی و Qualification بار نیز گزینه‌های صریح راهبرد هستند: https://docs.aws.amazon.com/pdfs/prescriptive-guidance/latest/strategy-database-migration/strategy-database-migration.pdf
 
 این منابع کنترل‌های پیشنهادی را پشتیبانی می‌کنند؛ Vendor یا فناوری‌ای را انتخاب نمی‌کنند و جایگزین بررسی بار، امنیت، مالی، حقوقی و تأیید مالک برای Lottorito نیستند.
 
