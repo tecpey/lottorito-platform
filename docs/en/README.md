@@ -1,6 +1,6 @@
 # Lottorito — English Documentation
 
-**Document ID:** LOT-DOC-INDEX-EN-001 | **Version:** 2.7.0 | **Status:** Maintained index
+**Document ID:** LOT-DOC-INDEX-EN-001 | **Version:** 2.8.0 | **Status:** Maintained index
 
 This directory is the authoritative English documentation space for Lottorito. The Persian documentation under docs/fa/ is equally authoritative.
 
@@ -78,6 +78,7 @@ LOT-FIN-POST-001 defines proposed financial posting and reconciliation controls;
 | Engineering | [P-08 deployment, health gates and rollback](engineering/prototypes/p08-deployment-health-rollback.md) | LOT-PROT-P08-001; deterministic artifact, provenance consistency, runtime-only secrets, health gates and schema-aware recovery; 45 CI tests passed on PR #59, synthetic-only |
 | Engineering | [Agent operating manual](engineering/agent-operating-manual.md) | Low-context task routing and handoff |
 | Engineering | [Decision register](engineering/decision-register.md) | Owner directions, proposals and unresolved decisions |
+| Engineering | [P-10A production-readiness baseline](engineering/prototypes/p10a-production-readiness-baseline.md) | LOT-PROT-P10A-001; verified PR ancestry, exact-head CI, synthetic limitations and P-10B–P-10F migration/operations gates |
 | Engineering | [Project status](engineering/project-status.md) | Verified state and continuation point |
 | Engineering | [Roadmap](engineering/roadmap.md) | Proposed delivery sequence and gates |
 
