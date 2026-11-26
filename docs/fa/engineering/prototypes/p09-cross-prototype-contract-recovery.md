@@ -192,7 +192,7 @@ Schema دورریختنی P-02 مقدار جدید `shared` را رد می‌ک�
 
 Assertionهای دقیق P-05B شامل رد Sequence تکراری در Aggregate، هویت Event/Effect محصول‌محور، Cursorهای مستقل، سریال‌سازی هم‌محصول در Workerهای هم‌زمان، RLS بین محصولات روی Inbox/Source Event/Journal/Line، Rollback و تطبیق Ledger بود. تست‌های ۲۶گانه P-02 نیز شامل رد مقدار Legacy جدید shared هستند. داده‌های Legacy بازنویسی نشدند.
 
-این نتایج فقط پذیرش Synthetic Prototype را اثبات می‌کنند. کلیدهای مالی P-02 که فقط Tenant را شامل می‌شوند، همچنان باز هستند. هیچ Migration مربوط به Production، Merge یا Deploy انجام نشد.
+این نتایج فقط پذیرش Synthetic Prototype را اثبات می‌کنند. شکاف کلیدهای مالی P-02 که در نقطه P-09J فقط Tenant را شامل می‌شدند، در P-09K اصلاح شد؛ Migration عملیاتی و تطبیق داده‌های Legacy همچنان دروازه‌های مستقل هستند. هیچ Migration مربوط به Production، Merge یا Deploy انجام نشد.
 
 ### P-09K — کلیدهای مالی محصول‌محور در P-02، P-03C، P-03D و P-09E (۲۰۲۶-۱۱-۲۶)
 
@@ -220,7 +220,7 @@ Assertionهای دقیق P-05B شامل رد Sequence تکراری در Aggregat
 
 ### P-09L — تکامل Schema با هویت محصول‌محور در P-04 (۲۰۲۶-۱۱-۲۶)
 
-آزمایشگاه مستقل Migration در P-04 اکنون Roleهای دیتابیس را به Tenant و Product متصل می‌کند. Primary Key/RLS/Backfill رویدادهای Partner، Primary/Foreign Keyهای Journal و Line و کلیدها/RLS مربوط به Reporting همگی Scope محصول را شامل می‌شوند. Affiliate & Agent و Lottery عمداً همان UUID رویداد و Journal را برای Tenant A دوباره استفاده می‌کنند، در حالی که Roleهای v1/v2 در هر محصول مستقل هم‌زیستی دارند. آزمایش، رد Read/Write بین محصولات، Backfill قابل‌ادامه به تفکیک محصول و حفظ مجموع Ledger/Reporting هر محصول را بررسی می‌کند. CI روی Head دقیق در انتظار اعتبارسنجی است. این کار Schema عملیاتی را تغییر نمی‌دهد و به‌معنای Migration Production نیست.
+آزمایشگاه مستقل Migration در P-04 اکنون Roleهای دیتابیس را به Tenant و Product متصل می‌کند. Primary Key/RLS/Backfill رویدادهای Partner، Primary/Foreign Keyهای Journal و Line و کلیدها/RLS مربوط به Reporting همگی Scope محصول را شامل می‌شوند. Affiliate & Agent و Lottery عمداً همان UUID رویداد و Journal را برای Tenant A دوباره استفاده می‌کنند، در حالی که Roleهای v1/v2 در هر محصول مستقل هم‌زیستی دارند. آزمایش، رد Read/Write بین محصولات، Backfill قابل‌ادامه به تفکیک محصول و حفظ مجموع Ledger/Reporting هر محصول را بررسی می‌کند. اعتبارسنجی روی Head دقیق در ادامه ثبت شده است. این کار Schema عملیاتی را تغییر نمی‌دهد و به‌معنای Migration Production نیست.
 
 ### اعتبارسنجی P-09L روی Head دقیق (۲۰۲۶-۱۱-۲۶)
 
@@ -234,8 +234,15 @@ Head دقیق کد `75fd23701d4e28f047f8ebb73ea0b684bb144c7a` تمام ۱۰ Work
 
 قرارداد بازیابی Migration در P-04 اکنون مستلزم استفاده از یک Session ثابت دیتابیس و `pg_try_advisory_lock` غیرمسدودکننده و محدود به هویت ایندکس است. فراخوانی رقیب فوراً `busy` برمی‌گرداند و به‌جای انتظار با Snapshot باز، Connection خود را آزاد می‌کند؛ مالک قفل آن را در پایان صریحاً آزاد می‌کند و در صورت نامطمئن بودن وضعیت آزادسازی، Connection از Pool خارج می‌شود. مسیر بازیابی باید `indisvalid` و `indisready` را بررسی کند، تعریف کامل Catalog را تطبیق دهد، ایندکس نامعتبر را اصلاح کند و تعریف معتبر اما Drift‌شده را رد کند. فراخوانی‌های هم‌زمان باید به یک Repair و یک نتیجه `busy` یا `valid` پس از Repair همگرا شوند. نسخه قبلی با Advisory Lock مسدودشونده در کنار `CREATE INDEX CONCURRENTLY` Deadlock ایجاد کرد؛ نسخه Try-lock غیرمسدودکننده این مسیر انتظار را حذف می‌کند و هم‌زمان Race و پذیرش اشتباه تعریف را می‌بندد.
 
-اعتبارسنجی P-04 روی Head دقیق: [Workflow شماره 45864404159](https://github.com/tecpey/lottorito-platform/actions/runs/45864404159)، شامل ۸ از ۸ تست، Commit برابر `6528003dd867bb19a289fab0bdf0943a537ecd7d`. مجموعه گسترده‌تر Workflowها پس از این تغییر کد همچنان در حال اعتبارسنجی مجدد است.
+اعتبارسنجی P-04 روی Head دقیق: [Workflow شماره 45864404159](https://github.com/tecpey/lottorito-platform/actions/runs/45864404159)، شامل ۸ از ۸ تست، Commit برابر `6528003dd867bb19a289fab0bdf0943a537ecd7d`. مجموعه گسترده‌تر Workflowها پس از این تغییر کد مجدداً اعتبارسنجی شد؛ به پذیرش نهایی P-09L در ادامه مراجعه شود.
 
 ## پذیرش نهایی P-09L روی Head دقیق (۲۰۲۶-۱۱-۲۶)
 
 هر ۱۰ Workflow مرتبط روی Head کد `7cb0598a163f40e53a4412a44b476b0404685b75` موفق شدند: P-02 با [اجرای 45864973900](https://github.com/tecpey/lottorito-platform/actions/runs/45864973900) (۲۷ از ۲۷)؛ P-03C/P-03D با [اجرای 45864973911](https://github.com/tecpey/lottorito-platform/actions/runs/45864973911) (به‌ترتیب ۱۶ از ۱۶ و ۳۵ از ۳۵)؛ P-04 با [اجرای 45864974941](https://github.com/tecpey/lottorito-platform/actions/runs/45864974941) (۸ از ۸)؛ بازیابی P-05 با [اجرای 45864973907](https://github.com/tecpey/lottorito-platform/actions/runs/45864973907) (هر شش Marker مثبت/منفی)؛ P-05C با [اجرای 45864973943](https://github.com/tecpey/lottorito-platform/actions/runs/45864973943) و نتیجه `P05C_RESULT=PASS`؛ P-06 با [45864973966](https://github.com/tecpey/lottorito-platform/actions/runs/45864973966)؛ P-07B با [45864973777](https://github.com/tecpey/lottorito-platform/actions/runs/45864973777)؛ P-08 با [45864973893](https://github.com/tecpey/lottorito-platform/actions/runs/45864973893)؛ P-09 با [45864973951](https://github.com/tecpey/lottorito-platform/actions/runs/45864973951)؛ و Documentation Governance با [45864973989](https://github.com/tecpey/lottorito-platform/actions/runs/45864973989) (۵۸ جفت دوزبانه و ۱۳۶ لینک داخلی). Deadlock ناشی از Advisory Lock مسدودشونده در P-04 شناسایی شد، با Try-lock غیرمسدودکننده جایگزین شد و مجموعه اصلاح‌شده ۸ از ۸ تست را گذراند. Commit بعدی صرفاً مستندات را به‌روزرسانی می‌کند و کد Runtime اعتبارسنجی‌شده را تغییر نمی‌دهد. PR #68 همچنان Open و Draft است؛ هیچ Merge یا Deploy انجام نشده است.
+
+
+## P-09M — الزام هویت صریح محصول و حذف پیش‌فرض ضمنی Affiliate (۲۰۲۶-۱۱-۲۶)
+
+در جریان مهاجرت کلیدهای مرکب P-09K یک قرارداد بالقوه Fail-open باقی مانده بود: Role Map و جدول‌های مالی P-02 و نیز جدول‌های Delivery State و Consumer در P-03C، در صورت حذف `product_id` آن را به‌طور پیش‌فرض `affiliate_agent` قرار می‌دادند. این رفتار می‌توانست یک INSERT ناقص را بی‌صدا به محصول Affiliate نسبت دهد. در P-09M این Defaultها حذف شدند و قیود NOT NULL و CHECK شناسه‌های Canonical محصول حفظ شدند. از این پس هویت محصول باید در تمام مرزهای INSERT صریحاً ارائه شود. تست‌های Regression نبود Default را در هر هفت ستون محصول P-02 و هر سه ستون محصول P-03C بررسی می‌کنند و اثبات می‌کنند INSERT بدون product_id با SQLSTATE 23502 رد می‌شود. هیچ Migration داده‌ای انجام نشده و Schemaهای تغییرکرده صرفاً Fixtureهای دورریختنی هستند.
+
+CI مربوط به P-09M روی Head جدید PR در انتظار اجراست. معیار پذیرش شامل P-02، P-03C/P-03D، P-09 و Documentation Governance روی یک Head دقیق و سپس Regression کامل Candidate پیش از هر تصمیم یکپارچه‌سازی است. هیچ Merge، Migration عملیاتی یا Deploy مجاز نیست.
