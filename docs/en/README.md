@@ -1,6 +1,6 @@
 # Lottorito — English Documentation
 
-**Document ID:** LOT-DOC-INDEX-EN-001 | **Version:** 3.2.0 | **Status:** Maintained index
+**Document ID:** LOT-DOC-INDEX-EN-001 | **Version:** 3.3.0 | **Status:** Maintained index
 
 This directory is the authoritative English documentation space for Lottorito. The Persian documentation under docs/fa/ is equally authoritative.
 
@@ -107,3 +107,8 @@ Read repository-root [AGENTS.md](../../AGENTS.md). Use a working branch and pull
 ## Reliability and disaster recovery
 
 - [P-10E — Reliability, Resilience and Disaster Recovery Architecture](engineering/prototypes/p10e-reliability-disaster-recovery-architecture.md): source-neutral design baseline for backup, recovery, failover, tenant restore, SLOs and DR evidence; not operational approval.
+
+
+## Operational readiness and verification
+
+- [P-10F — Operational Readiness, Verification and Release Acceptance Framework](engineering/prototypes/p10f-operational-readiness-verification-framework.md): evidence taxonomy, control maturity, release gates, high-risk acceptance and exception governance; not release authorization.
