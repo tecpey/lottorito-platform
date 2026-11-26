@@ -1,6 +1,6 @@
 # P-09 — Cross-Prototype Contract & Recovery Integration
 
-**Document ID:** LOT-PROT-P09-001 | **Version:** 0.7.0 | **Status:** Synthetic cross-prototype slices P-09A–P-09L validated; P-09M explicit-product hardening under validation; no production approval
+**Document ID:** LOT-PROT-P09-001 | **Version:** 0.8.0 | **Status:** Synthetic cross-prototype slices P-09A–P-09M validated on exact CI heads; no production approval
 
 **Status:** Proposed contract baseline; implementation and owner approval remain open.  
 **Baseline:** `integration/p03d-p04-p08-candidate` at `c7f9ffa1f499fbd34d260b2aa6d3122d32e1ac7f`.  
@@ -245,4 +245,25 @@ All 10 relevant workflows passed on code head `7cb0598a163f40e53a4412a44b476b040
 
 The P-09K composite-key migration exposed a remaining fail-open schema convention: P-02's tenant/product role map and financial tables, plus P-03C delivery-state and consumer tables, still defaulted an omitted `product_id` to `affiliate_agent`. That default could silently misclassify a future insert whose caller forgot to provide product identity. P-09M removes those defaults while retaining NOT NULL and canonical product CHECK constraints. Product identity must now be supplied explicitly at every insert boundary. Regression tests inspect all seven P-02 product columns and all three P-03C product columns for absence of defaults, and verify that an insert omitting product_id fails with SQLSTATE 23502. No data migration is involved; the changed schemas are disposable fixtures only.
 
-P-09M CI is pending on the new exact PR head. Acceptance requires P-02, P-03C/P-03D, P-09 and Documentation Governance on the exact same head, plus the full candidate regression before any integration decision. No merge, production migration or deployment is authorized.
+P-09M exact-head acceptance is recorded below. All ten relevant workflows passed on code head `c42c7f7453bebb3fe07e00e0ec849584100885ce`; no merge, production migration or deployment is authorized.
+
+
+
+## P-09M exact-head acceptance (2026-11-26)
+
+All 10 relevant workflows passed on exact code head `c42c7f7453bebb3fe07e00e0ec849584100885ce`:
+
+| Workflow | Run | Result |
+|---|---:|---|
+| P-02 Ledger Posting | [45866730430](https://github.com/tecpey/lottorito-platform/actions/runs/45866730430) | PASS — 28/28, including explicit product identity / no-default regression |
+| P-03C/P-03D Ledger and Provider Integration | [45866730356](https://github.com/tecpey/lottorito-platform/actions/runs/45866730356) | PASS — P-03C 16/16; P-03D 35/35 |
+| P-04 Schema Evolution | [45866730318](https://github.com/tecpey/lottorito-platform/actions/runs/45866730318) | PASS — 8/8 |
+| P-05 Backup/Restore and Recovery | [45866730197](https://github.com/tecpey/lottorito-platform/actions/runs/45866730197) | PASS — PITR, P-09E physical restore/replay, P-05B object/key/event, P-05A negative drills |
+| P-05C Failover/Fencing/Failback | [45866730190](https://github.com/tecpey/lottorito-platform/actions/runs/45866730190) | PASS — 15 named assertions |
+| P-06 Observability/Privacy | [45866730195](https://github.com/tecpey/lottorito-platform/actions/runs/45866730195) | PASS — 13 named assertions |
+| P-07B Trust Boundaries | [45866730367](https://github.com/tecpey/lottorito-platform/actions/runs/45866730367) | PASS — 43 tests |
+| P-08 Deployment Health/Rollback | [45866730198](https://github.com/tecpey/lottorito-platform/actions/runs/45866730198) | PASS — 56 tests |
+| P-09 Contract Baseline | [45866730213](https://github.com/tecpey/lottorito-platform/actions/runs/45866730213) | PASS — 20/20 |
+| Documentation Governance | [45866730402](https://github.com/tecpey/lottorito-platform/actions/runs/45866730402) | PASS — 58 bilingual pairs, 136 local links |
+
+P-09M's direct regression evidence: all seven P-02 product_id columns (including the private role map) and all three P-03C product_id columns have no default; an INSERT omitting product_id fails with SQLSTATE 23502. This prevents silent Affiliate attribution. All evidence remains disposable synthetic acceptance, not production readiness. PR #68 remains Draft/open; no merge or deployment was performed.
