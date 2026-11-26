@@ -23,8 +23,23 @@ export async function backfillBatch(pool,size=100){
 }
 export async function recoverConcurrentIndex(pool){
  const name="public.p04_events_tenant_created_idx";
- const r=await pool.query("SELECT i.indisvalid FROM pg_class c JOIN pg_index i ON i.indexrelid=c.oid WHERE c.oid=to_regclass($1)",[name]);
- if(r.rowCount&&r.rows[0].indisvalid)return false;
- if(r.rowCount)await pool.query("DROP INDEX CONCURRENTLY public.p04_events_tenant_created_idx");
- await pool.query("CREATE INDEX CONCURRENTLY p04_events_tenant_created_idx ON public.partner_events(tenant_id,product_id,created_at,event_id)");return true;
+ const expected="CREATE INDEX p04_events_tenant_created_idx ON public.partner_events USING btree (tenant_id, product_id, created_at, event_id)";
+ const c=await pool.connect();let locked=false,destroy=false;
+ try{
+  await c.query("SELECT pg_advisory_lock(hashtextextended($1,0))",[name]);locked=true;
+  const r=await c.query("SELECT i.indisvalid,i.indisready,pg_get_indexdef(i.indexrelid) AS definition FROM pg_class c JOIN pg_index i ON i.indexrelid=c.oid WHERE c.oid=to_regclass($1)",[name]);
+  if(r.rowCount&&r.rows[0].indisvalid&&r.rows[0].indisready){
+   if(r.rows[0].definition!==expected)throw new Error("concurrent index definition mismatch");
+   return false;
+  }
+  if(r.rowCount)await c.query("DROP INDEX CONCURRENTLY public.p04_events_tenant_created_idx");
+  await c.query("CREATE INDEX CONCURRENTLY p04_events_tenant_created_idx ON public.partner_events(tenant_id,product_id,created_at,event_id)");
+  const verified=await c.query("SELECT i.indisvalid,i.indisready,pg_get_indexdef(i.indexrelid) AS definition FROM pg_class c JOIN pg_index i ON i.indexrelid=c.oid WHERE c.oid=to_regclass($1)",[name]);
+  if(verified.rowCount!==1||!verified.rows[0].indisvalid||!verified.rows[0].indisready||verified.rows[0].definition!==expected)throw new Error("concurrent index recovery verification failed");
+  return true;
+ }catch(error){destroy=true;throw error;}
+ finally{
+  if(locked){try{await c.query("SELECT pg_advisory_unlock(hashtextextended($1,0))",[name]);}catch{destroy=true;}}
+  c.release(destroy);
+ }
 }
