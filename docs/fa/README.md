@@ -107,3 +107,8 @@ Validator ساختاری در [scripts/check_docs.py](../../scripts/check_docs.p
 ## قابلیت اطمینان و بازیابی پس از بحران
 
 - [P-10E — معماری قابلیت اطمینان، تاب‌آوری و بازیابی پس از بحران](engineering/prototypes/p10e-reliability-disaster-recovery-architecture.md): خط مبنای طراحی مستقل از منبع برای Backup، بازیابی، Failover، Tenant Restore، SLO و شواهد DR؛ فاقد مجوز عملیات.
+
+
+## آمادگی عملیاتی و راستی‌آزمایی
+
+- [P-10F — چارچوب آمادگی عملیاتی، راستی‌آزمایی و پذیرش انتشار](engineering/prototypes/p10f-operational-readiness-verification-framework.md): طبقه‌بندی Evidence، بلوغ کنترل، Gateهای انتشار، پذیرش دامنه‌های پرریسک و حاکمیت Exception؛ فاقد مجوز انتشار.
