@@ -78,7 +78,7 @@
     "p02.financial_identity": "P-09K: all P-02 disposable financial PK/UNIQUE/FK constraints, effect conflict arbiters, request/effect joins and outbox polling index include tenant_id + product_id. Same tenant/account/effect/event/idempotency identifiers are integration-tested independently in affiliate_agent and lottery. No production migration or historical shared-data reassignment is implied.",
     "p03c.outbox_delivery": "P-09K: delivery_state and consumer_inbox reference ledger_outbox through (tenant_id, product_id, event_id); claim/update/expiry paths preserve product_id; no tenant-only event FK remains.",
     "p03d.provider_inbox": "P-09K: provider_event_inbox, conflicts and expectations accept canonical product IDs only; provider inbox journal FK is tenant+product+journal; identical account UUIDs are intentionally reused across Affiliate and Lottery and resolved only within product scope.",
-    "p04.schema_evolution": "P-09L: migration-lab index recovery pins one client and holds a session advisory lock across catalog inspection, invalid-index drop, CREATE INDEX CONCURRENTLY and post-build verification; checks indisvalid, indisready and exact pg_get_indexdef; concurrent recovery is serialized (one repair, one no-op); valid definition drift fails closed. Synthetic only."
+    "p04.schema_evolution": "P-09L: migration-lab index recovery pins one client and uses nonblocking pg_try_advisory_lock; competing callers return busy immediately (no waiting snapshot); lock holder inspects indisvalid/indisready and exact pg_get_indexdef, drops invalid indexes, runs CREATE INDEX CONCURRENTLY outside a transaction, verifies the result and unlocks; valid definition drift fails closed. Concurrent test requires one repair plus busy or valid. Synthetic only."
   },
   "migration_rules": [
     "Never collapse shared and platform into a product identifier.",
@@ -89,7 +89,7 @@
     "Legacy rows without an unambiguous product/scope mapping must be quarantined for reconciliation, not guessed.",
     "Never automatically reinterpret legacy shared rows; inventory and quarantine them until an authoritative tenant/product mapping is approved.",
     "P-05B replay inbox, economic-effect uniqueness and aggregate cursor identity must include canonical product scope.",
-    "Concurrent index recovery must pin one session for session-level advisory lock and CREATE INDEX CONCURRENTLY; verify exact catalog definition and destroy a pooled connection if unlock state is uncertain."
+    "Concurrent index recovery must pin one session, use nonblocking pg_try_advisory_lock (never wait with an open query snapshot), run CREATE INDEX CONCURRENTLY outside a transaction, verify exact catalog definition, and destroy a pooled connection if unlock state is uncertain."
   ],
   "event_type_policies": {
     "financial_product_only": [
