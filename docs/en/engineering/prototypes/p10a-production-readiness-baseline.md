@@ -157,7 +157,7 @@ Research informs the candidate controls; it does not select a vendor or replace 
 - [x] Legacy `shared` ownership explicitly left unresolved; no automatic mapping proposed.
 - [x] P-10B–P-10F deliverables and gates defined.
 - [ ] Semantic bilingual review by a human reviewer.
-- [ ] Documentation Governance on the latest P-10 branch head. The last exact-head pass was run 45868188265 on prior head `14ba835105ba73c6471504b9c67525464d78a9e4`; subsequent official-source URL corrections require a fresh run.
+- [x] Documentation Governance passed on the latest P-10 branch head; see exact-head run in PR #69.
 - [ ] Owner/security/finance/legal approval of any production-facing decision.
 
 **Current disposition:** P-10A repository baseline is documented. P-10B may proceed only as an authorized, read-only inventory of a named source environment. No production data access is implied by this document.
