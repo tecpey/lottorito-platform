@@ -1,6 +1,6 @@
 # P-04 — تکامل Schema و سازگاری
 
-**شناسه سند:** LOT-PROT-P04-001 | **نسخه:** ۰.۳.۰ | **وضعیت:** آزمایش Migration ساختگی؛ جداسازی Tenant/Product؛ CI روی Head مربوط به P-09L در انتظار
+**شناسه سند:** LOT-PROT-P04-001 | **نسخه:** ۰.۳.۰ | **وضعیت:** آزمایش Migration ساختگی؛ جداسازی Tenant/Product؛ CI مربوط به P-09L موفق شد (۸ از ۸)
 
 ## هدف
 
@@ -41,3 +41,5 @@ P04-CONTRACT: بررسی برابری Projection؛ ستون قدیمی حذف ن
 ## محدودیت‌ها
 
 Zero Downtime، رفتار Lock/Backfill در مقیاس Production، CDC، جدول Partitionشده، چندمنطقه‌ای یا Migration عملیاتی اثبات نمی‌شود. Trigger انتقالی است و نیازمند بررسی بار واقعی است. Migration Runner چارچوب کامل نیست. Contract ستون را حذف یا Rename نمی‌کند؛ Migration مخرب پس از بازنشستگی نسخه‌های قدیمی و راستی‌آزمایی مستقل داده، نیازمند تأیید صریح مالک است. هیچ داده، Credential یا Schema عملیاتی تغییر نمی‌کند. موفقیت تست ساختگی به‌معنای آمادگی Production نیست.
+
+**شواهد CI مربوط به P-09L:** [اجرای 45863086577](https://github.com/tecpey/lottorito-platform/actions/runs/45863086577) — موفق، ۸ از ۸ تست روی PostgreSQL 18.7. این تست‌ها جداسازی Event/Journal با UUID یکسان بر اساس محصول، رد Foreign Key مرکب Journal-Line، RLS بین محصولات و رد مقدار Legacy یعنی `shared` را پوشش می‌دهند. Head دقیق کد: `a3c06e62a0a83d8ff73e81797d991242d9d5e489`.

@@ -221,3 +221,7 @@ P-09K is synthetic acceptance only. No production migration, merge or deployment
 ### P-09L — Product-qualified schema evolution in P-04 (2026-11-26)
 
 The independent P-04 migration lab now binds database roles to tenant and product. Partner event PK/RLS/backfill, journal and line PK/FK, and reporting keys/RLS all include product scope. Affiliate & Agent and Lottery deliberately reuse the same event and journal UUIDs for Tenant A, while v1/v2 roles coexist independently in each product. The lab verifies cross-product read/write denial, per-product resumable backfill and unchanged product-level ledger/reporting totals. CI is pending exact-head validation. This does not modify production schemas or imply a production migration.
+
+### P-09L exact-head validation (2026-11-26)
+
+P-04 schema evolution passed [Run 45863086577](https://github.com/tecpey/lottorito-platform/actions/runs/45863086577) — 8/8 tests on PostgreSQL 18.7. Product-qualified event/journal identities, same-UUID cross-product separation, composite FK rejection, per-product resumable backfill, RLS, migration checksum, lock timeout and index recovery passed. This is an independent synthetic migration lab; no production migration was performed.

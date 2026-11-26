@@ -221,3 +221,7 @@ Assertionهای دقیق P-05B شامل رد Sequence تکراری در Aggregat
 ### P-09L — تکامل Schema با هویت محصول‌محور در P-04 (۲۰۲۶-۱۱-۲۶)
 
 آزمایشگاه مستقل Migration در P-04 اکنون Roleهای دیتابیس را به Tenant و Product متصل می‌کند. Primary Key/RLS/Backfill رویدادهای Partner، Primary/Foreign Keyهای Journal و Line و کلیدها/RLS مربوط به Reporting همگی Scope محصول را شامل می‌شوند. Affiliate & Agent و Lottery عمداً همان UUID رویداد و Journal را برای Tenant A دوباره استفاده می‌کنند، در حالی که Roleهای v1/v2 در هر محصول مستقل هم‌زیستی دارند. آزمایش، رد Read/Write بین محصولات، Backfill قابل‌ادامه به تفکیک محصول و حفظ مجموع Ledger/Reporting هر محصول را بررسی می‌کند. CI روی Head دقیق در انتظار اعتبارسنجی است. این کار Schema عملیاتی را تغییر نمی‌دهد و به‌معنای Migration Production نیست.
+
+### اعتبارسنجی P-09L روی Head دقیق (۲۰۲۶-۱۱-۲۶)
+
+Schema Evolution در P-04 با [اجرای 45863086577](https://github.com/tecpey/lottorito-platform/actions/runs/45863086577) موفق شد — ۸ از ۸ تست روی PostgreSQL 18.7. هویت محصول‌محور Event/Journal، جداسازی UUID یکسان بین محصولات، رد Foreign Key مرکب نامعتبر، Backfill قابل‌ادامه به تفکیک محصول، RLS، Checksum Migration، Lock Timeout و بازیابی Index همگی موفق شدند. این فقط یک آزمایشگاه مستقل و ساختگی Migration است؛ هیچ Migration عملیاتی انجام نشده است.
