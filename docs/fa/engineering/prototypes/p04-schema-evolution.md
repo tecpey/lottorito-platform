@@ -47,3 +47,13 @@ Zero Downtime، رفتار Lock/Backfill در مقیاس Production، CDC، جد
 ## اعتبارسنجی P-09K روی Head دقیق (۲۰۲۶-۱۱-۲۶)
 
 آزمایش سازگاری تکامل Schema در P-04 روی Head دقیق `75fd23701d4e28f047f8ebb73ea0b684bb144c7a` موفق شد: [Workflow شماره 45863298488](https://github.com/tecpey/lottorito-platform/actions/runs/45863298488)، شامل ۸ از ۸ تست Integration. این همچنان یک آزمایشگاه Migration ایزوله است و شاهدی برای اجرای Migration در Production محسوب نمی‌شود.
+
+## P-09L — سریال‌سازی بازیابی ایندکس Concurrent و اعتبارسنجی تعریف آن (۲۰۲۶-۱۱-۲۶)
+
+مسیر بازیابی P-04 اکنون یک Client مشخص PostgreSQL را برای کل عملیات نگه می‌دارد، برای ایندکس موردنظر Session-level Advisory Lock می‌گیرد و این قفل را در تمام مراحل بررسی Catalog، حذف احتمالی ایندکس نامعتبر، اجرای `CREATE INDEX CONCURRENTLY` و اعتبارسنجی پس از ساخت حفظ می‌کند. این انتخاب آگاهانه است: Advisory Lock در سطح Session از مرز Transaction عبور می‌کند، درحالی‌که `CREATE INDEX CONCURRENTLY` داخل Transaction Block قابل اجرا نیست. قفل در بلوک `finally` آزاد می‌شود؛ اگر وضعیت آزادسازی قفل نامطمئن باشد، Connection به Pool بازگردانده نمی‌شود و از Pool خارج می‌شود.
+
+تابع بازیابی هر دو مقدار `pg_index.indisvalid` و `indisready` را بررسی می‌کند و سپس تعریف دقیق را با `pg_get_indexdef` تطبیق می‌دهد. اگر ایندکسی با نام مورد انتظار ولی تعریف متفاوت و در عین حال معتبر وجود داشته باشد، عملیات Fail-closed می‌شود و هرگز آن را به‌اشتباه ایندکس مطلوب فرض نمی‌کند. تست، پس از شکست ساخت Unique Concurrent Index، دو عملیات بازیابی هم‌زمان اجرا می‌کند و الزام دارد دقیقاً یکی Repair و دیگری No-op باشد؛ سپس یک ایندکس معتبر با تعریف اشتباه می‌سازد و رد شدن آن را پیش از بازسازی تعریف صحیح اثبات می‌کند.
+
+**اعتبارسنجی:** [Workflow مربوط به P-04 با شماره 45864404159](https://github.com/tecpey/lottorito-platform/actions/runs/45864404159) — هر ۸ از ۸ تست روی Commit برابر `6528003dd867bb19a289fab0bdf0943a537ecd7d` موفق شد. این همچنان آزمایش Migration دورریختنی PostgreSQL 18.7 است و مجوز اجرای DDL در Production محسوب نمی‌شود.
+
+مبنای پژوهش: [توابع Advisory Lock در PostgreSQL 18](https://www.postgresql.org/docs/18/functions-admin.html)، [قفل‌گذاری صریح](https://www.postgresql.org/docs/18/explicit-locking.html) و [رفتار شکست/بازیابی CREATE INDEX CONCURRENTLY](https://www.postgresql.org/docs/18/sql-createindex.html).

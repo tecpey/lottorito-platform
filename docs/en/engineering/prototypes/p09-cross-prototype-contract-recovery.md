@@ -229,3 +229,9 @@ P-04 schema evolution passed [Run 45863086577](https://github.com/tecpey/lottori
 ## P-09K exact-head cross-prototype evidence (2026-11-26)
 
 Exact code head `75fd23701d4e28f047f8ebb73ea0b684bb144c7a` passed all 10 relevant workflows: P-02 27/27, P-03C 16/16 and P-03D 35/35, P-04 8/8, P-05A/P-09E/P-05B positive and negative recovery markers, P-05C, P-06, P-07B, P-08, P-09 and Documentation Governance (58 bilingual pairs; 136 local links). The P-03C compatibility regression found during validation was fixed and rerun successfully. All evidence is disposable synthetic acceptance; PR #68 remains open/draft and no merge or deployment was performed.
+
+## P-09L — Safe concurrent-index recovery contract (2026-11-26)
+
+P-04's migration recovery contract now requires a pinned database session, a session-level advisory lock scoped to the index identity, explicit unlock on completion, and destruction of the pooled connection if unlock state is uncertain. Recovery must inspect `indisvalid` and `indisready`, compare the full catalog definition, repair invalid indexes, and reject valid-but-drifted definitions. Concurrent callers must converge to one repair and one no-op. This closes the race and false-positive acceptance paths in the previous disposable implementation.
+
+P-04 exact-head validation: [workflow 45864404159](https://github.com/tecpey/lottorito-platform/actions/runs/45864404159), 8/8 tests, commit `6528003dd867bb19a289fab0bdf0943a537ecd7d`. The broader exact-head workflow set is still being revalidated after this code change.

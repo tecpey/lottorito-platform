@@ -47,3 +47,13 @@ No zero-downtime, production-scale lock/backfill, CDC, partitioned-table, multi-
 ## P-09K exact-head validation (2026-11-26)
 
 P-04 schema-evolution compatibility passed on exact head `75fd23701d4e28f047f8ebb73ea0b684bb144c7a`: [workflow 45863298488](https://github.com/tecpey/lottorito-platform/actions/runs/45863298488), 8/8 integration tests. This remains an isolated migration laboratory and is not evidence of a production migration.
+
+## P-09L — Concurrent index recovery serialization and definition verification (2026-11-26)
+
+The P-04 recovery path now pins one PostgreSQL client for the full operation, acquires a session-level advisory lock for the named index, and keeps that lock across catalog inspection, optional invalid-index removal, `CREATE INDEX CONCURRENTLY`, and post-build verification. This is deliberate: PostgreSQL session-level advisory locks survive transaction boundaries, while `CREATE INDEX CONCURRENTLY` cannot run inside a transaction block. The lock is explicitly released in `finally`; a connection with uncertain lock-release state is destroyed rather than returned to the pool.
+
+The recovery routine checks both `pg_index.indisvalid` and `indisready`, then verifies the exact `pg_get_indexdef` string. A valid index with the expected name but a different definition fails closed; it is never silently accepted as the desired index. The test starts two recoveries concurrently after a failed unique concurrent build and requires exactly one repair and one no-op; it then creates a valid wrong-definition index and asserts rejection before restoring the expected definition.
+
+**Validation:** [P-04 workflow 45864404159](https://github.com/tecpey/lottorito-platform/actions/runs/45864404159) — 8/8 tests passed on commit `6528003dd867bb19a289fab0bdf0943a537ecd7d`. This remains a disposable PostgreSQL 18.7 migration experiment, not production DDL approval.
+
+Research basis: [PostgreSQL 18 advisory lock functions](https://www.postgresql.org/docs/18/functions-admin.html), [explicit locking](https://www.postgresql.org/docs/18/explicit-locking.html), and [CREATE INDEX CONCURRENTLY failure/recovery behavior](https://www.postgresql.org/docs/18/sql-createindex.html).
