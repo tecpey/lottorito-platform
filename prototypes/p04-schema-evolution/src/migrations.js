@@ -14,17 +14,34 @@ export async function backfillBatch(pool,size=100){
  const c=await pool.connect();
  try{
   await c.query("BEGIN");await c.query("SET LOCAL lock_timeout='2s'");
-  const picked=await c.query("SELECT event_id FROM partner_events WHERE canonical_payload IS NULL ORDER BY created_at,event_id LIMIT $1 FOR UPDATE SKIP LOCKED",[size]);
+  const picked=await c.query("SELECT event_id FROM partner_events WHERE tenant_id=private.current_tenant_id() AND product_id=private.current_product_id() AND canonical_payload IS NULL ORDER BY created_at,event_id LIMIT $1 FOR UPDATE SKIP LOCKED",[size]);
   const ids=picked.rows.map(row=>row.event_id);
   if(ids.length===0){await c.query("COMMIT");return 0;}
-  const updated=await c.query("UPDATE partner_events SET canonical_payload=payload WHERE event_id=ANY($1::uuid[]) AND canonical_payload IS NULL RETURNING event_id",[ids]);
+  const updated=await c.query("UPDATE partner_events SET canonical_payload=payload WHERE tenant_id=private.current_tenant_id() AND product_id=private.current_product_id() AND event_id=ANY($1::uuid[]) AND canonical_payload IS NULL RETURNING event_id",[ids]);
   await c.query("COMMIT");return updated.rowCount;
  }catch(e){await c.query("ROLLBACK");throw e;}finally{c.release();}
 }
 export async function recoverConcurrentIndex(pool){
  const name="public.p04_events_tenant_created_idx";
- const r=await pool.query("SELECT i.indisvalid FROM pg_class c JOIN pg_index i ON i.indexrelid=c.oid WHERE c.oid=to_regclass($1)",[name]);
- if(r.rowCount&&r.rows[0].indisvalid)return false;
- if(r.rowCount)await pool.query("DROP INDEX CONCURRENTLY public.p04_events_tenant_created_idx");
- await pool.query("CREATE INDEX CONCURRENTLY p04_events_tenant_created_idx ON public.partner_events(tenant_id,created_at,event_id)");return true;
+ const expected="CREATE INDEX p04_events_tenant_created_idx ON public.partner_events USING btree (tenant_id, product_id, created_at, event_id)";
+ const c=await pool.connect();let locked=false,destroy=false;
+ try{
+  const lock=await c.query("SELECT pg_try_advisory_lock(hashtextextended($1,0)) AS acquired",[name]);
+  if(!lock.rows[0].acquired)return "busy";
+  locked=true;
+  const r=await c.query("SELECT i.indisvalid,i.indisready,pg_get_indexdef(i.indexrelid) AS definition FROM pg_class c JOIN pg_index i ON i.indexrelid=c.oid WHERE c.oid=to_regclass($1)",[name]);
+  if(r.rowCount&&r.rows[0].indisvalid&&r.rows[0].indisready){
+   if(r.rows[0].definition!==expected)throw new Error("concurrent index definition mismatch");
+   return "valid";
+  }
+  if(r.rowCount)await c.query("DROP INDEX CONCURRENTLY public.p04_events_tenant_created_idx");
+  await c.query("CREATE INDEX CONCURRENTLY p04_events_tenant_created_idx ON public.partner_events(tenant_id,product_id,created_at,event_id)");
+  const verified=await c.query("SELECT i.indisvalid,i.indisready,pg_get_indexdef(i.indexrelid) AS definition FROM pg_class c JOIN pg_index i ON i.indexrelid=c.oid WHERE c.oid=to_regclass($1)",[name]);
+  if(verified.rowCount!==1||!verified.rows[0].indisvalid||!verified.rows[0].indisready||verified.rows[0].definition!==expected)throw new Error("concurrent index recovery verification failed");
+  return "repaired";
+ }catch(error){destroy=true;throw error;}
+ finally{
+  if(locked){try{const released=await c.query("SELECT pg_advisory_unlock(hashtextextended($1,0)) AS released",[name]);if(!released.rows[0].released)destroy=true;}catch{destroy=true;}}
+  c.release(destroy);
+ }
 }

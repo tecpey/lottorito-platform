@@ -1,6 +1,7 @@
 """Synthetic PDP/PEP fixture for P-07B; no production identity or authorization."""
 from __future__ import annotations
 import json
+import uuid
 from pathlib import Path
 from typing import Any
 
@@ -13,12 +14,12 @@ SERVICE_PRINCIPALS = {
     "synthetic-affiliate-service-token": {
         "service_id": "affiliate-agent-worker",
         "product_id": "affiliate_agent",
-        "allowed_tenants": ["tenant-alpha", "tenant-beta"],
+        "allowed_tenants": ["11111111-1111-4111-8111-111111111111", "22222222-2222-4222-8222-222222222222"],
     },
     "synthetic-lottery-service-token": {
         "service_id": "lottery-worker",
         "product_id": "lottery",
-        "allowed_tenants": ["tenant-alpha", "tenant-beta"],
+        "allowed_tenants": ["11111111-1111-4111-8111-111111111111", "22222222-2222-4222-8222-222222222222"],
     },
 }
 AUDIT_DECISIONS: list[dict[str, Any]] = []
@@ -55,6 +56,11 @@ def evaluate_capability(
     if not policy_available:
         return _record({"decision": "deny", "reason": "policy_unavailable", "tenant_id": tenant_id, "capability": capability, "operation": operation})
     try:
+        if str(uuid.UUID(tenant_id)) != tenant_id:
+            raise ValueError("noncanonical_tenant_id")
+    except (ValueError, TypeError, AttributeError):
+        return _record({"decision": "deny", "reason": "invalid_tenant_identity", "tenant_id": tenant_id, "capability": capability, "operation": operation})
+    try:
         if capability_registry is None:
             capability_registry = _load_json(CAPABILITY_REGISTRY_PATH)
         if entitlements is None:
@@ -66,6 +72,11 @@ def evaluate_capability(
     if principal is None:
         return _record({"decision": "deny", "reason": "unknown_service_identity", "tenant_id": tenant_id, "capability": capability, "operation": operation})
 
+    try:
+        if str(uuid.UUID(tenant_id)) != tenant_id:
+            raise ValueError("noncanonical_tenant_id")
+    except (ValueError, TypeError, AttributeError):
+        return _record({"decision": "deny", "reason": "invalid_tenant_identity", "tenant_id": tenant_id})
     product_id = principal["product_id"]
     if tenant_id not in principal["allowed_tenants"]:
         return _record({"decision": "deny", "reason": "service_tenant_scope_denied", "product_id": product_id, "tenant_id": tenant_id, "capability": capability, "operation": operation})

@@ -1,6 +1,6 @@
 # P-05A — PostgreSQL Backup, PITR and Financial Integrity
 
-**Document ID:** LOT-PROT-P05-001 | **Version:** 0.5.0 | **Status:** Synthetic CI experiment passed; production recovery not approved
+**Document ID:** LOT-PROT-P05-001 | **Version:** 0.7.0 | **Status:** Synthetic CI experiment passed; production recovery not approved
 
 ## Authority and decision boundary
 
@@ -83,3 +83,28 @@ No production data, credentials, partner secrets, real funds or live endpoints. 
 - The run asserted manifest verification and tamper rejection, archived WAL presence, the named PITR log entry, pre-target marker present/post-target marker absent, tenant-scoped reads and denied cross-tenant insert, balanced journals, source-to-ledger totals, unique economic effects and valid object-reference hash format.
 - Negative drills passed on combined executable-code head `146a9bc635e3b03db568c423fb0958b62bc31c7b`: an incomplete restore staging directory was rejected by both `pg_verifybackup` and PostgreSQL startup; removal of the exact target WAL segment caused the recovery startup to fail closed before the requested named target. The missing-WAL log recorded the absent target segment. Object-byte/key recovery is covered by P-05B; failover/fencing/failback remains P-05C and has not run.
 - Synthetic success is not production readiness, a technology decision or RPO/RTO approval.
+
+
+## P-09E shared-record recovery evidence (2026-11-25)
+
+The P-05 workflow [45635972222](https://github.com/tecpey/lottorito-platform/actions/runs/45635972222) passed on candidate head 73d7d0daa46e6a019020fc25ace315836d270a6f. In addition to the existing P-05A PITR, P-05B object/key/event fixture and P-05A negative drills, it ran P-09E against the exact P-02/P-03C/P-03D SQL schemas and actual provider inbox, ledger, journal, line, outbox and delivery-state tables. The physical backup passed pg_verifybackup; the restored cluster replayed three accepted inbox records with one journal/effect/outbox/delivery row per scope. Failure injection rolled back the posting transaction as a unit. Same-source-ID collisions across product and tenant scopes, idempotent retries, RLS and P-03D reconciliation all passed. See the P-09 integration record for scope and limitations.
+
+This does not replace the simplified P-05B fixture or establish production backup architecture, PITR retention, off-site durability, key/object restore, aggregate ordering, concurrent fencing, RPO/RTO or Production readiness. Documentation Governance [45635972312](https://github.com/tecpey/lottorito-platform/actions/runs/45635972312) passed on the same head (58 bilingual pairs, 136 local links).
+
+## P-09E latest exact-head confirmation (2026-11-25)
+
+P-09E passed again in P-05 workflow [45637659268](https://github.com/tecpey/lottorito-platform/actions/runs/45637659268) on 2b393cc8c41226a20333f34559ac6952883901a3. Physical backup, pg_verifybackup, isolated restore, actual P-02/P-03C/P-03D records, atomic rollback under injected failure, inbox replay, idempotency, tenant/product RLS, balanced journals, outbox delivery-state atomicity and zero provider-ledger reconciliation exceptions all emitted PASS. P-05A PITR, P-05B and negative-WAL/incomplete-restore drills also passed. Documentation Governance [45637659297](https://github.com/tecpey/lottorito-platform/actions/runs/45637659297) passed on the same head.
+
+
+### P-09H — Replay contract gate (2026-11-25)
+
+The P-05E recovery helper now verifies the persisted canonical event against the restored provider inbox row before calling journal posting. It checks CloudEvents version/id/source/type, tenant, product scope, source-event UUID, schema version, traceparent shape and parseable timestamp. Recovery fixtures now carry the full P-09 envelope. A mismatch aborts the replay transaction before a financial effect is committed. This remains a disposable synthetic recovery drill, not a production recovery service.
+
+
+P-09H adds a negative replay case that tampers with the restored event's product scope, requires the replay helper to fail closed, verifies the claim transaction rolls back to `accepted`, and confirms no financial effect was created. The corrected run completed successfully on final code-bearing head `96ff93b3bbbb4006dce1c14b5fdff9c833d46bdf` (workflow [45655079940](https://github.com/tecpey/lottorito-platform/actions/runs/45655079940)): `replay_contract_corruption_blocked=PASS`, `P09E_RESULT=PASS`, `P05B_RESULT=PASS` and `P05A_NEGATIVE_RESULT=PASS`. The earlier failed run exposed only the test fixture's shell/JSON quoting defect and is not counted as acceptance evidence.
+
+## P-09K — Product-qualified financial identity in physical recovery (2026-11-26)
+
+The P-09E replay fixture now reuses the same account UUIDs for the same tenant across Affiliate & Agent and Lottery, matching P-02's product-qualified account primary/foreign keys. Replay must resolve each account only in the authenticated product scope. The physical backup/restore test therefore exercises the composite identity rather than relying on different UUIDs to hide a missing product dimension. The fixture remains synthetic and disposable.
+
+**P-09K CI evidence:** [Run 45862006811](https://github.com/tecpey/lottorito-platform/actions/runs/45862006811) — PASS. Physical backup, pg_verifybackup, restore, P-09E cross-product replay, P-05B object/key/event recovery and P-05A negative drills all passed. Exact source head: `75148b41220bb26adf0e8c01e05860a8fd83d7fa`.

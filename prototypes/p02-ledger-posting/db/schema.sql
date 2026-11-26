@@ -52,8 +52,8 @@ GRANT USAGE ON SCHEMA private TO ledger_executor;
 CREATE TABLE private.tenant_role_map (
   database_role name PRIMARY KEY,
   tenant_id uuid NOT NULL,
-  product_id text NOT NULL DEFAULT 'affiliate_agent'
-    CHECK (product_id IN ('affiliate_agent', 'lottery', 'shared'))
+  product_id text NOT NULL
+    CHECK (product_id IN ('affiliate_agent', 'lottery'))
 );
 ALTER TABLE private.tenant_role_map OWNER TO tenant_identity_owner;
 
@@ -89,64 +89,64 @@ GRANT EXECUTE ON FUNCTION private.current_product_id() TO ledger_executor;
 
 CREATE TABLE public.ledger_accounts (
   tenant_id uuid NOT NULL,
-  product_id text NOT NULL DEFAULT 'affiliate_agent'
-    CHECK (product_id IN ('affiliate_agent', 'lottery', 'shared')),
+  product_id text NOT NULL
+    CHECK (product_id IN ('affiliate_agent', 'lottery')),
   account_id uuid NOT NULL,
   account_code text NOT NULL,
   currency_code text NOT NULL CHECK (currency_code ~ '^[A-Z]{3}$'),
   account_type text NOT NULL CHECK (account_type IN ('asset', 'liability', 'equity', 'income', 'expense', 'clearing')),
   active boolean NOT NULL DEFAULT true,
   created_at timestamptz NOT NULL DEFAULT clock_timestamp(),
-  PRIMARY KEY (tenant_id, account_id),
-  UNIQUE (tenant_id, account_code),
-  UNIQUE (tenant_id, account_id, currency_code),
+  PRIMARY KEY (tenant_id, product_id, account_id),
+  UNIQUE (tenant_id, product_id, account_code),
+  UNIQUE (tenant_id, product_id, account_id, currency_code),
   CHECK (length(account_code) BETWEEN 1 AND 64)
 );
 
 CREATE TABLE public.financial_effects (
   tenant_id uuid NOT NULL,
-  product_id text NOT NULL DEFAULT 'affiliate_agent'
-    CHECK (product_id IN ('affiliate_agent', 'lottery', 'shared')),
+  product_id text NOT NULL
+    CHECK (product_id IN ('affiliate_agent', 'lottery')),
   effect_id uuid NOT NULL,
   request_fingerprint jsonb NOT NULL,
   journal_id uuid NOT NULL,
   created_at timestamptz NOT NULL DEFAULT clock_timestamp(),
-  PRIMARY KEY (tenant_id, effect_id),
-  UNIQUE (tenant_id, journal_id),
-  UNIQUE (tenant_id, effect_id, journal_id)
+  PRIMARY KEY (tenant_id, product_id, effect_id),
+  UNIQUE (tenant_id, product_id, journal_id),
+  UNIQUE (tenant_id, product_id, effect_id, journal_id)
 );
 
 CREATE TABLE public.posting_requests (
   tenant_id uuid NOT NULL,
-  product_id text NOT NULL DEFAULT 'affiliate_agent'
-    CHECK (product_id IN ('affiliate_agent', 'lottery', 'shared')),
+  product_id text NOT NULL
+    CHECK (product_id IN ('affiliate_agent', 'lottery')),
   idempotency_key text NOT NULL,
   effect_id uuid NOT NULL,
   journal_id uuid NOT NULL,
   created_at timestamptz NOT NULL DEFAULT clock_timestamp(),
-  PRIMARY KEY (tenant_id, idempotency_key),
-  FOREIGN KEY (tenant_id, effect_id, journal_id)
-    REFERENCES public.financial_effects (tenant_id, effect_id, journal_id),
+  PRIMARY KEY (tenant_id, product_id, idempotency_key),
+  FOREIGN KEY (tenant_id, product_id, effect_id, journal_id)
+    REFERENCES public.financial_effects (tenant_id, product_id, effect_id, journal_id),
   CHECK (idempotency_key ~ '^[A-Za-z0-9._:-]{1,128}$')
 );
 
 CREATE TABLE public.ledger_journals (
   tenant_id uuid NOT NULL,
-  product_id text NOT NULL DEFAULT 'affiliate_agent'
-    CHECK (product_id IN ('affiliate_agent', 'lottery', 'shared')),
+  product_id text NOT NULL
+    CHECK (product_id IN ('affiliate_agent', 'lottery')),
   journal_id uuid NOT NULL,
   source_event_id uuid NOT NULL,
   status text NOT NULL CHECK (status = 'posted'),
   created_at timestamptz NOT NULL DEFAULT clock_timestamp(),
-  PRIMARY KEY (tenant_id, journal_id),
-  FOREIGN KEY (tenant_id, journal_id)
-    REFERENCES public.financial_effects (tenant_id, journal_id)
+  PRIMARY KEY (tenant_id, product_id, journal_id),
+  FOREIGN KEY (tenant_id, product_id, journal_id)
+    REFERENCES public.financial_effects (tenant_id, product_id, journal_id)
 );
 
 CREATE TABLE public.ledger_lines (
   tenant_id uuid NOT NULL,
-  product_id text NOT NULL DEFAULT 'affiliate_agent'
-    CHECK (product_id IN ('affiliate_agent', 'lottery', 'shared')),
+  product_id text NOT NULL
+    CHECK (product_id IN ('affiliate_agent', 'lottery')),
   journal_id uuid NOT NULL,
   line_no integer NOT NULL CHECK (line_no BETWEEN 1 AND 100),
   account_id uuid NOT NULL,
@@ -154,30 +154,30 @@ CREATE TABLE public.ledger_lines (
   direction text NOT NULL CHECK (direction IN ('debit', 'credit')),
   amount_minor numeric(38,0) NOT NULL CHECK (amount_minor > 0),
   created_at timestamptz NOT NULL DEFAULT clock_timestamp(),
-  PRIMARY KEY (tenant_id, journal_id, line_no),
-  FOREIGN KEY (tenant_id, journal_id)
-    REFERENCES public.ledger_journals (tenant_id, journal_id),
-  FOREIGN KEY (tenant_id, account_id, currency_code)
-    REFERENCES public.ledger_accounts (tenant_id, account_id, currency_code)
+  PRIMARY KEY (tenant_id, product_id, journal_id, line_no),
+  FOREIGN KEY (tenant_id, product_id, journal_id)
+    REFERENCES public.ledger_journals (tenant_id, product_id, journal_id),
+  FOREIGN KEY (tenant_id, product_id, account_id, currency_code)
+    REFERENCES public.ledger_accounts (tenant_id, product_id, account_id, currency_code)
 );
 
 CREATE TABLE public.ledger_outbox (
   tenant_id uuid NOT NULL,
-  product_id text NOT NULL DEFAULT 'affiliate_agent'
-    CHECK (product_id IN ('affiliate_agent', 'lottery', 'shared')),
+  product_id text NOT NULL
+    CHECK (product_id IN ('affiliate_agent', 'lottery')),
   event_id uuid NOT NULL,
   journal_id uuid NOT NULL,
   event_type text NOT NULL CHECK (event_type = 'ledger.journal.posted'),
   payload jsonb NOT NULL,
   created_at timestamptz NOT NULL DEFAULT clock_timestamp(),
-  PRIMARY KEY (tenant_id, event_id),
-  UNIQUE (tenant_id, journal_id, event_type),
-  FOREIGN KEY (tenant_id, journal_id)
-    REFERENCES public.ledger_journals (tenant_id, journal_id)
+  PRIMARY KEY (tenant_id, product_id, event_id),
+  UNIQUE (tenant_id, product_id, journal_id, event_type),
+  FOREIGN KEY (tenant_id, product_id, journal_id)
+    REFERENCES public.ledger_journals (tenant_id, product_id, journal_id)
 );
 
 CREATE INDEX ledger_outbox_tenant_created_idx
-  ON public.ledger_outbox (tenant_id, created_at);
+  ON public.ledger_outbox (tenant_id, product_id, created_at);
 
 REVOKE CREATE ON SCHEMA public FROM PUBLIC;
 GRANT USAGE ON SCHEMA public TO ledger_owner, ledger_executor,
@@ -429,6 +429,7 @@ BEGIN
     FROM public.posting_requests AS r
     JOIN public.financial_effects AS f
       ON f.tenant_id = r.tenant_id
+     AND f.product_id = r.product_id
      AND f.effect_id = r.effect_id
      AND f.journal_id = r.journal_id
    WHERE r.tenant_id = v_tenant_id
@@ -453,7 +454,7 @@ BEGIN
   ) VALUES (
     v_tenant_id, v_product_id, p_effect_id, v_fingerprint, v_new_journal_id
   )
-  ON CONFLICT (tenant_id, effect_id) DO NOTHING;
+  ON CONFLICT (tenant_id, product_id, effect_id) DO NOTHING;
 
   GET DIAGNOSTICS v_effect_inserted = ROW_COUNT;
   IF v_effect_inserted = 0 THEN
@@ -530,6 +531,7 @@ BEGIN
       FROM public.posting_requests AS r
       JOIN public.financial_effects AS f
         ON f.tenant_id = r.tenant_id
+       AND f.product_id = r.product_id
        AND f.effect_id = r.effect_id
        AND f.journal_id = r.journal_id
      WHERE r.tenant_id = v_tenant_id
@@ -571,5 +573,5 @@ INSERT INTO public.ledger_accounts (tenant_id, account_id, account_code, currenc
   ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', '11111111-1111-4111-8111-111111111104', 'A-JPY-CLEARING', 'JPY', 'clearing', 'affiliate_agent'),
   ('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', '22222222-2222-4222-8222-222222222201', 'B-USD-CASH', 'USD', 'asset', 'affiliate_agent'),
   ('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', '22222222-2222-4222-8222-222222222202', 'B-USD-CLEARING', 'USD', 'clearing', 'affiliate_agent'),
-  ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', '33333333-3333-4333-8333-333333333301', 'A-LOTTERY-USD-CASH', 'USD', 'asset', 'lottery'),
-  ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', '33333333-3333-4333-8333-333333333302', 'A-LOTTERY-USD-CLEARING', 'USD', 'clearing', 'lottery');
+  ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', '11111111-1111-4111-8111-111111111101', 'A-USD-CASH', 'USD', 'asset', 'lottery'),
+  ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', '11111111-1111-4111-8111-111111111102', 'A-USD-CLEARING', 'USD', 'clearing', 'lottery');

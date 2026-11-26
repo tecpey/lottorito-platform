@@ -71,3 +71,29 @@
 - [AWS Prescriptive Guidance — Transactional outbox](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html): ذخیره اتمیک وضعیت کسب‌وکار و Outbox؛ Consumer باید تحویل تکراری را تحمل کند.
 - [AWS Well-Architected — Make mutating operations idempotent](https://docs.aws.amazon.com/wellarchitected/latest/framework/rel04-bp04.html): شناسه پایدار Idempotency، ثبت اتمیک وضعیت، Retry و مدیریت رویدادهای تکراری.
 - [Microsoft Architecture Center — Idempotent consumer](https://learn.microsoft.com/azure/architecture/patterns/idempotent-consumer): استفاده از هویت پایدار عملیات کسب‌وکار، نه Correlation ID عمومی، برای Deduplicate کردن تحویل مجدد.
+
+## P-09J — اعمال شناسه Canonical محصول (۲۰۲۶-۱۱-۲۵)
+
+Schema دورریختنی P-02 اکنون فقط شناسه‌های Canonical محصول یعنی `affiliate_agent` و `lottery` را می‌پذیرد؛ مقدار مبهم Legacy یعنی `shared` توسط Check Constraintهای محصول رد می‌شود. یک تست منفی Integration درج مقدار `shared` را امتحان می‌کند و الزام دارد SQLSTATE برابر `23514` باشد.
+
+این تغییر عمداً Migration داده نیست. دیتابیس‌ها یا ردیف‌های Legacy دارای مقدار `shared` باید تا زمان ارائه نگاشت معتبر Tenant/Product از سوی مالک مسئول، شناسایی و قرنطینه شوند؛ هیچ تبدیل خودکاری به Affiliate، Lottery یا Platform Scope مجاز نیست. کار P-09J در P-05B نیز Scope محصول را به Inbox بازیابی و Replay Cursor اضافه می‌کند. کلیدهای مالی P-02 که هنوز فقط Tenant را دربرمی‌گیرند، یک کار پیگیری صریح باقی می‌مانند؛ این بخش ادعا نمی‌کند Migration کامل هویت مالی P-02 انجام شده است.
+
+### شواهد CI مربوط به P-09J
+
+اعتبارسنجی روی Source-code Head با شناسه `dfaa8120340cc6b4b80450dbf0e5755b21111080` انجام شد: [اجرای P-02 Ledger Posting با شناسه 45662750926](https://github.com/tecpey/lottorito-platform/actions/runs/45662750926) با **۲۶ تست از ۲۶ تست موفق** به پایان رسید. تست منفی مقدار Legacy، SQLSTATE مورد انتظار یعنی `23514` را دریافت کرد. هیچ Migration داده Legacy انجام نشد.
+
+## P-09K — کلیدهای مالی و یکپارچگی ارجاعی با Scope محصول (۲۰۲۶-۱۱-۲۶)
+
+در P-02 اکنون `product_id` در تمام Primary Keyها و Unique Constraintهای مالی حضور دارد: حساب‌ها، اثرهای مالی، درخواست‌های Posting، Journalها، خطوط Journal و رویدادهای Outbox. تمام Foreign Keyها نیز همان Tuple شامل Tenant و Product را حمل می‌کنند؛ از جمله ارجاع Journal به Effect، Line به Journal، Line به Account و Outbox به Journal. Conflict Arbiter مربوط به Effect و تمام Joinهای Request/Effect نیز محصول‌محور شده‌اند. ایندکس Polling مربوط به Outbox هم Tenant و Product را دربرمی‌گیرد.
+
+یک Integration Test جدید همان Tenant، UUID حساب‌ها، UUID رویداد مبدأ، UUID اثر اقتصادی و Idempotency Key را در Affiliate & Agent و Lottery دوباره استفاده می‌کند. هر دو محصول باید مستقلاً دقیقاً یک Journal متوازن ثبت کنند و دیتابیس باید ردیف‌های مجزای دارای Scope محصول را حفظ کند. این فقط Fixture دورریختنی PostgreSQL 18.7 است و Migration مربوط به Production نیست. ردیف‌ها و شناسه‌های موجود در Production پیش از هر تغییر Schema نیازمند Inventory، تحلیل برخورد شناسه‌ها و طرح Migration تأییدشده از نوع Expand/Backfill/Validate/Contract هستند.
+
+**شواهد CI مربوط به P-09K:** [اجرای 45862006791](https://github.com/tecpey/lottorito-platform/actions/runs/45862006791) — موفق، ۲۷ از ۲۷ تست Integration روی PostgreSQL 18.7؛ شامل استفاده مجدد از شناسه‌های Tenant/Account/Event/Effect/Idempotency در دو محصول و رد جایگزینی Foreign Key بین محصولات. Head دقیق کد: `75148b41220bb26adf0e8c01e05860a8fd83d7fa`.
+
+## اعتبارسنجی P-09K روی Head دقیق (۲۰۲۶-۱۱-۲۶)
+
+پیاده‌سازی نهایی کلیدهای مالی محصول‌محور P-02 روی Commit برابر `75fd23701d4e28f047f8ebb73ea0b684bb144c7a` موفق شد: [Workflow شماره 45863298568](https://github.com/tecpey/lottorito-platform/actions/runs/45863298568)، شامل ۲۷ از ۲۷ تست Integration با Node.js 26 و PostgreSQL 18.7. این تست‌ها استفاده مجدد از شناسه حساب، رویداد مبدأ، اثر اقتصادی و Idempotency در یک Tenant را میان Affiliate & Agent و Lottery پوشش می‌دهند. برای پذیرش قرارداد بین Prototypeها، شواهد وابسته P-03 و P-05 نیز باید بررسی شوند.
+
+## بازاعتبارسنجی نهایی بین‌Prototype در P-09L (۲۰۲۶-۱۱-۲۶)
+
+پیاده‌سازی کلیدهای مالی محصول‌محور P-02 روی Head دقیق کد `7cb0598a163f40e53a4412a44b476b0404685b75` مجدداً اعتبارسنجی شد: [Workflow شماره 45864973900](https://github.com/tecpey/lottorito-platform/actions/runs/45864973900)، هر ۲۷ تست موفق و بدون خطا. این Head شامل اصلاح بازیابی غیرمسدودکننده Index در P-04 و همگام‌سازی مستندات قرارداد P-09L است.

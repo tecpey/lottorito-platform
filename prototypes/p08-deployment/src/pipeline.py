@@ -16,7 +16,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Mapping
 
-from build import BUILD_TYPE, BUILDER_ID
+from build import BUILD_TYPE, BUILDER_ID, PRODUCT_IDS, ContractViolation, normalize_scope
 
 SECRET_ENV = "LOTTORITO_SYNTHETIC_RUNTIME_SECRET"
 ALLOWED_ENVIRONMENTS = {"test", "staging"}
@@ -55,8 +55,14 @@ def read_release_metadata(data: bytes) -> dict[str, Any]:
             metadata = json.loads(archive.read("release.json"))
     except (zipfile.BadZipFile, KeyError, json.JSONDecodeError) as exc:
         raise GateRejected("artifact_invalid") from exc
-    if metadata.get("product") != "affiliate_agent":
+    if metadata.get("product") not in PRODUCT_IDS:
         raise GateRejected("artifact_product_invalid")
+    try:
+        scope_kind, scope_id = normalize_scope(metadata.get("scope"))
+    except ContractViolation:
+        raise GateRejected("artifact_scope_invalid") from None
+    if scope_kind != "product" or scope_id != metadata["product"]:
+        raise GateRejected("artifact_scope_product_mismatch")
     if not isinstance(metadata.get("version"), str) or not metadata["version"].strip():
         raise GateRejected("artifact_version_missing")
     if (
@@ -72,7 +78,7 @@ def read_release_metadata(data: bytes) -> dict[str, Any]:
 
 
 def verify_provenance(data: bytes, provenance: Mapping[str, Any], expected_digest: str,
-                      expected_source_revision: str) -> bool:
+                      expected_source_revision: str, expected_product: str = "affiliate_agent") -> bool:
     try:
         subject = provenance["subject"]
         predicate = provenance["predicate"]
@@ -81,15 +87,18 @@ def verify_provenance(data: bytes, provenance: Mapping[str, Any], expected_diges
         subject_digest = subject[0]["digest"]["sha256"]
         source_revision = build_definition["externalParameters"]["source_revision"]
         product = build_definition["externalParameters"]["product"]
+        scope = build_definition["externalParameters"]["scope"]
+        scope_identity = normalize_scope(scope)
         build_type = build_definition["buildType"]
         builder_id = run_details["builder"]["id"]
         dependency_digest = build_definition["resolvedDependencies"][0]["digest"]["sha256"]
-    except (KeyError, IndexError, TypeError):
+    except (KeyError, IndexError, TypeError, ContractViolation):
         return False
     try:
+        metadata = read_release_metadata(data)
         with zipfile.ZipFile(__import__("io").BytesIO(data), "r") as archive:
             entrypoint_digest = digest_bytes(archive.read("__main__.py"))
-    except (zipfile.BadZipFile, KeyError):
+    except (zipfile.BadZipFile, KeyError, GateRejected):
         return False
     if not isinstance(subject, list) or not isinstance(predicate, dict) or not isinstance(build_definition, dict):
         return False
@@ -102,7 +111,11 @@ def verify_provenance(data: bytes, provenance: Mapping[str, Any], expected_diges
         and subject_digest == expected_digest.removeprefix("sha256:")
         and verify_artifact_bytes(data, expected_digest)
         and source_revision == expected_source_revision
-        and product == "affiliate_agent"
+        and expected_product in PRODUCT_IDS
+        and product == expected_product
+        and metadata["product"] == expected_product
+        and scope == metadata["scope"]
+        and scope_identity == ("product", expected_product)
         and build_type == BUILD_TYPE
         and builder_id == BUILDER_ID
         and dependency_digest == entrypoint_digest
@@ -177,6 +190,7 @@ class DeploymentState:
     environment: str
     schema_version: int
     current_digest: str
+    product_id: str = "affiliate_agent"
     previous_digest: str | None = None
     api_digest: str | None = None
     worker_digest: str | None = None
@@ -245,6 +259,8 @@ class DeploymentController:
         if approval.approved_by in {approval.requested_by, actor}:
             raise GateRejected("separation_of_duties_violation")
         metadata = self._metadata(digest)
+        if state.product_id not in PRODUCT_IDS or metadata["product"] != state.product_id:
+            raise GateRejected("artifact_product_mismatch")
         if not (metadata["min_schema"] <= state.schema_version <= metadata["max_schema"]):
             raise GateRejected("artifact_schema_incompatible")
         if not api_health.readiness_ok:
@@ -262,7 +278,7 @@ class DeploymentController:
         if state.api_digest != state.current_digest or state.worker_digest != state.current_digest:
             raise DeploymentConflict("active_component_release_drift")
         artifact = self.store.get(digest)
-        if not verify_provenance(artifact, provenance, digest, expected_source_revision):
+        if not verify_provenance(artifact, provenance, digest, expected_source_revision, state.product_id):
             raise GateRejected("provenance_verification_failed")
         metadata = self._gate(state, digest, approval, actor, api_health)
         before = (state.api_digest, state.worker_digest, state.traffic_enabled, state.workers_enabled)
@@ -281,7 +297,7 @@ class DeploymentController:
         state.traffic_enabled = True
         state.workers_enabled = True
         state.audit.append(self._audit(actor, state, digest, "release.promoted", "accepted"))
-        return {"status": "promoted", "digest": digest, "version": metadata["version"]}
+        return {"status": "promoted", "digest": digest, "version": metadata["version"], "product_id": state.product_id}
 
     def rollback(self, state: DeploymentState, target_digest: str, expected_current_digest: str,
                  actor: str, approval: Approval, api_health: HealthSnapshot,
@@ -300,6 +316,8 @@ class DeploymentController:
         if target_digest != state.previous_digest:
             raise GateRejected("rollback_target_not_previous_release")
         metadata = self._metadata(target_digest)
+        if state.product_id not in PRODUCT_IDS or metadata["product"] != state.product_id:
+            raise GateRejected("rollback_product_mismatch")
         if not (metadata["min_schema"] <= state.schema_version <= metadata["max_schema"]):
             raise GateRejected("rollback_schema_incompatible")
         if not api_health.readiness_ok or not worker_health.worker_readiness_ok:
@@ -319,6 +337,7 @@ class DeploymentController:
         return {
             "actor": actor,
             "environment": state.environment,
+            "product_id": state.product_id,
             "artifact_digest": digest,
             "action": action,
             "outcome": outcome,
@@ -344,11 +363,15 @@ class DeploymentController:
         if target_schema_version != state.schema_version + 1:
             raise GateRejected("rollback_retirement_target_schema_invalid")
         active = self._metadata(state.current_digest)
+        if state.product_id not in PRODUCT_IDS or active["product"] != state.product_id:
+            raise GateRejected("active_release_product_mismatch")
         if not (active["min_schema"] <= state.schema_version <= active["max_schema"]):
             raise GateRejected("active_release_current_schema_incompatible")
         if not (active["min_schema"] <= target_schema_version <= active["max_schema"]):
             raise GateRejected("active_release_cannot_read_target_schema")
         previous = self._metadata(state.previous_digest)
+        if previous["product"] != state.product_id:
+            raise GateRejected("rollback_target_product_mismatch")
         if previous["min_schema"] <= target_schema_version <= previous["max_schema"]:
             raise GateRejected("rollback_target_still_compatible")
         retired_digest = state.previous_digest
@@ -373,12 +396,16 @@ class DeploymentController:
         if state.api_digest != state.current_digest or state.worker_digest != state.current_digest:
             raise DeploymentConflict("active_component_release_drift")
         active = self._metadata(state.current_digest)
+        if state.product_id not in PRODUCT_IDS or active["product"] != state.product_id:
+            raise GateRejected("active_release_product_mismatch")
         if not (active["min_schema"] <= state.schema_version <= active["max_schema"]):
             raise GateRejected("active_release_current_schema_incompatible")
         if not (active["min_schema"] <= target_version <= active["max_schema"]):
             raise GateRejected("active_release_cannot_read_target_schema")
         if state.previous_digest is not None:
             previous = self._metadata(state.previous_digest)
+            if previous["product"] != state.product_id:
+                raise GateRejected("rollback_target_product_mismatch")
             if not (previous["min_schema"] <= target_version <= previous["max_schema"]):
                 raise GateRejected("rollback_target_incompatible")
         state.schema_version = target_version

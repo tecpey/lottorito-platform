@@ -84,3 +84,21 @@ RPO/RTO طبق LOT-QA-001 همچنان TBD است. زمان CI فقط مشاهد
 - https://csrc.nist.gov/pubs/sp/800/57/pt1/r6/ipd
 - https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html
 - https://docs.aws.amazon.com/lambda/latest/dg/best-practices.html
+
+## P-09J — هویت بازیابی با Scope محصول (۲۰۲۶-۱۱-۲۵)
+
+اکنون `product_id` در کلیدهای Primary/Unique مربوط به Inbox و Replay Cursor در P-05B حضور دارد. همان Tenant، Consumer، UUID رویداد مبدأ، UUID اثر اقتصادی و UUID Aggregate به‌صورت مستقل برای Affiliate & Agent و Lottery مقداردهی می‌شوند. هویت محصول در Lookup رویداد مبدأ، ایجاد Journal/Line، به‌روزرسانی وضعیت Inbox و به‌روزرسانی Cursor حمل می‌شود؛ Role Map و RLS آزمایشی نیز هم Tenant و هم Product را محدود می‌کنند.
+
+تابع Replay ردیف Cursor دارای Scope محصول را با `FOR UPDATE` قفل می‌کند. دو Worker هم‌زمان روی Cursor مربوط به Affiliate در مجموع دقیقاً دو اثر را پردازش می‌کنند؛ در همان زمان Worker مربوط به همان Aggregate در Lottery، Cursor مستقل خود را جلو می‌برد. تست‌ها همچنین توقف در شکاف Sequence، Rollback پس از وقفه تزریق‌شده، Retry/No-op، توازن Journal، تطبیق Source-to-Ledger به تفکیک محصول و رد RLS بین Tenant/Product را بررسی می‌کنند.
+
+روی Source-code Head با شناسه `dfaa8120340cc6b4b80450dbf0e5755b21111080`، [اجرای P-05 Recovery با شناسه 45662750801](https://github.com/tecpey/lottorito-platform/actions/runs/45662750801) موفق شد. مرحله رویداد P-05B نشانگرهای `product_scope_event_identity=PASS`، `product_scope_replay_cursor_isolation=PASS`، `concurrent_replay_cursor_serialization=PASS`، `interrupted_replay_rollback=PASS`، `ledger_reconciliation=PASS` و `P05B_RESULT=PASS` را ثبت کرد. همان اجرا، آزمون‌های PITR/بازیابی ناقص P-05A و بازیابی فیزیکی و Replay در P-09E را نیز با موفقیت گذراند. این موارد همچنان Fixtureهای ساختگی و دورریختنی هستند، نه طراحی بازیابی Production. تست Canonical Token در P-02 مقدار جدید `shared` را رد می‌کند؛ ردیف‌های Legacy همچنان باید بدون تخصیص خودکار، شناسایی و قرنطینه شوند.
+
+Inbox محصول‌محور همچنین یکتایی هر رویداد را در محدوده `(tenant, product, consumer, aggregate, sequence)` تضمین می‌کند تا دو اثر متفاوت نتوانند برای یک جایگاه Sequence رقابت کنند. Assertionهای RLS علاوه بر Inbox، جدول‌های Source Event، Journal و Line را نیز پوشش می‌دهند.
+
+## اعتبارسنجی بازیابی P-09K روی Head دقیق (۲۰۲۶-۱۱-۲۶)
+
+[Workflow شماره 45863298629](https://github.com/tecpey/lottorito-platform/actions/runs/45863298629) روی Head دقیق `75fd23701d4e28f047f8ebb73ea0b684bb144c7a` موفق شد: `P05A_RESULT=PASS`، `P09E_RESULT=PASS`، `P05B_OBJECT_KEY_RESULT=PASS`، `P05B_EVENT_RESULT=PASS`، `P05B_RESULT=PASS` و `P05A_NEGATIVE_RESULT=PASS`. این شواهد مربوط به Restore فیزیکی و بازیابی ساختگی است و گواهی Production یا تأیید KMS/HSM محسوب نمی‌شود.
+
+## اعتبارسنجی نهایی بازیابی P-09L (۲۰۲۶-۱۱-۲۶)
+
+روی Head دقیق کد `7cb0598a163f40e53a4412a44b476b0404685b75`، [Workflow شماره 45864973907](https://github.com/tecpey/lottorito-platform/actions/runs/45864973907) تمام Markerهای بازیابی را با موفقیت گذراند: `P05A_RESULT`، `P09E_RESULT`، `P05B_OBJECT_KEY_RESULT`، `P05B_EVENT_RESULT`، `P05B_RESULT` و `P05A_NEGATIVE_RESULT`. [Workflow مربوط به P-05C با شماره 45864973943](https://github.com/tecpey/lottorito-platform/actions/runs/45864973943) نیز `P05C_RESULT=PASS` را ثبت کرد. این‌ها صرفاً شواهد ساختگی‌اند و گواهی Production یا KMS/HSM نیستند.

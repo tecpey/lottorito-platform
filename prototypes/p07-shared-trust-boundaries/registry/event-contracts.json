@@ -5,10 +5,26 @@
       "source_product": "affiliate_agent",
       "event_type": "com.lottorito.p07b.demo.signal.v1",
       "dataschema": "urn:lottorito:schema:affiliate.demo.signal:1",
-      "allowed_consumers": ["lottery"],
+      "allowed_consumers": [
+        "lottery"
+      ],
       "data_classification": "internal",
-      "required_data_fields": ["reference"],
-      "test_only": true
+      "required_data_fields": [
+        "reference"
+      ],
+      "test_only": true,
+      "source_scope": {
+        "kind": "product",
+        "id": "affiliate_agent"
+      },
+      "schema_version": 1,
+      "required_envelope_fields": [
+        "tenantid",
+        "scope",
+        "sourceeventid",
+        "schemaversion",
+        "traceparent"
+      ]
     }
   ]
 }

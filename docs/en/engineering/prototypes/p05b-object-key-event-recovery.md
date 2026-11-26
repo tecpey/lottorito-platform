@@ -84,3 +84,21 @@ RPO/RTO remain TBD under LOT-QA-001. CI timings are observations only. A success
 - https://csrc.nist.gov/pubs/sp/800/57/pt1/r6/ipd
 - https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html
 - https://docs.aws.amazon.com/lambda/latest/dg/best-practices.html
+
+## P-09J — Product-qualified recovery identity (2026-11-25)
+
+P-05B's inbox and replay cursor now include `product_id` in their primary/unique keys. The same tenant, consumer, source-event UUID, economic-effect UUID and aggregate UUID are seeded independently for Affiliate & Agent and Lottery. Product identity is carried through source-event lookup, journal/line creation, inbox status updates and cursor updates; the disposable role map and RLS policies bind both tenant and product.
+
+The replay function locks the product-qualified cursor row with `FOR UPDATE`. Two concurrent workers against the same Affiliate cursor serialize to exactly two effects in total, while a worker for the same aggregate in Lottery advances its independent cursor. The tests also verify sequence-gap blocking, rollback after injected interruption, retry/no-op behavior, balanced journals, per-product source-to-ledger reconciliation, and cross-tenant/cross-product RLS denial.
+
+On source-code head `dfaa8120340cc6b4b80450dbf0e5755b21111080`, [P-05 recovery run 45662750801](https://github.com/tecpey/lottorito-platform/actions/runs/45662750801) passed. Its P-05B event stage emitted `product_scope_event_identity=PASS`, `product_scope_replay_cursor_isolation=PASS`, `concurrent_replay_cursor_serialization=PASS`, `interrupted_replay_rollback=PASS`, `ledger_reconciliation=PASS`, and `P05B_RESULT=PASS`. The same run also passed P-05A PITR/negative restore drills and P-09E physical restore/replay. These remain synthetic disposable fixtures, not a production recovery design. The P-02 canonical-token test rejects new `shared` values; any legacy rows still require explicit inventory/quarantine rather than automatic reassignment.
+
+The product-qualified Inbox also enforces one event per `(tenant, product, consumer, aggregate, sequence)`, preventing two distinct effects from competing for the same sequence slot. RLS assertions cover the Inbox, source events, journals and lines—not only the Inbox.
+
+## P-09K exact-head recovery validation (2026-11-26)
+
+[Workflow 45863298629](https://github.com/tecpey/lottorito-platform/actions/runs/45863298629) passed on exact head `75fd23701d4e28f047f8ebb73ea0b684bb144c7a`: `P05A_RESULT=PASS`, `P09E_RESULT=PASS`, `P05B_OBJECT_KEY_RESULT=PASS`, `P05B_EVENT_RESULT=PASS`, `P05B_RESULT=PASS`, and `P05A_NEGATIVE_RESULT=PASS`. This is synthetic physical-restore and recovery evidence, not production recovery/KMS/HSM certification.
+
+## Final P-09L recovery validation (2026-11-26)
+
+On exact code head `7cb0598a163f40e53a4412a44b476b0404685b75`, [workflow 45864973907](https://github.com/tecpey/lottorito-platform/actions/runs/45864973907) passed all recovery markers: `P05A_RESULT`, `P09E_RESULT`, `P05B_OBJECT_KEY_RESULT`, `P05B_EVENT_RESULT`, `P05B_RESULT`, and `P05A_NEGATIVE_RESULT`. [P-05C workflow 45864973943](https://github.com/tecpey/lottorito-platform/actions/runs/45864973943) also reported `P05C_RESULT=PASS`. Synthetic evidence only; no production recovery/KMS/HSM certification.

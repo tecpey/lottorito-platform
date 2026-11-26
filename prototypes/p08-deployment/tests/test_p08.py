@@ -1,22 +1,24 @@
 from __future__ import annotations
 
+import io
 import json
 import os
 import sys
 import tempfile
 import unittest
+import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "src"))
 
-from build import build
+from build import PRODUCT_IDS, PRODUCT_SLUGS, build
 from pipeline import (
     Approval, DeploymentConflict, DeploymentController, DeploymentState,
     GateRejected, HealthSnapshot, ImmutableArtifactStore, RuntimeSecret,
     run_artifact,
-    verify_artifact_bytes, verify_provenance,
+    verify_artifact_bytes, verify_provenance, read_release_metadata,
 )
 
 SOURCE = "a" * 40
@@ -35,8 +37,8 @@ class ArtifactBuildTests(unittest.TestCase):
     def tearDown(self):
         self.temp.cleanup()
 
-    def build_fixture(self, version: str, folder: str):
-        return build(version, self.root / folder, SOURCE)
+    def build_fixture(self, version: str, folder: str, product_id: str = "affiliate_agent"):
+        return build(version, self.root / folder, SOURCE, product_id)
 
     def test_build_is_deterministic_for_same_inputs(self):
         first, _, first_digest = self.build_fixture("v1", "one")
@@ -59,6 +61,58 @@ class ArtifactBuildTests(unittest.TestCase):
     def test_build_rejects_invalid_source_revision(self):
         with self.assertRaises(ValueError):
             build("v1", self.root / "bad", "not-a-commit")
+
+    def test_build_rejects_unknown_product(self):
+        with self.assertRaisesRegex(ValueError, "unknown_product_id"):
+            build("v1", self.root / "unknown-product", SOURCE, "sportsbook")
+
+    def test_lottery_artifact_and_provenance_are_product_bound(self):
+        affiliate, affiliate_provenance_path, affiliate_digest = self.build_fixture("v1", "affiliate")
+        lottery, lottery_provenance_path, lottery_digest = self.build_fixture("v1", "lottery", "lottery")
+        self.assertEqual(affiliate.name, "affiliate-agent-v1.pyz")
+        self.assertEqual(lottery.name, "lottery-v1.pyz")
+        self.assertNotEqual(affiliate_digest, lottery_digest)
+        affiliate_metadata = read_release_metadata(affiliate.read_bytes())
+        lottery_metadata = read_release_metadata(lottery.read_bytes())
+        self.assertEqual(affiliate_metadata["product"], "affiliate_agent")
+        self.assertEqual(lottery_metadata["product"], "lottery")
+        self.assertEqual(affiliate_metadata["scope"], {"kind": "product", "id": "affiliate_agent"})
+        self.assertEqual(lottery_metadata["scope"], {"kind": "product", "id": "lottery"})
+        lottery_provenance = json.loads(lottery_provenance_path.read_text())
+        external = lottery_provenance["predicate"]["buildDefinition"]["externalParameters"]
+        self.assertEqual(external["product"], "lottery")
+        self.assertEqual(external["scope"], {"kind": "product", "id": "lottery"})
+        self.assertTrue(verify_provenance(lottery.read_bytes(), lottery_provenance, f"sha256:{lottery_digest}", SOURCE, "lottery"))
+        self.assertFalse(verify_provenance(lottery.read_bytes(), lottery_provenance, f"sha256:{lottery_digest}", SOURCE, "affiliate_agent"))
+        self.assertIn('"product": "lottery"', run_artifact(lottery))
+
+
+    def test_p08_product_registry_is_imported_from_p09_contract(self):
+        self.assertEqual(set(PRODUCT_IDS), {"affiliate_agent", "lottery"})
+        self.assertEqual(set(PRODUCT_SLUGS), set(PRODUCT_IDS))
+
+    def test_release_metadata_rejects_scope_product_mismatch(self):
+        artifact, _, _ = self.build_fixture("v1", "scope-tamper")
+        with zipfile.ZipFile(artifact, "r") as source:
+            files = {name: source.read(name) for name in source.namelist()}
+        metadata = json.loads(files["release.json"])
+        metadata["scope"] = {"kind": "platform", "id": "lottorito"}
+        files["release.json"] = json.dumps(metadata, sort_keys=True, separators=(",", ":")).encode()
+        tampered = io.BytesIO()
+        with zipfile.ZipFile(tampered, "w", compression=zipfile.ZIP_STORED) as target:
+            for name, data in files.items():
+                target.writestr(name, data)
+        with self.assertRaisesRegex(GateRejected, "artifact_scope_product_mismatch"):
+            read_release_metadata(tampered.getvalue())
+
+    def test_provenance_rejects_product_scope_substitution(self):
+        artifact, provenance_path, digest = self.build_fixture("v1", "scope-provenance")
+        provenance = json.loads(provenance_path.read_text())
+        provenance["predicate"]["buildDefinition"]["externalParameters"]["scope"] = {
+            "kind": "platform", "id": "lottorito"
+        }
+        self.assertFalse(verify_provenance(artifact.read_bytes(), provenance,
+            f"sha256:{digest}", SOURCE, "affiliate_agent"))
 
     def test_artifact_digest_detects_tampering(self):
         artifact, _, digest = self.build_fixture("v1", "one")
@@ -170,6 +224,9 @@ class PromotionAndRollbackTests(unittest.TestCase):
             artifact, provenance_path, digest = build(version, self.root / version, SOURCE)
             data = artifact.read_bytes()
             self.built[version] = (self.store.put(data), json.loads(provenance_path.read_text()), data)
+        lottery_artifact, lottery_provenance_path, lottery_digest = build("v1", self.root / "lottery-v1", SOURCE, "lottery")
+        lottery_data = lottery_artifact.read_bytes()
+        self.lottery_built = (self.store.put(lottery_data), json.loads(lottery_provenance_path.read_text()), lottery_data)
         self.controller = DeploymentController(self.store)
         self.test_state = DeploymentState("test", 1, self.built["v1"][0], api_digest=self.built["v1"][0], worker_digest=self.built["v1"][0], traffic_enabled=True, workers_enabled=True)
         self.stage_state = DeploymentState("staging", 1, self.built["v1"][0], api_digest=self.built["v1"][0], worker_digest=self.built["v1"][0], traffic_enabled=True, workers_enabled=True)
@@ -187,6 +244,52 @@ class PromotionAndRollbackTests(unittest.TestCase):
             state.current_digest, api, worker, provenance, SOURCE,
         )
         return result
+
+    def test_lottery_artifact_promotes_with_lottery_product_identity(self):
+        digest, provenance, _ = self.lottery_built
+        state = DeploymentState("staging", 1, digest, product_id="lottery",
+                                api_digest=digest, worker_digest=digest,
+                                traffic_enabled=True, workers_enabled=True)
+        result = self.controller.promote(
+            state, digest, self.approval(digest), DEPLOY_ACTOR, digest,
+            GOOD_API, GOOD_WORKER, provenance, SOURCE,
+        )
+        self.assertEqual(result["product_id"], "lottery")
+        self.assertEqual(state.product_id, "lottery")
+        self.assertEqual(state.current_digest, digest)
+
+    def test_affiliate_artifact_cannot_promote_into_lottery_scope(self):
+        lottery_digest, _, _ = self.lottery_built
+        affiliate_digest, affiliate_provenance, _ = self.built["v2"]
+        state = DeploymentState("staging", 1, lottery_digest, product_id="lottery",
+                                api_digest=lottery_digest, worker_digest=lottery_digest,
+                                traffic_enabled=True, workers_enabled=True)
+        before = (state.current_digest, state.previous_digest, state.api_digest,
+                  state.worker_digest, state.traffic_enabled, state.workers_enabled,
+                  state.schema_version, list(state.audit))
+        with self.assertRaisesRegex(GateRejected, "provenance_verification_failed"):
+            self.controller.promote(
+                state, affiliate_digest, self.approval(affiliate_digest), DEPLOY_ACTOR,
+                lottery_digest, GOOD_API, GOOD_WORKER, affiliate_provenance, SOURCE,
+            )
+        after = (state.current_digest, state.previous_digest, state.api_digest,
+                 state.worker_digest, state.traffic_enabled, state.workers_enabled,
+                 state.schema_version, list(state.audit))
+        self.assertEqual(after, before)
+
+    def test_cross_product_rollback_target_is_rejected(self):
+        lottery_digest, _, _ = self.lottery_built
+        affiliate_digest = self.built["v1"][0]
+        state = DeploymentState("staging", 1, lottery_digest, product_id="lottery",
+                                previous_digest=affiliate_digest,
+                                api_digest=lottery_digest, worker_digest=lottery_digest,
+                                traffic_enabled=True, workers_enabled=True)
+        with self.assertRaisesRegex(GateRejected, "rollback_product_mismatch"):
+            self.controller.rollback(
+                state, affiliate_digest, lottery_digest, DEPLOY_ACTOR,
+                self.approval(affiliate_digest), GOOD_API, GOOD_WORKER,
+            )
+        self.assertEqual(state.current_digest, lottery_digest)
 
     def test_same_artifact_digest_promotes_from_test_to_staging(self):
         digest = self.built["v2"][0]

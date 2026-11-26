@@ -1,4 +1,5 @@
-import { createHash, createHmac, timingSafeEqual } from "node:crypto";
+import { createHash, createHmac, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
+import { validateEvent } from "../../p09-contract-recovery/contract.mjs";
 import { postJournal } from "../../p02-ledger-posting/src/posting.js";
 
 const AMOUNT = /^[1-9][0-9]{0,37}$/;
@@ -99,7 +100,11 @@ export function verifyWebhook({ headers, rawBody, keys, now = Date.now(), maxAge
   return { valid: false, reason: "signature_mismatch" };
 }
 
-function canonicalize(payload, installation, eventId) {
+function newTraceparent() {
+  return "00-" + randomBytes(16).toString("hex") + "-" + randomBytes(8).toString("hex") + "-00";
+}
+
+function canonicalize(payload, installation, eventId, sourceEventId) {
   if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
     throw Object.assign(new Error("provider payload must be an object"), { code: "P03D_INVALID_PAYLOAD" });
   }
@@ -113,20 +118,41 @@ function canonicalize(payload, installation, eventId) {
   if (!data || typeof data !== "object" || Array.isArray(data)) {
     throw Object.assign(new Error("provider event data must be an object"), { code: "P03D_INVALID_DATA" });
   }
-  const occurredAt = payload.occurred_at ?? payload.time ?? null;
-  const parsed = occurredAt === null ? null : new Date(occurredAt);
-  if (parsed && Number.isNaN(parsed.getTime())) {
+  const mapping = installation.event_mappings?.[payload.type];
+  if (!mapping || typeof mapping.dataschema !== "string" || !Number.isSafeInteger(mapping.schema_version)) {
+    throw Object.assign(new Error("provider event has no trusted schema mapping"), { code: "P03D_UNMAPPED_SCHEMA" });
+  }
+  const occurredAt = payload.occurred_at ?? payload.time;
+  if (typeof occurredAt !== "string" || Number.isNaN(Date.parse(occurredAt))) {
     throw Object.assign(new Error("provider event time is invalid"), { code: "P03D_INVALID_EVENT_TIME" });
   }
-  return {
+  const productId = installation.product_id;
+  if (!["affiliate_agent", "lottery"].includes(productId) ||
+      typeof installation.tenant_id !== "string" || typeof sourceEventId !== "string") {
+    throw Object.assign(new Error("trusted installation identity is invalid"), { code: "P03D_INVALID_INSTALLATION_SCOPE" });
+  }
+  const canonicalEvent = {
     specversion: "1.0",
     id: eventId,
     source: installation.provider_source,
     type: payload.type,
-    ...(parsed ? { time: parsed.toISOString() } : {}),
+    time: occurredAt,
+    dataschema: mapping.dataschema,
+    tenantid: installation.tenant_id,
+    scope: { kind: "product", id: productId },
+    sourceeventid: sourceEventId,
+    schemaversion: mapping.schema_version,
+    traceparent: newTraceparent(),
     datacontenttype: "application/json",
     data
   };
+  try { validateEvent(canonicalEvent); }
+  catch (error) {
+    throw Object.assign(new Error("canonical provider event violates P-09 contract"), {
+      code: "P03D_CONTRACT_VIOLATION", cause: error
+    });
+  }
+  return canonicalEvent;
 }
 
 async function assertInstallationScope(pool, installation) {
@@ -164,8 +190,9 @@ export async function ingestProviderWebhook(pool, {
   try { payload = JSON.parse(body.toString("utf8")); }
   catch { return { http_status: 400, outcome: "invalid_json" }; }
 
+  const sourceEventId = randomUUID();
   let canonicalEvent;
-  try { canonicalEvent = canonicalize(payload, installation, verification.eventId); }
+  try { canonicalEvent = canonicalize(payload, installation, verification.eventId, sourceEventId); }
   catch (error) { return { http_status: 400, outcome: "invalid_event", reason: error.code ?? "invalid_event" }; }
 
   await assertInstallationScope(pool, installation);
@@ -176,13 +203,13 @@ export async function ingestProviderWebhook(pool, {
     const inserted = await client.query(
       `INSERT INTO public.provider_event_inbox
         (tenant_id, product_id, provider_id, provider_event_id, event_type, event_source,
-         payload_hash, signature_key_id, canonical_event)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9::jsonb)
+         payload_hash, signature_key_id, canonical_event, source_event_id)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9::jsonb,$10)
        ON CONFLICT DO NOTHING
        RETURNING provider_event_id`,
       [installation.tenant_id, installation.product_id, installation.provider_id,
        verification.eventId, canonicalEvent.type, canonicalEvent.source,
-       payloadHash, verification.keyId, JSON.stringify(canonicalEvent)]
+       payloadHash, verification.keyId, JSON.stringify(canonicalEvent), sourceEventId]
     );
     if (inserted.rowCount === 1) {
       await client.query("COMMIT");
@@ -293,7 +320,7 @@ async function failClaim(pool, claim, errorCode, now, retryDelaySeconds = 5) {
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
-    const permanent = ["P03D_UNMAPPED_EVENT", "P03D_INVALID_AMOUNT", "P03D_CURRENCY_MISMATCH"].includes(errorCode);
+    const permanent = ["P03D_UNMAPPED_EVENT", "P03D_UNMAPPED_SCHEMA", "P03D_CONTRACT_VIOLATION", "P03D_CONTRACT_IDENTITY_MISMATCH", "P03D_INVALID_AMOUNT", "P03D_CURRENCY_MISMATCH"].includes(errorCode);
     const status = permanent ? "quarantined" :
       claim.attempt_count >= claim.max_attempts ? "dead_letter" : "retry";
     const result = await client.query(
@@ -338,6 +365,19 @@ export async function processProviderEvent(pool, {
       return { outcome: "stale" };
     }
     const row = locked.rows[0];
+    if (row.tenant_id !== installation.tenant_id || row.product_id !== installation.product_id) {
+      throw Object.assign(new Error("provider inbox row differs from trusted installation scope"), { code: "P03D_INSTALLATION_SCOPE_MISMATCH" });
+    }
+    let validated;
+    try { validated = validateEvent(row.canonical_event); }
+    catch (error) {
+      throw Object.assign(new Error("stored provider event violates P-09 contract"), { code: "P03D_CONTRACT_VIOLATION", cause: error });
+    }
+    if (row.canonical_event.tenantid !== row.tenant_id || row.canonical_event.scope?.kind !== "product" ||
+        row.canonical_event.scope?.id !== row.product_id || row.canonical_event.sourceeventid !== row.source_event_id ||
+        validated.identity[0] !== row.tenant_id || validated.identity[3] !== row.source_event_id) {
+      throw Object.assign(new Error("stored provider event identity differs from inbox row"), { code: "P03D_CONTRACT_IDENTITY_MISMATCH" });
+    }
     const lines = journalLines(row.canonical_event, installation);
     const posted = await postJournal(client, {
       idempotency_key: idempotencyKey(row.product_id, row.provider_id, row.provider_event_id),

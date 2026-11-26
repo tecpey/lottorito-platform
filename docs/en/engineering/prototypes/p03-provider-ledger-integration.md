@@ -1,6 +1,6 @@
 # P-03D — Provider Inbox to Product-Scoped Ledger Posting and Outbox
 
-**Document ID:** LOT-PROT-P03D-001 | **Version:** 0.2.0 | **Status:** Synthetic integration prototype; 22 P-03D and 15 P-03C tests passed; no production claim | **Review date:** 2026-11-25
+**Document ID:** LOT-PROT-P03D-001 | **Version:** 0.3.0 | **Status:** Synthetic integration prototype; 25 P-03D and 15 P-03C tests passed; no production claim | **Review date:** 2026-11-25
 
 ## Purpose
 
@@ -115,3 +115,31 @@ Exact current validated PR head: `14d69ec5be1a9285049c1f88529f375782f2de51`.
 
 This verifies the synthetic acceptance matrix on the cited branch head only. PR #61 remains Draft/open and stacked on PR #60; no merge, production provider integration, production database migration, technology approval or deployment is implied.
 
+## P-09F concurrency and cross-scope regression (2026-11-25)
+
+On candidate head 2b393cc8c41226a20333f34559ac6952883901a3, P-03C/P-03D workflow [45637659485](https://github.com/tecpey/lottorito-platform/actions/runs/45637659485) passed: P-03C **15/15**, P-03D **25/25**. Three added tests run the real Node.js provider worker against PostgreSQL 18.7: one-winner concurrent inbox claim and process race; stale/current lease-token fencing under concurrent processing; and same provider event ID/source-event UUID processed independently across Affiliate, Lottery and a second tenant. Each scope receives exactly one journal, immutable outbox event and delivery-state row, with zero reconciliation exceptions. Synthetic evidence only; aggregate ordering and Node-worker replay on the P-09E restored cluster remain open.
+
+
+### P-09H — Canonical contract enforcement (2026-11-25)
+
+The signed ingress path now builds its canonical CloudEvent from the trusted installation and approved event mapping. Tenant/product scope is not accepted from provider payload fields. The provider event ID remains the CloudEvents `id`; a distinct UUID `sourceeventid` is generated and persisted in both the canonical envelope and inbox row, with a fresh W3C trace context. Unknown schema mappings and non-RFC3339 timestamps are rejected before inbox persistence. The worker revalidates the stored envelope and its tenant/product/source-event identity before posting; a tampered scope is quarantined before journal/outbox effects. This is synthetic integration evidence only; final P-03D acceptance depends on CI for the final head.
+
+
+P-09H ingress regressions now also prove that provider-supplied `tenantid`, `scope`, `sourceeventid`, `traceparent`, `dataschema` and `schemaversion` cannot override trusted metadata, and that the same provider event ID can be accepted independently through signed ingress in Affiliate/Tenant-A, Lottery/Tenant-A and Affiliate/Tenant-B. The three rows receive distinct canonical source-event UUIDs. The P-03C/P-03D workflow on the code-bearing head reported 15/15 and 35/35 tests passing, respectively; the P-03D count includes seven direct Node.js contract-conformance tests.
+
+
+The P-03D test runner also includes a direct Node.js conformance suite for the shared P-09 validator. It exercises valid and adversarial envelope cases independently of the PostgreSQL-backed ingress tests, so a future worker change cannot silently bypass the validator's core rules.
+
+## P-09K — Product-qualified account and outbox references (2026-11-26)
+
+P-03D deliberately reuses the same account UUIDs for the same tenant in Affiliate & Agent and Lottery. P-02's composite key `(tenant_id, product_id, account_id)` keeps these identifiers independent; posting and account foreign keys preserve product scope end to end. The Lottery provider integration must post with those reused identifiers without seeing or mutating Affiliate account rows. P-03D removes a redundant journal unique index already guaranteed by P-02's composite primary key and rejects legacy `shared` product tokens in provider inbox/conflict/expectation state. CI is pending exact-head validation.
+
+**P-09K CI evidence:** [Run 45862006903](https://github.com/tecpey/lottorito-platform/actions/runs/45862006903) — PASS; P-03C 16/16 and P-03D 35/35 integration tests. Lottery provider posting passes while intentionally reusing the same account UUIDs as Affiliate under a distinct product identity. Exact source head: `75148b41220bb26adf0e8c01e05860a8fd83d7fa`.
+
+## P-09K exact-head validation update (2026-11-26)
+
+The product-qualified P-02 account, journal and outbox keys were validated through P-03D provider ingress and posting. [Workflow 45863298594](https://github.com/tecpey/lottorito-platform/actions/runs/45863298594) passed all 35/35 PostgreSQL 18.7/Node.js integration tests on exact head `75fd23701d4e28f047f8ebb73ea0b684bb144c7a`, including reuse of account UUIDs across Affiliate and Lottery without cross-product reads or writes.
+
+## Final P-09L exact-head validation (2026-11-26)
+
+P-03D provider ingress and ledger posting passed 35/35 tests on exact code head `7cb0598a163f40e53a4412a44b476b0404685b75`: [workflow 45864973911](https://github.com/tecpey/lottorito-platform/actions/runs/45864973911). The run includes cross-product reuse of account UUIDs while keeping journal/account references and provider inbox state product-qualified.

@@ -29,8 +29,8 @@ const A_CASH = "11111111-1111-4111-8111-111111111101";
 const A_CLEARING = "11111111-1111-4111-8111-111111111102";
 const B_CASH = "22222222-2222-4222-8222-222222222201";
 const B_CLEARING = "22222222-2222-4222-8222-222222222202";
-const LOTTERY_CASH = "33333333-3333-4333-8333-333333333301";
-const LOTTERY_CLEARING = "33333333-3333-4333-8333-333333333302";
+const LOTTERY_CASH = "11111111-1111-4111-8111-111111111101";
+const LOTTERY_CLEARING = "11111111-1111-4111-8111-111111111102";
 const EVENT_TYPE = "com.synthetic.settlement.posted.v1";
 const currentSecret = "synthetic-current-webhook-secret-32-bytes";
 const previousSecret = "synthetic-previous-webhook-secret-32-bytes";
@@ -40,21 +40,21 @@ const affiliateInstallation = {
   active: true, tenant_id: TENANT_A, product_id: PRODUCT_AFFILIATE,
   provider_id: "synthetic-provider", provider_source: "urn:synthetic:provider:affiliate",
   event_mappings: {
-    [EVENT_TYPE]: { currency_code: "USD", debit_account_id: A_CASH, credit_account_id: A_CLEARING }
+    [EVENT_TYPE]: { currency_code: "USD", dataschema: "urn:lottorito:schema:synthetic-settlement:1", schema_version: 1, debit_account_id: A_CASH, credit_account_id: A_CLEARING }
   }
 };
 const lotteryInstallation = {
   active: true, tenant_id: TENANT_A, product_id: PRODUCT_LOTTERY,
   provider_id: "synthetic-provider", provider_source: "urn:synthetic:provider:lottery",
   event_mappings: {
-    [EVENT_TYPE]: { currency_code: "USD", debit_account_id: LOTTERY_CASH, credit_account_id: LOTTERY_CLEARING }
+    [EVENT_TYPE]: { currency_code: "USD", dataschema: "urn:lottorito:schema:synthetic-settlement:1", schema_version: 1, debit_account_id: LOTTERY_CASH, credit_account_id: LOTTERY_CLEARING }
   }
 };
 const tenantBInstallation = {
   active: true, tenant_id: TENANT_B, product_id: PRODUCT_AFFILIATE,
   provider_id: "synthetic-provider", provider_source: "urn:synthetic:provider:tenant-b",
   event_mappings: {
-    [EVENT_TYPE]: { currency_code: "USD", debit_account_id: B_CASH, credit_account_id: B_CLEARING }
+    [EVENT_TYPE]: { currency_code: "USD", dataschema: "urn:lottorito:schema:synthetic-settlement:1", schema_version: 1, debit_account_id: B_CASH, credit_account_id: B_CLEARING }
   }
 };
 
@@ -127,6 +127,12 @@ test("valid raw-body signature is durably accepted before the simulated HTTP 202
   assert.equal(stored.product_id, PRODUCT_AFFILIATE);
   assert.equal(stored.payload_hash.length, 64);
   assert.ok(stored.effect_id && stored.source_event_id);
+  assert.equal(stored.canonical_event.tenantid, TENANT_A);
+  assert.deepEqual(stored.canonical_event.scope, { kind: "product", id: PRODUCT_AFFILIATE });
+  assert.equal(stored.canonical_event.sourceeventid, stored.source_event_id);
+  assert.equal(stored.canonical_event.schemaversion, 1);
+  assert.match(stored.canonical_event.traceparent, /^00-[0-9a-f]{32}-[0-9a-f]{16}-00$/);
+  assert.equal(stored.canonical_event.dataschema, "urn:lottorito:schema:synthetic-settlement:1");
 });
 
 test("raw-body tampering is rejected before inbox persistence", async () => {
@@ -224,14 +230,46 @@ test("same event ID with a changed payload is quarantined as immutable conflict 
   assert.equal((await inboxRow(affiliateA, affiliateInstallation.provider_id, eventId)).payload_hash.length, 64);
 });
 
-test("caller-controlled tenant/product fields cannot override database and installation scope", async () => {
+test("caller-controlled tenant/product and envelope fields cannot override trusted installation scope", async () => {
   const fixture = webhook(affiliateInstallation, {
-    payloadScope: { tenant_id: TENANT_B, product_id: PRODUCT_LOTTERY }
+    payloadScope: {
+      tenant_id: TENANT_B, product_id: PRODUCT_LOTTERY,
+      tenantid: TENANT_B, scope: { kind: "product", id: PRODUCT_LOTTERY },
+      sourceeventid: randomUUID(), traceparent: "00-" + "0".repeat(32) + "-0000000000000000-01",
+      dataschema: "urn:attacker:schema", schemaversion: 999
+    }
   });
   assert.equal((await ingest(affiliateA, fixture)).http_status, 202);
-  assert.equal((await inboxRow(affiliateA, affiliateInstallation.provider_id, fixture.eventId)).tenant_id, TENANT_A);
+  const stored = await inboxRow(affiliateA, affiliateInstallation.provider_id, fixture.eventId);
+  assert.equal(stored.tenant_id, TENANT_A);
+  assert.equal(stored.canonical_event.tenantid, TENANT_A);
+  assert.deepEqual(stored.canonical_event.scope, { kind: "product", id: PRODUCT_AFFILIATE });
+  assert.equal(stored.canonical_event.sourceeventid, stored.source_event_id);
+  assert.notEqual(stored.canonical_event.sourceeventid, JSON.parse(fixture.rawBody.toString("utf8")).sourceeventid);
+  assert.notEqual(stored.canonical_event.traceparent, JSON.parse(fixture.rawBody.toString("utf8")).traceparent);
+  assert.equal(stored.canonical_event.dataschema, "urn:lottorito:schema:synthetic-settlement:1");
+  assert.equal(stored.canonical_event.schemaversion, 1);
   assert.equal(await inboxRow(affiliateB, affiliateInstallation.provider_id, fixture.eventId), null);
   assert.equal(await inboxRow(lotteryA, affiliateInstallation.provider_id, fixture.eventId), null);
+});
+
+test("identical provider event IDs are independently accepted across tenant and product ingress scopes", async () => {
+  const eventId = "evt-cross-ingress-" + randomUUID();
+  const fixtures = [
+    [affiliateA, webhook(affiliateInstallation, { eventId }), affiliateInstallation],
+    [lotteryA, webhook(lotteryInstallation, { eventId }), lotteryInstallation],
+    [affiliateB, webhook(tenantBInstallation, { eventId }), tenantBInstallation]
+  ];
+  for (const [pool, fixture] of fixtures) {
+    assert.equal((await ingest(pool, fixture)).http_status, 202);
+  }
+  const rows = await Promise.all(fixtures.map(([pool, fixture, installation]) =>
+    inboxRow(pool, installation.provider_id, fixture.eventId)));
+  assert.deepEqual(rows.map(row => [row.tenant_id, row.product_id]), [
+    [TENANT_A, PRODUCT_AFFILIATE], [TENANT_A, PRODUCT_LOTTERY], [TENANT_B, PRODUCT_AFFILIATE]
+  ]);
+  assert.equal(new Set(rows.map(row => row.source_event_id)).size, 3);
+  assert.deepEqual(rows.map(row => row.canonical_event.sourceeventid), rows.map(row => row.source_event_id));
 });
 
 test("tenant and product identities cannot read each other's provider inbox", async () => {
@@ -327,7 +365,17 @@ test("maximum attempts transition an expired or failed claim to dead letter", as
   assert.equal((await inboxRow(affiliateA, affiliateInstallation.provider_id, fixture.eventId)).status, "dead_letter");
 });
 
-test("unknown event type is quarantined without financial posting", async () => {
+test("signed provider timestamp must already conform to RFC3339", async () => {
+  const fixture = webhook(affiliateInstallation, {
+    payloadScope: { occurred_at: "November 25, 2026" }
+  });
+  const result = await ingest(affiliateA, fixture);
+  assert.equal(result.http_status, 400);
+  assert.equal(result.reason, "P03D_CONTRACT_VIOLATION");
+  assert.equal(await inboxRow(affiliateA, affiliateInstallation.provider_id, fixture.eventId), null);
+});
+
+test("unknown event type is rejected at signed ingress before inbox persistence", async () => {
   const fixture = webhook(affiliateInstallation);
   const body = JSON.parse(fixture.rawBody.toString("utf8"));
   body.type = "com.synthetic.unknown.v9";
@@ -336,12 +384,29 @@ test("unknown event type is quarantined without financial posting", async () => 
     eventId: fixture.eventId, rawBody, secret: currentSecret, timestamp: Math.floor(Date.now() / 1000)
   });
   const altered = { ...fixture, rawBody, headers };
-  await ingest(affiliateA, altered);
-  const { result } = await processOne(affiliateA, affiliateInstallation, altered);
+  const result = await ingest(affiliateA, altered);
+  assert.equal(result.http_status, 400);
+  assert.equal(result.reason, "P03D_UNMAPPED_SCHEMA");
+  assert.equal(await inboxRow(affiliateA, affiliateInstallation.provider_id, fixture.eventId), null);
+});
+
+test("stored canonical scope corruption is quarantined before journal posting", async () => {
+  const fixture = webhook(affiliateInstallation);
+  assert.equal((await ingest(affiliateA, fixture)).http_status, 202);
+  await admin.query(
+    `UPDATE public.provider_event_inbox
+        SET canonical_event=jsonb_set(canonical_event, '{scope,id}', '"lottery"'::jsonb)
+      WHERE tenant_id=$1 AND product_id=$2 AND provider_id=$3 AND provider_event_id=$4`,
+    [TENANT_A, PRODUCT_AFFILIATE, affiliateInstallation.provider_id, fixture.eventId]
+  );
+  const { result } = await processOne(affiliateA, affiliateInstallation, fixture);
   assert.equal(result.outcome, "quarantined");
+  assert.equal(result.error_code, "P03D_CONTRACT_IDENTITY_MISMATCH");
   const stored = await inboxRow(affiliateA, affiliateInstallation.provider_id, fixture.eventId);
+  assert.equal(stored.status, "quarantined");
   assert.equal(stored.journal_id, null);
-  assert.equal(stored.last_error_code, "P03D_UNMAPPED_EVENT");
+  assert.deepEqual(await journalCounts(TENANT_A, PRODUCT_AFFILIATE, stored.source_event_id),
+    { journals: 0, outbox_events: 0, delivery_rows: 0 });
 });
 
 test("lottery posting is isolated from affiliate accounts and its outbox", async () => {
@@ -427,4 +492,159 @@ test("unmapped database identity fails closed for product-scoped posting", async
     ]),
     (error) => error.code === "42501" && error.message.includes("not mapped to a tenant")
   );
+});
+
+test("P-09F concurrent workers claim and process one provider event exactly once", async () => {
+  const fixture = webhook(affiliateInstallation);
+  await ingest(affiliateA, fixture);
+
+  const claims = await Promise.all([
+    claimNextProviderEvent(affiliateA, {
+      workerId: "p09f-worker-alpha", providerId: affiliateInstallation.provider_id, eventId: fixture.eventId
+    }),
+    claimNextProviderEvent(affiliateA, {
+      workerId: "p09f-worker-beta", providerId: affiliateInstallation.provider_id, eventId: fixture.eventId
+    })
+  ]);
+  const winners = claims.filter(Boolean);
+  assert.equal(winners.length, 1, "exactly one concurrent worker must acquire the inbox lease");
+
+  const outcomes = await Promise.all([
+    processProviderEvent(affiliateA, { claim: winners[0], installation: affiliateInstallation }),
+    processProviderEvent(affiliateA, { claim: winners[0], installation: affiliateInstallation })
+  ]);
+  assert.deepEqual(outcomes.map((item) => item.outcome).sort(), ["processed", "stale"]);
+  const stored = await inboxRow(affiliateA, affiliateInstallation.provider_id, fixture.eventId);
+  assert.equal(stored.status, "processed");
+  assert.equal(stored.attempt_count, 1);
+  const counts = await journalCounts(TENANT_A, PRODUCT_AFFILIATE, stored.source_event_id);
+  assert.deepEqual(counts, { journals: 1, outbox_events: 1, delivery_rows: 1 });
+});
+
+test("P-09F concurrent stale and current lease holders cannot double-post", async () => {
+  const fixture = webhook(affiliateInstallation);
+  await ingest(affiliateA, fixture);
+  const leaseStart = new Date(Date.now() + 1000);
+  const staleClaim = await claimNextProviderEvent(affiliateA, {
+    workerId: "p09f-expired-worker", leaseSeconds: 1, now: leaseStart,
+    providerId: affiliateInstallation.provider_id, eventId: fixture.eventId
+  });
+  const currentClaim = await claimNextProviderEvent(affiliateA, {
+    workerId: "p09f-current-worker", leaseSeconds: 30,
+    now: new Date(leaseStart.getTime() + 2000),
+    providerId: affiliateInstallation.provider_id, eventId: fixture.eventId
+  });
+  assert.ok(staleClaim);
+  assert.ok(currentClaim);
+  assert.notEqual(staleClaim.lease_token, currentClaim.lease_token);
+
+  const [stale, current] = await Promise.all([
+    processProviderEvent(affiliateA, { claim: staleClaim, installation: affiliateInstallation }),
+    processProviderEvent(affiliateA, { claim: currentClaim, installation: affiliateInstallation })
+  ]);
+  assert.equal(stale.outcome, "stale");
+  assert.equal(current.outcome, "processed");
+  const stored = await inboxRow(affiliateA, affiliateInstallation.provider_id, fixture.eventId);
+  assert.equal(stored.status, "processed");
+  assert.equal(stored.attempt_count, 2);
+  const counts = await journalCounts(TENANT_A, PRODUCT_AFFILIATE, stored.source_event_id);
+  assert.deepEqual(counts, { journals: 1, outbox_events: 1, delivery_rows: 1 });
+});
+
+test("P-09F same provider event and source UUID remain isolated across Affiliate, Lottery and tenants", async () => {
+  const eventId = "evt-p09f-cross-scope-" + randomUUID();
+  const sourceEventId = randomUUID();
+  const scopes = [
+    { tenantId: TENANT_A, productId: PRODUCT_AFFILIATE, installation: affiliateInstallation, pool: affiliateA, effectId: randomUUID(), hash: "a".repeat(64), worker: "p09f-affiliate-a" },
+    { tenantId: TENANT_A, productId: PRODUCT_LOTTERY, installation: lotteryInstallation, pool: lotteryA, effectId: randomUUID(), hash: "b".repeat(64), worker: "p09f-lottery-a" },
+    { tenantId: TENANT_B, productId: PRODUCT_AFFILIATE, installation: tenantBInstallation, pool: affiliateB, effectId: randomUUID(), hash: "c".repeat(64), worker: "p09f-affiliate-b" }
+  ];
+
+  const values = [];
+  const placeholders = [];
+  for (const scope of scopes) {
+    const offset = values.length;
+    const canonical = {
+      specversion: "1.0",
+      id: eventId,
+      source: scope.installation.provider_source,
+      type: EVENT_TYPE,
+      time: "2026-11-25T12:00:00Z",
+      dataschema: "urn:lottorito:schema:synthetic-settlement:1",
+      tenantid: scope.tenantId,
+      scope: { kind: "product", id: scope.productId },
+      sourceeventid: sourceEventId,
+      schemaversion: 1,
+      traceparent: "00-0123456789abcdef0123456789abcdef-0123456789abcdef-00",
+      datacontenttype: "application/json",
+      data: { amount_minor: "12500", currency_code: "USD" }
+    };
+    values.push(
+      scope.tenantId, scope.productId, scope.installation.provider_id, eventId,
+      EVENT_TYPE, scope.installation.provider_source, scope.hash, "p09f-synthetic-key",
+      JSON.stringify(canonical), scope.effectId, sourceEventId
+    );
+    const p = Array.from({ length: 11 }, (_, i) => "$" + (offset + i + 1));
+    p[8] += "::jsonb";
+    placeholders.push("(" + p.join(",") + ")");
+  }
+
+  await admin.query(
+    `INSERT INTO public.provider_event_inbox
+      (tenant_id,product_id,provider_id,provider_event_id,event_type,event_source,
+       payload_hash,signature_key_id,canonical_event,effect_id,source_event_id)
+     VALUES ${placeholders.join(",")}`,
+    values
+  );
+  await admin.query(
+    `INSERT INTO public.provider_event_expectations(tenant_id,product_id,provider_id,provider_event_id)
+     VALUES ($1,$2,$3,$4),($5,$6,$7,$8),($9,$10,$11,$12)`,
+    [
+      TENANT_A, PRODUCT_AFFILIATE, affiliateInstallation.provider_id, eventId,
+      TENANT_A, PRODUCT_LOTTERY, lotteryInstallation.provider_id, eventId,
+      TENANT_B, PRODUCT_AFFILIATE, tenantBInstallation.provider_id, eventId
+    ]
+  );
+
+  const claims = await Promise.all(scopes.map((scope) => claimNextProviderEvent(scope.pool, {
+    workerId: scope.worker, providerId: scope.installation.provider_id, eventId
+  })));
+  assert.ok(claims.every(Boolean), "each tenant/product scope must claim its own matching inbox row");
+  const results = await Promise.all(scopes.map((scope, index) =>
+    processProviderEvent(scope.pool, { claim: claims[index], installation: scope.installation })
+  ));
+  assert.deepEqual(results.map((item) => item.outcome), ["processed", "processed", "processed"]);
+
+  for (const scope of scopes) {
+    const stored = await inboxRow(scope.pool, scope.installation.provider_id, eventId);
+    assert.equal(stored.tenant_id, scope.tenantId);
+    assert.equal(stored.product_id, scope.productId);
+    assert.equal(stored.source_event_id, sourceEventId);
+    assert.equal(stored.status, "processed");
+    assert.ok(stored.journal_id);
+    assert.deepEqual(
+      await journalCounts(scope.tenantId, scope.productId, sourceEventId),
+      { journals: 1, outbox_events: 1, delivery_rows: 1 }
+    );
+    assert.deepEqual(await reconcileProviderEvents(admin, {
+      tenantId: scope.tenantId, productId: scope.productId, providerId: scope.installation.provider_id
+    }), []);
+  }
+
+  const identityRows = await admin.query(
+    `SELECT count(*)::int AS rows, count(DISTINCT product_id)::int AS products,
+            count(DISTINCT tenant_id)::int AS tenants
+       FROM public.ledger_journals WHERE source_event_id=$1`,
+    [sourceEventId]
+  );
+  assert.deepEqual(identityRows.rows[0], { rows: 3, products: 2, tenants: 2 });
+  assert.equal((await affiliateA.query(
+    "SELECT count(*)::int AS n FROM public.provider_event_inbox WHERE provider_event_id=$1", [eventId]
+  )).rows[0].n, 1);
+  assert.equal((await lotteryA.query(
+    "SELECT count(*)::int AS n FROM public.provider_event_inbox WHERE provider_event_id=$1", [eventId]
+  )).rows[0].n, 1);
+  assert.equal((await affiliateB.query(
+    "SELECT count(*)::int AS n FROM public.provider_event_inbox WHERE provider_event_id=$1", [eventId]
+  )).rows[0].n, 1);
 });

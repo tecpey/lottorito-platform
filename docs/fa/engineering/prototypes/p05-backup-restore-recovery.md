@@ -1,6 +1,6 @@
 # P-05A — نسخه پشتیبان PostgreSQL، PITR و صحت مالی
 
-**شناسه سند:** LOT-PROT-P05-001 | **نسخه:** ۰.۵.۰ | **وضعیت:** آزمایش ساختگی CI موفق؛ بازیابی Production تصویب نشده است
+**شناسه سند:** LOT-PROT-P05-001 | **نسخه:** ۰.۷.۰ | **وضعیت:** آزمایش ساختگی CI موفق؛ بازیابی Production تصویب نشده است
 
 ## اعتبار و مرز تصمیم
 
@@ -84,3 +84,28 @@ Workflow ترکیبی P-05 دو کنترل Fail-closed را علاوه بر مس
 - تست، Verification و رد Manifest دست‌کاری‌شده، وجود WAL آرشیوشده، Log نقطه بازیابی نام‌گذاری‌شده، حضور نشانگر پیش از Target و نبود نشانگر پس از Target، خواندن محدود به Tenant و رد Insert بین Tenantها، توازن Journal، تطبیق مجموع Source-to-Ledger، یکتایی Economic Effect و فرمت معتبر Hash ارجاع Object را بررسی کرد.
 - آزمون‌های منفی روی Head کد اجرایی ترکیبی `146a9bc635e3b03db568c423fb0958b62bc31c7b` موفق شدند: Staging ناقص Restore هم توسط `pg_verifybackup` و هم راه‌اندازی PostgreSQL رد شد؛ حذف Segment دقیق WAL هدف باعث شد راه‌اندازی Recovery پیش از Target نام‌گذاری‌شده به‌صورت Fail-closed متوقف شود. Log مربوط به WAL مفقود، نبود Segment هدف را ثبت کرد. بازیابی بایت Object/کلید در P-05B پوشش داده شده است؛ Failover/Fencing/Failback در P-05C همچنان اجرا نشده است.
 - موفقیت ساختگی به‌معنای آمادگی Production، تصمیم فناوری یا تصویب RPO/RTO نیست.
+
+
+## شواهد P-09E برای بازیابی Recordهای مشترک (۲۰۲۶-۱۱-۲۵)
+
+Workflow مربوط به P-05 با شناسه [45635972222](https://github.com/tecpey/lottorito-platform/actions/runs/45635972222) روی Head کاندید 73d7d0daa46e6a019020fc25ace315836d270a6f موفق شد. علاوه بر PITR در P-05A، Fixture مربوط به Object/Key/Event در P-05B و آزمون‌های منفی P-05A، این اجرا P-09E را روی Schemaهای دقیق SQL در P-02/P-03C/P-03D و جدول‌های واقعی Provider Inbox، Ledger، Journal، Line، Outbox و Delivery State اجرا کرد. Backup فیزیکی pg_verifybackup را گذراند؛ Cluster بازیابی‌شده سه Inbox پذیرفته‌شده را Replay کرد و برای هر Scope دقیقاً یک Journal/Effect/Outbox/Delivery ساخت. تزریق خرابی، Rollback یکپارچه تراکنش Posting را اثبات کرد. برخورد Source ID یکسان بین Scopeهای Product و Tenant، Retry تکراری، RLS و Reconciliation در P-03D نیز موفق شدند. برای محدوده و محدودیت‌ها به سند یکپارچه‌سازی P-09 مراجعه کنید.
+
+این آزمایش جایگزین Fixture ساده‌شده P-05B نیست و معماری Backup Production، نگهداری PITR، دوام Off-site، بازیابی Key/Object، ترتیب Aggregate، Fencing هم‌زمان، RPO/RTO یا آمادگی Production را اثبات نمی‌کند. Documentation Governance با شناسه [45635972312](https://github.com/tecpey/lottorito-platform/actions/runs/45635972312) روی همان Head موفق شد (۵۸ جفت دوزبانه و ۱۳۶ لینک محلی).
+
+## تأیید مجدد P-09E روی Head دقیق (۲۰۲۶-۱۱-۲۵)
+
+P-09E در Workflow مربوط به P-05 با شناسه [45637659268](https://github.com/tecpey/lottorito-platform/actions/runs/45637659268) روی 2b393cc8c41226a20333f34559ac6952883901a3 موفق شد. Backup فیزیکی، pg_verifybackup، Restore مستقل، Recordهای واقعی P-02/P-03C/P-03D، Rollback اتمیک در Failure تزریق‌شده، Replay روی Inbox، Idempotency، RLS Tenant/Product، توازن Journal، اتمیک‌بودن Delivery State در Outbox و صفر بودن استثناهای Reconciliation همگی PASS شدند. PITR در P-05A، P-05B و آزمون‌های منفی WAL/Restore ناقص نیز موفق شدند. Documentation Governance با شناسه [45637659297](https://github.com/tecpey/lottorito-platform/actions/runs/45637659297) روی همان Head موفق شد.
+
+
+### P-09H — دروازه اعتبارسنجی قرارداد در Replay (۲۰۲۶-۱۱-۲۵)
+
+Helper بازیابی P-05E اکنون پیش از فراخوانی Journal Posting، رویداد Canonical ذخیره‌شده را با ردیف Provider Inbox بازیابی‌شده تطبیق می‌دهد. نسخه/id/source/type در CloudEvents، Tenant، Product Scope، UUID مربوط به Source Event، نسخه Schema، ساختار traceparent و قابل‌تبدیل‌بودن Timestamp بررسی می‌شوند. Fixtureهای بازیابی اکنون Envelope کامل P-09 را دارند. هر مغایرت، تراکنش Replay را پیش از Commit شدن اثر مالی متوقف می‌کند. این همچنان یک Drill بازیابی ساختگی و موقت است، نه سرویس بازیابی Production.
+
+
+در P-09H یک سناریوی منفی Replay افزوده شده است: Product Scope رویداد بازیابی‌شده دست‌کاری می‌شود، Helper باید Fail-Closed عمل کند، تراکنش Claim باید به وضعیت `accepted` برگردد و هیچ Financial Effectی ایجاد نشود. اجرای اصلاح‌شده روی Head نهایی حاوی کد `96ff93b3bbbb4006dce1c14b5fdff9c833d46bdf` با موفقیت کامل شد (Workflow [45655079940](https://github.com/tecpey/lottorito-platform/actions/runs/45655079940)): هر چهار نشانگر `replay_contract_corruption_blocked=PASS`، `P09E_RESULT=PASS`، `P05B_RESULT=PASS` و `P05A_NEGATIVE_RESULT=PASS` ثبت شدند. اجرای ناموفق قبلی فقط نقص Quoting مربوط به Shell/JSON در Fixture تست را آشکار کرده بود و در شواهد پذیرش محاسبه نمی‌شود.
+
+## P-09K — هویت مالی محصول‌محور در بازیابی فیزیکی (۲۰۲۶-۱۱-۲۶)
+
+Fixture مربوط به Replay در P-09E اکنون همان UUID حساب‌ها را برای یک Tenant در Affiliate & Agent و Lottery دوباره استفاده می‌کند؛ این با Primary/Foreign Keyهای محصول‌محور P-02 هم‌راستا است. Replay باید هر حساب را فقط در Scope محصولی که نشست دیتابیس با آن احراز هویت شده Resolve کند. بنابراین تست Backup/Restore فیزیکی، هویت مرکب را واقعاً آزمایش می‌کند و دیگر به UUIDهای متفاوت برای پنهان‌کردن نبود بُعد محصول متکی نیست. این Fixture همچنان ساختگی و دورریختنی است.
+
+**شواهد CI مربوط به P-09K:** [اجرای 45862006811](https://github.com/tecpey/lottorito-platform/actions/runs/45862006811) — موفق. Physical Backup، pg_verifybackup، Restore، Replay بین‌محصولی P-09E، بازیابی Object/Key/Event در P-05B و Drillهای منفی P-05A همگی موفق شدند. Head دقیق کد: `75148b41220bb26adf0e8c01e05860a8fd83d7fa`.

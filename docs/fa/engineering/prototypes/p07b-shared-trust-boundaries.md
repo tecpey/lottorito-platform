@@ -1,6 +1,6 @@
 # P-07B — مالکیت پلتفرم مشترک و مرزهای اعتماد
 
-**شناسه سند:** LOT-PROT-P07B-001 | **نسخه:** ۰.۱.۰ | **وضعیت:** Fixture ساختگی در CI روی Head شماره 42083a2 اعتبارسنجی شده است
+**شناسه سند:** LOT-PROT-P07B-001 | **نسخه:** ۰.۲.۰ | **وضعیت:** Fixture ساختگی در CI روی Head شماره 42083a2 اعتبارسنجی شده است
 
 ## پرسش تصمیم
 
@@ -109,3 +109,15 @@ python3 -m unittest discover -s prototypes/p07-shared-trust-boundaries/tests -v
 - اجرای Push با شناسه [45570199339](https://github.com/tecpey/lottorito-platform/actions/runs/45570037120): موفق.
 - Documentation Governance با شناسه [45570485718](https://github.com/tecpey/lottorito-platform/actions/runs/45570055148): روی همان Head PR موفق.
 - PR شماره [۵۷](https://github.com/tecpey/lottorito-platform/pull/57) همچنان Draft، باز و Mergeنشده است.
+
+## الحاقیه P-09D — هویت Canonical رویداد و Trace Context (۲۰۲۶-۱۱-۲۵)
+
+P-07B اکنون Envelope محصول‌محور هم‌راستا با ADR-009 را الزامی می‌کند: هویت Canonical و UUID برای Tenant، `scope={kind: product, id: source_product}` صریح، UUID استاندارد `sourceeventid`، `schemaversion` عدد صحیح مثبت و W3C Trace Context با فیلد `traceparent`. Registry قرارداد، Source Scope، Schema Version و فیلدهای ضروری Envelope را مقید می‌کند. خروجی Dispatch، Tuple استاندارد Source Event و Trace ID را برای نگاشت به Correlation در P-06 ارائه می‌دهد. Fixtureهای Tenant ساختگی از Label به UUID تبدیل شدند تا نوع هویت Tenant در P-02/P-03D/P-06/P-07B یکسان باشد. CI مربوط به P-07B با شناسه [45631269584](https://github.com/tecpey/lottorito-platform/actions/runs/45631269584) با **۴۲ تست از ۴۲ تست** موفق شد. رویدادهای فعلی P-07B که از Product تولید می‌شوند، فعلاً فقط Product Scope می‌پذیرند؛ رویدادهای Platform-originated توسعه‌ای مستقل با حاکمیت جداگانه خواهند بود.
+
+
+### P-09H — اعمال قرارداد مشترک (۲۰۲۶-۱۱-۲۵)
+
+Dispatch رویداد در P-07B اکنون پس از احراز هویت Principal و بررسی Tenant/Product Scope و کنترل‌های دقیق Deny موجود، Validator استاندارد Python در P-09 را اجرا می‌کند. به این ترتیب، Reasonهای قبلی P-07B برای موارد Authorization موجود حفظ می‌شوند و در عین حال دروازه مشترک انطباق CloudEvents، URI-reference و RFC 3339 نیز افزوده می‌شود. Fixture رویداد ساختگی اکنون ویژگی الزامی `time` را دارد. سیاست Runtime همچنان صرفاً Prototype است.
+
+
+در P-09H یک تست Regression برای رد Timestamp غیرمنطبق با RFC 3339 به Dispatch افزوده شده است. P-07B Reasonهای تثبیت‌شده Deny برای هویت Producer، Tenant، Product Scope، Source Event UUID، Schema Version و Trace Context را حفظ می‌کند؛ Validator مشترک پس از این کنترل‌ها، دروازه انطباق Time/URI را اضافه می‌کند. مجموعه تست فعلی P-07B روی آخرین Head حاوی کد، موفقیت ۴۳ از ۴۳ تست را گزارش کرده است.

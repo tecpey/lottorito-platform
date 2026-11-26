@@ -1,6 +1,6 @@
 # P-03D — اتصال Provider Inbox به ثبت مالی محصول‌محور و Outbox
 
-**شناسه سند:** LOT-PROT-P03D-001 | **نسخه:** ۰.۲.۰ | **وضعیت:** Prototype یکپارچه‌سازی ساختگی؛ ۲۲ تست P-03D و ۱۵ تست P-03C موفق؛ بدون ادعای Production | **تاریخ بازبینی:** ۲۰۲۶-۱۱-۲۵
+**شناسه سند:** LOT-PROT-P03D-001 | **نسخه:** ۰.۳.۰ | **وضعیت:** Prototype یکپارچه‌سازی ساختگی؛ ۲۵ تست P-03D و ۱۵ تست P-03C موفق؛ بدون ادعای Production | **تاریخ بازبینی:** ۲۰۲۶-۱۱-۲۵
 
 ## هدف
 
@@ -115,3 +115,31 @@ Head دقیق فعلی PR که اعتبارسنجی شد: `14d69ec5be1a9285049c1
 
 این نتیجه فقط ماتریس پذیرش ساختگی را روی Head شاخه ذکرشده راستی‌آزمایی می‌کند. PR شماره ۶۱ همچنان Draft و باز و وابسته به PR شماره ۶۰ است؛ هیچ Merge، اتصال Provider عملیاتی، Migration دیتابیس Production، تصویب فناوری یا Deploy از آن نتیجه نمی‌شود.
 
+## Regression هم‌زمانی و Scopeهای مستقل در P-09F (۲۰۲۶-۱۱-۲۵)
+
+روی Head کاندید 2b393cc8c41226a20333f34559ac6952883901a3، Workflow مربوط به P-03C/P-03D با شناسه [45637659485](https://github.com/tecpey/lottorito-platform/actions/runs/45637659485) موفق شد: P-03C با **۱۵ از ۱۵** و P-03D با **۲۵ از ۲۵** تست. سه تست افزوده‌شده Worker واقعی Provider با Node.js را روی PostgreSQL 18.7 اجرا می‌کنند: Claim و Process هم‌زمان Inbox با یک برنده؛ Fencing Token مربوط به Lease قدیمی/جدید در پردازش هم‌زمان؛ و پردازش مستقل Provider Event ID/Source Event UUID یکسان بین Affiliate، Lottery و Tenant دوم. هر Scope دقیقاً یک Journal، Outbox Event تغییرناپذیر و Delivery State ایجاد می‌کند و Reconciliation صفر است. این فقط شواهد یکپارچه‌سازی ساختگی است؛ ترتیب Aggregate و Replay Worker روی Cluster بازیابی‌شده P-09E همچنان باز هستند.
+
+
+### P-09H — اعمال قرارداد Canonical (۲۰۲۶-۱۱-۲۵)
+
+مسیر Ingress امضاشده اکنون CloudEvent استاندارد را فقط از Installation مورد اعتماد و Event Mapping تأییدشده می‌سازد. Tenant/Product از فیلدهای Payload ارسالی Provider پذیرفته نمی‌شوند. شناسه Provider به‌عنوان CloudEvents `id` حفظ می‌شود؛ UUID مستقل `sourceeventid` تولید و هم در Envelope و هم در Inbox ذخیره می‌شود و Trace Context جدید W3C نیز ساخته می‌شود. Schema Mapping ناشناخته و Timestamp غیرمنطبق با RFC 3339 پیش از ثبت در Inbox رد می‌شوند. Worker پیش از Posting، Envelope ذخیره‌شده و تطابق هویت Tenant/Product/Source Event را دوباره اعتبارسنجی می‌کند؛ Scope دست‌کاری‌شده پیش از ایجاد Journal/Outbox به قرنطینه می‌رود. این‌ها شواهد یکپارچه‌سازی ساختگی‌اند و پذیرش نهایی P-03D به CI روی Head نهایی وابسته است.
+
+
+تست‌های Regression مربوط به Ingress در P-09H اکنون ثابت می‌کنند که `tenantid`، `scope`، `sourceeventid`، `traceparent`، `dataschema` و `schemaversion` ارسالی Provider نمی‌توانند Metadata مورد اعتماد را بازنویسی کنند؛ همچنین یک Provider Event ID یکسان می‌تواند مستقل از طریق Ingress امضاشده در Affiliate/Tenant-A، Lottery/Tenant-A و Affiliate/Tenant-B پذیرفته شود. هر سه ردیف Source Event UUID مستقل دارند. Workflow مربوط به P-03C/P-03D روی Head حاوی این کد به‌ترتیب موفقیت ۱۵ از ۱۵ و ۳۵ از ۳۵ تست را گزارش کرد؛ شمارش P-03D شامل هفت تست مستقیم انطباق قرارداد در Node.js نیز هست.
+
+
+Runner تست P-03D اکنون مجموعه تست مستقیم انطباق Node.js برای Validator مشترک P-09 را نیز اجرا می‌کند. این تست‌ها حالت‌های معتبر و خصمانه Envelope را مستقل از تست‌های Ingress متصل به PostgreSQL بررسی می‌کنند تا تغییرات آینده Worker نتوانند بی‌صدا قواعد اصلی Validator را دور بزنند.
+
+## P-09K — ارجاع حساب و Outbox با Scope محصول (۲۰۲۶-۱۱-۲۶)
+
+در P-03D عمداً همان UUID حساب‌ها برای همان Tenant در Affiliate & Agent و Lottery دوباره استفاده می‌شود. کلید مرکب P-02 یعنی `(tenant_id, product_id, account_id)` این شناسه‌ها را مستقل نگه می‌دارد؛ تابع Posting و Foreign Keyهای حساب نیز Scope محصول را در تمام مسیر حفظ می‌کنند. Integration مربوط به Provider در Lottery باید با همین شناسه‌های تکرارشده با موفقیت Posting کند، بدون آنکه ردیف‌های حساب Affiliate را ببیند یا تغییر دهد. P-03D همچنین Unique Index تکراری Journal را که Primary Key مرکب P-02 از قبل تضمین می‌کند حذف کرده و مقدار Legacy یعنی `shared` را در وضعیت Inbox/Conflict/Expectation مربوط به Provider رد می‌کند. CI روی Head دقیق در انتظار اعتبارسنجی است.
+
+**شواهد CI مربوط به P-09K:** [اجرای 45862006903](https://github.com/tecpey/lottorito-platform/actions/runs/45862006903) — موفق؛ P-03C برابر ۱۶ از ۱۶ و P-03D برابر ۳۵ از ۳۵ تست Integration. Posting مربوط به Lottery با استفاده عمدی از همان UUID حساب‌های Affiliate و در عین حال با هویت محصولی مستقل با موفقیت انجام می‌شود. Head دقیق کد: `75148b41220bb26adf0e8c01e05860a8fd83d7fa`.
+
+## به‌روزرسانی اعتبارسنجی P-09K روی Head دقیق (۲۰۲۶-۱۱-۲۶)
+
+کلیدهای محصول‌محور حساب، Journal و Outbox در P-02 از مسیر Ingress و Posting مربوط به Provider در P-03D نیز اعتبارسنجی شدند. [Workflow شماره 45863298594](https://github.com/tecpey/lottorito-platform/actions/runs/45863298594) روی Head دقیق `75fd23701d4e28f047f8ebb73ea0b684bb144c7a` تمام ۳۵ از ۳۵ تست Integration با PostgreSQL 18.7 و Node.js را گذراند؛ از جمله استفاده مجدد UUID حساب‌ها بین Affiliate و Lottery بدون خواندن یا نوشتن بین‌محصولی.
+
+## اعتبارسنجی نهایی P-09L روی Head دقیق (۲۰۲۶-۱۱-۲۶)
+
+Ingress و Posting مربوط به Provider در P-03D روی Head دقیق کد `7cb0598a163f40e53a4412a44b476b0404685b75` با موفقیت ۳۵ از ۳۵ تست را گذراند: [Workflow شماره 45864973911](https://github.com/tecpey/lottorito-platform/actions/runs/45864973911). این اجرا استفاده مجدد UUID حساب‌ها بین محصولات را در حالی پوشش می‌دهد که ارجاع‌های Journal/Account و وضعیت Provider Inbox همچنان محصول‌محور باقی می‌مانند.

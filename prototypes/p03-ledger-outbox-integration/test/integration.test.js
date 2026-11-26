@@ -13,9 +13,11 @@ import {
 const adminUrl = process.env.ADMIN_DATABASE_URL;
 const tenantAUrl = process.env.TENANT_A_DATABASE_URL;
 const tenantBUrl = process.env.TENANT_B_DATABASE_URL;
+const tenantALotteryUrl = process.env.TENANT_A_LOTTERY_DATABASE_URL;
 assert.ok(adminUrl, "ADMIN_DATABASE_URL must target the disposable P-03C database");
 assert.ok(tenantAUrl, "TENANT_A_DATABASE_URL must authenticate as tenant_a_ledger_runtime");
 assert.ok(tenantBUrl, "TENANT_B_DATABASE_URL must authenticate as tenant_b_ledger_runtime");
+assert.ok(tenantALotteryUrl, "TENANT_A_LOTTERY_DATABASE_URL must authenticate as tenant_a_lottery_runtime");
 
 const TENANT_A = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
 const TENANT_B = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
@@ -28,6 +30,7 @@ const adminPool = new Pool({ connectionString: adminUrl, max: 3 });
 const tenantAPool = new Pool({ connectionString: tenantAUrl, max: 3 });
 const tenantASecondPool = new Pool({ connectionString: tenantAUrl, max: 2 });
 const tenantBPool = new Pool({ connectionString: tenantBUrl, max: 2 });
+const tenantALotteryPool = new Pool({ connectionString: tenantALotteryUrl, max: 2 });
 
 function request(key, tenantId = TENANT_A, amount = "12500", effectId = randomUUID(), sourceEventId = randomUUID()) {
   const debit = tenantId === TENANT_A ? A_USD_CASH : B_USD_CASH;
@@ -50,7 +53,7 @@ async function postAndFetch(pool, tenantId, key, amount = "12500") {
     `SELECT e.event_id, e.journal_id, e.event_type, e.payload, d.status, d.attempts
        FROM public.ledger_outbox e
        JOIN public.outbox_delivery_state d
-         ON d.tenant_id = e.tenant_id AND d.event_id = e.event_id
+         ON d.tenant_id = e.tenant_id AND d.product_id = e.product_id AND d.event_id = e.event_id
       WHERE e.tenant_id = $1 AND e.journal_id = $2`,
     [tenantId, posted.journal_id]
   );
@@ -71,6 +74,7 @@ test.after(async () => {
   await tenantAPool.end();
   await tenantASecondPool.end();
   await tenantBPool.end();
+  await tenantALotteryPool.end();
   await adminPool.end();
 });
 
@@ -84,7 +88,7 @@ test("P-02 posting creates one immutable ledger event and one pending P-03 deliv
   assert.equal(posted.event.payload.effect_id, posted.input.effect_id);
   assert.equal(posted.event.payload.source_event_id, posted.input.source_event_id);
   await assert.rejects(
-    adminPool.query("UPDATE public.ledger_outbox SET payload='{}'::jsonb WHERE tenant_id=$1 AND event_id=$2", [TENANT_A, posted.event.event_id]),
+    adminPool.query("UPDATE public.ledger_outbox SET payload='{}'::jsonb WHERE tenant_id=$1 AND product_id='affiliate_agent' AND event_id=$2", [TENANT_A, posted.event.event_id]),
     (error) => error.code === "55000"
   );
   await ackEvent(tenantAPool, posted.event.event_id);
@@ -99,14 +103,14 @@ test("idempotent posting retry returns the original journal and does not duplica
   assert.equal(second.journal_id, first.journal_id);
   const counts = await adminPool.query(
     `SELECT
-       (SELECT count(*)::int FROM public.ledger_outbox WHERE tenant_id=$1 AND journal_id=$2) AS events,
-       (SELECT count(*)::int FROM public.outbox_delivery_state d JOIN public.ledger_outbox e USING(tenant_id,event_id)
-         WHERE d.tenant_id=$1 AND e.journal_id=$2) AS delivery_rows`,
+       (SELECT count(*)::int FROM public.ledger_outbox WHERE tenant_id=$1 AND product_id='affiliate_agent' AND journal_id=$2) AS events,
+       (SELECT count(*)::int FROM public.outbox_delivery_state d JOIN public.ledger_outbox e USING(tenant_id,product_id,event_id)
+         WHERE d.tenant_id=$1 AND d.product_id='affiliate_agent' AND e.journal_id=$2) AS delivery_rows`,
     [TENANT_A, first.journal_id]
   );
   assert.deepEqual(counts.rows[0], { events: 1, delivery_rows: 1 });
   const [event] = await adminPool.query(
-    "SELECT event_id FROM public.ledger_outbox WHERE tenant_id=$1 AND journal_id=$2",
+    "SELECT event_id FROM public.ledger_outbox WHERE tenant_id=$1 AND product_id='affiliate_agent' AND journal_id=$2",
     [TENANT_A, first.journal_id]
   ).then((r) => r.rows);
   await ackEvent(tenantAPool, event.event_id);
@@ -122,7 +126,7 @@ test("alternate request keys for one financial effect do not create a second eve
   assert.equal(second.duplicate, true);
   assert.equal(second.journal_id, first.journal_id);
   const rows = await adminPool.query(
-    "SELECT event_id FROM public.ledger_outbox WHERE tenant_id=$1 AND journal_id=$2",
+    "SELECT event_id FROM public.ledger_outbox WHERE tenant_id=$1 AND product_id='affiliate_agent' AND journal_id=$2",
     [TENANT_A, first.journal_id]
   );
   assert.equal(rows.rowCount, 1);
@@ -143,10 +147,10 @@ test("transaction rollback removes journal, ledger outbox and delivery state tog
   }
   const rows = await adminPool.query(
     `SELECT
-       (SELECT count(*)::int FROM public.ledger_journals WHERE tenant_id=$1 AND journal_id=$2) AS journals,
-       (SELECT count(*)::int FROM public.ledger_outbox WHERE tenant_id=$1 AND journal_id=$2) AS events,
-       (SELECT count(*)::int FROM public.outbox_delivery_state d JOIN public.ledger_outbox e USING(tenant_id,event_id)
-         WHERE d.tenant_id=$1 AND e.journal_id=$2) AS delivery_rows`,
+       (SELECT count(*)::int FROM public.ledger_journals WHERE tenant_id=$1 AND product_id='affiliate_agent' AND journal_id=$2) AS journals,
+       (SELECT count(*)::int FROM public.ledger_outbox WHERE tenant_id=$1 AND product_id='affiliate_agent' AND journal_id=$2) AS events,
+       (SELECT count(*)::int FROM public.outbox_delivery_state d JOIN public.ledger_outbox e USING(tenant_id,product_id,event_id)
+         WHERE d.tenant_id=$1 AND d.product_id='affiliate_agent' AND e.journal_id=$2) AS delivery_rows`,
     [TENANT_A, journalId]
   );
   assert.deepEqual(rows.rows[0], { journals: 0, events: 0, delivery_rows: 0 });
@@ -205,7 +209,7 @@ test("expired lease is reclaimed with a fresh token and stale worker is fenced",
 test("retry limit transitions a ledger event to dead-letter state", async () => {
   const posted = await postAndFetch(tenantAPool, TENANT_A, "p03c-dead-001");
   await adminPool.query(
-    "UPDATE public.outbox_delivery_state SET max_attempts=2 WHERE tenant_id=$1 AND event_id=$2",
+    "UPDATE public.outbox_delivery_state SET max_attempts=2 WHERE tenant_id=$1 AND product_id='affiliate_agent' AND event_id=$2",
     [TENANT_A, posted.event.event_id]
   );
   const [first] = await claimOutboxEvents(tenantAPool, { workerId: "retry-worker", batchSize: 1, leaseSeconds: 30 });
@@ -226,8 +230,8 @@ test("consumer inbox and synthetic effect are committed once under concurrent re
   assert.deepEqual([left, right].sort(), [false, true]);
   const counts = await adminPool.query(
     `SELECT
-       (SELECT count(*)::int FROM public.consumer_inbox WHERE tenant_id=$1 AND event_id=$2) AS inbox_count,
-       (SELECT count(*)::int FROM public.consumer_effects WHERE tenant_id=$1 AND event_id=$2) AS effect_count`,
+       (SELECT count(*)::int FROM public.consumer_inbox WHERE tenant_id=$1 AND product_id='affiliate_agent' AND event_id=$2) AS inbox_count,
+       (SELECT count(*)::int FROM public.consumer_effects WHERE tenant_id=$1 AND product_id='affiliate_agent' AND event_id=$2) AS effect_count`,
     [TENANT_A, posted.event.event_id]
   );
   assert.deepEqual(counts.rows[0], { inbox_count: 1, effect_count: 1 });
@@ -247,6 +251,30 @@ test("publish-before-ack crash window redelivers but consumer effect remains ide
   assert.equal(broker.length, 2);
   assert.equal(await consumeOutboxEvent(tenantAPool, "financial-reporting-v1", posted.event.event_id), true);
   assert.equal(await consumeOutboxEvent(tenantASecondPool, "financial-reporting-v1", posted.event.event_id), false);
+});
+
+
+test("outbox delivery and consumer receipts are isolated by product for one tenant", async () => {
+  const affiliate = await postAndFetch(tenantAPool, TENANT_A, "p03c-product-affiliate");
+  const lottery = await postAndFetch(tenantALotteryPool, TENANT_A, "p03c-product-lottery");
+  assert.equal(affiliate.event.status, "pending");
+  assert.equal(lottery.event.status, "pending");
+  const affiliateClaims = await claimOutboxEvents(tenantAPool, { workerId: "affiliate-product-worker", batchSize: 100, leaseSeconds: 30 });
+  const lotteryClaims = await claimOutboxEvents(tenantALotteryPool, { workerId: "lottery-product-worker", batchSize: 100, leaseSeconds: 30 });
+  assert.equal(affiliateClaims.some((event) => event.event_id === lottery.event.event_id), false);
+  assert.equal(lotteryClaims.some((event) => event.event_id === affiliate.event.event_id), false);
+  assert.ok(affiliateClaims.some((event) => event.event_id === affiliate.event.event_id));
+  assert.ok(lotteryClaims.some((event) => event.event_id === lottery.event.event_id));
+  await assert.rejects(
+    consumeOutboxEvent(tenantAPool, "cross-product-consumer", lottery.event.event_id),
+    (error) => error.code === "P0002"
+  );
+  assert.equal(await consumeOutboxEvent(tenantALotteryPool, "cross-product-consumer", lottery.event.event_id), true);
+  assert.equal(await consumeOutboxEvent(tenantALotteryPool, "cross-product-consumer", lottery.event.event_id), false);
+  assert.equal(await acknowledgeOutboxEvent(tenantAPool, affiliate.event.event_id,
+    affiliateClaims.find((event) => event.event_id === affiliate.event.event_id).lease_token), true);
+  assert.equal(await acknowledgeOutboxEvent(tenantALotteryPool, lottery.event.event_id,
+    lotteryClaims.find((event) => event.event_id === lottery.event.event_id).lease_token), true);
 });
 
 test("tenant runtime cannot directly read or mutate ledger and delivery tables", async () => {
@@ -286,35 +314,23 @@ test("invalid claim and consumer parameters fail closed", async () => {
   );
 });
 
-test("the ledger outbox delivery trigger rejects an unscoped source insert", async () => {
-  const client = await adminPool.connect();
-  const effectId = randomUUID();
-  const journalId = randomUUID();
-  const eventId = randomUUID();
-  try {
-    await client.query("BEGIN");
-    await client.query(
-      "INSERT INTO public.financial_effects(tenant_id,effect_id,request_fingerprint,journal_id) VALUES($1,$2,$3::jsonb,$4)",
-      [TENANT_A, effectId, JSON.stringify({ effect_id: effectId, synthetic: true }), journalId]
-    );
-    await client.query(
-      "INSERT INTO public.ledger_journals(tenant_id,journal_id,source_event_id,status) VALUES($1,$2,$3,'posted')",
-      [TENANT_A, journalId, randomUUID()]
-    );
-    await assert.rejects(
-      client.query(
-        "INSERT INTO public.ledger_outbox(tenant_id,event_id,journal_id,event_type,payload) VALUES($1,$2,$3,'ledger.journal.posted',$4::jsonb)",
-        [TENANT_A, eventId, journalId, JSON.stringify({ journal_id: journalId })]
-      ),
-      (error) => error.code === "42501" && error.message.includes("tenant context mismatch")
-    );
-  } finally {
-    await client.query("ROLLBACK");
-    client.release();
-  }
-  const counts = await adminPool.query(
-    "SELECT (SELECT count(*)::int FROM public.ledger_outbox WHERE tenant_id=$1 AND event_id=$2) AS events,(SELECT count(*)::int FROM public.outbox_delivery_state WHERE tenant_id=$1 AND event_id=$2) AS delivery_rows",
-    [TENANT_A, eventId]
+test("product identity is mandatory in P-03C delivery and consumer tables", async () => {
+  const columns = await adminPool.query(
+    `SELECT table_name, column_default
+       FROM information_schema.columns
+      WHERE table_schema = 'public'
+        AND table_name = ANY($1::text[])
+        AND column_name = 'product_id'
+      ORDER BY table_name`,
+    [["outbox_delivery_state", "consumer_inbox", "consumer_effects"]]
   );
-  assert.deepEqual(counts.rows[0], { events: 0, delivery_rows: 0 });
+  assert.equal(columns.rowCount, 3);
+  assert.equal(columns.rows.every((column) => column.column_default === null), true);
+  await assert.rejects(
+    adminPool.query(
+      "INSERT INTO public.ledger_outbox (tenant_id, event_id, journal_id, event_type, payload) VALUES ($1, gen_random_uuid(), gen_random_uuid(), 'ledger.journal.posted', '{}'::jsonb)",
+      [TENANT_A]
+    ),
+    (error) => error.code === "23502" && error.column === "product_id"
+  );
 });

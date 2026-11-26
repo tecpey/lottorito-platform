@@ -58,6 +58,7 @@ jobs:
       ADMIN_DATABASE_URL: postgres://postgres:p03c-admin-only-not-production@127.0.0.1:5432/lottorito_p03c
       TENANT_A_DATABASE_URL: postgres://tenant_a_ledger_runtime:p02-tenant-a-not-for-production@127.0.0.1:5432/lottorito_p03c
       TENANT_B_DATABASE_URL: postgres://tenant_b_ledger_runtime:p02-tenant-b-not-for-production@127.0.0.1:5432/lottorito_p03c
+      TENANT_A_LOTTERY_DATABASE_URL: postgres://tenant_a_lottery_runtime:p02-tenant-a-lottery-not-for-production@127.0.0.1:5432/lottorito_p03c
     steps:
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

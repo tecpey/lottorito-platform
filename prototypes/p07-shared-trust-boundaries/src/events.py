@@ -1,11 +1,16 @@
 """Synthetic CloudEvents profile and explicit cross-product contract enforcement."""
 from __future__ import annotations
 import json
+import re
+import sys
+import uuid
 from pathlib import Path
 from typing import Any
 from policy import AUDIT_DECISIONS, resolve_principal
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT.parent / "p09-contract-recovery"))
+from contract import ContractViolation, validate_event
 CONTRACTS_PATH = ROOT / "registry" / "event-contracts.json"
 ENTITLEMENTS_PATH = ROOT / "registry" / "tenant-entitlements.json"
 PRODUCT_SOURCES = {
@@ -13,6 +18,7 @@ PRODUCT_SOURCES = {
     "lottery": "urn:lottorito:product:lottery",
 }
 CLASSIFICATION = {"public": 0, "internal": 1, "confidential": 2, "restricted_financial": 3}
+TRACEPARENT_RE = re.compile(r"^00-([0-9a-f]{32})-([0-9a-f]{16})-([0-9a-f]{2})$")
 FORBIDDEN_DATA_KEYS = {"password", "passwordhash", "secret", "token", "apikey", "accesstoken", "refreshtoken", "authorization", "credential", "email", "phone", "nationalid", "iban", "accountnumber", "tenantid"}
 
 
@@ -56,21 +62,57 @@ def dispatch_event(
     if producer is None or consumer is None:
         return _deny("unknown_service_identity")
 
-    required = ("id", "source", "specversion", "type", "tenantid", "dataschema", "classification", "data")
+    required = (
+        "id", "source", "specversion", "type", "time", "tenantid", "dataschema",
+        "classification", "data", "scope", "sourceeventid", "schemaversion", "traceparent",
+    )
     if any(key not in event for key in required):
         return _deny("invalid_event_envelope", producer["product_id"], event.get("tenantid"))
-    if any(not isinstance(event[key], str) or not event[key] for key in required[:-1]):
+    string_attributes = (
+        "id", "source", "specversion", "type", "tenantid", "dataschema",
+        "classification", "sourceeventid", "traceparent",
+    )
+    if any(not isinstance(event[key], str) or not event[key] for key in string_attributes):
         return _deny("invalid_event_envelope", producer["product_id"], event.get("tenantid"))
     allowed_attributes = set(required) | {"subject", "time", "datacontenttype"}
     if set(event) - allowed_attributes:
         return _deny("unsupported_event_extension", producer["product_id"], event.get("tenantid"))
-    if event["specversion"] != "1.0" or not isinstance(event["data"], dict):
+    if event["specversion"] != "1.0" or not isinstance(event["data"], dict) or not isinstance(event["scope"], dict):
         return _deny("invalid_event_envelope", producer["product_id"], event.get("tenantid"))
+    if set(event["scope"]) != {"kind", "id"}:
+        return _deny("invalid_event_scope", producer["product_id"], event.get("tenantid"))
+    try:
+        source_event_id = str(uuid.UUID(event["sourceeventid"]))
+    except (ValueError, AttributeError):
+        return _deny("invalid_source_event_identity", producer["product_id"], event.get("tenantid"))
+    if source_event_id != event["sourceeventid"]:
+        return _deny("invalid_source_event_identity", producer["product_id"], event.get("tenantid"))
+    schema_version = event["schemaversion"]
+    if isinstance(schema_version, bool) or not isinstance(schema_version, int) or schema_version < 1:
+        return _deny("invalid_schema_version", producer["product_id"], event.get("tenantid"))
+    trace_match = TRACEPARENT_RE.fullmatch(event["traceparent"])
+    if trace_match is None or trace_match.group(1) == "0" * 32 or trace_match.group(2) == "0" * 16:
+        return _deny("invalid_trace_context", producer["product_id"], event.get("tenantid"))
 
     source_product = producer["product_id"]
     tenant_id = event["tenantid"]
+    try:
+        canonical_tenant_id = str(uuid.UUID(tenant_id))
+    except (ValueError, AttributeError):
+        return _deny("invalid_tenant_identity", source_product, tenant_id)
+    if canonical_tenant_id != tenant_id:
+        return _deny("invalid_tenant_identity", source_product, tenant_id)
+    expected_scope = {"kind": "product", "id": source_product}
+    if event["scope"] != expected_scope:
+        return _deny("event_scope_mismatch", source_product, tenant_id)
+
     if event["source"] != PRODUCT_SOURCES.get(source_product):
         return _deny("producer_source_mismatch", source_product, tenant_id)
+
+    try:
+        validate_event(event)
+    except ContractViolation:
+        return _deny("invalid_event_contract", source_product, tenant_id)
     if tenant_id not in producer["allowed_tenants"] or tenant_id not in consumer["allowed_tenants"]:
         return _deny("service_tenant_scope_denied", source_product, tenant_id)
 
@@ -86,8 +128,12 @@ def dispatch_event(
         return _deny("missing_event_contract", source_product, tenant_id)
     if consumer["product_id"] not in contract.get("allowed_consumers", []):
         return _deny("consumer_not_permitted_by_contract", consumer["product_id"], tenant_id)
-    if event["dataschema"] != contract.get("dataschema"):
+    if event["dataschema"] != contract.get("dataschema") or schema_version != contract.get("schema_version"):
         return _deny("unsupported_schema_version", consumer["product_id"], tenant_id)
+    if contract.get("source_scope") != expected_scope:
+        return _deny("contract_source_scope_mismatch", source_product, tenant_id)
+    if not set(contract.get("required_envelope_fields", [])).issubset(event):
+        return _deny("event_contract_envelope_incomplete", source_product, tenant_id)
     if event["classification"] not in CLASSIFICATION or contract.get("data_classification") not in CLASSIFICATION:
         return _deny("unknown_data_classification", consumer["product_id"], tenant_id)
     if event["classification"] != contract["data_classification"]:
@@ -107,4 +153,12 @@ def dispatch_event(
         "contract_id": contract["contract_id"], "producer_product": source_product,
         "consumer_product": consumer["product_id"], "tenant_id": tenant_id,
         "event_id": event["id"],
+        "source_event_identity": {
+            "tenant_id": tenant_id,
+            "scope_kind": event["scope"]["kind"],
+            "scope_id": event["scope"]["id"],
+            "source_event_id": source_event_id,
+        },
+        "trace_id": trace_match.group(1),
+        "schema_version": schema_version,
     }

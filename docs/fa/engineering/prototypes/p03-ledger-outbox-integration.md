@@ -24,9 +24,9 @@ Invariant اصلی این است که ledger_outbox متعلق به P-02، **ت�
 ## ۳. Fixture اجرایی
 
 - prototypes/p03-ledger-outbox-integration/db/integration.sql: وضعیت تحویل P-03C، جدول‌های Consumer، RLS، Trigger و توابع Security Definer؛ مستقیماً به ledger_outbox در P-02 ارجاع می‌دهد.
-- scripts/setup-db.js: Schema مربوط به P-02 و سپس SQL یکپارچه‌سازی P-03C را در دیتابیس موقت اجرا و وجود تنها یک Source Outbox و شش حساب Seedشده را بررسی می‌کند.
+- scripts/setup-db.js: Schema مربوط به P-02 و سپس SQL یکپارچه‌سازی P-03C را در دیتابیس موقت اجرا و وجود تنها یک Source Outbox و هشت حساب محصول‌محور Seedشده را بررسی می‌کند.
 - src/relay.js: توابع Tenant-bound برای Claim، Ack، Nack، Consume و تحویل Batch.
-- test/integration.test.js: پانزده سناریوی مثبت و خصمانه انتهابه‌انتها.
+- test/integration.test.js: شانزده سناریوی مثبت و خصمانه انتهابه‌انتها.
 - compose.yaml: Fixture محلی PostgreSQL 18.7.
 - package.json/package-lock.json: نسخه‌های Node.js 26.13.x و pg 8.23.1 قفل‌شده.
 - .github/workflows/p03-ledger-outbox-integration.yml: CI با PostgreSQL 18.7 و Node.js 26.13.0.
@@ -92,3 +92,19 @@ docker compose down -v
 ## ۸. دروازه تکمیل
 
 P-03C فقط زمانی تکمیل است که Head دقیق PR دارای Integration موفق با PostgreSQL 18.7 و Node.js 26.13.0 و Documentation Governance موفق باشد، تمام سناریوهای مثبت و منفی با صفر Skip عبور کنند، هم‌ارزی معنایی نسخه‌های فارسی و انگلیسی بازبینی شود و محدودیت‌ها صریح باقی بمانند. موفقیت این آزمایش مجوز Merge، Deploy در Production یا انتخاب فناوری نیست.
+
+## P-09K — هویت محصول‌محور Outbox و تحویل (۲۰۲۶-۱۱-۲۶)
+
+کلید Outbox در P-02 اکنون `(tenant_id, product_id, event_id)` است. Primary Key و Foreign Keyهای وضعیت تحویل P-03C از همین Tuple کامل استفاده می‌کنند؛ Foreign Key قدیمی Tenant-only و Unique Index تکراری حذف شده‌اند. ارجاع Inbox مصرف‌کننده نیز از کلید رویداد محصول‌محور استفاده می‌کند. Claim Candidate مقدار product_id را تا Update ردیف قفل‌شده حمل می‌کند و پاک‌سازی Leaseهای منقضی نیز صریحاً به محصول محدود شده است. Checkهای محصول Canonical مقدار Legacy یعنی `shared` را رد می‌کنند.
+
+یکپارچه‌سازی موقت P-03C اکنون یک نشست Runtime مستقل Lottery برای همان Tenant باز می‌کند و بررسی می‌کند Workerهای Affiliate نتوانند رویدادهای Lottery را Claim یا Consume کنند و برعکس. Receiptها، Effectها و Ackها نیز به هویت محصول متصل باقی می‌مانند. اعتبارسنجی CI روی Head دقیق در انتظار است.
+
+**شواهد CI مربوط به P-09K:** [اجرای 45862006903](https://github.com/tecpey/lottorito-platform/actions/runs/45862006903) — موفق؛ P-03C برابر ۱۶ از ۱۶ و P-03D برابر ۳۵ از ۳۵ تست Integration روی PostgreSQL 18.7. Workerهای Affiliate و Lottery در Claimهای Outbox، وضعیت تحویل، Provider Inbox و ارجاع‌های Journal/Account از یکدیگر جدا هستند. Head دقیق کد: `75148b41220bb26adf0e8c01e05860a8fd83d7fa`.
+
+## به‌روزرسانی اعتبارسنجی P-09K روی Head دقیق (۲۰۲۶-۱۱-۲۶)
+
+ارجاع‌های Delivery State و Consumer Inbox در P-03C اکنون از Tuple کامل `(tenant_id, product_id, event_id)` مطابق P-02 استفاده می‌کنند. [Workflow شماره 45863298594](https://github.com/tecpey/lottorito-platform/actions/runs/45863298594) روی Head دقیق `75fd23701d4e28f047f8ebb73ea0b684bb144c7a` هر ۱۶ از ۱۶ تست Integration در PostgreSQL 18.7 را گذراند. اجرای ناموفق قبلی یک Regression واقعی سازگاری (Foreign Key قدیمی Tenant+Event) را آشکار کرد و به‌عنوان شاهد موفقیت محسوب نمی‌شود؛ اجرای اصلاح‌شده جایگزین آن است.
+
+## اعتبارسنجی نهایی P-09L روی Head دقیق (۲۰۲۶-۱۱-۲۶)
+
+P-03C روی Head دقیق کد `7cb0598a163f40e53a4412a44b476b0404685b75` با موفقیت ۱۶ از ۱۶ تست را گذراند: [Workflow شماره 45864973911](https://github.com/tecpey/lottorito-platform/actions/runs/45864973911). Foreign Keyهای Delivery State و Consumer Inbox از Tuple کامل Tenant+Product+Event استفاده می‌کنند؛ Regression قبلی ارجاع Tenant-only نیز مستند شده و پیش از این اجرای موفق اصلاح شده است.

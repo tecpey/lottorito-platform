@@ -1,6 +1,6 @@
 # P-06 — مشاهده‌پذیری سرتاسری و حریم خصوصی
 
-**شناسه سند:** LOT-PROT-P06-001 | **نسخه:** ۰.۲.۰ | **وضعیت:** Integration ساختگی P-06 و Documentation Governance روی Head PR با شناسه 9f30a2966ce77aca8a7df6acf8e803733bd723dd موفق شدند؛ تصویب Instrumentation/حریم خصوصی Production از این نتیجه برداشت نمی‌شود
+**شناسه سند:** LOT-PROT-P06-001 | **نسخه:** ۰.۳.۰ | **وضعیت:** Integration ساختگی P-06 و Documentation Governance روی Head PR با شناسه 9f30a2966ce77aca8a7df6acf8e803733bd723dd موفق شدند؛ تصویب Instrumentation/حریم خصوصی Production از این نتیجه برداشت نمی‌شود
 
 ## اعتبار و مرز
 
@@ -97,3 +97,14 @@ P-06 بررسی می‌کند آیا یک رویداد ساختگی Affiliate & 
 - https://prometheus.io/docs/practices/naming/
 - https://csrc.nist.gov/pubs/sp/800/92/final
 - https://csrc.nist.gov/Projects/log-management
+
+## الحاقیه P-09B — Correlation آگاه از Scope (۲۰۲۶-۱۱-۲۵)
+
+ادامه P-09 کلید Correlation ساختگی را از `(tenant_id, source_event_id)` به `(tenant_id, scope_kind, scope_id, source_event_id)` گسترش می‌دهد. Session و Grant دسترسی Forensic نیز به همین Tuple به‌علاوه `trace_id` مقید می‌شوند؛ View مربوطه تمام ابعاد را تطبیق می‌دهد، نه فقط Trace ID را. Runner مربوط به P-06 یک UUID یکسان Tenant/Source Event را برای Affiliate و Lottery ثبت می‌کند و اثبات می‌کند Grant مربوط به Affiliate فقط ردیف Affiliate را برمی‌گرداند و Grant مستقل Lottery فقط ردیف Lottery را. Workflow مربوط به P-06 روی Candidate فعلی P-09 دروازه پذیرش است؛ این همچنان Fixture ساختگی است، نه مجوزدهی Telemetry در Production.
+
+شواهد پذیرش P-09B: اجرای P-06 End-to-End Observability and Privacy با شناسه [45628562800](https://github.com/tecpey/lottorito-platform/actions/runs/45628562800) روی Head کاندید `109530985a00bd158866e45a8c11e3bb5f520f53` موفق شد. این اجرا تأیید می‌کند ردیف‌های Affiliate و Lottery در یک Tenant، با Source UUID و Trace ID یکسان، مستقل و بدون ابهام قابل آدرس‌دهی باقی می‌مانند؛ هر Grant ممیزی‌شده Forensic فقط ردیف محصول متناظر را نمایش می‌دهد. اسکن Canary نیز تأیید کرد UUID خام Source در Target Reference مربوط به Audit ذخیره نمی‌شود.
+
+
+### P-09I — هویت Canonical رویداد در هم‌بستگی Telemetry (۲۰۲۶-۱۱-۲۵)
+
+Fixture موقت P-06 اکنون Validator مشترک Python در P-09 را Mount و Import می‌کند. پیش از ساخت Spanها یا رکوردهای Correlation، یک CloudEvent استاندارد شامل Tenant، Product Scope، UUID مربوط به Source Event، Schema Version و Root W3C Traceparent اعتبارسنجی می‌شود. مقادیر Tenant/Scope/Source Event در درج Correlation Map از همین Envelope معتبر استخراج می‌شوند. Envelope دومی همان Source Event UUID را با Scope محصول Lottery استفاده می‌کند و به‌عنوان هویت مستقلِ مقید به Product اعتبارسنجی می‌شود. این رفتار معنای کلید `(tenant, scope_kind, scope_id, source_event_id)` در P-06 را اثبات می‌کند؛ اما ادعای اتصال زنده P-03D به استقرار OTel نیست.

@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """Synthetic-only P-06 end-to-end telemetry, privacy and access-control drill."""
-import base64, hashlib, hmac, json, os, re, secrets, subprocess, uuid
+import base64, hashlib, hmac, json, os, re, secrets, subprocess, sys, uuid
 from datetime import datetime, timedelta, timezone
+
+sys.path.insert(0, "/workspace/p09")
+from contract import validate_event
 
 DB="lottorito_p06"
 ADMIN_PASSWORD="p06-admin-only-not-production"
@@ -108,6 +111,30 @@ def main():
     span_ids=[secrets.token_hex(8) for _ in stages]
     if len(set(span_ids))!=len(span_ids): raise AssertionError("span ID collision")
     start=datetime.now(timezone.utc)
+    canonical_event = {
+      "specversion": "1.0",
+      "id": "p06-" + source_event_id,
+      "source": "urn:lottorito:product:affiliate_agent",
+      "type": "affiliate.referral.converted",
+      "time": start.isoformat(),
+      "dataschema": "urn:lottorito:schema:affiliate.referral.converted:1",
+      "tenantid": TENANT_A,
+      "scope": {"kind": "product", "id": "affiliate_agent"},
+      "sourceeventid": source_event_id,
+      "schemaversion": 1,
+      "traceparent": f"00-{trace_id}-{span_ids[0]}-01",
+      "data": {"synthetic": True}
+    }
+    canonical_validation = validate_event(canonical_event)
+    canonical_identity = canonical_validation["identity"]
+    trace_id = canonical_validation["trace_id"]
+    if canonical_identity != (TENANT_A, "product", "affiliate_agent", source_event_id):
+        raise AssertionError("P-09 canonical event identity did not survive into P-06")
+    lottery_event = {**canonical_event, "id": "p06-lottery-" + source_event_id,
+                     "scope": {"kind": "product", "id": "lottery"}}
+    lottery_identity = validate_event(lottery_event)["identity"]
+    if lottery_identity != (TENANT_A, "product", "lottery", source_event_id):
+        raise AssertionError("P-09 did not preserve product-qualified source-event identity")
     span_records=[]
     for i,(service,name,outcome) in enumerate(stages):
         span_id=span_ids[i]; parent=span_ids[i-1] if i else None
@@ -198,25 +225,44 @@ def main():
     )
     if unbounded_cols!="0": raise AssertionError("metrics schema contains unbounded identifiers")
 
-    print("[P06] Record pseudonymous correlation map behind audited forensic access")
+    print("[P06] Record scope-aware correlation rows with colliding source UUIDs")
+    lottery_effect_id=str(uuid.uuid4()); lottery_effect_ref=ref(lottery_effect_id)
+    lottery_journal_id=str(uuid.uuid4()); lottery_journal_ref=ref(lottery_journal_id)
     psql(
-      "INSERT INTO p06.correlation_map(tenant_id,tenant_ref,actor_id,actor_ref,source_event_id,source_event_ref,"
-      "economic_effect_id,economic_effect_ref,journal_id,journal_ref,trace_id) VALUES("
-      f"{q(TENANT_A)}::uuid,{q(tenant_a_ref)},{q(actor_id)}::uuid,{q(actor_ref)},"
-      f"{q(source_event_id)}::uuid,{q(source_event_ref)},{q(effect_id)}::uuid,{q(effect_ref)},"
-      f"{q(journal_id)}::uuid,{q(journal_ref)},{q(trace_id)})"
+      "INSERT INTO p06.correlation_map(tenant_id,scope_kind,scope_id,tenant_ref,actor_id,actor_ref,"
+      "source_event_id,source_event_ref,economic_effect_id,economic_effect_ref,journal_id,journal_ref,trace_id) VALUES("
+      f"{q(canonical_event['tenantid'])}::uuid,{q(canonical_event['scope']['kind'])},{q(canonical_event['scope']['id'])},{q(tenant_a_ref)},{q(actor_id)}::uuid,{q(actor_ref)},"
+      f"{q(canonical_event['sourceeventid'])}::uuid,{q(source_event_ref)},{q(effect_id)}::uuid,{q(effect_ref)},"
+      f"{q(journal_id)}::uuid,{q(journal_ref)},{q(trace_id)}),("
+      f"{q(TENANT_A)}::uuid,'product','lottery',{q(tenant_a_ref)},{q(actor_id)}::uuid,{q(actor_ref)},"
+      f"{q(source_event_id)}::uuid,{q(source_event_ref)},{q(lottery_effect_id)}::uuid,{q(lottery_effect_ref)},"
+      f"{q(lottery_journal_id)}::uuid,{q(lottery_journal_ref)},{q(trace_id)})"
     )
+    if scalar(f"SELECT count(*) FROM p06.correlation_map WHERE tenant_id='{TENANT_A}' AND source_event_id='{source_event_id}'")!="2":
+        raise AssertionError("same source UUID was not preserved as two product-scoped identities")
     if scalar("SELECT count(*) FROM p06.forensic_correlation_map",user="p06_forensic_reader",password="p06-forensic-not-production")!="0":
         raise AssertionError("forensic map was visible before an audited access grant")
     forensic_sql=(
-      f"SELECT p06.record_forensic_access({q(trace_id)},'incident_review',{q(actor_ref)}); "
-      "SELECT count(*) FROM p06.forensic_correlation_map"
+      f"SELECT p06.record_forensic_access('{TENANT_A}'::uuid,'product','affiliate_agent',{q(source_event_id)}::uuid,"
+      f"{q(source_event_ref)},{q(trace_id)},'incident_review',{q(actor_ref)}); "
+      "SELECT count(*) FROM p06.forensic_correlation_map WHERE scope_kind='product' AND scope_id='affiliate_agent'; "
+      "SELECT count(*) FROM p06.forensic_correlation_map WHERE scope_kind='product' AND scope_id='lottery'"
     )
     forensic_out,_,_=psql(forensic_sql,user="p06_forensic_reader",password="p06-forensic-not-production")
-    if forensic_out.splitlines()[-1]!="1": raise AssertionError("audited forensic access did not reveal one correlation row")
+    if forensic_out.splitlines()[-2:]!=["1","0"]:
+        raise AssertionError("affiliate forensic grant disclosed a sibling Lottery correlation")
+    lottery_forensic_sql=(
+      f"SELECT p06.record_forensic_access('{TENANT_A}'::uuid,'product','lottery',{q(source_event_id)}::uuid,"
+      f"{q(source_event_ref)},{q(trace_id)},'incident_review',{q(actor_ref)}); "
+      "SELECT count(*) FROM p06.forensic_correlation_map WHERE scope_kind='product' AND scope_id='affiliate_agent'; "
+      "SELECT count(*) FROM p06.forensic_correlation_map WHERE scope_kind='product' AND scope_id='lottery'"
+    )
+    lottery_forensic_out,_,_=psql(lottery_forensic_sql,user="p06_forensic_reader",password="p06-forensic-not-production")
+    if lottery_forensic_out.splitlines()[-2:]!=["0","1"]:
+        raise AssertionError("Lottery forensic grant disclosed a sibling Affiliate correlation")
     expect_reject("SELECT count(*) FROM p06.correlation_map","p06_forensic_reader","p06-forensic-not-production","permission denied")
-    if scalar(f"SELECT count(*) FROM p06.privileged_audit WHERE action='telemetry.correlation_map.read' AND trace_id='{trace_id}'")!="1":
-        raise AssertionError("forensic access was not audited")
+    if scalar(f"SELECT count(*) FROM p06.privileged_audit WHERE action='telemetry.correlation_map.read' AND trace_id='{trace_id}'")!="2":
+        raise AssertionError("scope-specific forensic access was not audited twice")
 
     print("[P06] Prove tenant isolation, least privilege and append-only audit")
     if scalar("SELECT count(*) FROM p06.spans",user="p06_tenant_a_reader",password="p06-tenant-a-not-production")!="9":

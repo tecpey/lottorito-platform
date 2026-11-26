@@ -1,6 +1,6 @@
 # P-06 — End-to-End Observability and Privacy
 
-**Document ID:** LOT-PROT-P06-001 | **Version:** 0.2.0 | **Status:** Synthetic P-06 PR Integration and Documentation Governance passed on PR head 9f30a2966ce77aca8a7df6acf8e803733bd723dd; production instrumentation/privacy approval not implied
+**Document ID:** LOT-PROT-P06-001 | **Version:** 0.3.0 | **Status:** Synthetic P-06 PR Integration and Documentation Governance passed on PR head 9f30a2966ce77aca8a7df6acf8e803733bd723dd; production instrumentation/privacy approval not implied
 
 ## Authority and boundary
 
@@ -97,3 +97,14 @@ This is not an implemented application instrumentation layer, deployed OpenTelem
 - https://prometheus.io/docs/practices/naming/
 - https://csrc.nist.gov/pubs/sp/800/92/final
 - https://csrc.nist.gov/Projects/log-management
+
+## P-09B scope-aware correlation addendum (2026-11-25)
+
+The P-09 continuation extends the synthetic correlation key from `(tenant_id, source_event_id)` to `(tenant_id, scope_kind, scope_id, source_event_id)`. The forensic access session and grant are bound to the same tuple plus `trace_id`; the forensic view matches every dimension rather than trace ID alone. The P-06 runner inserts the same tenant/source-event UUID for Affiliate and Lottery and proves that an Affiliate forensic grant returns only the Affiliate row, while a separate Lottery grant returns only the Lottery row. The P-06 workflow on the current P-09 candidate is the acceptance gate; this remains a synthetic fixture, not production telemetry authorization.
+
+P-09B candidate validation: P-06 End-to-End Observability and Privacy run [45628562800](https://github.com/tecpey/lottorito-platform/actions/runs/45628562800) passed on candidate head `109530985a00bd158866e45a8c11e3bb5f520f53`. The run confirms same-tenant Affiliate/Lottery rows with a colliding source UUID and trace ID remain independently addressable; each audited forensic grant reveals only its matching product row. The canary scan also confirms raw source UUIDs are not written into the audit target reference.
+
+
+### P-09I — Canonical event identity in telemetry correlation (2026-11-25)
+
+The P-06 disposable fixture now mounts and imports the shared P-09 Python validator. Before creating spans or correlation records, it validates a canonical CloudEvent containing tenant, product scope, source-event UUID, schema version and the root W3C traceparent. The correlation-map insert derives its tenant/scope/source-event values from that validated envelope. A second envelope reuses the same source-event UUID under Lottery scope and is validated as a distinct product-qualified identity. This proves the P-06 correlation key's intended `(tenant, scope_kind, scope_id, source_event_id)` semantics; it does not claim a live P-03D-to-OTel deployment integration.

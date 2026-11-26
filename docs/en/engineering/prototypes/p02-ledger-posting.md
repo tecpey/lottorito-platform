@@ -71,3 +71,29 @@ All data and credentials are synthetic. P-02 run [45465421133](https://github.co
 - [AWS Prescriptive Guidance — Transactional outbox](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html): atomically persist business state and outbox events; consumers must tolerate duplicate delivery.
 - [AWS Well-Architected — Make mutating operations idempotent](https://docs.aws.amazon.com/wellarchitected/latest/framework/rel04-bp04.html): stable idempotency tokens, atomic state tracking, retries and duplicate event handling.
 - [Microsoft Architecture Center — Idempotent consumer](https://learn.microsoft.com/azure/architecture/patterns/idempotent-consumer): use a stable business-operation identity, not a broad correlation ID, to deduplicate redelivered events.
+
+## P-09J — Canonical product token enforcement (2026-11-25)
+
+The disposable P-02 schema now accepts only the canonical product identifiers `affiliate_agent` and `lottery`; the ambiguous legacy token `shared` is rejected by the product CHECK constraints. A negative integration test attempts to insert `shared` and requires SQLSTATE `23514`.
+
+This is deliberately not a data migration. Existing databases or legacy rows containing `shared` must be inventoried and quarantined until an authoritative owner supplies an explicit tenant/product mapping; no automatic conversion to Affiliate, Lottery, or platform scope is permitted. The separate P-09J P-05B work adds product scope to recovery inboxes and replay cursors. P-02's remaining tenant-only financial primary/unique keys are still an explicit follow-up; this section does not claim that the complete P-02 financial identity migration is finished.
+
+### P-09J CI evidence
+
+Validated on source-code head `dfaa8120340cc6b4b80450dbf0e5755b21111080`: [P-02 Ledger Posting run 45662750926](https://github.com/tecpey/lottorito-platform/actions/runs/45662750926) passed **26/26 integration tests**. The negative legacy-token case returned the expected check-constraint SQLSTATE `23514`. No legacy data migration was performed.
+
+## P-09K — Product-qualified financial keys and referential integrity (2026-11-26)
+
+P-02 now includes `product_id` in every financial primary key and unique constraint: accounts, financial effects, posting requests, journals, journal lines and outbox events. All foreign keys carry the same tenant+product tuple, including journal-to-effect, line-to-journal, line-to-account and outbox-to-journal references. The effect conflict arbiter and all request/effect joins are product-qualified. The outbox polling index is also tenant+product qualified.
+
+A new integration test reuses the same tenant, account UUIDs, source-event UUID, effect UUID and idempotency key in Affiliate & Agent and Lottery. Both products must independently post exactly one balanced journal, and the database must preserve separate product-qualified rows. This is a disposable PostgreSQL 18.7 fixture only; it is not a production migration. Existing production rows and IDs require inventory, collision analysis and an approved expand/backfill/validate/contract migration plan before any schema change.
+
+**P-09K CI evidence:** [Run 45862006791](https://github.com/tecpey/lottorito-platform/actions/runs/45862006791) — PASS, 27/27 PostgreSQL 18.7 integration tests, including cross-product reuse of tenant/account/event/effect/idempotency identifiers and rejection of cross-product foreign-key substitution. Exact source head: `75148b41220bb26adf0e8c01e05860a8fd83d7fa`.
+
+## P-09K exact-head validation (2026-11-26)
+
+The final product-qualified financial-key implementation passed on commit `75fd23701d4e28f047f8ebb73ea0b684bb144c7a`: [workflow 45863298568](https://github.com/tecpey/lottorito-platform/actions/runs/45863298568), 27/27 Node.js 26 + PostgreSQL 18.7 integration tests. This covers same-tenant reuse of account, source-event, effect and idempotency identifiers across Affiliate & Agent and Lottery. Dependent P-03/P-05 evidence is required for cross-prototype acceptance.
+
+## Final P-09L cross-prototype revalidation (2026-11-26)
+
+The P-02 product-qualified financial-key implementation was revalidated on exact code head `7cb0598a163f40e53a4412a44b476b0404685b75`: [workflow 45864973900](https://github.com/tecpey/lottorito-platform/actions/runs/45864973900), 27/27 tests passed, zero failures. This head includes the P-04 nonblocking index-recovery correction and the synchronized P-09L contract documentation.

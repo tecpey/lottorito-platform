@@ -13,7 +13,7 @@ This is a synthetic integration experiment, not a production event platform. It 
 ## 2. Design and ownership
 
 - **Financial source:** P-02 owns journal posting, effect identity, immutable journal lines and immutable ledger_outbox rows.
-- **Delivery state:** P-03C owns outbox_delivery_state, keyed by (tenant_id, event_id), with lease, attempt, retry, published and dead-letter state.
+- **Delivery state:** P-03C owns outbox_delivery_state, keyed by (tenant_id, product_id, event_id), with lease, attempt, retry, published and dead-letter state.
 - **Atomic bridge:** an AFTER INSERT trigger on ledger_outbox inserts the initial pending delivery-state row in the same database transaction. If that trigger or its RLS check fails, the financial posting transaction fails as a whole.
 - **Tenant identity:** reuse P-02's private.tenant_role_map and private.current_tenant_id(), deriving tenant scope from PostgreSQL session_user. No caller-supplied tenant ID or second role map is introduced.
 - **Execution authority:** outbox_executor is NOLOGIN, non-superuser and NOBYPASSRLS. Its SECURITY DEFINER functions have fixed search paths and narrow grants. The trigger checks that the source row tenant matches the database-session tenant.
@@ -23,10 +23,10 @@ This is a synthetic integration experiment, not a production event platform. It 
 
 ## 3. Executable fixture
 
-- prototypes/p03-ledger-outbox-integration/db/integration.sql: P-03C delivery state, consumer tables, RLS, trigger and security-definer functions. It references P-02 ledger_outbox directly.
-- scripts/setup-db.js: applies P-02's schema, then P-03C integration SQL, in a disposable database; verifies there is one source outbox and six seeded accounts.
+- prototypes/p03-ledger-outbox-integration/db/integration.sql: P-03C delivery state, consumer tables, RLS, trigger and security-definer functions. It references P-02 ledger_outbox directly using the full (tenant_id, product_id, event_id) identity.
+- scripts/setup-db.js: applies P-02's schema, then P-03C integration SQL, in a disposable database; verifies there is one source outbox and eight seeded product-scoped accounts.
 - src/relay.js: tenant-bound claim, ack, nack, consume and batch-delivery helpers.
-- test/integration.test.js: 15 positive/adversarial end-to-end scenarios.
+- test/integration.test.js: 16 positive/adversarial end-to-end scenarios.
 - compose.yaml: local PostgreSQL 18.7 fixture.
 - package.json/package-lock.json: Node.js 26.13.x and pg 8.23.1 pinned.
 - .github/workflows/p03-ledger-outbox-integration.yml: PostgreSQL 18.7 and Node.js 26.13.0 CI.
@@ -92,3 +92,19 @@ The setup script drops/recreates only P-02/P-03C fixture objects. Use only the d
 ## 8. Completion gate
 
 P-03C is complete only when the exact PR head has passing PostgreSQL 18.7/Node.js 26.13.0 integration tests and Documentation Governance, all positive and negative scenarios pass with zero skips, the bilingual pair is reviewed for semantic parity, and limitations remain explicit. Passing this experiment does not authorize merge, production deployment or technology selection.
+
+## P-09K — Product-qualified outbox and delivery identity (2026-11-26)
+
+P-02's outbox key is now `(tenant_id, product_id, event_id)`. P-03C delivery-state primary keys and foreign keys use that same complete tuple; the obsolete tenant-only FK and redundant unique index have been removed. Consumer inbox references use the product-qualified event key. Claim candidates carry product_id through the locked-row update, and expired-lease cleanup is explicitly product-scoped. Canonical product checks reject the legacy `shared` token.
+
+The P-03C disposable integration now opens a distinct Lottery runtime session for the same tenant and asserts that Affiliate workers cannot claim or consume Lottery events and vice versa. Delivery receipts, effects and acknowledgements remain bound to the product identity. Validation is pending exact-head CI.
+
+**P-09K CI evidence:** [Run 45862006903](https://github.com/tecpey/lottorito-platform/actions/runs/45862006903) — PASS; P-03C 16/16 and P-03D 35/35 PostgreSQL 18.7 integration tests. Affiliate and Lottery workers are isolated across outbox claims, delivery state, provider inbox and journal/account references. Exact source head: `75148b41220bb26adf0e8c01e05860a8fd83d7fa`.
+
+## P-09K exact-head validation update (2026-11-26)
+
+P-03C delivery-state and consumer-inbox references now use the complete `(tenant_id, product_id, event_id)` tuple matching P-02. [Workflow 45863298594](https://github.com/tecpey/lottorito-platform/actions/runs/45863298594) passed 16/16 PostgreSQL 18.7 integration tests on exact head `75fd23701d4e28f047f8ebb73ea0b684bb144c7a`. The earlier failed run exposed a genuine compatibility regression (legacy tenant+event FK); it is not counted as passing evidence. The corrected run supersedes it.
+
+## Final P-09L exact-head validation (2026-11-26)
+
+P-03C passed 16/16 tests on exact code head `7cb0598a163f40e53a4412a44b476b0404685b75`: [workflow 45864973911](https://github.com/tecpey/lottorito-platform/actions/runs/45864973911). The delivery-state and consumer-inbox foreign keys use the complete tenant+product+event tuple; the earlier tenant-only reference regression remains documented and was corrected before this passing run.

@@ -87,6 +87,8 @@ GRANT SELECT ON p06.alerts TO p06_metrics_reader;
 
 CREATE TABLE p06.correlation_map(
  tenant_id uuid NOT NULL,
+ scope_kind text NOT NULL CHECK(scope_kind IN('product','platform')),
+ scope_id text NOT NULL,
  tenant_ref text NOT NULL,
  actor_id uuid NOT NULL,
  actor_ref text NOT NULL,
@@ -96,8 +98,10 @@ CREATE TABLE p06.correlation_map(
  economic_effect_ref text NOT NULL,
  journal_id uuid NOT NULL,
  journal_ref text NOT NULL,
- trace_id text NOT NULL CHECK(trace_id ~ '^[0-9a-f]{32}$'),
- PRIMARY KEY(tenant_id,source_event_id)
+ trace_id text NOT NULL CHECK(length(trace_id)=32 AND trace_id ~ '^[0-9a-f]{32}'),
+ CHECK((scope_kind='product' AND scope_id IN('affiliate_agent','lottery'))
+    OR (scope_kind='platform' AND scope_id='lottorito')),
+ PRIMARY KEY(tenant_id,scope_kind,scope_id,source_event_id)
 );
 REVOKE ALL ON p06.correlation_map FROM PUBLIC,p06_tenant_a_reader,p06_tenant_b_reader,p06_metrics_reader,p06_forensic_reader;
 
@@ -107,36 +111,55 @@ CREATE TABLE p06.privileged_audit(
  action text NOT NULL CHECK(action IN('telemetry.correlation_map.read','telemetry.export','event.replay.authorize','configuration.change')),
  target_ref text NOT NULL,
  reason_code text NOT NULL CHECK(reason_code IN('incident_review','export_approved','replay_authorized','configuration_approved')),
- trace_id text NOT NULL CHECK(trace_id ~ '^[0-9a-f]{32}$'),
+ trace_id text NOT NULL CHECK(length(trace_id)=32 AND trace_id ~ '^[0-9a-f]{32}'),
  outcome text NOT NULL CHECK(outcome IN('allowed','denied')),
  created_at timestamptz NOT NULL DEFAULT clock_timestamp()
 );
 CREATE FUNCTION p06.prevent_audit_mutation() RETURNS trigger
-LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'P06_AUDIT_APPEND_ONLY'; END $$;
+LANGUAGE plpgsql AS $p06$
+BEGIN RAISE EXCEPTION 'P06_AUDIT_APPEND_ONLY'; END
+$p06$;
 CREATE TRIGGER audit_append_only BEFORE UPDATE OR DELETE ON p06.privileged_audit
 FOR EACH ROW EXECUTE FUNCTION p06.prevent_audit_mutation();
 
 CREATE TABLE p06.forensic_access_sessions(
  backend_pid integer NOT NULL,
  actor_role name NOT NULL,
+ tenant_id uuid NOT NULL,
+ scope_kind text NOT NULL,
+ scope_id text NOT NULL,
+ source_event_id uuid NOT NULL,
  trace_id text NOT NULL,
  reason_code text NOT NULL,
  created_at timestamptz NOT NULL DEFAULT clock_timestamp()
 );
-CREATE FUNCTION p06.record_forensic_access(p_trace_id text,p_reason_code text,p_actor_ref text)
-RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,p06 AS $$
+CREATE FUNCTION p06.record_forensic_access(
+ p_tenant_id uuid,p_scope_kind text,p_scope_id text,p_source_event_id uuid,
+ p_source_event_ref text,p_trace_id text,p_reason_code text,p_actor_ref text
+)
+RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,p06 AS $p06$
 BEGIN
  IF session_user <> 'p06_forensic_reader' THEN RAISE EXCEPTION 'P06_FORENSIC_ROLE_REQUIRED'; END IF;
- IF p_trace_id !~ '^[0-9a-f]{32}$' OR p_reason_code NOT IN('incident_review','export_approved','replay_authorized','configuration_approved') OR p_actor_ref !~ '^[0-9a-f]{64}$' THEN
+ IF p_tenant_id IS NULL OR p_source_event_id IS NULL
+    OR COALESCE(p_scope_kind || ':' || p_scope_id,'') NOT IN('product:affiliate_agent','product:lottery','platform:lottorito')
+    OR p_source_event_ref IS NULL OR length(p_source_event_ref)<>64 OR p_source_event_ref !~ '^[0-9a-f]{64}'
+    OR p_trace_id IS NULL OR length(p_trace_id)<>32 OR p_trace_id !~ '^[0-9a-f]{32}'
+    OR p_reason_code NOT IN('incident_review','export_approved','replay_authorized','configuration_approved')
+    OR p_actor_ref IS NULL OR length(p_actor_ref)<>64 OR p_actor_ref !~ '^[0-9a-f]{64}' THEN
   RAISE EXCEPTION 'P06_FORENSIC_ACCESS_CONTEXT_INVALID';
  END IF;
  INSERT INTO p06.privileged_audit(actor_ref,action,target_ref,reason_code,trace_id,outcome)
- VALUES(p_actor_ref,'telemetry.correlation_map.read',p_trace_id,p_reason_code,p_trace_id,'allowed');
- INSERT INTO p06.forensic_access_sessions(backend_pid,actor_role,trace_id,reason_code)
- VALUES(pg_backend_pid(),session_user,p_trace_id,p_reason_code);
-END $$;
-REVOKE ALL ON FUNCTION p06.record_forensic_access(text,text,text) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION p06.record_forensic_access(text,text,text) TO p06_forensic_reader;
+ VALUES(p_actor_ref,'telemetry.correlation_map.read',
+        p_scope_kind || ':' || p_scope_id || ':' || p_source_event_ref,
+        p_reason_code,p_trace_id,'allowed');
+ INSERT INTO p06.forensic_access_sessions(
+   backend_pid,actor_role,tenant_id,scope_kind,scope_id,source_event_id,trace_id,reason_code
+ )
+ VALUES(pg_backend_pid(),session_user,p_tenant_id,p_scope_kind,p_scope_id,p_source_event_id,p_trace_id,p_reason_code);
+END
+$p06$;
+REVOKE ALL ON FUNCTION p06.record_forensic_access(uuid,text,text,uuid,text,text,text,text) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION p06.record_forensic_access(uuid,text,text,uuid,text,text,text,text) TO p06_forensic_reader;
 GRANT SELECT ON p06.privileged_audit TO p06_forensic_reader;
 
 CREATE VIEW p06.forensic_correlation_map WITH (security_barrier=true) AS
@@ -144,9 +167,13 @@ SELECT m.* FROM p06.correlation_map m
 WHERE EXISTS(
  SELECT 1 FROM p06.forensic_access_sessions s
  WHERE s.backend_pid=pg_backend_pid()
- AND s.actor_role=session_user
- AND s.trace_id=m.trace_id
- AND s.created_at>clock_timestamp()-interval '5 minutes'
+  AND s.actor_role=session_user
+  AND s.tenant_id=m.tenant_id
+  AND s.scope_kind=m.scope_kind
+  AND s.scope_id=m.scope_id
+  AND s.source_event_id=m.source_event_id
+  AND s.trace_id=m.trace_id
+  AND s.created_at>clock_timestamp()-interval '5 minutes'
 );
 GRANT SELECT ON p06.forensic_correlation_map TO p06_forensic_reader;
 

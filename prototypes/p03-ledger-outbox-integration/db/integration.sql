@@ -15,9 +15,6 @@ $roles$;
 ALTER ROLE outbox_owner NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
 ALTER ROLE outbox_executor NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
 
-CREATE UNIQUE INDEX ledger_outbox_tenant_product_event_uidx
-  ON public.ledger_outbox (tenant_id, product_id, event_id);
-
 GRANT USAGE ON SCHEMA public TO outbox_owner, outbox_executor;
 GRANT USAGE ON SCHEMA private TO outbox_executor;
 GRANT EXECUTE ON FUNCTION private.current_tenant_id() TO outbox_executor;
@@ -27,8 +24,8 @@ GRANT CREATE ON SCHEMA private TO outbox_owner, outbox_executor;
 
 CREATE TABLE public.outbox_delivery_state (
   tenant_id uuid NOT NULL,
-  product_id text NOT NULL DEFAULT 'affiliate_agent'
-    CHECK (product_id IN ('affiliate_agent', 'lottery', 'shared')),
+  product_id text NOT NULL
+    CHECK (product_id IN ('affiliate_agent', 'lottery')),
   event_id uuid NOT NULL,
   status text NOT NULL DEFAULT 'pending'
     CHECK (status IN ('pending', 'leased', 'published', 'dead')),
@@ -40,9 +37,7 @@ CREATE TABLE public.outbox_delivery_state (
   lease_until timestamptz,
   published_at timestamptz,
   last_error text CHECK (last_error IS NULL OR length(last_error) <= 1000),
-  PRIMARY KEY (tenant_id, event_id),
-  FOREIGN KEY (tenant_id, event_id)
-    REFERENCES public.ledger_outbox (tenant_id, event_id),
+  PRIMARY KEY (tenant_id, product_id, event_id),
   FOREIGN KEY (tenant_id, product_id, event_id)
     REFERENCES public.ledger_outbox (tenant_id, product_id, event_id),
   CHECK (attempts <= max_attempts),
@@ -59,22 +54,20 @@ CREATE INDEX outbox_delivery_claim_idx
 
 CREATE TABLE public.consumer_inbox (
   tenant_id uuid NOT NULL,
-  product_id text NOT NULL DEFAULT 'affiliate_agent'
-    CHECK (product_id IN ('affiliate_agent', 'lottery', 'shared')),
+  product_id text NOT NULL
+    CHECK (product_id IN ('affiliate_agent', 'lottery')),
   consumer_name text NOT NULL CHECK (consumer_name ~ '^[A-Za-z0-9._:-]{1,80}$'),
   event_id uuid NOT NULL,
   processed_at timestamptz NOT NULL DEFAULT clock_timestamp(),
   PRIMARY KEY (tenant_id, product_id, consumer_name, event_id),
-  FOREIGN KEY (tenant_id, event_id)
-    REFERENCES public.ledger_outbox (tenant_id, event_id),
   FOREIGN KEY (tenant_id, product_id, event_id)
     REFERENCES public.ledger_outbox (tenant_id, product_id, event_id)
 );
 
 CREATE TABLE public.consumer_effects (
   tenant_id uuid NOT NULL,
-  product_id text NOT NULL DEFAULT 'affiliate_agent'
-    CHECK (product_id IN ('affiliate_agent', 'lottery', 'shared')),
+  product_id text NOT NULL
+    CHECK (product_id IN ('affiliate_agent', 'lottery')),
   consumer_name text NOT NULL,
   event_id uuid NOT NULL,
   payload jsonb NOT NULL,
@@ -207,12 +200,12 @@ BEGIN
   UPDATE public.outbox_delivery_state d
      SET status = 'dead', lease_owner = NULL, lease_token = NULL, lease_until = NULL,
          last_error = 'lease expired after maximum attempts'
-   WHERE d.tenant_id = v_tenant AND d.status = 'leased'
+   WHERE d.tenant_id = v_tenant AND d.product_id = v_product AND d.status = 'leased'
      AND d.lease_until <= clock_timestamp() AND d.attempts >= d.max_attempts;
 
   RETURN QUERY
   WITH candidates AS (
-    SELECT d.tenant_id, d.event_id
+    SELECT d.tenant_id, d.product_id, d.event_id
       FROM public.outbox_delivery_state d
      WHERE d.tenant_id = v_tenant
        AND d.product_id = v_product
@@ -234,7 +227,7 @@ BEGIN
            lease_until = clock_timestamp() + make_interval(secs => p_lease_seconds),
            published_at = NULL
       FROM candidates c
-     WHERE d.tenant_id = c.tenant_id AND d.event_id = c.event_id
+     WHERE d.tenant_id = c.tenant_id AND d.product_id = c.product_id AND d.event_id = c.event_id
     RETURNING d.tenant_id, d.product_id, d.event_id, d.attempts, d.lease_token, d.lease_until
   )
   SELECT e.event_id, e.journal_id AS aggregate_id, e.event_type, e.payload,
