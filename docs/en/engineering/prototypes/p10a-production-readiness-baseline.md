@@ -143,8 +143,8 @@ These are candidate controls, not approved production instructions:
 - PostgreSQL CREATE INDEX: CONCURRENTLY avoids locks that prevent writes but requires extra scans/waits and can leave an invalid index after failure: https://www.postgresql.org/docs/current/sql-createindex.html
 - PostgreSQL Transaction Isolation and Explicit Locking: isolation levels, serialization anomalies, lock modes and monitoring must inform concurrency design: https://www.postgresql.org/docs/current/transaction-iso.html and https://www.postgresql.org/docs/current/explicit-locking.html
 - NIST SP 800-207: zero trust removes implicit trust based solely on network location or asset ownership and protects individual resources: https://csrc.nist.gov/pubs/sp/800/207/final
-- Google Cloud Well-Architected recovery testing: evaluate recovery by data integrity, RTO and RPO, and test restoration from loss/corruption scenarios: https://docs.cloud.google.com/architecture/framework/reliability/perform-testing-for-data-loss
-- AWS Prescriptive Guidance, Migration strategy for relational databases: prepare, plan, migrate, test, cut over and operate; incremental migration and workload qualification are explicit strategy choices: https://docs.aws.amazon.com/prescriptive-guidance/latest/strategy-database-migration/welcome.html
+- Google Cloud Well-Architected recovery testing: evaluate recovery by data integrity, RTO and RPO, and test restoration from loss/corruption scenarios: https://docs.cloud.google.com/architecture/framework/reliability/perform-testing-for-recovery-from-failures
+- AWS Prescriptive Guidance, Migration strategy for relational databases: prepare, plan, migrate, test, cut over and operate; incremental migration and workload qualification are explicit strategy choices: https://docs.aws.amazon.com/pdfs/prescriptive-guidance/latest/strategy-database-migration/strategy-database-migration.pdf
 
 Research informs the candidate controls; it does not select a vendor or replace Lottorito-specific workload, security, finance, legal and owner review.
 
