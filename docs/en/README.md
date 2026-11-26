@@ -1,6 +1,6 @@
 # Lottorito — English Documentation
 
-**Document ID:** LOT-DOC-INDEX-EN-001 | **Version:** 3.0.0 | **Status:** Maintained index
+**Document ID:** LOT-DOC-INDEX-EN-001 | **Version:** 3.1.0 | **Status:** Maintained index
 
 This directory is the authoritative English documentation space for Lottorito. The Persian documentation under docs/fa/ is equally authoritative.
 
@@ -81,6 +81,7 @@ LOT-FIN-POST-001 defines proposed financial posting and reconciliation controls;
 | Engineering | [P-10A production-readiness baseline](engineering/prototypes/p10a-production-readiness-baseline.md) | LOT-PROT-P10A-001; verified PR ancestry, exact-head CI, synthetic limitations and P-10B–P-10F migration/operations gates |
 | Engineering | [P-10B read-only source inventory protocol](engineering/prototypes/p10b-read-only-source-inventory.md) | LOT-PROT-P10B-001; scoped read-only authorization, PostgreSQL metadata-only query template, lineage and ambiguity register; no source access executed |
 | Engineering | [P-10C staged migration architecture](engineering/prototypes/p10c-migration-architecture.md) | LOT-PROT-P10C-001; source-neutral migration patterns, single-writer coexistence, resumable/idempotent backfill, financial reconciliation, cutover fencing and state-dependent recovery; no source/target selected or migration authorized |
+| Engineering | [P-10D security and governance architecture](engineering/prototypes/p10d-security-governance-architecture.md) | LOT-PROT-P10D-001; Zero Trust, scoped authorization, end-to-end tenant isolation, RLS/runtime-role controls, workload identity, secrets/key lifecycle, audit, privacy and security verification; design only, no deployed controls assessed |
 | Engineering | [Project status](engineering/project-status.md) | Verified state and continuation point |
 | Engineering | [Roadmap](engineering/roadmap.md) | Proposed delivery sequence and gates |
 
