@@ -98,3 +98,7 @@ The product-qualified Inbox also enforces one event per `(tenant, product, consu
 ## P-09K exact-head recovery validation (2026-11-26)
 
 [Workflow 45863298629](https://github.com/tecpey/lottorito-platform/actions/runs/45863298629) passed on exact head `75fd23701d4e28f047f8ebb73ea0b684bb144c7a`: `P05A_RESULT=PASS`, `P09E_RESULT=PASS`, `P05B_OBJECT_KEY_RESULT=PASS`, `P05B_EVENT_RESULT=PASS`, `P05B_RESULT=PASS`, and `P05A_NEGATIVE_RESULT=PASS`. This is synthetic physical-restore and recovery evidence, not production recovery/KMS/HSM certification.
+
+## Final P-09L recovery validation (2026-11-26)
+
+On exact code head `7cb0598a163f40e53a4412a44b476b0404685b75`, [workflow 45864973907](https://github.com/tecpey/lottorito-platform/actions/runs/45864973907) passed all recovery markers: `P05A_RESULT`, `P09E_RESULT`, `P05B_OBJECT_KEY_RESULT`, `P05B_EVENT_RESULT`, `P05B_RESULT`, and `P05A_NEGATIVE_RESULT`. [P-05C workflow 45864973943](https://github.com/tecpey/lottorito-platform/actions/runs/45864973943) also reported `P05C_RESULT=PASS`. Synthetic evidence only; no production recovery/KMS/HSM certification.

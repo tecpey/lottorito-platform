@@ -98,3 +98,7 @@ Inbox محصول‌محور همچنین یکتایی هر رویداد را د�
 ## اعتبارسنجی بازیابی P-09K روی Head دقیق (۲۰۲۶-۱۱-۲۶)
 
 [Workflow شماره 45863298629](https://github.com/tecpey/lottorito-platform/actions/runs/45863298629) روی Head دقیق `75fd23701d4e28f047f8ebb73ea0b684bb144c7a` موفق شد: `P05A_RESULT=PASS`، `P09E_RESULT=PASS`، `P05B_OBJECT_KEY_RESULT=PASS`، `P05B_EVENT_RESULT=PASS`، `P05B_RESULT=PASS` و `P05A_NEGATIVE_RESULT=PASS`. این شواهد مربوط به Restore فیزیکی و بازیابی ساختگی است و گواهی Production یا تأیید KMS/HSM محسوب نمی‌شود.
+
+## اعتبارسنجی نهایی بازیابی P-09L (۲۰۲۶-۱۱-۲۶)
+
+روی Head دقیق کد `7cb0598a163f40e53a4412a44b476b0404685b75`، [Workflow شماره 45864973907](https://github.com/tecpey/lottorito-platform/actions/runs/45864973907) تمام Markerهای بازیابی را با موفقیت گذراند: `P05A_RESULT`، `P09E_RESULT`، `P05B_OBJECT_KEY_RESULT`، `P05B_EVENT_RESULT`، `P05B_RESULT` و `P05A_NEGATIVE_RESULT`. [Workflow مربوط به P-05C با شماره 45864973943](https://github.com/tecpey/lottorito-platform/actions/runs/45864973943) نیز `P05C_RESULT=PASS` را ثبت کرد. این‌ها صرفاً شواهد ساختگی‌اند و گواهی Production یا KMS/HSM نیستند.

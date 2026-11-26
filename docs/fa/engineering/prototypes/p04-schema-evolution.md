@@ -57,3 +57,7 @@ Zero Downtime، رفتار Lock/Backfill در مقیاس Production، CDC، جد
 **اعتبارسنجی:** [Workflow مربوط به P-04 با شماره 45864404159](https://github.com/tecpey/lottorito-platform/actions/runs/45864404159) — هر ۸ از ۸ تست روی Commit برابر `6528003dd867bb19a289fab0bdf0943a537ecd7d` موفق شد. این همچنان آزمایش Migration دورریختنی PostgreSQL 18.7 است و مجوز اجرای DDL در Production محسوب نمی‌شود.
 
 مبنای پژوهش: [توابع Advisory Lock در PostgreSQL 18](https://www.postgresql.org/docs/18/functions-admin.html)، [قفل‌گذاری صریح](https://www.postgresql.org/docs/18/explicit-locking.html) و [رفتار شکست/بازیابی CREATE INDEX CONCURRENTLY](https://www.postgresql.org/docs/18/sql-createindex.html). مستندات PostgreSQL نشان می‌دهند ساخت Concurrent ناموفق می‌تواند ایندکس نامعتبر باقی بگذارد و انتظار Session-level Advisory Lock نیز Snapshot نشست منتظر را نگه می‌دارد؛ بنابراین در مسیر بازیابی از Try-lock غیرمسدودکننده استفاده می‌کنیم.
+
+## به‌روزرسانی نهایی اعتبارسنجی P-09L (۲۰۲۶-۱۱-۲۶)
+
+پیاده‌سازی اصلاح‌شده Try-lock غیرمسدودکننده در [Workflow شماره 45864974941](https://github.com/tecpey/lottorito-platform/actions/runs/45864974941) با موفقیت ۸ از ۸ تست و بدون خطا روی Head دقیق کد `7cb0598a163f40e53a4412a44b476b0404685b75` اجرا شد. مجموعه تست اکنون Regression مربوط به Deadlock، همگرایی Repair هم‌زمان، رد Drift در تعریف Index معتبر و اعتبارسنجی نهایی Catalog را پوشش می‌دهد.

@@ -57,3 +57,7 @@ The recovery routine checks both `pg_index.indisvalid` and `indisready`, then ve
 **Validation:** [P-04 workflow 45864404159](https://github.com/tecpey/lottorito-platform/actions/runs/45864404159) — 8/8 tests passed on commit `6528003dd867bb19a289fab0bdf0943a537ecd7d`. This remains a disposable PostgreSQL 18.7 migration experiment, not production DDL approval.
 
 Research basis: [PostgreSQL 18 advisory lock functions](https://www.postgresql.org/docs/18/functions-admin.html), [explicit locking](https://www.postgresql.org/docs/18/explicit-locking.html), and [CREATE INDEX CONCURRENTLY failure/recovery behavior](https://www.postgresql.org/docs/18/sql-createindex.html). PostgreSQL documents that a failed concurrent build can leave an invalid index, while session-level advisory lock waiters can retain snapshots; therefore the recovery contender uses try-lock rather than waiting.
+
+## Final P-09L validation update (2026-11-26)
+
+The corrected nonblocking advisory try-lock implementation passed [P-04 workflow 45864974941](https://github.com/tecpey/lottorito-platform/actions/runs/45864974941): 8/8 tests, zero failures, on exact code head `7cb0598a163f40e53a4412a44b476b0404685b75`. The test suite now covers the deadlock regression, concurrent repair convergence, valid-index definition drift rejection, and final catalog verification.
