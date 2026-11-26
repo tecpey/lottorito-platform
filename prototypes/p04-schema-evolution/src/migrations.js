@@ -26,20 +26,22 @@ export async function recoverConcurrentIndex(pool){
  const expected="CREATE INDEX p04_events_tenant_created_idx ON public.partner_events USING btree (tenant_id, product_id, created_at, event_id)";
  const c=await pool.connect();let locked=false,destroy=false;
  try{
-  await c.query("SELECT pg_advisory_lock(hashtextextended($1,0))",[name]);locked=true;
+  const lock=await c.query("SELECT pg_try_advisory_lock(hashtextextended($1,0)) AS acquired",[name]);
+  if(!lock.rows[0].acquired)return "busy";
+  locked=true;
   const r=await c.query("SELECT i.indisvalid,i.indisready,pg_get_indexdef(i.indexrelid) AS definition FROM pg_class c JOIN pg_index i ON i.indexrelid=c.oid WHERE c.oid=to_regclass($1)",[name]);
   if(r.rowCount&&r.rows[0].indisvalid&&r.rows[0].indisready){
    if(r.rows[0].definition!==expected)throw new Error("concurrent index definition mismatch");
-   return false;
+   return "valid";
   }
   if(r.rowCount)await c.query("DROP INDEX CONCURRENTLY public.p04_events_tenant_created_idx");
   await c.query("CREATE INDEX CONCURRENTLY p04_events_tenant_created_idx ON public.partner_events(tenant_id,product_id,created_at,event_id)");
   const verified=await c.query("SELECT i.indisvalid,i.indisready,pg_get_indexdef(i.indexrelid) AS definition FROM pg_class c JOIN pg_index i ON i.indexrelid=c.oid WHERE c.oid=to_regclass($1)",[name]);
   if(verified.rowCount!==1||!verified.rows[0].indisvalid||!verified.rows[0].indisready||verified.rows[0].definition!==expected)throw new Error("concurrent index recovery verification failed");
-  return true;
+  return "repaired";
  }catch(error){destroy=true;throw error;}
  finally{
-  if(locked){try{await c.query("SELECT pg_advisory_unlock(hashtextextended($1,0))",[name]);}catch{destroy=true;}}
+  if(locked){try{const released=await c.query("SELECT pg_advisory_unlock(hashtextextended($1,0)) AS released",[name]);if(!released.rows[0].released)destroy=true;}catch{destroy=true;}}
   c.release(destroy);
  }
 }

@@ -63,19 +63,21 @@ test("lock timeout aborts blocked DDL without partial schema change",async()=>{
  assert.equal((await admin.query("SELECT 1 FROM information_schema.columns WHERE table_name='partner_events' AND column_name='lock_probe'")).rowCount,0);
  }finally{await lock.query("ROLLBACK");await ddl.query("RESET lock_timeout");lock.release();ddl.release();}
 });
-test("failed concurrent index recovery is serialized and valid definition drift fails closed",async()=>{
+test("concurrent index recovery uses nonblocking serialization and rejects valid definition drift",async()=>{
  await assert.rejects(admin.query("CREATE UNIQUE INDEX CONCURRENTLY p04_events_tenant_created_idx ON partner_events(event_type)"));
  const invalid=await admin.query("SELECT i.indisvalid FROM pg_class c JOIN pg_index i ON i.indexrelid=c.oid WHERE c.oid=to_regclass('public.p04_events_tenant_created_idx')");
  assert.equal(invalid.rowCount,1);assert.equal(invalid.rows[0].indisvalid,false);
  const concurrent=await Promise.all([recoverConcurrentIndex(admin),recoverConcurrentIndex(admin)]);
- assert.deepEqual(concurrent.sort(),[false,true]);
+ assert.equal(concurrent.filter(x=>x==="repaired").length,1);
+ assert.equal(concurrent.filter(x=>x==="busy"||x==="valid").length,1);
  const valid=await admin.query("SELECT i.indisvalid,i.indisready,pg_get_indexdef(i.indexrelid) AS definition FROM pg_class c JOIN pg_index i ON i.indexrelid=c.oid WHERE c.oid=to_regclass('public.p04_events_tenant_created_idx')");
  assert.equal(valid.rowCount,1);assert.equal(valid.rows[0].indisvalid,true);assert.equal(valid.rows[0].indisready,true);
+ assert.equal(await recoverConcurrentIndex(admin),"valid");
  await admin.query("DROP INDEX CONCURRENTLY public.p04_events_tenant_created_idx");
  await admin.query("CREATE INDEX p04_events_tenant_created_idx ON public.partner_events(event_type)");
  await assert.rejects(recoverConcurrentIndex(admin),/index definition mismatch/);
  await admin.query("DROP INDEX public.p04_events_tenant_created_idx");
- assert.equal(await recoverConcurrentIndex(admin),true);
+ assert.equal(await recoverConcurrentIndex(admin),"repaired");
 });
 test("ledger/reporting remain unchanged and contract rehearsal is non-destructive",async()=>{
  const r=await admin.query("SELECT count(*)::int j,(SELECT count(*)::int FROM ledger_lines) l,(SELECT sum(amount_minor)::text FROM ledger_lines WHERE side='debit') d,(SELECT sum(amount_minor)::text FROM ledger_lines WHERE side='credit') c FROM ledger_journals");
