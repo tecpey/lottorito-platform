@@ -1,6 +1,14 @@
 # Verified Project Status and Continuation Point
 
-**Document ID:** LOT-OPS-001 | **Version:** 1.52.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-26
+**Document ID:** LOT-OPS-001 | **Version:** 1.53.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-26
+
+## Current continuation — P-10C migration architecture framework (2026-11-26)
+
+- P-10A baseline remains in PR #69 and P-10B read-only inventory protocol remains in PR #70; both are Open/Draft/unmerged. P-10B is still a protocol only: no source endpoint or database was accessed, and no inventory execution is claimed.
+- P-10C is added in this branch as a bilingual, source-neutral migration architecture framework. It defines candidate migration patterns, single-writer coexistence, expand/backfill/validate/cutover/contract, idempotent resumable backfill, financial reconciliation, fencing, state-dependent rollback/forward-fix, security controls and source-specific approval gates.
+- No source/target technology, production schema, RPO/RTO, volume, downtime target, dual-write, CDC implementation or accounting policy is selected. No production access, DDL/DML, backfill, replication, merge or deployment was performed.
+- P-10C does not remove the P-10B execution gate. A named environment and explicit owner-approved scoped read-only authorization are still required before inventory execution. A source-specific migration plan remains blocked until P-10B evidence and owner adjudication exist.
+
 
 ## Verified repository state
 

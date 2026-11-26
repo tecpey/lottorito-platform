@@ -1,6 +1,6 @@
 # مستندات فارسی Lottorito
 
-**شناسه سند:** LOT-DOC-INDEX-FA-001 | **نسخه:** ۲.۹.۰ | **وضعیت:** فهرست مرجع و در حال نگهداری
+**شناسه سند:** LOT-DOC-INDEX-FA-001 | **نسخه:** ۳.۰.۰ | **وضعیت:** فهرست مرجع و در حال نگهداری
 
 این پوشه مرجع رسمی مستندات فارسی Lottorito است. مستندات انگلیسی در docs/en/ نیز به همان اندازه معتبرند.
 
@@ -80,6 +80,7 @@ LOT-FIN-POST-001 کنترل‌های پیشنهادی ثبت مالی و تطب�
 | مهندسی | [دفتر ثبت تصمیم‌ها](engineering/decision-register.md) | دستور مالک، پیشنهاد و تصمیم باز |
 | مهندسی | [خط مبنای آمادگی Production در P-10A](engineering/prototypes/p10a-production-readiness-baseline.md) | LOT-PROT-P10A-001؛ Ancestry راستی‌آزمایی‌شده PR، CI روی Head دقیق، محدودیت شواهد ساختگی و Gateهای مهاجرت/عملیات P-10B تا P-10F |
 | مهندسی | [پروتکل Inventory فقط‌خواندنی منابع در P-10B](engineering/prototypes/p10b-read-only-source-inventory.md) | LOT-PROT-P10B-001؛ مجوز Read-only محدود، قالب Query فقط Metadata در PostgreSQL، Lineage و Ambiguity Register؛ بدون اجرای دسترسی به منبع |
+| مهندسی | [معماری مهاجرت مرحله‌ای در P-10C](engineering/prototypes/p10c-migration-architecture.md) | LOT-PROT-P10C-001؛ الگوهای مهاجرت مستقل از منبع، همزیستی با Writer یکتا، Backfill قابل‌ادامه و Idempotent، تطبیق مالی، Fencing در Cutover و بازیابی وابسته به وضعیت؛ بدون انتخاب مبدأ/مقصد یا مجوز Migration |
 | مهندسی | [وضعیت پروژه](engineering/project-status.md) | وضعیت تأییدشده و نقطه ادامه |
 | مهندسی | [نقشه راه](engineering/roadmap.md) | توالی پیشنهادی و دروازه‌های تحویل |
 
