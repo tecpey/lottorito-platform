@@ -198,4 +198,22 @@ Assertionهای دقیق P-05B شامل رد Sequence تکراری در Aggregat
 
 در P-02 اکنون تمام Primary/Unique Keyهای مالی و تمام رابطه‌های Foreign Key مالی از الگوی `(tenant_id, product_id, ...)` استفاده می‌کنند. وضعیت تحویل P-03C و Consumer Inbox به Outbox تغییرناپذیر P-02 با کلید `(tenant_id, product_id, event_id)` ارجاع می‌دهند؛ عملیات Claim/Update/Expiry نیز بُعد محصول را حفظ می‌کنند. رکوردهای Provider Inbox، Conflict و Expectation در P-03D فقط شناسه‌های محصول Canonical را می‌پذیرند و ارجاع Journal آن‌ها محصول‌محور است. UUID حساب‌ها عمداً بین Affiliate & Agent و Lottery برای یک Tenant دوباره استفاده می‌شوند و دسترسی صرفاً با هویت محصول نشست دیتابیس Resolve می‌شود. بازیابی و Replay فیزیکی P-09E نیز از همین شناسه‌ها استفاده می‌کند تا بقای مرز مرکب محصول پس از Backup و Restore را بررسی کند.
 
-اولین چرخه CI مربوط به P-09K وابستگی‌هایی را آشکار کرد که هنوز به UUIDهای حساب متفاوت برای هر محصول و کلید Event صرفاً Tenantمحور متکی بودند. این موارد در مرزهای P-03C/P-03D/P-09E اصلاح شدند. CI روی Head دقیق همچنان در انتظار است. این تغییر هیچ Migration مربوط به Production را مجاز یا مفروض نمی‌کند؛ داده‌های Legacy همچنان نیازمند Inventory، تحلیل برخورد شناسه و طرح Migration مرحله‌ایِ تأییدشده هستند.
+اولین چرخه CI مربوط به P-09K وابستگی‌هایی را آشکار کرد که هنوز به UUIDهای حساب متفاوت برای هر محصول و کلید Event صرفاً Tenantمحور متکی بودند. این موارد در مرزهای P-03C/P-03D/P-09E اصلاح شدند. CI روی Head دقیق در ۲۰۲۶-۱۱-۲۶ موفق شد؛ جدول شواهد ۹ اجرا در ادامه آمده است. این تغییر هیچ Migration مربوط به Production را مجاز یا مفروض نمی‌کند؛ داده‌های Legacy همچنان نیازمند Inventory، تحلیل برخورد شناسه و طرح Migration مرحله‌ایِ تأییدشده هستند.
+
+### اعتبارسنجی P-09K روی Head دقیق (۲۰۲۶-۱۱-۲۶)
+
+هر ۹ گردش‌کار قابل‌اعمال روی Head کد `75148b41220bb26adf0e8c01e05860a8fd83d7fa` موفق شدند:
+
+| گردش‌کار | اجرا | نتیجه |
+|---|---:|---|
+| P-02 Ledger Posting | [45862006791](https://github.com/tecpey/lottorito-platform/actions/runs/45862006791) | موفق — ۲۷ از ۲۷ |
+| یکپارچه‌سازی Ledger/Provider در P-03C/P-03D | [45862006903](https://github.com/tecpey/lottorito-platform/actions/runs/45862006903) | موفق — ۱۶ از ۱۶ + ۳۵ از ۳۵ |
+| بازیابی Backup/Object/Key/Event در P-05 | [45862006811](https://github.com/tecpey/lottorito-platform/actions/runs/45862006811) | موفق — P-09E، P-05B و P-05A |
+| Failover/Fencing/Failback در P-05C | [45862006891](https://github.com/tecpey/lottorito-platform/actions/runs/45862006891) | موفق |
+| Observability/Privacy در P-06 | [45862006805](https://github.com/tecpey/lottorito-platform/actions/runs/45862006805) | موفق |
+| Trust Boundaries در P-07B | [45862006830](https://github.com/tecpey/lottorito-platform/actions/runs/45862006830) | موفق |
+| Deployment Health/Rollback در P-08 | [45862006895](https://github.com/tecpey/lottorito-platform/actions/runs/45862006895) | موفق |
+| Contract Baseline در P-09 | [45862006822](https://github.com/tecpey/lottorito-platform/actions/runs/45862006822) | موفق — ۲۰ از ۲۰ |
+| Documentation Governance | [45862006823](https://github.com/tecpey/lottorito-platform/actions/runs/45862006823) | موفق — ۵۸ جفت دوزبانه، ۱۳۶ لینک محلی |
+
+پذیرش P-09K صرفاً ساختگی است. هیچ Migration مربوط به Production، Merge یا Deploy مجاز یا انجام نشده است.

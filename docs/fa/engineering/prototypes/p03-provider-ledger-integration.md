@@ -133,3 +133,5 @@ Runner تست P-03D اکنون مجموعه تست مستقیم انطباق Nod
 ## P-09K — ارجاع حساب و Outbox با Scope محصول (۲۰۲۶-۱۱-۲۶)
 
 در P-03D عمداً همان UUID حساب‌ها برای همان Tenant در Affiliate & Agent و Lottery دوباره استفاده می‌شود. کلید مرکب P-02 یعنی `(tenant_id, product_id, account_id)` این شناسه‌ها را مستقل نگه می‌دارد؛ تابع Posting و Foreign Keyهای حساب نیز Scope محصول را در تمام مسیر حفظ می‌کنند. Integration مربوط به Provider در Lottery باید با همین شناسه‌های تکرارشده با موفقیت Posting کند، بدون آنکه ردیف‌های حساب Affiliate را ببیند یا تغییر دهد. P-03D همچنین Unique Index تکراری Journal را که Primary Key مرکب P-02 از قبل تضمین می‌کند حذف کرده و مقدار Legacy یعنی `shared` را در وضعیت Inbox/Conflict/Expectation مربوط به Provider رد می‌کند. CI روی Head دقیق در انتظار اعتبارسنجی است.
+
+**شواهد CI مربوط به P-09K:** [اجرای 45862006903](https://github.com/tecpey/lottorito-platform/actions/runs/45862006903) — موفق؛ P-03C برابر ۱۶ از ۱۶ و P-03D برابر ۳۵ از ۳۵ تست Integration. Posting مربوط به Lottery با استفاده عمدی از همان UUID حساب‌های Affiliate و در عین حال با هویت محصولی مستقل با موفقیت انجام می‌شود. Head دقیق کد: `75148b41220bb26adf0e8c01e05860a8fd83d7fa`.

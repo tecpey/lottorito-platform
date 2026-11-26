@@ -199,3 +199,21 @@ These results establish synthetic prototype acceptance only. P-02 tenant-only fi
 P-02 now uses `(tenant_id, product_id, ...)` for every financial primary/unique key and every financial foreign-key relationship. P-03C delivery state and consumer inbox now reference the immutable P-02 outbox with `(tenant_id, product_id, event_id)`; claim/update/expiry operations preserve the product dimension. P-03D provider inbox, conflict and expectation records accept canonical product IDs only and retain product-qualified journal references. The same account UUIDs are deliberately reused by Affiliate & Agent and Lottery, with access resolved exclusively by database session product identity. P-09E physical recovery/replay uses those same identifiers to verify that the composite product boundary survives backup and restore.
 
 The first P-09K CI cycle exposed dependent fixtures that still assumed product-specific account UUIDs and a tenant-only outbox event key. Those were corrected at P-03C/P-03D/P-09E boundaries. Exact-head CI remains pending. No production migration is implied; legacy data still requires inventory, collision analysis, and an approved staged migration plan.
+
+### P-09K exact-head validation (2026-11-26)
+
+All nine applicable workflows passed on source head `75148b41220bb26adf0e8c01e05860a8fd83d7fa`:
+
+| Workflow | Run | Result |
+|---|---:|---|
+| P-02 Ledger Posting | [45862006791](https://github.com/tecpey/lottorito-platform/actions/runs/45862006791) | PASS — 27/27 |
+| P-03C/P-03D Ledger and Provider Integration | [45862006903](https://github.com/tecpey/lottorito-platform/actions/runs/45862006903) | PASS — 16/16 + 35/35 |
+| P-05 Backup Restore, Object, Key and Event Recovery | [45862006811](https://github.com/tecpey/lottorito-platform/actions/runs/45862006811) | PASS — P-09E, P-05B and P-05A |
+| P-05C Failover/Fencing/Failback | [45862006891](https://github.com/tecpey/lottorito-platform/actions/runs/45862006891) | PASS |
+| P-06 Observability/Privacy | [45862006805](https://github.com/tecpey/lottorito-platform/actions/runs/45862006805) | PASS |
+| P-07B Trust Boundaries | [45862006830](https://github.com/tecpey/lottorito-platform/actions/runs/45862006830) | PASS |
+| P-08 Deployment Health/Rollback | [45862006895](https://github.com/tecpey/lottorito-platform/actions/runs/45862006895) | PASS |
+| P-09 Contract Baseline | [45862006822](https://github.com/tecpey/lottorito-platform/actions/runs/45862006822) | PASS — 20/20 |
+| Documentation Governance | [45862006823](https://github.com/tecpey/lottorito-platform/actions/runs/45862006823) | PASS — 58 bilingual pairs, 136 local links |
+
+P-09K is synthetic acceptance only. No production migration, merge or deployment is approved.

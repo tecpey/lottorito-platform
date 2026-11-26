@@ -133,3 +133,5 @@ The P-03D test runner also includes a direct Node.js conformance suite for the s
 ## P-09K — Product-qualified account and outbox references (2026-11-26)
 
 P-03D deliberately reuses the same account UUIDs for the same tenant in Affiliate & Agent and Lottery. P-02's composite key `(tenant_id, product_id, account_id)` keeps these identifiers independent; posting and account foreign keys preserve product scope end to end. The Lottery provider integration must post with those reused identifiers without seeing or mutating Affiliate account rows. P-03D removes a redundant journal unique index already guaranteed by P-02's composite primary key and rejects legacy `shared` product tokens in provider inbox/conflict/expectation state. CI is pending exact-head validation.
+
+**P-09K CI evidence:** [Run 45862006903](https://github.com/tecpey/lottorito-platform/actions/runs/45862006903) — PASS; P-03C 16/16 and P-03D 35/35 integration tests. Lottery provider posting passes while intentionally reusing the same account UUIDs as Affiliate under a distinct product identity. Exact source head: `75148b41220bb26adf0e8c01e05860a8fd83d7fa`.

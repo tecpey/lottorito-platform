@@ -107,3 +107,5 @@ Helper بازیابی P-05E اکنون پیش از فراخوانی Journal Post
 ## P-09K — هویت مالی محصول‌محور در بازیابی فیزیکی (۲۰۲۶-۱۱-۲۶)
 
 Fixture مربوط به Replay در P-09E اکنون همان UUID حساب‌ها را برای یک Tenant در Affiliate & Agent و Lottery دوباره استفاده می‌کند؛ این با Primary/Foreign Keyهای محصول‌محور P-02 هم‌راستا است. Replay باید هر حساب را فقط در Scope محصولی که نشست دیتابیس با آن احراز هویت شده Resolve کند. بنابراین تست Backup/Restore فیزیکی، هویت مرکب را واقعاً آزمایش می‌کند و دیگر به UUIDهای متفاوت برای پنهان‌کردن نبود بُعد محصول متکی نیست. این Fixture همچنان ساختگی و دورریختنی است.
+
+**شواهد CI مربوط به P-09K:** [اجرای 45862006811](https://github.com/tecpey/lottorito-platform/actions/runs/45862006811) — موفق. Physical Backup، pg_verifybackup، Restore، Replay بین‌محصولی P-09E، بازیابی Object/Key/Event در P-05B و Drillهای منفی P-05A همگی موفق شدند. Head دقیق کد: `75148b41220bb26adf0e8c01e05860a8fd83d7fa`.

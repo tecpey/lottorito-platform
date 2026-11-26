@@ -106,3 +106,5 @@ P-09H adds a negative replay case that tampers with the restored event's product
 ## P-09K — Product-qualified financial identity in physical recovery (2026-11-26)
 
 The P-09E replay fixture now reuses the same account UUIDs for the same tenant across Affiliate & Agent and Lottery, matching P-02's product-qualified account primary/foreign keys. Replay must resolve each account only in the authenticated product scope. The physical backup/restore test therefore exercises the composite identity rather than relying on different UUIDs to hide a missing product dimension. The fixture remains synthetic and disposable.
+
+**P-09K CI evidence:** [Run 45862006811](https://github.com/tecpey/lottorito-platform/actions/runs/45862006811) — PASS. Physical backup, pg_verifybackup, restore, P-09E cross-product replay, P-05B object/key/event recovery and P-05A negative drills all passed. Exact source head: `75148b41220bb26adf0e8c01e05860a8fd83d7fa`.
