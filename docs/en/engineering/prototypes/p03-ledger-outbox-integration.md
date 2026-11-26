@@ -104,3 +104,7 @@ The P-03C disposable integration now opens a distinct Lottery runtime session fo
 ## P-09K exact-head validation update (2026-11-26)
 
 P-03C delivery-state and consumer-inbox references now use the complete `(tenant_id, product_id, event_id)` tuple matching P-02. [Workflow 45863298594](https://github.com/tecpey/lottorito-platform/actions/runs/45863298594) passed 16/16 PostgreSQL 18.7 integration tests on exact head `75fd23701d4e28f047f8ebb73ea0b684bb144c7a`. The earlier failed run exposed a genuine compatibility regression (legacy tenant+event FK); it is not counted as passing evidence. The corrected run supersedes it.
+
+## Final P-09L exact-head validation (2026-11-26)
+
+P-03C passed 16/16 tests on exact code head `7cb0598a163f40e53a4412a44b476b0404685b75`: [workflow 45864973911](https://github.com/tecpey/lottorito-platform/actions/runs/45864973911). The delivery-state and consumer-inbox foreign keys use the complete tenant+product+event tuple; the earlier tenant-only reference regression remains documented and was corrected before this passing run.

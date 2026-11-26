@@ -93,3 +93,7 @@ Schema دورریختنی P-02 اکنون فقط شناسه‌های Canonical �
 ## اعتبارسنجی P-09K روی Head دقیق (۲۰۲۶-۱۱-۲۶)
 
 پیاده‌سازی نهایی کلیدهای مالی محصول‌محور P-02 روی Commit برابر `75fd23701d4e28f047f8ebb73ea0b684bb144c7a` موفق شد: [Workflow شماره 45863298568](https://github.com/tecpey/lottorito-platform/actions/runs/45863298568)، شامل ۲۷ از ۲۷ تست Integration با Node.js 26 و PostgreSQL 18.7. این تست‌ها استفاده مجدد از شناسه حساب، رویداد مبدأ، اثر اقتصادی و Idempotency در یک Tenant را میان Affiliate & Agent و Lottery پوشش می‌دهند. برای پذیرش قرارداد بین Prototypeها، شواهد وابسته P-03 و P-05 نیز باید بررسی شوند.
+
+## بازاعتبارسنجی نهایی بین‌Prototype در P-09L (۲۰۲۶-۱۱-۲۶)
+
+پیاده‌سازی کلیدهای مالی محصول‌محور P-02 روی Head دقیق کد `7cb0598a163f40e53a4412a44b476b0404685b75` مجدداً اعتبارسنجی شد: [Workflow شماره 45864973900](https://github.com/tecpey/lottorito-platform/actions/runs/45864973900)، هر ۲۷ تست موفق و بدون خطا. این Head شامل اصلاح بازیابی غیرمسدودکننده Index در P-04 و همگام‌سازی مستندات قرارداد P-09L است.

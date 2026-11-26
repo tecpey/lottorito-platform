@@ -93,3 +93,7 @@ A new integration test reuses the same tenant, account UUIDs, source-event UUID,
 ## P-09K exact-head validation (2026-11-26)
 
 The final product-qualified financial-key implementation passed on commit `75fd23701d4e28f047f8ebb73ea0b684bb144c7a`: [workflow 45863298568](https://github.com/tecpey/lottorito-platform/actions/runs/45863298568), 27/27 Node.js 26 + PostgreSQL 18.7 integration tests. This covers same-tenant reuse of account, source-event, effect and idempotency identifiers across Affiliate & Agent and Lottery. Dependent P-03/P-05 evidence is required for cross-prototype acceptance.
+
+## Final P-09L cross-prototype revalidation (2026-11-26)
+
+The P-02 product-qualified financial-key implementation was revalidated on exact code head `7cb0598a163f40e53a4412a44b476b0404685b75`: [workflow 45864973900](https://github.com/tecpey/lottorito-platform/actions/runs/45864973900), 27/27 tests passed, zero failures. This head includes the P-04 nonblocking index-recovery correction and the synchronized P-09L contract documentation.

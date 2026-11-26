@@ -139,3 +139,7 @@ P-03D deliberately reuses the same account UUIDs for the same tenant in Affiliat
 ## P-09K exact-head validation update (2026-11-26)
 
 The product-qualified P-02 account, journal and outbox keys were validated through P-03D provider ingress and posting. [Workflow 45863298594](https://github.com/tecpey/lottorito-platform/actions/runs/45863298594) passed all 35/35 PostgreSQL 18.7/Node.js integration tests on exact head `75fd23701d4e28f047f8ebb73ea0b684bb144c7a`, including reuse of account UUIDs across Affiliate and Lottery without cross-product reads or writes.
+
+## Final P-09L exact-head validation (2026-11-26)
+
+P-03D provider ingress and ledger posting passed 35/35 tests on exact code head `7cb0598a163f40e53a4412a44b476b0404685b75`: [workflow 45864973911](https://github.com/tecpey/lottorito-platform/actions/runs/45864973911). The run includes cross-product reuse of account UUIDs while keeping journal/account references and provider inbox state product-qualified.

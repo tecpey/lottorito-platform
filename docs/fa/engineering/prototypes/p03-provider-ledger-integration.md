@@ -139,3 +139,7 @@ Runner تست P-03D اکنون مجموعه تست مستقیم انطباق Nod
 ## به‌روزرسانی اعتبارسنجی P-09K روی Head دقیق (۲۰۲۶-۱۱-۲۶)
 
 کلیدهای محصول‌محور حساب، Journal و Outbox در P-02 از مسیر Ingress و Posting مربوط به Provider در P-03D نیز اعتبارسنجی شدند. [Workflow شماره 45863298594](https://github.com/tecpey/lottorito-platform/actions/runs/45863298594) روی Head دقیق `75fd23701d4e28f047f8ebb73ea0b684bb144c7a` تمام ۳۵ از ۳۵ تست Integration با PostgreSQL 18.7 و Node.js را گذراند؛ از جمله استفاده مجدد UUID حساب‌ها بین Affiliate و Lottery بدون خواندن یا نوشتن بین‌محصولی.
+
+## اعتبارسنجی نهایی P-09L روی Head دقیق (۲۰۲۶-۱۱-۲۶)
+
+Ingress و Posting مربوط به Provider در P-03D روی Head دقیق کد `7cb0598a163f40e53a4412a44b476b0404685b75` با موفقیت ۳۵ از ۳۵ تست را گذراند: [Workflow شماره 45864973911](https://github.com/tecpey/lottorito-platform/actions/runs/45864973911). این اجرا استفاده مجدد UUID حساب‌ها بین محصولات را در حالی پوشش می‌دهد که ارجاع‌های Journal/Account و وضعیت Provider Inbox همچنان محصول‌محور باقی می‌مانند.
