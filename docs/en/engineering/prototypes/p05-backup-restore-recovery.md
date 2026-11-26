@@ -102,3 +102,7 @@ The P-05E recovery helper now verifies the persisted canonical event against the
 
 
 P-09H adds a negative replay case that tampers with the restored event's product scope, requires the replay helper to fail closed, verifies the claim transaction rolls back to `accepted`, and confirms no financial effect was created. The corrected run completed successfully on final code-bearing head `96ff93b3bbbb4006dce1c14b5fdff9c833d46bdf` (workflow [45655079940](https://github.com/tecpey/lottorito-platform/actions/runs/45655079940)): `replay_contract_corruption_blocked=PASS`, `P09E_RESULT=PASS`, `P05B_RESULT=PASS` and `P05A_NEGATIVE_RESULT=PASS`. The earlier failed run exposed only the test fixture's shell/JSON quoting defect and is not counted as acceptance evidence.
+
+## P-09K — Product-qualified financial identity in physical recovery (2026-11-26)
+
+The P-09E replay fixture now reuses the same account UUIDs for the same tenant across Affiliate & Agent and Lottery, matching P-02's product-qualified account primary/foreign keys. Replay must resolve each account only in the authenticated product scope. The physical backup/restore test therefore exercises the composite identity rather than relying on different UUIDs to hide a missing product dimension. The fixture remains synthetic and disposable.

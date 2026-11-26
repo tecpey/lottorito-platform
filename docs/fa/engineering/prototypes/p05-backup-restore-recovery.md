@@ -103,3 +103,7 @@ Helper بازیابی P-05E اکنون پیش از فراخوانی Journal Post
 
 
 در P-09H یک سناریوی منفی Replay افزوده شده است: Product Scope رویداد بازیابی‌شده دست‌کاری می‌شود، Helper باید Fail-Closed عمل کند، تراکنش Claim باید به وضعیت `accepted` برگردد و هیچ Financial Effectی ایجاد نشود. اجرای اصلاح‌شده روی Head نهایی حاوی کد `96ff93b3bbbb4006dce1c14b5fdff9c833d46bdf` با موفقیت کامل شد (Workflow [45655079940](https://github.com/tecpey/lottorito-platform/actions/runs/45655079940)): هر چهار نشانگر `replay_contract_corruption_blocked=PASS`، `P09E_RESULT=PASS`، `P05B_RESULT=PASS` و `P05A_NEGATIVE_RESULT=PASS` ثبت شدند. اجرای ناموفق قبلی فقط نقص Quoting مربوط به Shell/JSON در Fixture تست را آشکار کرده بود و در شواهد پذیرش محاسبه نمی‌شود.
+
+## P-09K — هویت مالی محصول‌محور در بازیابی فیزیکی (۲۰۲۶-۱۱-۲۶)
+
+Fixture مربوط به Replay در P-09E اکنون همان UUID حساب‌ها را برای یک Tenant در Affiliate & Agent و Lottery دوباره استفاده می‌کند؛ این با Primary/Foreign Keyهای محصول‌محور P-02 هم‌راستا است. Replay باید هر حساب را فقط در Scope محصولی که نشست دیتابیس با آن احراز هویت شده Resolve کند. بنابراین تست Backup/Restore فیزیکی، هویت مرکب را واقعاً آزمایش می‌کند و دیگر به UUIDهای متفاوت برای پنهان‌کردن نبود بُعد محصول متکی نیست. این Fixture همچنان ساختگی و دورریختنی است.

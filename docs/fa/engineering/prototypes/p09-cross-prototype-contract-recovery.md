@@ -193,3 +193,9 @@ Schema دورریختنی P-02 مقدار جدید `shared` را رد می‌ک�
 Assertionهای دقیق P-05B شامل رد Sequence تکراری در Aggregate، هویت Event/Effect محصول‌محور، Cursorهای مستقل، سریال‌سازی هم‌محصول در Workerهای هم‌زمان، RLS بین محصولات روی Inbox/Source Event/Journal/Line، Rollback و تطبیق Ledger بود. تست‌های ۲۶گانه P-02 نیز شامل رد مقدار Legacy جدید shared هستند. داده‌های Legacy بازنویسی نشدند.
 
 این نتایج فقط پذیرش Synthetic Prototype را اثبات می‌کنند. کلیدهای مالی P-02 که فقط Tenant را شامل می‌شوند، همچنان باز هستند. هیچ Migration مربوط به Production، Merge یا Deploy انجام نشد.
+
+### P-09K — کلیدهای مالی محصول‌محور در P-02، P-03C، P-03D و P-09E (۲۰۲۶-۱۱-۲۶)
+
+در P-02 اکنون تمام Primary/Unique Keyهای مالی و تمام رابطه‌های Foreign Key مالی از الگوی `(tenant_id, product_id, ...)` استفاده می‌کنند. وضعیت تحویل P-03C و Consumer Inbox به Outbox تغییرناپذیر P-02 با کلید `(tenant_id, product_id, event_id)` ارجاع می‌دهند؛ عملیات Claim/Update/Expiry نیز بُعد محصول را حفظ می‌کنند. رکوردهای Provider Inbox، Conflict و Expectation در P-03D فقط شناسه‌های محصول Canonical را می‌پذیرند و ارجاع Journal آن‌ها محصول‌محور است. UUID حساب‌ها عمداً بین Affiliate & Agent و Lottery برای یک Tenant دوباره استفاده می‌شوند و دسترسی صرفاً با هویت محصول نشست دیتابیس Resolve می‌شود. بازیابی و Replay فیزیکی P-09E نیز از همین شناسه‌ها استفاده می‌کند تا بقای مرز مرکب محصول پس از Backup و Restore را بررسی کند.
+
+اولین چرخه CI مربوط به P-09K وابستگی‌هایی را آشکار کرد که هنوز به UUIDهای حساب متفاوت برای هر محصول و کلید Event صرفاً Tenantمحور متکی بودند. این موارد در مرزهای P-03C/P-03D/P-09E اصلاح شدند. CI روی Head دقیق همچنان در انتظار است. این تغییر هیچ Migration مربوط به Production را مجاز یا مفروض نمی‌کند؛ داده‌های Legacy همچنان نیازمند Inventory، تحلیل برخورد شناسه و طرح Migration مرحله‌ایِ تأییدشده هستند.

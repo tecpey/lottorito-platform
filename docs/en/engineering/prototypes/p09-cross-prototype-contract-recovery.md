@@ -193,3 +193,9 @@ All results below ran on source-code head dfaa8120340cc6b4b80450dbf0e5755b211110
 P-05B's exact assertions included duplicate aggregate-sequence rejection, product-scoped event/effect identity, independent cursors, concurrent same-product serialization, cross-product RLS on Inbox/source events/journals/lines, rollback and ledger reconciliation. P-02's 26/26 tests include rejection of new legacy shared values. Existing legacy data was not rewritten.
 
 These results establish synthetic prototype acceptance only. P-02 tenant-only financial keys remain open. No production migration, merge or deployment was performed.
+
+### P-09K — Product-qualified financial keys across P-02, P-03C, P-03D and P-09E (2026-11-26)
+
+P-02 now uses `(tenant_id, product_id, ...)` for every financial primary/unique key and every financial foreign-key relationship. P-03C delivery state and consumer inbox now reference the immutable P-02 outbox with `(tenant_id, product_id, event_id)`; claim/update/expiry operations preserve the product dimension. P-03D provider inbox, conflict and expectation records accept canonical product IDs only and retain product-qualified journal references. The same account UUIDs are deliberately reused by Affiliate & Agent and Lottery, with access resolved exclusively by database session product identity. P-09E physical recovery/replay uses those same identifiers to verify that the composite product boundary survives backup and restore.
+
+The first P-09K CI cycle exposed dependent fixtures that still assumed product-specific account UUIDs and a tenant-only outbox event key. Those were corrected at P-03C/P-03D/P-09E boundaries. Exact-head CI remains pending. No production migration is implied; legacy data still requires inventory, collision analysis, and an approved staged migration plan.
