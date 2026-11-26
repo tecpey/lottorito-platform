@@ -24,7 +24,7 @@ GRANT CREATE ON SCHEMA private TO outbox_owner, outbox_executor;
 
 CREATE TABLE public.outbox_delivery_state (
   tenant_id uuid NOT NULL,
-  product_id text NOT NULL DEFAULT 'affiliate_agent'
+  product_id text NOT NULL
     CHECK (product_id IN ('affiliate_agent', 'lottery')),
   event_id uuid NOT NULL,
   status text NOT NULL DEFAULT 'pending'
@@ -54,7 +54,7 @@ CREATE INDEX outbox_delivery_claim_idx
 
 CREATE TABLE public.consumer_inbox (
   tenant_id uuid NOT NULL,
-  product_id text NOT NULL DEFAULT 'affiliate_agent'
+  product_id text NOT NULL
     CHECK (product_id IN ('affiliate_agent', 'lottery')),
   consumer_name text NOT NULL CHECK (consumer_name ~ '^[A-Za-z0-9._:-]{1,80}$'),
   event_id uuid NOT NULL,
@@ -66,7 +66,7 @@ CREATE TABLE public.consumer_inbox (
 
 CREATE TABLE public.consumer_effects (
   tenant_id uuid NOT NULL,
-  product_id text NOT NULL DEFAULT 'affiliate_agent'
+  product_id text NOT NULL
     CHECK (product_id IN ('affiliate_agent', 'lottery')),
   consumer_name text NOT NULL,
   event_id uuid NOT NULL,
