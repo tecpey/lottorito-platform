@@ -1,6 +1,6 @@
 # Lottorito — English Documentation
 
-**Document ID:** LOT-DOC-INDEX-EN-001 | **Version:** 3.1.0 | **Status:** Maintained index
+**Document ID:** LOT-DOC-INDEX-EN-001 | **Version:** 3.2.0 | **Status:** Maintained index
 
 This directory is the authoritative English documentation space for Lottorito. The Persian documentation under docs/fa/ is equally authoritative.
 
@@ -102,3 +102,8 @@ Every meaningful change under docs/en/ must be made in the same branch and pull 
 ## Governance
 
 Read repository-root [AGENTS.md](../../AGENTS.md). Use a working branch and pull request. Do not merge, deploy, change repository settings or perform destructive operations without explicit owner authorization.
+
+
+## Reliability and disaster recovery
+
+- [P-10E — Reliability, Resilience and Disaster Recovery Architecture](engineering/prototypes/p10e-reliability-disaster-recovery-architecture.md): source-neutral design baseline for backup, recovery, failover, tenant restore, SLOs and DR evidence; not operational approval.
