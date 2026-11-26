@@ -225,3 +225,7 @@ Assertionهای دقیق P-05B شامل رد Sequence تکراری در Aggregat
 ### اعتبارسنجی P-09L روی Head دقیق (۲۰۲۶-۱۱-۲۶)
 
 Schema Evolution در P-04 با [اجرای 45863086577](https://github.com/tecpey/lottorito-platform/actions/runs/45863086577) موفق شد — ۸ از ۸ تست روی PostgreSQL 18.7. هویت محصول‌محور Event/Journal، جداسازی UUID یکسان بین محصولات، رد Foreign Key مرکب نامعتبر، Backfill قابل‌ادامه به تفکیک محصول، RLS، Checksum Migration، Lock Timeout و بازیابی Index همگی موفق شدند. این فقط یک آزمایشگاه مستقل و ساختگی Migration است؛ هیچ Migration عملیاتی انجام نشده است.
+
+## شواهد بین‌Prototype مربوط به P-09K روی Head دقیق (۲۰۲۶-۱۱-۲۶)
+
+Head دقیق کد `75fd23701d4e28f047f8ebb73ea0b684bb144c7a` تمام ۱۰ Workflow مرتبط را با موفقیت گذراند: P-02 با ۲۷ از ۲۷، P-03C با ۱۶ از ۱۶ و P-03D با ۳۵ از ۳۵ تست، P-04 با ۸ از ۸، تمام Markerهای مثبت و منفی بازیابی P-05A/P-09E/P-05B، و Workflowهای P-05C، P-06، P-07B، P-08، P-09 و Documentation Governance (۵۸ جفت مستندات دوزبانه و ۱۳۶ لینک داخلی). Regression سازگاری P-03C که حین اعتبارسنجی کشف شد، اصلاح و مجدداً با موفقیت آزمایش شد. تمام شواهد، پذیرش ساختگی و ایزوله‌اند؛ PR #68 همچنان Open/Draft است و هیچ Merge یا Deploy انجام نشده است.

@@ -43,3 +43,7 @@ P04-CONTRACT: بررسی برابری Projection؛ ستون قدیمی حذف ن
 Zero Downtime، رفتار Lock/Backfill در مقیاس Production، CDC، جدول Partitionشده، چندمنطقه‌ای یا Migration عملیاتی اثبات نمی‌شود. Trigger انتقالی است و نیازمند بررسی بار واقعی است. Migration Runner چارچوب کامل نیست. Contract ستون را حذف یا Rename نمی‌کند؛ Migration مخرب پس از بازنشستگی نسخه‌های قدیمی و راستی‌آزمایی مستقل داده، نیازمند تأیید صریح مالک است. هیچ داده، Credential یا Schema عملیاتی تغییر نمی‌کند. موفقیت تست ساختگی به‌معنای آمادگی Production نیست.
 
 **شواهد CI مربوط به P-09L:** [اجرای 45863086577](https://github.com/tecpey/lottorito-platform/actions/runs/45863086577) — موفق، ۸ از ۸ تست روی PostgreSQL 18.7. این تست‌ها جداسازی Event/Journal با UUID یکسان بر اساس محصول، رد Foreign Key مرکب Journal-Line، RLS بین محصولات و رد مقدار Legacy یعنی `shared` را پوشش می‌دهند. Head دقیق کد: `a3c06e62a0a83d8ff73e81797d991242d9d5e489`.
+
+## اعتبارسنجی P-09K روی Head دقیق (۲۰۲۶-۱۱-۲۶)
+
+آزمایش سازگاری تکامل Schema در P-04 روی Head دقیق `75fd23701d4e28f047f8ebb73ea0b684bb144c7a` موفق شد: [Workflow شماره 45863298488](https://github.com/tecpey/lottorito-platform/actions/runs/45863298488)، شامل ۸ از ۸ تست Integration. این همچنان یک آزمایشگاه Migration ایزوله است و شاهدی برای اجرای Migration در Production محسوب نمی‌شود.

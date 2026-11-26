@@ -94,3 +94,7 @@ The replay function locks the product-qualified cursor row with `FOR UPDATE`. Tw
 On source-code head `dfaa8120340cc6b4b80450dbf0e5755b21111080`, [P-05 recovery run 45662750801](https://github.com/tecpey/lottorito-platform/actions/runs/45662750801) passed. Its P-05B event stage emitted `product_scope_event_identity=PASS`, `product_scope_replay_cursor_isolation=PASS`, `concurrent_replay_cursor_serialization=PASS`, `interrupted_replay_rollback=PASS`, `ledger_reconciliation=PASS`, and `P05B_RESULT=PASS`. The same run also passed P-05A PITR/negative restore drills and P-09E physical restore/replay. These remain synthetic disposable fixtures, not a production recovery design. The P-02 canonical-token test rejects new `shared` values; any legacy rows still require explicit inventory/quarantine rather than automatic reassignment.
 
 The product-qualified Inbox also enforces one event per `(tenant, product, consumer, aggregate, sequence)`, preventing two distinct effects from competing for the same sequence slot. RLS assertions cover the Inbox, source events, journals and lines—not only the Inbox.
+
+## P-09K exact-head recovery validation (2026-11-26)
+
+[Workflow 45863298629](https://github.com/tecpey/lottorito-platform/actions/runs/45863298629) passed on exact head `75fd23701d4e28f047f8ebb73ea0b684bb144c7a`: `P05A_RESULT=PASS`, `P09E_RESULT=PASS`, `P05B_OBJECT_KEY_RESULT=PASS`, `P05B_EVENT_RESULT=PASS`, `P05B_RESULT=PASS`, and `P05A_NEGATIVE_RESULT=PASS`. This is synthetic physical-restore and recovery evidence, not production recovery/KMS/HSM certification.

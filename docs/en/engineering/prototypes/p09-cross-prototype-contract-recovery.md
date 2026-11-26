@@ -225,3 +225,7 @@ The independent P-04 migration lab now binds database roles to tenant and produc
 ### P-09L exact-head validation (2026-11-26)
 
 P-04 schema evolution passed [Run 45863086577](https://github.com/tecpey/lottorito-platform/actions/runs/45863086577) — 8/8 tests on PostgreSQL 18.7. Product-qualified event/journal identities, same-UUID cross-product separation, composite FK rejection, per-product resumable backfill, RLS, migration checksum, lock timeout and index recovery passed. This is an independent synthetic migration lab; no production migration was performed.
+
+## P-09K exact-head cross-prototype evidence (2026-11-26)
+
+Exact code head `75fd23701d4e28f047f8ebb73ea0b684bb144c7a` passed all 10 relevant workflows: P-02 27/27, P-03C 16/16 and P-03D 35/35, P-04 8/8, P-05A/P-09E/P-05B positive and negative recovery markers, P-05C, P-06, P-07B, P-08, P-09 and Documentation Governance (58 bilingual pairs; 136 local links). The P-03C compatibility regression found during validation was fixed and rerun successfully. All evidence is disposable synthetic acceptance; PR #68 remains open/draft and no merge or deployment was performed.
