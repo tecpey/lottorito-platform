@@ -1,6 +1,6 @@
 # مستندات فارسی Lottorito
 
-**شناسه سند:** LOT-DOC-INDEX-FA-001 | **نسخه:** ۲.۷.۰ | **وضعیت:** فهرست مرجع و در حال نگهداری
+**شناسه سند:** LOT-DOC-INDEX-FA-001 | **نسخه:** ۲.۸.۰ | **وضعیت:** فهرست مرجع و در حال نگهداری
 
 این پوشه مرجع رسمی مستندات فارسی Lottorito است. مستندات انگلیسی در docs/en/ نیز به همان اندازه معتبرند.
 
@@ -78,6 +78,7 @@ LOT-FIN-POST-001 کنترل‌های پیشنهادی ثبت مالی و تطب�
 | مهندسی | [استقرار، Health Gate و Rollback در P-08](engineering/prototypes/p08-deployment-health-rollback.md) | LOT-PROT-P08-001؛ Artifact قطعی، سازگاری Provenance، Secret فقط در Runtime، Health Gate و بازیابی آگاه از Schema؛ ۴۵ تست CI در PR شماره ۵۹ موفق، فقط ساختگی |
 | مهندسی | [راهنمای عملیاتی ایجنت‌ها](engineering/agent-operating-manual.md) | مسیریابی کم‌هزینه و تحویل کار |
 | مهندسی | [دفتر ثبت تصمیم‌ها](engineering/decision-register.md) | دستور مالک، پیشنهاد و تصمیم باز |
+| مهندسی | [خط مبنای آمادگی Production در P-10A](engineering/prototypes/p10a-production-readiness-baseline.md) | LOT-PROT-P10A-001؛ Ancestry راستی‌آزمایی‌شده PR، CI روی Head دقیق، محدودیت شواهد ساختگی و Gateهای مهاجرت/عملیات P-10B تا P-10F |
 | مهندسی | [وضعیت پروژه](engineering/project-status.md) | وضعیت تأییدشده و نقطه ادامه |
 | مهندسی | [نقشه راه](engineering/roadmap.md) | توالی پیشنهادی و دروازه‌های تحویل |
 
