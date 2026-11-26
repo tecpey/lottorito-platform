@@ -92,3 +92,9 @@ docker compose down -v
 ## ۸. دروازه تکمیل
 
 P-03C فقط زمانی تکمیل است که Head دقیق PR دارای Integration موفق با PostgreSQL 18.7 و Node.js 26.13.0 و Documentation Governance موفق باشد، تمام سناریوهای مثبت و منفی با صفر Skip عبور کنند، هم‌ارزی معنایی نسخه‌های فارسی و انگلیسی بازبینی شود و محدودیت‌ها صریح باقی بمانند. موفقیت این آزمایش مجوز Merge، Deploy در Production یا انتخاب فناوری نیست.
+
+## P-09K — هویت محصول‌محور Outbox و تحویل (۲۰۲۶-۱۱-۲۶)
+
+کلید Outbox در P-02 اکنون `(tenant_id, product_id, event_id)` است. Primary Key و Foreign Keyهای وضعیت تحویل P-03C از همین Tuple کامل استفاده می‌کنند؛ Foreign Key قدیمی Tenant-only و Unique Index تکراری حذف شده‌اند. ارجاع Inbox مصرف‌کننده نیز از کلید رویداد محصول‌محور استفاده می‌کند. Claim Candidate مقدار product_id را تا Update ردیف قفل‌شده حمل می‌کند و پاک‌سازی Leaseهای منقضی نیز صریحاً به محصول محدود شده است. Checkهای محصول Canonical مقدار Legacy یعنی `shared` را رد می‌کنند.
+
+یکپارچه‌سازی موقت P-03C اکنون یک نشست Runtime مستقل Lottery برای همان Tenant باز می‌کند و بررسی می‌کند Workerهای Affiliate نتوانند رویدادهای Lottery را Claim یا Consume کنند و برعکس. Receiptها، Effectها و Ackها نیز به هویت محصول متصل باقی می‌مانند. اعتبارسنجی CI روی Head دقیق در انتظار است.
