@@ -556,3 +556,25 @@ test("RLS policies bind the privileged posting function to the database session 
   ).catch((error) => ({ error }));
   assert.ok(map.error, "tenant runtime roles must not have direct SELECT access to the private identity map");
 });
+
+
+test("product identity is mandatory and never defaults to Affiliate", async () => {
+  const columns = await adminPool.query(
+    `SELECT table_schema, table_name, column_default
+       FROM information_schema.columns
+      WHERE column_name = 'product_id'
+        AND ((table_schema = 'private' AND table_name = 'tenant_role_map')
+          OR (table_schema = 'public' AND table_name = ANY($1::text[])))
+      ORDER BY table_schema, table_name`,
+    [["ledger_accounts", "financial_effects", "posting_requests", "ledger_journals", "ledger_lines", "ledger_outbox"]]
+  );
+  assert.equal(columns.rowCount, 7);
+  assert.equal(columns.rows.every((column) => column.column_default === null), true);
+  await assert.rejects(
+    adminPool.query(
+      "INSERT INTO public.ledger_accounts (tenant_id, account_id, account_code, currency_code, account_type) VALUES ($1, gen_random_uuid(), 'missing-product-probe', 'USD', 'asset')",
+      [TENANT_A]
+    ),
+    (error) => error.code === "23502" && error.column === "product_id"
+  );
+});
