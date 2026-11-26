@@ -332,6 +332,28 @@ test("the same tenant can reuse account, effect, journal request and event ident
     { product_id: "affiliate_agent", effect_id: sharedEffect, rows: 1 },
     { product_id: "lottery", effect_id: sharedEffect, rows: 1 }
   ]);
+
+  await assert.rejects(
+    adminPool.query(
+      "INSERT INTO public.posting_requests (tenant_id, product_id, idempotency_key, effect_id, journal_id) VALUES ($1, 'lottery', 'cross-product-effect-fk', $2, $3)",
+      [TENANT_A, sharedEffect, affiliate.journal_id]
+    ),
+    (error) => error.code === "23503"
+  );
+  await assert.rejects(
+    adminPool.query(
+      "INSERT INTO public.ledger_lines (tenant_id, product_id, journal_id, line_no, account_id, currency_code, direction, amount_minor) VALUES ($1, 'lottery', $2, 99, $3, 'USD', 'debit', 1)",
+      [TENANT_A, affiliate.journal_id, A_USD_CASH]
+    ),
+    (error) => error.code === "23503"
+  );
+  await assert.rejects(
+    adminPool.query(
+      "INSERT INTO public.ledger_outbox (tenant_id, product_id, event_id, journal_id, event_type, payload) VALUES ($1, 'lottery', gen_random_uuid(), $2, 'ledger.journal.posted', '{}'::jsonb)",
+      [TENANT_A, affiliate.journal_id]
+    ),
+    (error) => error.code === "23503"
+  );
 });
 
 test("legacy shared product scope is rejected rather than silently aliased", async () => {
