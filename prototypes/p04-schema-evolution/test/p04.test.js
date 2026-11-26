@@ -26,6 +26,16 @@ test("v1/v2 writers and readers coexist independently in Affiliate and Lottery",
  assert.deepEqual((await b2.query("SELECT canonical_payload FROM partner_events WHERE event_id=$1",[id(203)])).rows[0].canonical_payload,{worker:"v1"});
  assert.deepEqual((await b1.query("SELECT payload FROM partner_events WHERE event_id=$1",[id(204)])).rows[0].payload,{worker:"v2"});
 });
+test("journal and line identities are product-qualified and legacy shared scope is rejected",async()=>{
+ const journals=await admin.query("SELECT product_id,count(*)::int n FROM ledger_journals WHERE tenant_id=$1 AND journal_id=$2 GROUP BY product_id ORDER BY product_id",[A,id(101)]);
+ assert.deepEqual(journals.rows,[{product_id:AFF,n:1},{product_id:LOT,n:1}]);
+ assert.equal((await a1.query("SELECT * FROM ledger_journals WHERE journal_id=$1",[id(101)])).rowCount,1);
+ assert.equal((await l1.query("SELECT * FROM ledger_journals WHERE journal_id=$1",[id(101)])).rowCount,1);
+ assert.equal((await a1.query("SELECT * FROM ledger_lines WHERE journal_id=$1",[id(101)])).rowCount,2);
+ assert.equal((await l1.query("SELECT * FROM ledger_lines WHERE journal_id=$1",[id(101)])).rowCount,2);
+ await assert.rejects(admin.query("INSERT INTO ledger_lines(tenant_id,product_id,journal_id,line_no,side,amount_minor) VALUES($1,$2,$3,99,'debit',1)",[B,LOT,id(102)]),e=>e.code==="23503");
+ await assert.rejects(admin.query("INSERT INTO partner_events(tenant_id,product_id,event_id,event_type,payload) VALUES($1,'shared',$2,'legacy',$3::jsonb)",[A,id(299),JSON.stringify({legacy:true})]),e=>e.code==="23514");
+});
 test("conflicting dual-write fails closed",async()=>{await assert.rejects(a2.query("UPDATE partner_events SET payload=$1::jsonb,canonical_payload=$2::jsonb WHERE event_id=$3",[JSON.stringify({v:3}),JSON.stringify({v:2}),id(201)]),e=>e.code==="23514");});
 test("backfill stops and resumes within tenant/product RLS boundaries",async()=>{
  const initial=Number((await a1.query("SELECT count(*)::int n FROM partner_events WHERE canonical_payload IS NULL")).rows[0].n);assert.equal(initial,4);
