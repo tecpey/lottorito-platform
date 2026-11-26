@@ -1,8 +1,28 @@
 # وضعیت واقعی پروژه و نقطه ادامه کار
 
-**شناسه:** LOT-OPS-001 | **نسخه:** ۱.۵۰.۰ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۵
+**شناسه:** LOT-OPS-001 | **نسخه:** ۱.۵۱.۰ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۶
 
 ## وضعیت تأییدشده مخزن
+
+## نقطه ادامه جاری — خط مبنای راستی‌آزمایی‌شده P-10A (۲۰۲۶-۱۱-۲۶)
+
+- آخرین Commit مشاهده‌شده شاخه پیش‌فرض `main`: [94999b9](https://github.com/tecpey/lottorito-platform/commit/94999b9890581f56995c1e7050f02974522f0871). این شاخه Candidate یکپارچه‌سازی نیست.
+- PR شماره ۶۷ همچنان باز، Draft و Mergeنشده است؛ شاخه Candidate آن `integration/p03d-p04-p08-candidate` روی Commit `c7f9ffa1f499fbd34d260b2aa6d3122d32e1ac7f` قرار دارد.
+- PR شماره ۶۸ همچنان باز، Draft و Mergeنشده و روی PR شماره ۶۷ قرار دارد. Head دقیق فعلی آن `cd3ce2862868ac340e65562e5146449663a1fb16` است؛ GitHub وضعیت Mergeable گزارش کرد، اما هیچ مجوز Merge صادر نشده است. هر ۱۰ Workflow مرتبط روی همین Head دقیق موفق شدند: P-02، P-03C/P-03D، P-04، P-05، P-05C، P-06، P-07B، P-08، P-09 و Documentation Governance. به [ماتریس شواهد P-10A](prototypes/p10a-production-readiness-baseline.md) مراجعه شود.
+- کار P-10 روی شاخه `spike/p10-production-migration-readiness` انجام می‌شود که از Head دقیق PR شماره ۶۸ ساخته شده تا Ancestry زنجیره حفظ شود. گزارش دوزبانه خط مبنای Repository در P-10A اضافه شده است؛ P-10B تا زمان تصویب صریح محیط منبع مشخص، مجوز Read-only و کنترل‌های حداقل‌سازی داده، تمرین روی داده Production نیست.
+- Workstreamهای حاکمیتی موجود حفظ می‌شوند: [LOT-011 برای SRE و آمادگی عملیاتی (#14)](https://github.com/tecpey/lottorito-platform/issues/14) و [LOT-009 برای Threat Model و Data Governance (#12)](https://github.com/tecpey/lottorito-platform/issues/12). Issue تکراری ایجاد نشده است.
+- P-01 همچنان Partial/Inconclusive است؛ شواهد P-02 تا P-09 ساختگی هستند. هیچ Application عملیاتی، Schema فیزیکی Production، اتصال Provider، سامانه عملیاتی Secret/Key، RPO/RTO عملیاتی یا Deployment Production راستی‌آزمایی نشده است. مالکیت تاریخی `shared` حل‌نشده است و نباید خودکار به Affiliate یا Lottery نگاشت شود.
+- هیچ PRی Merge نشده، شاخه پیش‌فرض تغییر نکرده، داده Production خوانده نشده و هیچ Migration یا Deploymentی اجرا نشده است.
+
+## توالی بعدی — P-10
+۱. P-10B: پروتکل Inventory برای یک محیط منبع مشخص را تعریف و تصویب کنید؛ کار را Read-only آغاز کنید، شواهد را حداقل‌سازی کنید و ابهام Tenant/Product/Legacy را بدون کپی داده حساس Row-level به Git یا CI طبقه‌بندی کنید.
+۲. P-10C: فقط پس از Inventory و داوری مالک، طرح Migration مرحله‌ای و سازگاری را طراحی کنید؛ Backfill قطعی و Idempotent، Reconciliation مالی، بودجه Lock/Replication، Cutover و راهبرد Forward-fix/Restore را پوشش دهید.
+۳. P-10D: شکاف‌های Trust Boundary عملیاتی، Workload Identity، RLS/BYPASSRLS، Secret/Key، Retention و Audit را با بازبینی امنیت/حریم خصوصی/حقوقی ببندید.
+۴. P-10E: پروفایل بار را تعریف و SLO/RPO/RTO را پیشنهاد کنید؛ Backup، Restore، Alert و Runbook رخداد را اعتبارسنجی کنید. اهداف عددی به تأیید مالک پاسخ‌گو و شواهد اندازه‌گیری‌شده نیاز دارند.
+۵. P-10F: یک Rehearsal کنترل‌شده در محیط غیرعملیاتی انجام دهید و Risk Register و Evidence Bundle برای تصمیم Go/No-Go مالک تهیه کنید.
+۶. زنجیره PRهای Stacked (شماره ۶۷ ← ۶۸ ← P-10) را بدون تغییر Base یا Merge، تا زمان راستی‌آزمایی وابستگی‌ها، بازبینی و CI روی Head دقیق، منسجم نگه دارید.
+
+
 
 ## اعتبارسنجی P-08 — ۲۰۲۶-۱۱-۲۵
 
@@ -200,7 +220,7 @@ PR شماره ۵۰ مربوط به تحویل Outbox در P-03، به‌صورت
 ۶. هر دو زبان را در یک تغییر به‌روزرسانی و لینک، شناسه، هم‌ارزی و محدوده را اعتبارسنجی کن.
 ۷. بدون مجوز صریح مالک Merge، Deploy، تغییر تنظیمات یا عملیات مخرب انجام نده.
 
-## توالی بعدی
+## توالی تاریخی — جایگزین‌شده با P-10 در ۲۰۲۶-۱۱-۲۶
 ۱. آزمایش ساختگی P-03D برای اتصال Provider Inbox به Ledger را اجرا و سپس شکاف‌های باقی‌مانده P-01/P-02 را با شواهد پذیرش صریح ببند.
 ۲. ماتریس کامل شواهد P-01 تا P-08 را تطبیق بده؛ Ancestry شاخه‌های موازی (از جمله Export/Pool در P-01 و Provider/Outbox در P-03) را حل کن و LOT-QA-001 را با محصول، مهندسی/SRE، امنیت، مالی، حقوقی/حریم خصوصی و مالک بازبینی کن؛ پروفایل بار و آستانه‌ها فقط با مالک پاسخ‌گو تصویب شوند.
 ۳. خط مبنای مالی، مدل تهدید و API را با مالک و متخصصان دامنه بازبینی کن.

@@ -1,8 +1,28 @@
 # Verified Project Status and Continuation Point
 
-**Document ID:** LOT-OPS-001 | **Version:** 1.50.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-25
+**Document ID:** LOT-OPS-001 | **Version:** 1.51.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-26
 
 ## Verified repository state
+
+## Current continuation — P-10A verified baseline (2026-11-26)
+
+- Default branch `main` latest observed commit: [94999b9](https://github.com/tecpey/lottorito-platform/commit/94999b9890581f56995c1e7050f02974522f0871). This is not the integration candidate.
+- PR #67 remains Open/Draft/unmerged; its candidate branch `integration/p03d-p04-p08-candidate` is at `c7f9ffa1f499fbd34d260b2aa6d3122d32e1ac7f`.
+- PR #68 remains Open/Draft/unmerged and is stacked on PR #67. Its exact current head is `cd3ce2862868ac340e65562e5146449663a1fb16`; GitHub reported it mergeable, but no merge is authorized. Ten relevant workflows passed on this exact head: P-02, P-03C/P-03D, P-04, P-05, P-05C, P-06, P-07B, P-08, P-09 and Documentation Governance. See [P-10A evidence matrix](prototypes/p10a-production-readiness-baseline.md).
+- P-10 work is on `spike/p10-production-migration-readiness`, created from the exact PR #68 head to preserve the stacked ancestry. P-10A's bilingual repository-baseline report is added; P-10B is not a production-data exercise until a named source environment, read-only authorization and data-minimization controls are explicitly approved.
+- Existing governance workstreams are reused: [LOT-011 SRE/operational readiness (#14)](https://github.com/tecpey/lottorito-platform/issues/14) and [LOT-009 threat model/data governance (#12)](https://github.com/tecpey/lottorito-platform/issues/12). No duplicate issue was created.
+- P-01 remains partial/inconclusive; P-02–P-09 evidence is synthetic. There is no verified production application, physical production schema, provider integration, production secret/key system, production RPO/RTO, or production deployment. Historical `shared` ownership is unresolved and must not be automatically mapped to Affiliate or Lottery.
+- No PR has been merged, no default-branch change was made, no production data was accessed, and no migration or deployment was executed.
+
+## Next sequence — P-10
+1. P-10B: define and approve one named source-environment inventory protocol; start read-only, minimize evidence and classify tenant/product/legacy ambiguity without copying row-level sensitive data into Git or CI.
+2. P-10C: design a staged migration and compatibility plan only after inventory and owner adjudication; include deterministic/idempotent backfill, financial reconciliation, lock/replication budgets, cutover and forward-fix/restore strategy.
+3. P-10D: close production trust-boundary, workload identity, RLS/BYPASSRLS, secret/key, retention and audit gaps with security/privacy/legal review.
+4. P-10E: define workload profiles and propose SLO/RPO/RTO; validate backup, restore, alerting and incident runbooks. Numeric targets require accountable approval and measured evidence.
+5. P-10F: perform a controlled non-production rehearsal and produce a residual-risk register and owner-reviewed Go/No-Go evidence bundle.
+6. Reconcile the stacked PR chain (#67 → #68 → P-10) without retargeting or merging until dependencies, review and exact-head CI are verified.
+
+
 
 ## P-08 validation — 2026-11-25
 
@@ -200,7 +220,7 @@ P-03 outbox delivery PR #50 is an open Draft stacked on P-02 PR #46. Its current
 6. Update both languages in the same change; validate links, IDs, content parity and scope.
 7. Do not merge, deploy, alter settings or perform destructive actions without explicit owner approval.
 
-## Next sequence
+## Historical next sequence — superseded by P-10 on 2026-11-26
 1. Execute the P-03D synthetic provider-inbox-to-ledger integration described above, then close the remaining P-01/P-02 gaps with explicit acceptance evidence.
 2. Reconcile the complete P-01–P-08 evidence matrix, resolve parallel PR ancestry (including P-01 export/pool work and P-03 provider/outbox slices), and review LOT-QA-001 with product, engineering/SRE, security, finance, legal/privacy and owner stakeholders; define workload profiles and approve thresholds only with accountable owners.
 3. Review the proposed finance, threat and API baselines with the owner and domain reviewers.
