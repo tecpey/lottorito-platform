@@ -245,4 +245,25 @@ Head دقیق کد `75fd23701d4e28f047f8ebb73ea0b684bb144c7a` تمام ۱۰ Work
 
 در جریان مهاجرت کلیدهای مرکب P-09K یک قرارداد بالقوه Fail-open باقی مانده بود: Role Map و جدول‌های مالی P-02 و نیز جدول‌های Delivery State و Consumer در P-03C، در صورت حذف `product_id` آن را به‌طور پیش‌فرض `affiliate_agent` قرار می‌دادند. این رفتار می‌توانست یک INSERT ناقص را بی‌صدا به محصول Affiliate نسبت دهد. در P-09M این Defaultها حذف شدند و قیود NOT NULL و CHECK شناسه‌های Canonical محصول حفظ شدند. از این پس هویت محصول باید در تمام مرزهای INSERT صریحاً ارائه شود. تست‌های Regression نبود Default را در هر هفت ستون محصول P-02 و هر سه ستون محصول P-03C بررسی می‌کنند و اثبات می‌کنند INSERT بدون product_id با SQLSTATE 23502 رد می‌شود. هیچ Migration داده‌ای انجام نشده و Schemaهای تغییرکرده صرفاً Fixtureهای دورریختنی هستند.
 
-CI مربوط به P-09M روی Head جدید PR در انتظار اجراست. معیار پذیرش شامل P-02، P-03C/P-03D، P-09 و Documentation Governance روی یک Head دقیق و سپس Regression کامل Candidate پیش از هر تصمیم یکپارچه‌سازی است. هیچ Merge، Migration عملیاتی یا Deploy مجاز نیست.
+پذیرش P-09M روی Head دقیق در ادامه ثبت شده است. هر ۱۰ Workflow مرتبط روی Head کد `c42c7f7453bebb3fe07e00e0ec849584100885ce` موفق شدند. هیچ Merge، Migration عملیاتی یا Deploy مجاز نیست.
+
+
+
+## پذیرش P-09M روی Head دقیق (۲۰۲۶-۱۱-۲۶)
+
+هر ۱۰ Workflow مرتبط روی Head دقیق کد `c42c7f7453bebb3fe07e00e0ec849584100885ce` موفق شدند:
+
+| Workflow | اجرا | نتیجه |
+|---|---:|---|
+| P-02 Ledger Posting | [45866730430](https://github.com/tecpey/lottorito-platform/actions/runs/45866730430) | موفق — ۲۸ از ۲۸؛ شامل تست نبود Default برای Product |
+| یکپارچه‌سازی Ledger/Provider در P-03C/P-03D | [45866730356](https://github.com/tecpey/lottorito-platform/actions/runs/45866730356) | موفق — P-03C: ۱۶ از ۱۶؛ P-03D: ۳۵ از ۳۵ |
+| Schema Evolution در P-04 | [45866730318](https://github.com/tecpey/lottorito-platform/actions/runs/45866730318) | موفق — ۸ از ۸ |
+| Backup/Restore و Recovery در P-05 | [45866730197](https://github.com/tecpey/lottorito-platform/actions/runs/45866730197) | موفق — PITR، Restore/Replay فیزیکی P-09E، بازیابی Object/Key/Event در P-05B و تست‌های منفی P-05A |
+| Failover/Fencing/Failback در P-05C | [45866730190](https://github.com/tecpey/lottorito-platform/actions/runs/45866730190) | موفق — ۱۵ Assertion نام‌گذاری‌شده |
+| Observability/Privacy در P-06 | [45866730195](https://github.com/tecpey/lottorito-platform/actions/runs/45866730195) | موفق — ۱۳ Assertion نام‌گذاری‌شده |
+| Trust Boundaries در P-07B | [45866730367](https://github.com/tecpey/lottorito-platform/actions/runs/45866730367) | موفق — ۴۳ تست |
+| Deployment Health/Rollback در P-08 | [45866730198](https://github.com/tecpey/lottorito-platform/actions/runs/45866730198) | موفق — ۵۶ تست |
+| Contract Baseline در P-09 | [45866730213](https://github.com/tecpey/lottorito-platform/actions/runs/45866730213) | موفق — ۲۰ از ۲۰ |
+| Documentation Governance | [45866730402](https://github.com/tecpey/lottorito-platform/actions/runs/45866730402) | موفق — ۵۸ جفت دوزبانه و ۱۳۶ لینک داخلی |
+
+شواهد مستقیم P-09M: هر هفت ستون product_id در P-02 (شامل Role Map خصوصی) و هر سه ستون product_id در P-03C بدون Default هستند؛ INSERT بدون product_id با SQLSTATE 23502 رد می‌شود. در نتیجه انتساب ناخواسته و بی‌صدای رکورد به Affiliate مسدود می‌شود. همه شواهد همچنان پذیرش Synthetic و دورریختنی هستند و Production Readiness را اثبات نمی‌کنند. PR #68 باز و Draft باقی مانده و هیچ Merge یا Deploy انجام نشده است.
