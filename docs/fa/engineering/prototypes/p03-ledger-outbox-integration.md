@@ -24,9 +24,9 @@ Invariant اصلی این است که ledger_outbox متعلق به P-02، **ت�
 ## ۳. Fixture اجرایی
 
 - prototypes/p03-ledger-outbox-integration/db/integration.sql: وضعیت تحویل P-03C، جدول‌های Consumer، RLS، Trigger و توابع Security Definer؛ مستقیماً به ledger_outbox در P-02 ارجاع می‌دهد.
-- scripts/setup-db.js: Schema مربوط به P-02 و سپس SQL یکپارچه‌سازی P-03C را در دیتابیس موقت اجرا و وجود تنها یک Source Outbox و شش حساب Seedشده را بررسی می‌کند.
+- scripts/setup-db.js: Schema مربوط به P-02 و سپس SQL یکپارچه‌سازی P-03C را در دیتابیس موقت اجرا و وجود تنها یک Source Outbox و هشت حساب محصول‌محور Seedشده را بررسی می‌کند.
 - src/relay.js: توابع Tenant-bound برای Claim، Ack، Nack، Consume و تحویل Batch.
-- test/integration.test.js: پانزده سناریوی مثبت و خصمانه انتهابه‌انتها.
+- test/integration.test.js: شانزده سناریوی مثبت و خصمانه انتهابه‌انتها.
 - compose.yaml: Fixture محلی PostgreSQL 18.7.
 - package.json/package-lock.json: نسخه‌های Node.js 26.13.x و pg 8.23.1 قفل‌شده.
 - .github/workflows/p03-ledger-outbox-integration.yml: CI با PostgreSQL 18.7 و Node.js 26.13.0.

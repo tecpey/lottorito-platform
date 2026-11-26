@@ -24,9 +24,9 @@ This is a synthetic integration experiment, not a production event platform. It 
 ## 3. Executable fixture
 
 - prototypes/p03-ledger-outbox-integration/db/integration.sql: P-03C delivery state, consumer tables, RLS, trigger and security-definer functions. It references P-02 ledger_outbox directly using the full (tenant_id, product_id, event_id) identity.
-- scripts/setup-db.js: applies P-02's schema, then P-03C integration SQL, in a disposable database; verifies there is one source outbox and six seeded accounts.
+- scripts/setup-db.js: applies P-02's schema, then P-03C integration SQL, in a disposable database; verifies there is one source outbox and eight seeded product-scoped accounts.
 - src/relay.js: tenant-bound claim, ack, nack, consume and batch-delivery helpers.
-- test/integration.test.js: 15 positive/adversarial end-to-end scenarios.
+- test/integration.test.js: 16 positive/adversarial end-to-end scenarios.
 - compose.yaml: local PostgreSQL 18.7 fixture.
 - package.json/package-lock.json: Node.js 26.13.x and pg 8.23.1 pinned.
 - .github/workflows/p03-ledger-outbox-integration.yml: PostgreSQL 18.7 and Node.js 26.13.0 CI.
