@@ -102,3 +102,8 @@ Validator ساختاری در [scripts/check_docs.py](../../scripts/check_docs.p
 ## حاکمیت مشارکت
 
 پیش از مشارکت، [AGENTS.md](../../AGENTS.md) را بخوانید. از شاخه کاری و Pull Request استفاده کنید. بدون مجوز صریح مالک، Merge، Deploy، تغییر تنظیمات مخزن یا عملیات مخرب انجام ندهید.
+
+
+## قابلیت اطمینان و بازیابی پس از بحران
+
+- [P-10E — معماری قابلیت اطمینان، تاب‌آوری و بازیابی پس از بحران](engineering/prototypes/p10e-reliability-disaster-recovery-architecture.md): خط مبنای طراحی مستقل از منبع برای Backup، بازیابی، Failover، Tenant Restore، SLO و شواهد DR؛ فاقد مجوز عملیات.
