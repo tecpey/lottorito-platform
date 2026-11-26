@@ -1,6 +1,6 @@
 # Verified Project Status and Continuation Point
 
-**Document ID:** LOT-OPS-001 | **Version:** 1.51.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-26
+**Document ID:** LOT-OPS-001 | **Version:** 1.52.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-26
 
 ## Verified repository state
 
@@ -22,6 +22,20 @@
 5. P-10F: perform a controlled non-production rehearsal and produce a residual-risk register and owner-reviewed Go/No-Go evidence bundle.
 6. Reconcile the stacked PR chain (#67 → #68 → P-10) without retargeting or merging until dependencies, review and exact-head CI are verified.
 
+
+
+
+
+## Current continuation — P-10B protocol ready; source access not authorized (2026-11-26)
+
+- P-10A repository baseline is maintained in [PR #69](https://github.com/tecpey/lottorito-platform/pull/69), Open/Draft/unmerged, stacked on PR #68. Its exact-head Documentation Governance passed in [run 45868466680](https://github.com/tecpey/lottorito-platform/actions/runs/45868466680): 59 bilingual pairs and 140 local links.
+- P-10B's read-only source/legacy inventory protocol is maintained in [PR #70](https://github.com/tecpey/lottorito-platform/pull/70), Open/Draft/unmerged, stacked on the P-10A branch. It defines source authorization, metadata-only PostgreSQL catalog queries, lineage/ambiguity registers, financial/event inventory and stop conditions. The SQL is a template only and has not been executed against any source.
+- Documentation Governance passed on the initial exact PR #70 head in [run 45868720755](https://github.com/tecpey/lottorito-platform/actions/runs/45868720755): 60 bilingual pairs and 142 local links. Re-fetch the live PR head and CI after any subsequent commit.
+- No source endpoint, production database, partner sandbox, credential, row-level data or production export was accessed. P-10B execution remains blocked until the owner names a source environment and explicitly authorizes a scoped read-only inventory with an accountable owner/DBA and approved evidence handling.
+- No DDL/DML, backfill, data repair, merge, default-branch update or deployment occurred. Legacy `shared` and other ambiguous identities remain unresolved and quarantined; no automatic mapping is permitted.
+
+## Next action — P-10B execution gate
+Obtain one named source environment and explicit owner-approved read-only authorization. If unavailable, keep P-10B at protocol readiness and continue only with source-neutral migration design questions; do not invent a source schema or fabricate inventory evidence.
 
 
 ## P-08 validation — 2026-11-25
