@@ -25,6 +25,8 @@ jobs:
       TENANT_A_V2_DATABASE_URL: postgres://p04_tenant_a_v2:p04-tenant-a-v2-not-production@127.0.0.1:5432/lottorito_p04
       TENANT_B_V1_DATABASE_URL: postgres://p04_tenant_b_v1:p04-tenant-b-v1-not-production@127.0.0.1:5432/lottorito_p04
       TENANT_B_V2_DATABASE_URL: postgres://p04_tenant_b_v2:p04-tenant-b-v2-not-production@127.0.0.1:5432/lottorito_p04
+      TENANT_A_LOTTERY_V1_DATABASE_URL: postgres://p04_tenant_a_lottery_v1:p04-tenant-a-lottery-v1-not-production@127.0.0.1:5432/lottorito_p04
+      TENANT_A_LOTTERY_V2_DATABASE_URL: postgres://p04_tenant_a_lottery_v2:p04-tenant-a-lottery-v2-not-production@127.0.0.1:5432/lottorito_p04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with: {persist-credentials: false}

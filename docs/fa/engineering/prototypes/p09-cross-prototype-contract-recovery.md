@@ -217,3 +217,7 @@ Assertionهای دقیق P-05B شامل رد Sequence تکراری در Aggregat
 | Documentation Governance | [45862006823](https://github.com/tecpey/lottorito-platform/actions/runs/45862006823) | موفق — ۵۸ جفت دوزبانه، ۱۳۶ لینک محلی |
 
 پذیرش P-09K صرفاً ساختگی است. هیچ Migration مربوط به Production، Merge یا Deploy مجاز یا انجام نشده است.
+
+### P-09L — تکامل Schema با هویت محصول‌محور در P-04 (۲۰۲۶-۱۱-۲۶)
+
+آزمایشگاه مستقل Migration در P-04 اکنون Roleهای دیتابیس را به Tenant و Product متصل می‌کند. Primary Key/RLS/Backfill رویدادهای Partner، Primary/Foreign Keyهای Journal و Line و کلیدها/RLS مربوط به Reporting همگی Scope محصول را شامل می‌شوند. Affiliate & Agent و Lottery عمداً همان UUID رویداد و Journal را برای Tenant A دوباره استفاده می‌کنند، در حالی که Roleهای v1/v2 در هر محصول مستقل هم‌زیستی دارند. آزمایش، رد Read/Write بین محصولات، Backfill قابل‌ادامه به تفکیک محصول و حفظ مجموع Ledger/Reporting هر محصول را بررسی می‌کند. CI روی Head دقیق در انتظار اعتبارسنجی است. این کار Schema عملیاتی را تغییر نمی‌دهد و به‌معنای Migration Production نیست.

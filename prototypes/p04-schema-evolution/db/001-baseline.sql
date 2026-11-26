@@ -1,33 +1,91 @@
--- Disposable P-04 baseline. Synthetic data only.
+-- Disposable P-04 schema-evolution fixture. Synthetic data only.
 CREATE ROLE p04_identity_owner NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
 CREATE ROLE p04_tenant_a_v1 LOGIN PASSWORD 'p04-tenant-a-v1-not-production' NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
 CREATE ROLE p04_tenant_a_v2 LOGIN PASSWORD 'p04-tenant-a-v2-not-production' NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
 CREATE ROLE p04_tenant_b_v1 LOGIN PASSWORD 'p04-tenant-b-v1-not-production' NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
 CREATE ROLE p04_tenant_b_v2 LOGIN PASSWORD 'p04-tenant-b-v2-not-production' NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
+CREATE ROLE p04_tenant_a_lottery_v1 LOGIN PASSWORD 'p04-tenant-a-lottery-v1-not-production' NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
+CREATE ROLE p04_tenant_a_lottery_v2 LOGIN PASSWORD 'p04-tenant-a-lottery-v2-not-production' NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
+
 CREATE SCHEMA private AUTHORIZATION p04_identity_owner;
 REVOKE ALL ON SCHEMA private FROM PUBLIC;
-CREATE TABLE private.tenant_role_map(database_role name PRIMARY KEY,tenant_id uuid NOT NULL);
+CREATE TABLE private.tenant_role_map(
+ database_role name PRIMARY KEY,
+ tenant_id uuid NOT NULL,
+ product_id text NOT NULL CHECK(product_id IN('affiliate_agent','lottery'))
+);
 ALTER TABLE private.tenant_role_map OWNER TO p04_identity_owner;
-INSERT INTO private.tenant_role_map VALUES ('p04_tenant_a_v1','aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'),('p04_tenant_a_v2','aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'),('p04_tenant_b_v1','bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'),('p04_tenant_b_v2','bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb');
-CREATE FUNCTION private.current_tenant_id() RETURNS uuid LANGUAGE sql STABLE SECURITY DEFINER SET search_path=pg_catalog,private,pg_temp AS $fn$ SELECT tenant_id FROM private.tenant_role_map WHERE database_role=session_user::name $fn$;
+INSERT INTO private.tenant_role_map(database_role,tenant_id,product_id) VALUES
+ ('p04_tenant_a_v1','aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','affiliate_agent'),
+ ('p04_tenant_a_v2','aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','affiliate_agent'),
+ ('p04_tenant_b_v1','bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb','affiliate_agent'),
+ ('p04_tenant_b_v2','bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb','affiliate_agent'),
+ ('p04_tenant_a_lottery_v1','aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','lottery'),
+ ('p04_tenant_a_lottery_v2','aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','lottery');
+
+CREATE FUNCTION private.current_tenant_id() RETURNS uuid
+LANGUAGE sql STABLE SECURITY DEFINER SET search_path=pg_catalog,private,pg_temp
+AS $fn$ SELECT tenant_id FROM private.tenant_role_map WHERE database_role=session_user::name $fn$;
+CREATE FUNCTION private.current_product_id() RETURNS text
+LANGUAGE sql STABLE SECURITY DEFINER SET search_path=pg_catalog,private,pg_temp
+AS $fn$ SELECT product_id FROM private.tenant_role_map WHERE database_role=session_user::name $fn$;
 ALTER FUNCTION private.current_tenant_id() OWNER TO p04_identity_owner;
-REVOKE ALL ON FUNCTION private.current_tenant_id() FROM PUBLIC;
+ALTER FUNCTION private.current_product_id() OWNER TO p04_identity_owner;
+REVOKE ALL ON FUNCTION private.current_tenant_id(),private.current_product_id() FROM PUBLIC;
+
 CREATE TABLE public.schema_migrations(migration_id text PRIMARY KEY,checksum text NOT NULL,applied_at timestamptz NOT NULL DEFAULT clock_timestamp());
-CREATE TABLE public.partner_events(tenant_id uuid NOT NULL,event_id uuid NOT NULL,event_type text NOT NULL,payload jsonb NOT NULL,created_at timestamptz NOT NULL DEFAULT clock_timestamp(),PRIMARY KEY(tenant_id,event_id));
+CREATE TABLE public.partner_events(
+ tenant_id uuid NOT NULL,
+ product_id text NOT NULL DEFAULT 'affiliate_agent' CHECK(product_id IN('affiliate_agent','lottery')),
+ event_id uuid NOT NULL,
+ event_type text NOT NULL,
+ payload jsonb NOT NULL,
+ created_at timestamptz NOT NULL DEFAULT clock_timestamp(),
+ PRIMARY KEY(tenant_id,product_id,event_id)
+);
 ALTER TABLE public.partner_events ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.partner_events FORCE ROW LEVEL SECURITY;
-CREATE POLICY p04_events_tenant ON public.partner_events USING(tenant_id=private.current_tenant_id()) WITH CHECK(tenant_id=private.current_tenant_id());
-CREATE TABLE public.ledger_journals(tenant_id uuid NOT NULL,journal_id uuid NOT NULL,currency char(3) NOT NULL,PRIMARY KEY(tenant_id,journal_id));
-CREATE TABLE public.ledger_lines(tenant_id uuid NOT NULL,journal_id uuid NOT NULL,line_no int NOT NULL,side text NOT NULL CHECK(side IN('debit','credit')),amount_minor numeric(38,0) NOT NULL CHECK(amount_minor>0),PRIMARY KEY(tenant_id,journal_id,line_no),FOREIGN KEY(tenant_id,journal_id) REFERENCES public.ledger_journals(tenant_id,journal_id));
+CREATE POLICY p04_events_tenant_product ON public.partner_events
+ USING(tenant_id=private.current_tenant_id() AND product_id=private.current_product_id())
+ WITH CHECK(tenant_id=private.current_tenant_id() AND product_id=private.current_product_id());
+
+CREATE TABLE public.ledger_journals(
+ tenant_id uuid NOT NULL,
+ product_id text NOT NULL DEFAULT 'affiliate_agent' CHECK(product_id IN('affiliate_agent','lottery')),
+ journal_id uuid NOT NULL,
+ currency char(3) NOT NULL,
+ PRIMARY KEY(tenant_id,product_id,journal_id)
+);
+CREATE TABLE public.ledger_lines(
+ tenant_id uuid NOT NULL,
+ product_id text NOT NULL DEFAULT 'affiliate_agent' CHECK(product_id IN('affiliate_agent','lottery')),
+ journal_id uuid NOT NULL,
+ line_no int NOT NULL,
+ side text NOT NULL CHECK(side IN('debit','credit')),
+ amount_minor numeric(38,0) NOT NULL CHECK(amount_minor>0),
+ PRIMARY KEY(tenant_id,product_id,journal_id,line_no),
+ FOREIGN KEY(tenant_id,product_id,journal_id) REFERENCES public.ledger_journals(tenant_id,product_id,journal_id)
+);
 ALTER TABLE public.ledger_journals ENABLE ROW LEVEL SECURITY; ALTER TABLE public.ledger_journals FORCE ROW LEVEL SECURITY;
 ALTER TABLE public.ledger_lines ENABLE ROW LEVEL SECURITY; ALTER TABLE public.ledger_lines FORCE ROW LEVEL SECURITY;
-CREATE POLICY p04_journal_tenant ON public.ledger_journals USING(tenant_id=private.current_tenant_id());
-CREATE POLICY p04_lines_tenant ON public.ledger_lines USING(tenant_id=private.current_tenant_id());
-CREATE TABLE public.reporting_daily(tenant_id uuid NOT NULL,report_day date NOT NULL,event_count bigint NOT NULL);
+CREATE POLICY p04_journal_tenant_product ON public.ledger_journals
+ USING(tenant_id=private.current_tenant_id() AND product_id=private.current_product_id());
+CREATE POLICY p04_lines_tenant_product ON public.ledger_lines
+ USING(tenant_id=private.current_tenant_id() AND product_id=private.current_product_id());
+
+CREATE TABLE public.reporting_daily(
+ tenant_id uuid NOT NULL,
+ product_id text NOT NULL DEFAULT 'affiliate_agent' CHECK(product_id IN('affiliate_agent','lottery')),
+ report_day date NOT NULL,
+ event_count bigint NOT NULL CHECK(event_count>=0),
+ PRIMARY KEY(tenant_id,product_id,report_day)
+);
 ALTER TABLE public.reporting_daily ENABLE ROW LEVEL SECURITY; ALTER TABLE public.reporting_daily FORCE ROW LEVEL SECURITY;
-CREATE POLICY p04_reporting_tenant ON public.reporting_daily USING(tenant_id=private.current_tenant_id());
-GRANT USAGE ON SCHEMA private TO p04_tenant_a_v1,p04_tenant_a_v2,p04_tenant_b_v1,p04_tenant_b_v2;
-GRANT USAGE ON SCHEMA public TO p04_tenant_a_v1,p04_tenant_a_v2,p04_tenant_b_v1,p04_tenant_b_v2;
-GRANT EXECUTE ON FUNCTION private.current_tenant_id() TO p04_tenant_a_v1,p04_tenant_a_v2,p04_tenant_b_v1,p04_tenant_b_v2;
-GRANT SELECT,INSERT,UPDATE ON public.partner_events TO p04_tenant_a_v1,p04_tenant_a_v2,p04_tenant_b_v1,p04_tenant_b_v2;
-GRANT SELECT ON public.ledger_journals,public.ledger_lines,public.reporting_daily TO p04_tenant_a_v1,p04_tenant_a_v2,p04_tenant_b_v1,p04_tenant_b_v2;
+CREATE POLICY p04_reporting_tenant_product ON public.reporting_daily
+ USING(tenant_id=private.current_tenant_id() AND product_id=private.current_product_id());
+
+GRANT USAGE ON SCHEMA private TO p04_tenant_a_v1,p04_tenant_a_v2,p04_tenant_b_v1,p04_tenant_b_v2,p04_tenant_a_lottery_v1,p04_tenant_a_lottery_v2;
+GRANT USAGE ON SCHEMA public TO p04_tenant_a_v1,p04_tenant_a_v2,p04_tenant_b_v1,p04_tenant_b_v2,p04_tenant_a_lottery_v1,p04_tenant_a_lottery_v2;
+GRANT EXECUTE ON FUNCTION private.current_tenant_id(),private.current_product_id() TO p04_tenant_a_v1,p04_tenant_a_v2,p04_tenant_b_v1,p04_tenant_b_v2,p04_tenant_a_lottery_v1,p04_tenant_a_lottery_v2;
+GRANT SELECT,INSERT,UPDATE ON public.partner_events TO p04_tenant_a_v1,p04_tenant_a_v2,p04_tenant_b_v1,p04_tenant_b_v2,p04_tenant_a_lottery_v1,p04_tenant_a_lottery_v2;
+GRANT SELECT ON public.ledger_journals,public.ledger_lines,public.reporting_daily TO p04_tenant_a_v1,p04_tenant_a_v2,p04_tenant_b_v1,p04_tenant_b_v2,p04_tenant_a_lottery_v1,p04_tenant_a_lottery_v2;

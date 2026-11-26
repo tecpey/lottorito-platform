@@ -217,3 +217,7 @@ All nine applicable workflows passed on source head `75148b41220bb26adf0e8c01e05
 | Documentation Governance | [45862006823](https://github.com/tecpey/lottorito-platform/actions/runs/45862006823) | PASS — 58 bilingual pairs, 136 local links |
 
 P-09K is synthetic acceptance only. No production migration, merge or deployment is approved.
+
+### P-09L — Product-qualified schema evolution in P-04 (2026-11-26)
+
+The independent P-04 migration lab now binds database roles to tenant and product. Partner event PK/RLS/backfill, journal and line PK/FK, and reporting keys/RLS all include product scope. Affiliate & Agent and Lottery deliberately reuse the same event and journal UUIDs for Tenant A, while v1/v2 roles coexist independently in each product. The lab verifies cross-product read/write denial, per-product resumable backfill and unchanged product-level ledger/reporting totals. CI is pending exact-head validation. This does not modify production schemas or imply a production migration.
