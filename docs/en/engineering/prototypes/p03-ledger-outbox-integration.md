@@ -100,3 +100,7 @@ P-02's outbox key is now `(tenant_id, product_id, event_id)`. P-03C delivery-sta
 The P-03C disposable integration now opens a distinct Lottery runtime session for the same tenant and asserts that Affiliate workers cannot claim or consume Lottery events and vice versa. Delivery receipts, effects and acknowledgements remain bound to the product identity. Validation is pending exact-head CI.
 
 **P-09K CI evidence:** [Run 45862006903](https://github.com/tecpey/lottorito-platform/actions/runs/45862006903) — PASS; P-03C 16/16 and P-03D 35/35 PostgreSQL 18.7 integration tests. Affiliate and Lottery workers are isolated across outbox claims, delivery state, provider inbox and journal/account references. Exact source head: `75148b41220bb26adf0e8c01e05860a8fd83d7fa`.
+
+## P-09K exact-head validation update (2026-11-26)
+
+P-03C delivery-state and consumer-inbox references now use the complete `(tenant_id, product_id, event_id)` tuple matching P-02. [Workflow 45863298594](https://github.com/tecpey/lottorito-platform/actions/runs/45863298594) passed 16/16 PostgreSQL 18.7 integration tests on exact head `75fd23701d4e28f047f8ebb73ea0b684bb144c7a`. The earlier failed run exposed a genuine compatibility regression (legacy tenant+event FK); it is not counted as passing evidence. The corrected run supersedes it.

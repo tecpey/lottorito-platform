@@ -89,3 +89,7 @@ P-02 now includes `product_id` in every financial primary key and unique constra
 A new integration test reuses the same tenant, account UUIDs, source-event UUID, effect UUID and idempotency key in Affiliate & Agent and Lottery. Both products must independently post exactly one balanced journal, and the database must preserve separate product-qualified rows. This is a disposable PostgreSQL 18.7 fixture only; it is not a production migration. Existing production rows and IDs require inventory, collision analysis and an approved expand/backfill/validate/contract migration plan before any schema change.
 
 **P-09K CI evidence:** [Run 45862006791](https://github.com/tecpey/lottorito-platform/actions/runs/45862006791) — PASS, 27/27 PostgreSQL 18.7 integration tests, including cross-product reuse of tenant/account/event/effect/idempotency identifiers and rejection of cross-product foreign-key substitution. Exact source head: `75148b41220bb26adf0e8c01e05860a8fd83d7fa`.
+
+## P-09K exact-head validation (2026-11-26)
+
+The final product-qualified financial-key implementation passed on commit `75fd23701d4e28f047f8ebb73ea0b684bb144c7a`: [workflow 45863298568](https://github.com/tecpey/lottorito-platform/actions/runs/45863298568), 27/27 Node.js 26 + PostgreSQL 18.7 integration tests. This covers same-tenant reuse of account, source-event, effect and idempotency identifiers across Affiliate & Agent and Lottery. Dependent P-03/P-05 evidence is required for cross-prototype acceptance.

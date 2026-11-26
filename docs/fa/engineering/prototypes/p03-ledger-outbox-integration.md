@@ -100,3 +100,7 @@ P-03C فقط زمانی تکمیل است که Head دقیق PR دارای Integ
 یکپارچه‌سازی موقت P-03C اکنون یک نشست Runtime مستقل Lottery برای همان Tenant باز می‌کند و بررسی می‌کند Workerهای Affiliate نتوانند رویدادهای Lottery را Claim یا Consume کنند و برعکس. Receiptها، Effectها و Ackها نیز به هویت محصول متصل باقی می‌مانند. اعتبارسنجی CI روی Head دقیق در انتظار است.
 
 **شواهد CI مربوط به P-09K:** [اجرای 45862006903](https://github.com/tecpey/lottorito-platform/actions/runs/45862006903) — موفق؛ P-03C برابر ۱۶ از ۱۶ و P-03D برابر ۳۵ از ۳۵ تست Integration روی PostgreSQL 18.7. Workerهای Affiliate و Lottery در Claimهای Outbox، وضعیت تحویل، Provider Inbox و ارجاع‌های Journal/Account از یکدیگر جدا هستند. Head دقیق کد: `75148b41220bb26adf0e8c01e05860a8fd83d7fa`.
+
+## به‌روزرسانی اعتبارسنجی P-09K روی Head دقیق (۲۰۲۶-۱۱-۲۶)
+
+ارجاع‌های Delivery State و Consumer Inbox در P-03C اکنون از Tuple کامل `(tenant_id, product_id, event_id)` مطابق P-02 استفاده می‌کنند. [Workflow شماره 45863298594](https://github.com/tecpey/lottorito-platform/actions/runs/45863298594) روی Head دقیق `75fd23701d4e28f047f8ebb73ea0b684bb144c7a` هر ۱۶ از ۱۶ تست Integration در PostgreSQL 18.7 را گذراند. اجرای ناموفق قبلی یک Regression واقعی سازگاری (Foreign Key قدیمی Tenant+Event) را آشکار کرد و به‌عنوان شاهد موفقیت محسوب نمی‌شود؛ اجرای اصلاح‌شده جایگزین آن است.

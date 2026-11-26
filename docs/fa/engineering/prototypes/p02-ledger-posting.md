@@ -89,3 +89,7 @@ Schema دورریختنی P-02 اکنون فقط شناسه‌های Canonical �
 یک Integration Test جدید همان Tenant، UUID حساب‌ها، UUID رویداد مبدأ، UUID اثر اقتصادی و Idempotency Key را در Affiliate & Agent و Lottery دوباره استفاده می‌کند. هر دو محصول باید مستقلاً دقیقاً یک Journal متوازن ثبت کنند و دیتابیس باید ردیف‌های مجزای دارای Scope محصول را حفظ کند. این فقط Fixture دورریختنی PostgreSQL 18.7 است و Migration مربوط به Production نیست. ردیف‌ها و شناسه‌های موجود در Production پیش از هر تغییر Schema نیازمند Inventory، تحلیل برخورد شناسه‌ها و طرح Migration تأییدشده از نوع Expand/Backfill/Validate/Contract هستند.
 
 **شواهد CI مربوط به P-09K:** [اجرای 45862006791](https://github.com/tecpey/lottorito-platform/actions/runs/45862006791) — موفق، ۲۷ از ۲۷ تست Integration روی PostgreSQL 18.7؛ شامل استفاده مجدد از شناسه‌های Tenant/Account/Event/Effect/Idempotency در دو محصول و رد جایگزینی Foreign Key بین محصولات. Head دقیق کد: `75148b41220bb26adf0e8c01e05860a8fd83d7fa`.
+
+## اعتبارسنجی P-09K روی Head دقیق (۲۰۲۶-۱۱-۲۶)
+
+پیاده‌سازی نهایی کلیدهای مالی محصول‌محور P-02 روی Commit برابر `75fd23701d4e28f047f8ebb73ea0b684bb144c7a` موفق شد: [Workflow شماره 45863298568](https://github.com/tecpey/lottorito-platform/actions/runs/45863298568)، شامل ۲۷ از ۲۷ تست Integration با Node.js 26 و PostgreSQL 18.7. این تست‌ها استفاده مجدد از شناسه حساب، رویداد مبدأ، اثر اقتصادی و Idempotency در یک Tenant را میان Affiliate & Agent و Lottery پوشش می‌دهند. برای پذیرش قرارداد بین Prototypeها، شواهد وابسته P-03 و P-05 نیز باید بررسی شوند.
