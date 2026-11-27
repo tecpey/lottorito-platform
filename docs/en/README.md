@@ -124,3 +124,5 @@ Read repository-root [AGENTS.md](../../AGENTS.md). Use a working branch and pull
 - [Affiliate G09-A12 — ADR-002 Independent Review Package](engineering/affiliate-g09-a12-adr002-independent-review-package.md) — reviewer-ready challenge protocol and evidence matrix; independent review NOT PERFORMED; all A11 findings remain OPEN; no runtime authorization.
 
 - [Affiliate G09-A13 — Contract Validation Assurance Review](engineering/affiliate-g09-a13-contract-validation-assurance-review.md) — same-author review of exact-head CI scope, security/scope assertions, AsyncAPI dialect, dependency reproducibility, extension constraints and UNKNOWN response semantics; findings OPEN.
+
+- [Affiliate G09-A14 — Contract Validation Hardening & Response-State Alignment](engineering/affiliate-g09-a14-contract-validation-hardening.md) — hardens exact operation security/scope assertions, CloudEvents extension profile, AsyncAPI dialect checks, lockfile installation and schema/fixture coverage; IN PROGRESS pending lockfile finalization and exact-head CI.
