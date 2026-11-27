@@ -260,7 +260,7 @@ All remain **NOT RUN** and require relevant owner/technology decisions.
 Google Spanner guidance explicitly describes UNKNOWN commit status and recommends a subsequent database read; it also explains why blind automatic retry can duplicate business effects. This is provider-specific guidance, not a universal guarantee for any future Lottorito persistence engine. PostgreSQL documentation demonstrates that snapshots and conflict handling vary by isolation level and statement shape; separate statements can observe different committed snapshots under Read Committed. AWS outbox guidance confirms downstream publication can be duplicated and consumers need idempotency. These references reinforce candidate-proof requirements; none selects a vendor or proves Lottorito behavior.
 
 
-## 16. Adversarial review linkage (G09-A11)
+### 16.9 G09-A11 adversarial review linkage
 
 The same-workflow adversarial self-review is recorded in [G09-A11](affiliate-g09-a11-adr002-adversarial-review.md). It is not independent approval. The following findings block approval of this ADR until resolved with owner decisions, independent review and candidate-specific evidence: A11-F01 (commit durability across failover), A11-F02 (single-writer authority epoch and split-brain fencing), A11-F03 (negative reconciliation read versus in-flight commit), A11-F06 (retention-bounded idempotency), plus High findings A11-F04/F05/F07/F08. Nine proposed A11 subcases are NOT RUN. This linkage does not authorize runtime execution or waive any A4 gate.
 
