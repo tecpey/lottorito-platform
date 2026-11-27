@@ -39,8 +39,8 @@ function oasValidator(name) {
   // the complete OAS document and OAS dialect; Ajv validates representative instances.
   return ajv2020.compile({
     $schema: "https://json-schema.org/draft/2020-12/schema",
-    $defs: oasSchemas,
-    $ref: `#/$defs/${name}`,
+    components: { schemas: oasSchemas },
+    $ref: `#/components/schemas/${name}`,
   });
 }
 
