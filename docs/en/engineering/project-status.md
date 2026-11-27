@@ -175,3 +175,11 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 - Proposed nine A11 adversarial subcases under existing A4/A8 parents; canonical 47 A4 IDs are unchanged. All subcases are NOT RUN.
 - This is a same-workflow self-review, not independent sign-off. LDR-056 recorded in both decision registers. ADR-002 remains PROPOSED; A7/A8 findings remain open; all eight A4 gates remain NOT APPROVED. No runtime, database, queue, partner, financial, merge or deployment authorization.
 - Research references include official Google Spanner unknown-commit guidance and PostgreSQL HA, replication and WAL durability documentation. No provider/technology is selected.
+
+
+## G09-A12 — ADR-002 v0.3.0 integration (2026-11-28)
+- Integrated A11 design blockers into bilingual ADR-002 v0.3.0: single-writer Authority Epoch and old-primary fencing; acknowledged-commit durability/RPO; replay-horizon-bounded source-event dedupe/tombstones; graduated quarantine and worker exclusion; acceptance-only response semantics.
+- Reconciled A11-F01..F08 in the bilingual A11 review record. This is same-author crosswalk, not independent closure. All eight findings remain OPEN pending owner decisions, independent review and candidate-specific evidence.
+- Expanded bilingual A7 with nine A11 and four supplemental A10 subcases; canonical A4 remains 47 IDs. All added subcases are NOT RUN/BLOCKED.
+- ADR-002 remains PROPOSED. No technology, authority service, database, queue, runtime, partner, financial operation, merge or deployment is authorized. All eight A4 gates remain NOT APPROVED.
+- Exact-head CI must be rechecked after these commits; prior workflow success does not transfer.
