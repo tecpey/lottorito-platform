@@ -8,6 +8,10 @@ on:
       - "contracts/openapi/**"
       - "contracts/asyncapi/**"
       - "scripts/validate_affiliate_contract_payloads.mjs"
+      - "docs/en/engineering/affiliate-api-wire-contract.md"
+      - "docs/fa/engineering/affiliate-api-wire-contract.md"
+      - "docs/en/engineering/project-status.md"
+      - "docs/fa/engineering/project-status.md"
       - ".redocly.yaml"
       - ".github/workflows/affiliate-contract-validation.yml"
   pull_request:
@@ -17,6 +21,10 @@ on:
       - "contracts/openapi/**"
       - "contracts/asyncapi/**"
       - "scripts/validate_affiliate_contract_payloads.mjs"
+      - "docs/en/engineering/affiliate-api-wire-contract.md"
+      - "docs/fa/engineering/affiliate-api-wire-contract.md"
+      - "docs/en/engineering/project-status.md"
+      - "docs/fa/engineering/project-status.md"
       - ".redocly.yaml"
       - ".github/workflows/affiliate-contract-validation.yml"
   workflow_dispatch:
