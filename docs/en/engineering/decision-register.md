@@ -71,6 +71,9 @@ This register prevents agents from turning discussion, examples or proposals int
 
 | LDR-047 | Affiliate wire contract security review | Proposed security review / implementation gates | LOT-AFFILIATE-SEC-001 records threat-oriented findings for object-level authorization, principal separation, token trust, scope semantics, event identity/fingerprinting, CloudEvents extension/schema allowlists, SSRF, resource ceilings, privacy and audit. | Proposed controls only; not a penetration test or production security approval. Authentication profile, quota values, canonical fingerprint implementation, retention and runtime controls require explicit platform/domain decisions and test evidence before implementation/production. |
 
+
+| LDR-048 | Affiliate G09-A3 security decisions and synthetic runtime proof | Proposed decision packet | LOT-AFFILIATE-G09-A3-001 decomposes IAM/principal authorization, installation and event/schema registry, idempotency/fingerprinting, resource ceilings, data lifecycle, audit and economic-effect boundary into explicit decision records; it also defines a synthetic isolated runtime proof plan. | No issuer, token profile, numeric quota, retention period, database/queue, KMS or partner is approved. Accountable owners/reviewers and evidence must be recorded before acceptance; runtime proof requires explicit scope approval and an isolated real transactional persistence candidate. PR #76 remains Draft. |
+
 ## Decision-change protocol
 1. Propose a change with rationale, alternatives, impact and evidence.
 2. Identify the decision owner and affected documents/domains.
