@@ -124,3 +124,12 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 - Added bilingual LOT-AFFILIATE-G09-A5-001. It translates the 47 stable A4 cases into a technology-neutral persistence/atomicity model, claim-generation fencing protocol, synthetic identity fixtures, failure-injection mapping, executable test contract, independent oracles and gated execution sequence.
 - No database, queue, IAM provider, runtime, quota, retention period or physical schema was selected. A5 is a design blueprint only; A4's eight approval gates remain binding. Runtime implementation and execution remain BLOCKED pending explicit approvals.
 - The blueprint explicitly separates source-event identity, request idempotency key and economic-effect identity; requires durable uniqueness and atomic Receipt+Work creation; treats queue messages as wake-up hints; and requires stale-worker fencing and zero financial reachability.
+
+
+## G09-A6 design verification — 2026-11-27
+- Added bilingual LOT-AFFILIATE-G09-A6-001. The review confirms all 47 stable A4 IDs are represented in A5's grouped mapping, but grouped mapping is not case-level executable coverage.
+- Disposition: **CONDITIONAL DESIGN PASS WITH OPEN FINDINGS**. Ten findings F01–F10 are recorded. F01–F07 block runtime design approval; F08–F10 must close before the affected test groups can be accepted.
+- Key clarifications required: mandatory atomic pair is InboxReceipt + WorkItem; DeliveryOutbox is distinct/conditional and must not weaken that pair; transaction race/unknown-commit schedules; stale-worker zero-write fencing proof; approved identity/fingerprint profile; lifecycle revalidation policy; defense-in-depth financial non-reachability; measurable resource profile; per-case oracle independence; and approved data lifecycle policy.
+- On exact reviewed head `e6808bda79a65c84d0dfab6e8b07094014184910`, Affiliate Contract Validation run `46060385984` (#73) and Documentation Governance run `46060385973` (#956) both completed successfully. These are documentation/contract workflow results only, not runtime evidence.
+- PR #76 remains Open/Draft. A4-GATE-01..08 remain mandatory. No runtime implementation or execution, vendor selection, partner integration, financial operation, merge or deployment is authorized.
+- Next controlled step: close F01–F10 in bilingual documents, add a 47-row case/oracle manifest, then re-run exact-head CI. Runtime remains BLOCKED.
