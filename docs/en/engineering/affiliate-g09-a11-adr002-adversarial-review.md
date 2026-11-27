@@ -106,3 +106,33 @@ For each finding, closure requires revised bilingual ADR with stable IDs and exp
 - AWS Transactional Outbox: https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html
 
 These references illustrate concrete failure semantics. They do not select PostgreSQL, Spanner, AWS or any other provider, and do not prove Lottorito runtime behavior.
+
+
+## 9. Reconciliation against ADR-002 v0.2.0 / v0.3.0
+
+The initial review above evaluated ADR-002 v0.1.0. Subsequent revisions incorporated several findings, but **this does not close them**: this remains same-author reconciliation and requires independent verification.
+
+| Finding | Design response now present | Remaining closure evidence |
+|---|---|---|
+| A11-F01 durability across failover | ADR-002 §17.2 requires an explicit acknowledged-commit durability/RPO contract. | Owner-approved failure model; candidate replication/flush/promotion semantics; fault test proving acknowledged writes survive the supported failover set. |
+| A11-F02 authority/split brain | ADR-002 §17.1 requires a monotonic authority epoch, single-writer proof, old-primary fencing and restore protection. | Identify authority root; prove epoch cannot fork/roll back; demonstrate old writer rejection through network/control-plane partition and rejoin. |
+| A11-F03 negative read/in-flight commit | ADR-002 §§16.3, 17.1 require same-key arbitration on the active fenced authority; no assumption that a negative snapshot means the old transaction ended. | Deterministic original-commit/retry/promotion schedules on candidate engine; exact conflict/serialization and read consistency proof. |
+| A11-F04 pair cardinality | ADR-002 §§16.5, 17.7 require commit-time/capability pair enforcement and explicit cardinality/linkage proof. | Candidate-specific unique/FK/relationship constraints or justified aggregate boundary; direct zero/one/multiple relationship tests including restore/corruption. |
+| A11-F05 fingerprint version | ADR-002 §16.6 makes duplicate classification dependent on a finalized, versioned canonicalization/fingerprint profile. | LOT-EVENT-001 alignment; parser/canonicalization decision and cross-language vectors; compatibility and migration tests. |
+| A11-F06 retention horizon | ADR-002 §17.3 requires owner-approved replay horizon and minimal tombstone/backup/offboarding policy. | Actual source contract; legal/privacy decision; deletion/restore/legal-hold and late-replay tests. No numeric horizon assumed. |
+| A11-F07 quarantine blast radius | ADR-002 §17.4 requires graduated event→installation/source→tenant containment and worker exclusion. | Owner-approved scopes; authorization/audit/expiry/recovery policy; targeted-poisoning/noisy-neighbor and claim-race tests. |
+| A11-F08 acceptance vs execution | ADR-002 §17.5 defines response as durable acceptance only, with stable reference and no processing-completion promise. | Wire-contract/API response alignment; quarantine-after-acceptance behavior; contract tests proving no duplicate WorkItem or worker-state disclosure. |
+
+### 9.1 Additional identity and snapshot clarifications
+
+ADR-002 v0.2.0 also clarifies that tenant-scoped source identities must not trigger cross-tenant lookup/disclosure; request Idempotency-Key must bind to a stable request fingerprint and resolved source identity; receipt/work-item linkage is inspected in one consistent snapshot; and fingerprint profile changes cannot silently reinterpret old receipts. Four supplemental cases are traced in A7: A10-DUR-02d, A10-DUR-02e, A10-AUTH-06b and A10-IDEM-08a. The nine A11 subcases are also represented there. Canonical A4 remains 47 IDs.
+
+The reviewed artifact version in this reconciliation is ADR-002 v0.3.0, but no independent review of v0.2.0/v0.3.0 has occurred. A reviewer independent of the author must re-review the complete current ADR, A7 mappings and all findings rather than relying on this crosswalk.
+
+## 10. Current disposition
+
+- A11-F01..F08 remain OPEN; design text has been strengthened but findings are not closed.
+- All A11 and A10 subcases remain NOT RUN/BLOCKED.
+- The canonical A4 catalogue remains 47; extensions are tracked separately.
+- All eight A4 gates remain NOT APPROVED.
+- No database/queue/provider/authority service, runtime, partner, financial operation, merge or deployment is authorized.
