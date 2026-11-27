@@ -84,16 +84,20 @@ Scope لازم است اما کافی نیست. هر درخواست علاوه �
 
 | وضعیت | پاسخ | رفتار الزامی |
 |---|---:|---|
-| رویداد جدید به‌صورت پایدار پذیرفته و صف‌بندی شد | 202 | Inbox و Job پردازش پیش از ACK به‌صورت اتمیک Commit شوند |
+| پذیرش پیشنهادی رویداد جدید | 202 | فقط پس از Commit اتمیک Inbox + Job و تحقق شرط Acknowledgement مربوط به Durability که مالک تصویب می‌کند؛ Failure Model/RPO فعلی تصویب نشده است |
 | Duplicate دقیق با Source + ID + Fingerprint یکسان | 200 | Receipt قبلی برگردد؛ Job دوم ایجاد نشود |
 | Source + ID یکسان با Fingerprint متفاوت | 409 | تعارض هویت ثبت/قرنطینه شود؛ هیچ Side Effect ایجاد نشود |
 | Schema یا Type نامعتبر/پشتیبانی‌نشده | 422 | طبق قرارداد تنظیم‌شده رد یا قرنطینه شود؛ بدون اثر اقتصادی |
 | Body بیش از حد مجاز | 413 | پیش از Parse پرهزینه رد شود |
 | Content-Type پشتیبانی‌نشده | 415 | رد شود |
 | Rate Limit یا Quota مربوط به Tenant تمام شده | 429 | راهنمای Retry برگردد؛ حذف بی‌صدا ممنوع |
-| سرویس پیش از Receipt پایدار موقتاً در دسترس نیست | 503 | فراخوان با همان Source + ID مجدداً تلاش کند |
+| عدم دسترسی موقت سرویس | 503 | عدم پذیرش فقط زمانی قطعی اعلام شود که عدم Commit اثبات شده باشد؛ UNKNOWN نباید رد قطعی تلقی شود؛ تطبیق/Retry با همان Source + ID |
 
-پاسخ HTTP موفق فقط به‌معنای دریافت پایدار است؛ نه احراز شرایط تجاری، Attribution، ارزیابی کمیسیون، ثبت دفترکل، Payment، Settlement یا Payout.
+**مرز تصویب:** این موارد معنای پیشنهادی Wire هستند، نه تضمین Runtime تصویب‌شده. ADR-002 همچنان PROPOSED است؛ هیچ Candidate مربوط به Persistence، Failure Model، RPO، قاعده Promotion یا Recovery Point تصویب نشده است. پاسخ `202` فقط پس از تأیید Persistence اتمیک Inbox + WorkItem و تحقق شرط Acknowledgement مربوط به Durability که مالک تصویب کرده است مجاز خواهد بود.
+
+نتیجه Commit از نوع `UNKNOWN` نه پذیرش قطعی است و نه عدم پذیرش قطعی. API نباید آن را به‌عنوان شکست اثبات‌شده پیش از Commit توصیف کند. نگاشت دقیق HTTP Status و خطای Machine-readable برای UNKNOWN همچنان تصمیم باز مالک است. هر Retry باید همان CloudEvents `source + id` احرازشده را حفظ کند و در مرجع Persistence فعال و معتبر تطبیق داده شود؛ Read منفی به‌تنهایی مجوز Insert دوم نیست.
+
+پاسخ موفق HTTP فقط به‌معنای پذیرش/Receipt تحت قرارداد Durability مصوب است؛ نه احراز شرایط تجاری، Attribution، ارزیابی کمیسیون، ثبت دفترکل، Payment، Settlement یا Payout.
 
 خطاها از RFC 9457 Problem Details با `application/problem+json` پیروی می‌کنند. جزئیات خطا نباید وجود Resource در Tenant دیگر، Secret، Payload خام Provider، SQL، Host داخلی یا قواعد حساس نگاشت را افشا کند. شناسه Request/Correlation تولیدشده توسط سرور برای پشتیبانی بازگردانده می‌شود.
 
@@ -117,7 +121,7 @@ LOT-EVENT-001 همچنان مرجع معنایی Lottorito است. CloudEvents �
 | `received_at` / `recorded_at` | Extensionهای `receivedat` / `recordedat` |
 | Payload دامنه | CloudEvents `data` |
 
-نام Extensionهای CloudEvents عمداً از حروف کوچک و ارقام تشکیل شده‌اند. نام منطقی Channel در AsyncAPI برابر `affiliate.canonical-events` است. این نام به‌معنای انتخاب Kafka، RabbitMQ، HTTP Callback یا Transport دیگر نیست.
+پروفایل عمومی JSON در Lottorito برای Attributeهای CloudEvents نام‌های متشکل از حروف کوچک ASCII و ارقام، شروع با حرف کوچک، حداکثر ۲۰ کاراکتر و مقدارهای Primitive شامل String، Boolean یا Integer علامت‌دار ۳۲ بیتی را اعمال می‌کند. این پروفایل، توصیه‌های SHOULD در CloudEvents را به قاعده محلی سخت‌گیرانه‌تر تبدیل می‌کند. این کار Allowlist نصب را تعریف نمی‌کند: Runtime همچنان باید نام Extension و نوع معنایی آن را برای Installation احرازشده ثبت‌شده بداند و پیش از Normalization موارد ناشناخته/ثبت‌نشده را رد کند. معنای Stringها (URI، URI-reference، Timestamp، Binary/Base64 یا String عادی) به Profile اختصاصی Installation وابسته است. نام منطقی Channel در AsyncAPI برابر `affiliate.canonical-events` است. این نام به‌معنای انتخاب Kafka، RabbitMQ، HTTP Callback یا Transport دیگر نیست.
 
 ## ۹. معنای داده و امور مالی
 
@@ -160,13 +164,13 @@ LOT-EVENT-001 همچنان مرجع معنایی Lottorito است. CloudEvents �
 
 CI قرارداد علاوه بر اعتبارسنجی سند کامل، اسکریپت `scripts/validate_affiliate_contract_payloads.mjs` را روی نمونه‌های مثبت و منفی نماینده اجرا می‌کند:
 
-- Schemaهای Component در OpenAPI 3.2.1 با نمونه مستقل Ajv مبتنی بر JSON Schema 2020-12 اعتبارسنجی می‌شوند. Schemaهای فعلی از Keywordهای استاندارد این نسخه استفاده می‌کنند؛ Redocly همچنان اعتبارسنج کامل سند OpenAPI و Dialect مربوط به OAS است.
+- Schemaهای Component در OpenAPI 3.2.1 با نمونه مستقل Ajv مبتنی بر JSON Schema 2020-12 اعتبارسنجی می‌شوند. Schemaهای فعلی از Keywordهای سازگار با Instance Validation نسخه 2020-12 استفاده می‌کنند؛ Redocly همچنان اعتبارسنج کامل سند OpenAPI و Dialect مربوط به OAS است.
 - Payload پیام AsyncAPI 3.0.0 با نمونه مستقل Ajv مبتنی بر Draft 07 اعتبارسنجی می‌شود؛ مطابق مبنای Schema Object در AsyncAPI 3.0.0.
 - ارجاع‌های محلی Component، فیلدهای الزامی، نوع، Enum، حدود، Formatهای date-time/URI، یکتایی، Objectهای بسته و Extensionهای RFC 9457 دارای نمونه‌های مثبت/منفی نماینده هستند.
-- Extensionهای سطح بالای CloudEvents از نظر ساختاری در Schema پاکت مجاز می‌مانند. این موضوع **مجوز پذیرش Extension دلخواه نیست**؛ Runtime باید پیش از Normalization، Allowlist اختصاصی Integration برای Extension/Event/Source را اعمال کند.
+- پاکت عمومی CloudEvents پروفایل نحوی/نوعی Lottorito را اعمال می‌کند (نام حروف کوچک الفبایی‌عددی، شروع با حرف کوچک، حداکثر ۲۰ کاراکتر؛ مقدار String/Boolean/Integer علامت‌دار ۳۲ بیتی). این موضوع **مجوز پذیرش Extension دلخواه نیست**؛ Runtime باید پیش از Normalization، Allowlist اختصاصی Installation برای نام و نوع معنایی Extension را اعمال کند.
 - این مجموعه، احراز هویت Runtime، Binding مستأجر، اتمیک‌بودن پایدار Inbox/Job، Deduplication، Replay، اثر دفترکل یا سازگاری Provider را اثبات نمی‌کند.
 
-Validatorهای دو Dialect عمداً جدا هستند. Payloadهای AsyncAPI را به Validator نسخه 2020-12 منتقل نکنید و اعتبارسنجی نمونه با Ajv را جایگزین اعتبارسنجی سند کامل توسط Redocly/AsyncAPI تلقی نکنید.
+Validatorهای دو Dialect عمداً جدا هستند. در AsyncAPI 3.0.0، Payload بدون `schemaFormat` از AsyncAPI 3.0 Schema Object استفاده می‌کند که Superset مربوط به JSON Schema Draft 07 است. Ajv فقط Subset محافظت‌شده و سازگار با Draft 07 را بررسی می‌کند؛ AsyncAPI CLI سند کامل و Dialect هنجاری آن را اعتبارسنجی می‌کند. Payloadهای AsyncAPI را به Validator نسخه 2020-12 منتقل نکنید و اعتبارسنجی نمونه با Ajv را جایگزین اعتبارسنجی سند کامل توسط Redocly/AsyncAPI تلقی نکنید.
 
 ## ۱۱. استانداردها و حاکمیت نسخه
 
