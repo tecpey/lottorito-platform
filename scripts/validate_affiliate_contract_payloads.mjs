@@ -241,7 +241,7 @@ invalid("Partner CloudEvent rejects out-of-range integer extension", partnerEven
 invalid("Partner CloudEvent rejects extension string control character", partnerEventValidator, { ...partnerFixture, traceparent: "bad\u0001value" });
 invalid("Partner CloudEvent rejects extension string unpaired surrogate", partnerEventValidator, { ...partnerFixture, traceparent: "\uD800" });
 invalid("Partner CloudEvent rejects extension string Unicode noncharacter", partnerEventValidator, { ...partnerFixture, traceparent: "\uFDD0" });
-invalid("Partner CloudEvent rejects prohibited Unicode in core id", partnerEventValidator, { ...partnerFixture, id: "bad\\u0001id" });
+invalid("Partner CloudEvent rejects prohibited Unicode in core id", partnerEventValidator, { ...partnerFixture, id: "bad\u0001id" });
 
 activeSchemaRoot = "partner.EventReceipt";
 const receipt = ajv2020.compile({
@@ -302,7 +302,7 @@ invalid("Canonical event rejects out-of-range integer extension", canonicalEvent
 invalid("Canonical event rejects extension string control character", canonicalEventValidator, { ...canonicalFixture, tenantregion: "bad\u0001value" });
 invalid("Canonical event rejects extension string unpaired surrogate", canonicalEventValidator, { ...canonicalFixture, tenantregion: "\uD800" });
 invalid("Canonical event rejects extension string Unicode noncharacter", canonicalEventValidator, { ...canonicalFixture, tenantregion: "\uFDD0" });
-invalid("Canonical event rejects prohibited Unicode in core id", canonicalEventValidator, { ...canonicalFixture, id: "bad\\u0001id" });
+invalid("Canonical event rejects prohibited Unicode in core id", canonicalEventValidator, { ...canonicalFixture, id: "bad\u0001id" });
 
 const expectedRoots = validationManifest.schemaRoots.map((entry) => entry.id).sort();
 const actualRoots = [
