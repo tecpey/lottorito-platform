@@ -85,3 +85,8 @@ Read repository-root [AGENTS.md](../../AGENTS.md). Use a working branch and pull
 ## Affiliate security acceptance
 
 - [Affiliate security acceptance and runtime boundary](engineering/affiliate-security-acceptance-runtime-boundary.md) — LOT-AFFILIATE-SEC-ACC-001; proposed runtime acceptance matrix, trust boundaries, idempotency, persistence, privacy and release gates; no runtime implementation or production approval.
+
+
+## Affiliate G09-A3 security decisions and runtime proof
+
+- [Affiliate G09-A3 decision packet and synthetic runtime proof plan](engineering/affiliate-g09-a3-decision-and-runtime-proof.md) — LOT-AFFILIATE-G09-A3-001; proposed decision records for IAM, installation/event registry, idempotency/fingerprinting, resource governance, data lifecycle, audit and economic-effect boundary, plus an isolated synthetic runtime proof plan. No decisions are approved and no runtime implementation is claimed.
