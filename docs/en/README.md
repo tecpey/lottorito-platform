@@ -122,3 +122,5 @@ Read repository-root [AGENTS.md](../../AGENTS.md). Use a working branch and pull
 - [Affiliate G09-A11 — ADR-002 Adversarial Design Review](engineering/affiliate-g09-a11-adr002-adversarial-review.md) — same-workflow self-review; eight material findings and nine proposed NOT RUN subcases; independent review pending; no runtime authorization.
 
 - [Affiliate G09-A12 — ADR-002 Independent Review Package](engineering/affiliate-g09-a12-adr002-independent-review-package.md) — reviewer-ready challenge protocol and evidence matrix; independent review NOT PERFORMED; all A11 findings remain OPEN; no runtime authorization.
+
+- [Affiliate G09-A13 — Contract Validation Assurance Review](engineering/affiliate-g09-a13-contract-validation-assurance-review.md) — same-author review of exact-head CI scope, security/scope assertions, AsyncAPI dialect, dependency reproducibility, extension constraints and UNKNOWN response semantics; findings OPEN.
