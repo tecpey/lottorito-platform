@@ -24,6 +24,10 @@ const ajv07 = new AjvDraft7({ allErrors: true, strict: false });
 addFormats(ajv07);
 
 let assertions = 0;
+function contractAssert(label, condition) {
+  assert.equal(condition, true, label);
+  assertions += 1;
+}
 function valid(label, validate, value) {
   const ok = validate(value);
   assert.equal(ok, true, `${label}: expected valid; errors=${JSON.stringify(validate.errors)}`);
@@ -36,6 +40,20 @@ function invalid(label, validate, value) {
 }
 
 const oasSchemas = openApi.components.schemas;
+const managementOperations = Object.values(openApi.paths).flatMap((item) => Object.values(item));
+const ingestionOperations = Object.values(partnerApi.paths).flatMap((item) => Object.values(item));
+contractAssert("Management and ingestion use distinct bearer security schemes",
+  Boolean(openApi.components.securitySchemes?.bearerAuth) &&
+  Boolean(partnerApi.components.securitySchemes?.partnerBearerAuth) &&
+  !("partnerBearerAuth" in openApi.components.securitySchemes) &&
+  !("bearerAuth" in partnerApi.components.securitySchemes));
+for (const [label, operations] of [["management", managementOperations], ["ingestion", ingestionOperations]]) {
+  for (const operation of operations) {
+    contractAssert(`${label} operation declares security`, Array.isArray(operation.security) && operation.security.length > 0);
+    contractAssert(`${label} operation declares proposed required scopes`,
+      Array.isArray(operation["x-required-scopes"]) && operation["x-required-scopes"].length > 0);
+  }
+}
 function oasValidator(name) {
   assert.ok(oasSchemas[name], `Missing OpenAPI schema: ${name}`);
   // The contract currently uses JSON Schema 2020-12 keywords only. Redocly validates
