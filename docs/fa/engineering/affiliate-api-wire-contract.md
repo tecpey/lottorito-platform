@@ -43,7 +43,7 @@ Management API نباید ادعای رویداد شریک را جایگزین �
 
 Scope لازم است اما کافی نیست. هر درخواست علاوه بر آن باید Membership جاری Tenant یا Binding اتصال ماشینی، Entitlement محصول، مالکیت Object، Role، وضعیت Resource و Policy قابل‌اعمال را بررسی کند. Context مربوط به Tenant و Product باید از هویت/پیکربندی معتبر سمت سرور استخراج شود. شناسه Tenant ارسالی فراخوان هرگز مرجع اختیار نیست.
 
-Scopeهای حداقلی پیشنهادی به‌صورت Extension عملیات در فایل OpenAPI ثبت شده‌اند. نام نهایی Scopeها، تفویض/Consent و نیاز به احراز هویت تقویتی برای عملیات ممتاز همچنان باز است.
+قابلیت‌های حداقلی پیشنهادی با Extension سفارشی `x-required-scopes` در سطح Operation فایل OpenAPI ثبت شده‌اند. این سازوکار، مکانیزم استاندارد Scope در OAuth2 یعنی `security` نیست؛ HTTP Bearer Schemeهای فعلی عمداً Issuer یا Flow مربوط به OAuth را جعل نمی‌کنند. این Extension تا تصویب معنای آن در LOT-API-PLATFORM-001 صرفاً Metadata بازبینی است؛ پس از تصویب، Resource Server باید تمام قابلیت‌های فهرست‌شده را اعمال کند و Code Generatorهای Client نباید آن را Flow دریافت Token تلقی کنند. نام نهایی، رفتار تفویض/Consent و نیاز به احراز هویت تقویتی برای عملیات ممتاز همچنان باز است.
 
 ## ۵. پروفایل ورودی رویداد شریک
 
