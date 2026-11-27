@@ -260,7 +260,7 @@ Retry با هویت یکسان فقط زمانی Duplicate نامیده شود �
 راهنمای منتشرشده Google Spanner صراحتاً UNKNOWN Commit Status را شرح می‌دهد و Read بعدی از Database را توصیه می‌کند؛ همچنین خطر تکرار اثر کسب‌وکار با Retry خودکار کور را توضیح می‌دهد. این فقط نمونه‌ای از راهنمایی اختصاصی Provider است و تضمین عمومی برای هر Persistence Engine آینده Lottorito نیست. مستندات PostgreSQL نشان می‌دهد Snapshot تراکنش و Conflict Handling با Isolation Level و شکل Statement تغییر می‌کند؛ از جمله دو Statement جدا در Read Committed ممکن است Snapshotهای Commit‌شده متفاوتی ببینند. راهنمای AWS Outbox نیز تأیید می‌کند انتشار پایین‌دستی ممکن است تکراری باشد و Consumerها باید Idempotent باشند. این منابع نیاز به Proof برای Candidate را تقویت می‌کنند؛ هیچ‌کدام Vendor انتخاب نمی‌کند یا رفتار Lottorito را اثبات می‌کند.
 
 
-## ۱۶. پیوند بازبینی خصمانه (G09-A11)
+### ۱۶.۹ پیوند بازبینی خصمانه G09-A11
 
 گزارش خودبازبینی خصمانه در همان جریان در [G09-A11](affiliate-g09-a11-adr002-adversarial-review.md) ثبت شده است و تأیید مستقل محسوب نمی‌شود. یافته‌های زیر تا زمان تعیین تکلیف با تصمیم مالک، بازبینی مستقل و شواهد مختص Candidate مانع تصویب این ADR هستند: A11-F01 (Durability Commit در Failover)، A11-F02 (Epoch مرجع تک‌نویسنده و Fencing در برابر Split-brain)، A11-F03 (Race بین Read منفی تطبیق و Commit درحال‌اجرا)، A11-F06 (Idempotency محدود به Retention)، و یافته‌های با شدت بالا A11-F04/F05/F07/F08. نه Subcase پیشنهادی A11 همگی NOT RUN هستند. این پیوند مجوز اجرای Runtime ایجاد نمی‌کند و هیچ Gate مربوط به A4 را حذف نمی‌کند.
 
