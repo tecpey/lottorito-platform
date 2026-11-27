@@ -152,3 +152,11 @@
 - یافته‌های F01 تا F10 در A7 طبق وضعیت قبلی باز هستند. A7-F01 فقط آماده بازبینی واقعاً مستقل است و با A8 بسته نمی‌شود. A8-F01 تا A8-F12 باز هستند.
 - A4-GATE-01 تا A4-GATE-08 تصویب نشده‌اند؛ اجرای Runtime/Harness/Database/Queue/IAM مسدود است. Integration شریک، عملیات مالی، Merge یا Deploy مجاز نیست.
 - گام بعد: تعیین تکلیف توسط بازبین مستقل؛ حل پروتکل زمانی و اثبات منع Capability مالی؛ تکمیل ردیابی Subcaseها در A7 و ADRهای پاسخ‌گو؛ اعتبارسنجی Governance دوزبانه و CI روی Head دقیق.
+
+
+## G09-A9 / ADR-001 — 2026-11-28
+- سند دوزبانه LOT-AFFILIATE-G09-ADR-001 افزوده شد؛ پروتکل پیشنهادی Claim Generation پایدار برای هر WorkItem و انتقال Guardشده را تعریف می‌کند. رقابت Linearization هنگام انقضای Lease، کنترل Owner/Token احراز‌شده، ممنوعیت احیای Lease، محدودیت مرز Transaction، Reconciliation نتیجه نامعلوم Commit و Fencing در Restore/Recovery را پوشش می‌دهد.
+- تمایز معنایی اصلی صریح شد: انقضای Lease فقط کار را واجد شرایط Reclaim می‌کند؛ نخستین انتقال پایدار Guardشده و سریال‌شده برنده است. انتقالی که در زمان اعتبار Lease Linearize شود، پیش از Reclaim بعدی مرتب می‌شود؛ پس از انقضا یا تغییر Generation، Worker قدیمی باید صفر Row محافظت‌شده را تغییر دهد. این قاعده به اثبات Semantics مربوط به Lock/Time/Failover در Persistence Engine آینده وابسته است و هنوز تصویب نشده.
+- هشت Subcase مربوط به A8 به اسناد ردیابی A7 در هر دو زبان اضافه شد و به والدهای A4 متصل شد. تعداد Canonical در A4 همچنان ۴۷ است؛ نتایج والد و Subcase باید جداگانه گزارش شوند. همه Subcaseها NOT RUN/BLOCKED هستند.
+- ADR-001 پیشنهادی است. تصمیم‌های مالک درباره زمان مرجع/Failover، Semantics Serialization در Persistence، اتمام ظرفیت Generation، مرجع Recovery Incarnation، Policy چرخه عمر و محدودیت Transaction/Worker باز هستند. هیچ DB/Queue/Vendor یا مقدار عددی انتخاب نشده.
+- بازبینی مستقل همچنان لازم است. F01 تا F10 در A7 و F01 تا F12 در A8 باز هستند. هر هشت Gate در A4 تصویب نشده‌اند؛ پیاده‌سازی/اجرای Runtime/Harness/Database/Queue/IAM مسدود است. هیچ مجوز شریک، عملیات مالی، Merge یا Deploy صادر نشده است.
