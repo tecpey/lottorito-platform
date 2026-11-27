@@ -95,3 +95,5 @@ Read repository-root [AGENTS.md](../../AGENTS.md). Use a working branch and pull
 ## Affiliate G09-A4 runtime proof architecture
 
 - [Affiliate G09-A4 runtime proof architecture and adversarial test design](engineering/affiliate-g09-a4-runtime-proof-architecture.md) — LOT-AFFILIATE-G09-A4-001; proposed isolated harness, trust boundaries, persistence invariants, 47 adversarial cases, independent test oracles, evidence requirements and stop gates. No runtime implementation or technology selection is approved.
+
+- [Affiliate G09-A5 — Runtime Proof Readiness & Implementation Blueprint](engineering/affiliate-g09-a5-runtime-proof-readiness.md) — proposed logical persistence, atomicity, worker fencing, fixture, failure-injection and executable-test blueprint; no runtime approval.
