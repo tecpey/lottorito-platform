@@ -19,6 +19,10 @@ These boundaries MUST NOT share credentials, scopes, rate-limit budgets or impli
 
 The management API MUST NOT accept partner event assertions as a substitute for domain authorization. The ingestion API MUST NOT expose general Affiliate administration or financial mutation.
 
+### OpenAPI server-base semantics
+
+Both OpenAPI descriptions explicitly declare a relative server base of `/`. Under OpenAPI 3.2.1, omitting `servers` or supplying an empty array also defaults to `/`; therefore omission would not mean “no server”. The explicit relative base avoids inventing a hostname, environment or deployment while making the specification's resolution behavior visible. It is not a deployed endpoint or a production host. Redocly's generic `no-empty-servers` suppression was removed after this correction.
+
 ## 3. Narrow management API surface
 
 The OpenAPI file defines only the first wire-contract slice:
