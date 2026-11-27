@@ -81,3 +81,7 @@ Validator ساختاری در [scripts/check_docs.py](../../scripts/check_docs.p
 ## حاکمیت مشارکت
 
 پیش از مشارکت، [AGENTS.md](../../AGENTS.md) را بخوانید. از شاخه کاری و Pull Request استفاده کنید. بدون مجوز صریح مالک، Merge، Deploy، تغییر تنظیمات مخزن یا عملیات مخرب انجام ندهید.
+
+## پذیرش امنیتی افیلیت
+
+- [مشخصات پذیرش امنیتی و مرز Runtime افیلیت](engineering/affiliate-security-acceptance-runtime-boundary.md) — LOT-AFFILIATE-SEC-ACC-001؛ ماتریس پیشنهادی پذیرش Runtime، مرز اعتماد، Idempotency، Persistence، حفاظت داده و Gateهای انتشار؛ بدون پیاده‌سازی Runtime یا تأیید Production.
