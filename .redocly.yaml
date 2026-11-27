@@ -1,0 +1,15 @@
+extends:
+  - recommended
+
+apis:
+  affiliate-management@v1:
+    root: contracts/openapi/affiliate-management.v1.json
+    rules:
+      # This draft intentionally has no published server URL: no deployed endpoint has been verified.
+      # Keep this exception scoped to this contract; do not invent a placeholder production host.
+      no-empty-servers: off
+  partner-event-ingestion@v1:
+    root: contracts/openapi/partner-event-ingestion.v1.json
+    rules:
+      # This draft intentionally has no published server URL: no partner endpoint has been verified.
+      no-empty-servers: off
