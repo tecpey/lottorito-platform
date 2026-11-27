@@ -30,6 +30,8 @@ The minimum durable model has the following logical records. Physical normalizat
 | AuditRecord | actor/principal class; tenant/installation; action/result; correlation IDs; timestamp; policy version; safe reason code | Append-oriented, least-privilege and payload/secret-free. |
 | EvidenceManifest | run ID; source commit; harness/catalogue version; case ID; fixture seed; environment identity; artifact digests; reviewer state | Contains references and hashes, not raw secrets or unrestricted payload copies. |
 
+**Terminology clarification (proposed; owner approval pending):** the mandatory atomic acceptance pair is exactly InboxReceipt + WorkItem. DeliveryOutbox is a distinct conditional record for downstream publication only; it is not WorkItem, is not required for internal durable acceptance by default, and cannot replace or make WorkItem optional. Additional audit/publication metadata joins the acceptance transaction only when its own approved invariant requires it. This does not select a physical schema or technology.
+
 ### 3.1 Identity and uniqueness
 
 A4 requires source-event identity, request idempotency key and economic-effect identity to remain distinct. For ingress deduplication, define an approved identity tuple before implementation. Candidate tuple:
@@ -45,7 +47,7 @@ The database must enforce uniqueness at the durable boundary. An application-lev
 The only success boundary is one commit containing:
 1. the immutable InboxReceipt;
 2. exactly one corresponding WorkItem;
-3. any required audit/outbox metadata that the approved design declares transactionally mandatory.
+3. additional metadata only where a separately approved invariant explicitly requires it in this transaction; a conditional DeliveryOutbox is not part of the mandatory pair by default.
 
 The success response (for example, HTTP 202 if retained by the wire contract) may be emitted only after commit is known successful. Before-commit failure yields no accepted receipt/work pair and no success response. If commit succeeds but the response is lost, retry must resolve to the already committed receipt/work pair. A broker publish must never be required to complete the acceptance transaction.
 
