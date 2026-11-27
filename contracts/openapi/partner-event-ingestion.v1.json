@@ -80,7 +80,7 @@
             }
           },
           "202": {
-            "description": "New event durably accepted; Inbox and processing job were committed atomically.",
+            "description": "Proposed success response for a new event. It MUST be emitted only after the Inbox receipt and processing job are committed atomically and the owner-approved durability acknowledgement condition is satisfied. The supported failure model, RPO and promotion/recovery behavior remain unapproved; this description is not runtime authorization or a production durability claim.",
             "content": {
               "application/json": {
                 "schema": {
@@ -168,7 +168,7 @@
             }
           },
           "503": {
-            "description": "Temporary failure before durable receipt. Caller may retry using the same CloudEvents source and id.",
+            "description": "Temporary service unavailability. This response MUST NOT assert that no receipt committed unless non-commit is known. If commit outcome is UNKNOWN, the response MUST NOT imply non-acceptance; the same CloudEvents source + id must be retried through authoritative reconciliation. The exact HTTP status and machine-readable error mapping for UNKNOWN remain PROPOSED pending owner decision.",
             "headers": {
               "Retry-After": {
                 "schema": {
@@ -200,7 +200,7 @@
     "schemas": {
       "PartnerCloudEvent": {
         "type": "object",
-        "additionalProperties": true,
+        "additionalProperties": false,
         "required": [
           "specversion",
           "id",
@@ -258,6 +258,31 @@
             "maxProperties": 64,
             "description": "Untrusted provider data. Runtime MUST validate against the exact integration-specific schema before normalization.",
             "additionalProperties": true
+          }
+        },
+        "description": "Lottorito generic CloudEvents JSON profile: property names are lowercase ASCII alphanumeric, start with a letter and are at most 20 characters; non-core extension values use only the CloudEvents JSON primitive forms string, boolean or signed 32-bit integer. Installation-specific extension registration, semantic type checks and allowlisting remain runtime responsibilities.",
+        "propertyNames": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20,
+          "pattern": "^[a-z][a-z0-9]*$"
+        },
+        "patternProperties": {
+          "^(?!(?:specversion|id|source|type|subject|time|datacontenttype|dataschema|data)$)[a-z][a-z0-9]{0,19}$": {
+            "description": "Generic CloudEvents extension attribute. Runtime MUST additionally validate the registered installation-specific name, semantic type and value constraints.",
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "integer",
+                "minimum": -2147483648,
+                "maximum": 2147483647
+              }
+            ]
           }
         }
       },
