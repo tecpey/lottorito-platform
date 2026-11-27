@@ -52,10 +52,12 @@ jobs:
         run: |
           npm install --prefix "$RUNNER_TEMP/contract-tools" --no-save --no-audit --no-fund \
             @redocly/cli@2.83.0 \
-            @asyncapi/cli@6.2.2 \
+            @asyncapi/cli@6.2.2
+          npm install --prefix "$RUNNER_TEMP/schema-tools" --no-save --no-audit --no-fund \
             ajv@8.17.1 \
             ajv-formats@3.0.1
           echo "CONTRACT_TOOLS_PREFIX=$RUNNER_TEMP/contract-tools" >> "$GITHUB_ENV"
+          echo "SCHEMA_TOOLS_PREFIX=$RUNNER_TEMP/schema-tools" >> "$GITHUB_ENV"
       - name: Validate OpenAPI contracts
         run: |
           "$RUNNER_TEMP/contract-tools/node_modules/.bin/redocly" --version
