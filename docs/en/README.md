@@ -102,3 +102,8 @@ Read repository-root [AGENTS.md](../../AGENTS.md). Use a working branch and pull
 ## Affiliate G09-A6 design verification
 
 - [Affiliate G09-A6 — Design Verification & Proof Closure](engineering/affiliate-g09-a6-design-verification.md) — LOT-AFFILIATE-G09-A6-001; independent document-level review of A4/A5, 47-case traceability, ten findings and runtime-proof blockers. Conditional design pass only; no runtime authorization.
+
+
+## Affiliate G09-A7 — 47-case traceability
+
+- [Affiliate G09-A7 — 47-Case Traceability & Decision Closure Blueprint](engineering/affiliate-g09-a7-47-case-traceability.md) — LOT-AFFILIATE-G09-A7-001; 47 individual stable A4 cases, synthetic fixtures, protocol/persistence/security/financial assertions, independent oracles, evidence contract, deterministic race schedules and F01–F10 closure register. Design only; all cases NOT RUN; runtime remains blocked.
