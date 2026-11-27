@@ -183,3 +183,5 @@
 - A7 دوزبانه با ۹ Subcase مربوط به A11 و چهار Subcase تکمیلی A10 توسعه یافت؛ ۴۷ شناسه Canonical در A4 تغییر نکرده‌اند. تمام Subcaseهای افزوده NOT RUN/BLOCKED هستند.
 - ADR-002 همچنان PROPOSED است. هیچ فناوری، Authority Service، Database، Queue، Runtime، شریک، عملیات مالی، Merge یا Deploy مجاز نشده است. هر هشت Gate مربوط به A4 تصویب‌نشده‌اند.
 - پس از این Commitها CI دقیق Head باید دوباره بررسی شود؛ موفقیت Workflow قبلی به Head جدید منتقل نمی‌شود.
+
+- همگام‌سازی تکمیلی: ADR-002 نسخه ۰.۳.۰ اکنون الزامات Authority Epoch، Durability/RPO، Retention Replay، Quarantine و Semantics پاسخ را در بر دارد؛ مراجع PostgreSQL درباره HA/Failover/WAL صرفاً شواهد مقایسه‌ای‌اند. هر دو نسخه A7 فارسی/انگلیسی دقیقاً ۴۷ شناسه Canonical A4 و ۲۱ Subcase توسعه‌ای یکتا دارند (۸ مورد قبلی + ۹ مورد A11 + ۴ مورد A10)؛ README هر دو زبان به سند A11 پیوند دارد. تمام موارد توسعه‌ای NOT RUN/BLOCKED باقی می‌مانند.
