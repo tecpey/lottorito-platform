@@ -167,3 +167,11 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 - Added a 17-case crash/concurrency/failover matrix (C01–C17), independent-oracle/evidence requirements, alternatives and owner decisions. All cases are NOT RUN. No DB, isolation level, queue, vendor, schema, quota, retention value or topology is selected.
 - Added LDR-055 to both decision registers. ADR-002 remains PROPOSED; owner approval and genuinely independent review are pending. A7-F01–F10 and A8-F01–F12 remain open; all eight A4 gates remain NOT APPROVED. No runtime, partner, financial, merge or deployment authorization.
 - Live PR #76 head before this update was 3112f7e4db83c27c223a054db497665619df5164. Exact-head workflows were queued; final-head CI must be rechecked. A previously observed Documentation Governance failure was caused by ADR-001 lacking the required stable Document ID field in both languages; the two ADR-001 files have since been amended, and that correction must be verified by CI on the final head.
+
+
+## G09-A11 — ADR-002 adversarial design review (2026-11-28)
+- Added bilingual LOT-AFFILIATE-G09-A11-001 against ADR-002 v0.1.0 / reviewed head 985cfee7ce233e6297b7de2d5d2339d8484b843e.
+- Eight findings: A11-F01 commit durability across failover (Critical); F02 authority epoch/split-brain fencing (Critical); F03 negative-read versus in-flight commit race (Critical); F04 pair cardinality/relationship constraints (High); F05 fingerprint profile/version dependency (High); F06 retention-bounded idempotency (Critical); F07 quarantine blast radius/DoS (High); F08 acceptance versus execution response semantics (High).
+- Proposed nine A11 adversarial subcases under existing A4/A8 parents; canonical 47 A4 IDs are unchanged. All subcases are NOT RUN.
+- This is a same-workflow self-review, not independent sign-off. LDR-056 recorded in both decision registers. ADR-002 remains PROPOSED; A7/A8 findings remain open; all eight A4 gates remain NOT APPROVED. No runtime, database, queue, partner, financial, merge or deployment authorization.
+- Research references include official Google Spanner unknown-commit guidance and PostgreSQL HA, replication and WAL durability documentation. No provider/technology is selected.
