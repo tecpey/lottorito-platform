@@ -1,0 +1,680 @@
+{
+  "openapi": "3.2.1",
+  "info": {
+    "title": "Lottorito Affiliate Management API",
+    "version": "0.1.0",
+    "description": "Proposed, non-production wire contract for a narrow Affiliate & Agent management slice. No server URL is published because no deployed API endpoint has been verified. See LOT-AFFILIATE-WIRE-001."
+  },
+  "tags": [
+    {
+      "name": "Affiliate",
+      "description": "Tenant-scoped Affiliate and Agent resources."
+    }
+  ],
+  "paths": {
+    "/v1/affiliate/programs": {
+      "get": {
+        "tags": [
+          "Affiliate"
+        ],
+        "operationId": "listAffiliatePrograms",
+        "summary": "List visible Affiliate programs",
+        "description": "Returns only programs visible under the caller's current tenant, product entitlement and object-level authorization.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-required-scopes": [
+          "affiliate.programs.read"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Visible program page.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProgramPage"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/Unexpected"
+          }
+        }
+      }
+    },
+    "/v1/affiliate/me": {
+      "get": {
+        "tags": [
+          "Affiliate"
+        ],
+        "operationId": "getAffiliateSelf",
+        "summary": "Get current Affiliate membership profile",
+        "description": "Returns the current authenticated principal's membership-scoped profile. Caller-supplied principal or affiliate IDs are not accepted.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-required-scopes": [
+          "affiliate.profile.read"
+        ],
+        "responses": {
+          "200": {
+            "description": "Current membership profile.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AffiliateSelf"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/Unexpected"
+          }
+        }
+      }
+    },
+    "/v1/affiliate/referral-links": {
+      "post": {
+        "tags": [
+          "Affiliate"
+        ],
+        "operationId": "createReferralLink",
+        "summary": "Create a referral link",
+        "description": "Creates a link bound to the caller's authorized membership, program, campaign and an allowlisted destination key. Arbitrary redirect URLs are not accepted.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-required-scopes": [
+          "affiliate.links.write"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateReferralLink"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Idempotent replay; original resource returned.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReferralLink"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Referral link created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReferralLink"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "409": {
+            "description": "Conflicting state or concurrent operation.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid request or Idempotency-Key reused with a different request fingerprint.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/Unexpected"
+          }
+        }
+      }
+    },
+    "/v1/affiliate/referral-links/{referralLinkId}": {
+      "get": {
+        "tags": [
+          "Affiliate"
+        ],
+        "operationId": "getReferralLink",
+        "summary": "Get an authorized referral link",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-required-scopes": [
+          "affiliate.links.read"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ReferralLinkId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Referral link.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReferralLink"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/Unexpected"
+          }
+        }
+      }
+    },
+    "/v1/affiliate/attributions/{attributionId}": {
+      "get": {
+        "tags": [
+          "Affiliate"
+        ],
+        "operationId": "getAttribution",
+        "summary": "Get an authorized attribution decision",
+        "description": "Returns a privacy-minimized decision view. It does not expose another affiliate's customer PII or permit a manual override.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-required-scopes": [
+          "affiliate.attributions.read"
+        ],
+        "parameters": [
+          {
+            "name": "attributionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Attribution decision.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Attribution"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/Unexpected"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Bearer access token. Issuer, token format, audience and client-authentication profile remain open; do not assume a JWT or a production issuer."
+      }
+    },
+    "parameters": {
+      "Cursor": {
+        "name": "cursor",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "maxLength": 2048
+        },
+        "description": "Opaque continuation cursor."
+      },
+      "Limit": {
+        "name": "limit",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 25
+        },
+        "description": "Bounded page size."
+      },
+      "ReferralLinkId": {
+        "name": "referralLinkId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "IdempotencyKey": {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "description": "Structured Field string per the current non-final IETF draft-09 profile; bind to principal, tenant, operation and normalized request fingerprint. Example includes quotation marks.",
+        "schema": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 255
+        },
+        "example": "\"8e03978e-40d5-43e8-bc93-6894a57f9324\""
+      }
+    },
+    "schemas": {
+      "Program": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "status"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 128
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 160
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "review",
+              "approved",
+              "active",
+              "suspended",
+              "retired"
+            ]
+          }
+        }
+      },
+      "ProgramPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Program"
+            }
+          },
+          "nextCursor": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 2048
+          }
+        }
+      },
+      "AffiliateSelf": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "membershipId",
+          "status",
+          "roles"
+        ],
+        "properties": {
+          "membershipId": {
+            "type": "string",
+            "maxLength": 128
+          },
+          "displayName": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 160
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "invited",
+              "pending_review",
+              "active",
+              "suspended",
+              "terminated"
+            ]
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 80
+            },
+            "uniqueItems": true
+          }
+        }
+      },
+      "CreateReferralLink": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "programId",
+          "destinationKey"
+        ],
+        "properties": {
+          "programId": {
+            "type": "string",
+            "maxLength": 128
+          },
+          "campaignId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 128
+          },
+          "destinationKey": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "label": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 120
+          },
+          "expiresAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          }
+        }
+      },
+      "ReferralLink": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "programId",
+          "destinationKey",
+          "status",
+          "createdAt"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 128
+          },
+          "programId": {
+            "type": "string",
+            "maxLength": 128
+          },
+          "campaignId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 128
+          },
+          "destinationKey": {
+            "type": "string",
+            "maxLength": 80
+          },
+          "code": {
+            "type": "string",
+            "maxLength": 128
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "revoked",
+              "expired"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expiresAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          }
+        }
+      },
+      "Attribution": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "status",
+          "decidedAt"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 128
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "attributed",
+              "rejected",
+              "disputed",
+              "reversed"
+            ]
+          },
+          "sourceReferralLinkId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 128
+          },
+          "decidedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "policyVersion": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 80
+          }
+        }
+      },
+      "Problem": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "type",
+          "title",
+          "status"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "format": "uri-reference"
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer",
+            "minimum": 400,
+            "maximum": 599
+          },
+          "detail": {
+            "type": "string"
+          },
+          "instance": {
+            "type": "string",
+            "format": "uri-reference"
+          },
+          "code": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "requestId": {
+            "type": "string",
+            "maxLength": 128
+          }
+        }
+      }
+    },
+    "responses": {
+      "Unauthorized": {
+        "description": "Authentication is missing or invalid.",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/Problem"
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "The caller is authenticated but not authorized for this resource or action.",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/Problem"
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Resource is absent or intentionally undisclosed.",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/Problem"
+            }
+          }
+        }
+      },
+      "RateLimited": {
+        "description": "Rate limit or quota exceeded. Retry guidance may be supplied in Retry-After.",
+        "headers": {
+          "Retry-After": {
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/Problem"
+            }
+          }
+        }
+      },
+      "Unexpected": {
+        "description": "Unexpected server failure. Response contains no internal diagnostics.",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/Problem"
+            }
+          }
+        }
+      }
+    }
+  }
+}
