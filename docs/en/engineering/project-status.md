@@ -152,3 +152,11 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 - A7 F01–F10 remain open as previously classified. A7-F01 is still only ready for a genuinely independent review; A8 does not close it. A8-F01..F12 are OPEN.
 - A4-GATE-01..08 remain NOT APPROVED; runtime/harness/database/queue/IAM execution remains BLOCKED. No partner integration, financial operation, merge or deployment is authorized.
 - Next: obtain independent reviewer disposition; resolve temporal protocol and financial capability proof; update A7 subcase traceability and create accountable ADRs; revalidate bilingual governance and exact-head CI.
+
+
+## G09-A9 / ADR-001 — 2026-11-28
+- Added bilingual LOT-AFFILIATE-G09-ADR-001, a proposed durable per-WorkItem claim-generation and guarded-transition protocol. It defines the lease-expiry linearization race, authenticated owner/token checks, no lease resurrection, transaction boundary restrictions, unknown-commit reconciliation and restore/recovery fencing.
+- The key semantic distinction is explicit: lease expiry makes work eligible for reclaim; the first serialized guarded durable transition wins. A transition that linearizes while the lease is valid is ordered before a later reclaim; after expiry or after generation change, the old worker must change zero protected rows. This depends on the eventual persistence engine's proven lock/time/failover semantics and is not yet approved.
+- Added eight A8 subcases to both A7 traceability documents, mapped to their existing A4 parents. Canonical A4 count remains 47; parent and subcase outcomes must be reported separately. All subcases remain NOT RUN/BLOCKED.
+- ADR-001 is PROPOSED. Owner decisions remain open for authoritative time/failover, persistence serialization semantics, generation exhaustion, recovery incarnation authority, lifecycle policy and bounded transaction/worker policy. No DB/queue/vendor or numeric values selected.
+- Independent review is still required. A7 F01–F10 and A8 F01–F12 remain open. All eight A4 gates remain NOT APPROVED; runtime/harness/database/queue/IAM implementation or execution remains BLOCKED. No partner, financial, merge or deployment authorization.
