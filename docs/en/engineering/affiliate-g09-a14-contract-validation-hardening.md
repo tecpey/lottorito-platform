@@ -34,7 +34,7 @@ The partner envelope and canonical event payload now enforce a shared generic pr
 - lowercase ASCII alphanumeric property names;
 - first character lowercase letter;
 - maximum 20 characters (the project intentionally strengthens CloudEvents SHOULD guidance into a local MUST);
-- extension values limited to JSON string, boolean or signed 32-bit integer representations;
+- extension values limited to JSON string, boolean or signed 32-bit integer representations; string values reject CloudEvents-prohibited control characters, unpaired surrogates and Unicode noncharacters;
 - no unknown top-level properties outside the core fields and syntactically valid extension pattern.
 
 No extension-count, byte-size, parsing-time, nesting or quota number is invented. Those resource ceilings remain subject to the SEC-AFF-08 owner/operations decision and load evidence.
@@ -73,7 +73,7 @@ The manifest currently enumerates all 11 schema roots:
 - 3 Partner Ingestion OpenAPI schemas;
 - 1 AsyncAPI canonical-event payload.
 
-It lists 45 positive/negative fixture IDs. The validator compares the manifest to the actual schema roots and executed fixtures exactly. A new or removed schema root, missing/extra fixture, duplicate fixture ID or fixture associated with the wrong root fails validation. New operations also fail until explicitly added to the operation-security manifest.
+It lists 51 positive/negative fixture IDs. The validator compares the manifest to the actual schema roots and executed fixtures exactly. A new or removed schema root, missing/extra fixture, duplicate fixture ID or fixture associated with the wrong root fails validation. New operations also fail until explicitly added to the operation-security manifest.
 
 This is a completeness guard over the declared schema-root inventory, not a proof of every semantic behavior or every possible input.
 
@@ -87,7 +87,7 @@ This is a completeness guard over the declared schema-root inventory, not a proo
 - `contracts/asyncapi/affiliate-domain-events.v1.json`
 - bilingual `affiliate-api-wire-contract.md`
 
-The script's static fixture-label cross-check currently reports 45 manifest fixtures and 45 unique executable fixture labels with no missing, extra or duplicate IDs. This is a source inspection result, not an executed Node/Ajv test result.
+The script's static fixture-label cross-check currently reports 51 manifest fixtures and 51 unique executable fixture labels with no missing, extra or duplicate IDs. This is a source inspection result, not an executed Node/Ajv test result.
 
 ## 4. A13 finding disposition
 
@@ -98,7 +98,7 @@ The script's static fixture-label cross-check currently reports 45 manifest fixt
 | F03 — AsyncAPI dialect wording | corrected comment/output and guarded Ajv subset | IMPLEMENTED CANDIDATE; CI pending |
 | F04 — transitive dependency reproducibility | package manifest and one-time lockfile bootstrap | OPEN until lockfile committed and strict npm ci passes |
 | F05 — 202/503/UNKNOWN alignment | conditional response language and explicit UNKNOWN boundary | PARTIAL; owner decision and runtime proof OPEN |
-| F06 — schema fixture coverage | 11-root/45-fixture machine manifest and exact-set assertions | IMPLEMENTED CANDIDATE; CI pending |
+| F06 — schema fixture coverage | 11-root/51-fixture machine manifest and exact-set assertions | IMPLEMENTED CANDIDATE; CI pending |
 
 ## 5. Required verification before marking A14 complete
 
