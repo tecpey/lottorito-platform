@@ -183,3 +183,5 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 - Expanded bilingual A7 with nine A11 and four supplemental A10 subcases; canonical A4 remains 47 IDs. All added subcases are NOT RUN/BLOCKED.
 - ADR-002 remains PROPOSED. No technology, authority service, database, queue, runtime, partner, financial operation, merge or deployment is authorized. All eight A4 gates remain NOT APPROVED.
 - Exact-head CI must be rechecked after these commits; prior workflow success does not transfer.
+
+- Follow-up synchronization: ADR-002 v0.3.0 now includes the A11 authority-epoch, durability/RPO, replay-retention, quarantine and response-semantics requirements; PostgreSQL HA/failover/WAL references are linked as comparative evidence only. A7 EN/FA each contain the same 47 canonical A4 IDs and 21 unique extension subcases (8 prior + 9 A11 + 4 A10); README EN/FA link the A11 review. All extensions remain NOT RUN/BLOCKED.
