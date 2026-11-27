@@ -1,6 +1,6 @@
 # Lottorito Decision Register
 
-**Document ID:** LOT-ADR-REG-001 | **Version:** 2.4.0 | **Status:** Maintained register; entries retain their individual authority state
+**Document ID:** LOT-ADR-REG-001 | **Version:** 2.5.0 | **Status:** Maintained register; entries retain their individual authority state
 
 ## How to read this register
 This register prevents agents from turning discussion, examples or proposals into product rules. A record is not approved merely because it is listed here. The state and authority column govern. Evidence must be linked for every change.
@@ -66,6 +66,8 @@ This register prevents agents from turning discussion, examples or proposals int
 | LDR-043 | API Platform and developer experience | Proposed platform contract | LOT-API-PLATFORM-001 extends LOT-API-001 and LOT-EVENT-001 with control/data planes, developer organizations and applications, entitlement catalog, credential lifecycle, webhook subscriptions, generated SDKs, Developer Portal, isolated sandbox, metering/quotas, support and API lifecycle governance. | Proposed only. No gateway, portal, SDK, sandbox, credentials, pricing, public API or production access is implemented/approved. Owner, architecture, security, finance, legal, privacy and operations review required. |
 
 | LDR-044 | Affiliate & Agent domain API capability contract | Proposed domain contract / Affiliate-first delivery direction | LOT-AFFILIATE-API-001 defines a provider-neutral capability inventory for tenant program administration, memberships, Agent hierarchy, campaigns, referral links, attribution, partner-event intake, commission transparency, statements and reporting. Wallet, ledger, payment and payout mutations remain in their owning domains. | Affiliate-first is owner-directed; this API surface, partner mappings, attribution policy, hierarchy rules, commercial formulas and production release remain Proposed/Open. Actual partner contract/sandbox and owner, legal, finance, security and operations approval are required. No partner, endpoint, rate or payment flow is approved. |
+
+| LDR-046 | Affiliate API wire contract and canonical event profile | Proposed technical contract | LOT-AFFILIATE-WIRE-001 and the OpenAPI 3.2.1 / AsyncAPI 3.0.0 / CloudEvents 1.0.2 artifacts define a narrow Affiliate management API and separate authenticated partner-event ingress, with source-event/economic-effect identity separation and durable at-least-once processing. | Extends LOT-API-001, LOT-EVENT-001 and LOT-AFFILIATE-API-001; no endpoint, OAuth profile, partner schema, transport, commercial rule or production access is approved. Validate exact toolchain compatibility and obtain actual partner documentation/sandbox before implementation. |
 
 ## Decision-change protocol
 1. Propose a change with rationale, alternatives, impact and evidence.
