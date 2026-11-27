@@ -213,3 +213,9 @@
 
 ### نقطه کنترل Lockfile در G09-A14
 - هر دو Lockfile مجزا در نوک Branch ثبت شده‌اند: contract-tools شامل ۱٬۴۰۹ رکورد Package و schema-tools شامل ۷ رکورد Package، هر دو با lockfileVersion 3. سازوکار موقت Bootstrap/Artifact/Write-back حذف شده و Workflow اکنون برای هر دو Prefix از `npm ci` سخت‌گیرانه استفاده می‌کند. اعتبارسنجی نهایی روی Head دقیق در انتظار است.
+
+### تأیید نهایی G09-A14 روی Head دقیق — ۲۰۲۶-۱۱-۲۸
+- Head دقیق `3a008718ab9cf40a551441e3a195f73874788f26` تأیید شد: Documentation Governance #1057 با SUCCESS (`46070895494`) و Affiliate Contract Validation #227 با SUCCESS (`46070891292`).
+- هر دو نصب سخت‌گیرانه `npm ci` از Lockfileهای مجزای ثبت‌شده با Node 24.11.1/npm 11.6.2 موفق شدند. Redocly OpenAPI، AsyncAPI CLI 6.2.2 و اعتبارسنجی Payload با Node/Ajv موفق شدند: ۶۶ Assertion، ۱۱ Schema Root و ۵۳ Fixture مثبت/منفی.
+- A13-F01/F03/F04/F06 در محدوده قرارداد/CI تأیید شدند. A13-F02 برای Proof مربوط به Allowlist نصب در Runtime جزئاً باز است؛ A13-F05 تا تصمیم مالک و Proof اختصاصی Durability/UNKNOWN باز می‌ماند. هشدارهای غیرمسدودکننده: نبود Metadata مربوط به `info.license` و پیشنهاد AsyncAPI CLI برای بررسی نسخه 3.1.0؛ هیچ License یا Migration مربوط به Dialect استنباط نمی‌شود.
+- ADR-002 همچنان PROPOSED؛ A11-F01 تا F08 باز؛ A7/A8 صرفاً طراحی و NOT RUN؛ تمام Gateهای A4 تصویب‌نشده؛ بازبینی مستقل باقی است. بدون مجوز Runtime، انتخاب Persistence/Queue، اتصال شریک، عملیات مالی، Merge یا Deploy.
