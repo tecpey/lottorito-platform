@@ -46,6 +46,7 @@ LOT-FIN-POST-001 کنترل‌های پیشنهادی ثبت مالی و تطب�
 | مهندسی | [پلتفرم API و تجربه توسعه‌دهندگان](engineering/api-platform-and-developer-experience.md) | LOT-API-PLATFORM-001؛ Control/Data Plane، ثبت App، کاتالوگ Entitlement، Credential، Webhook، SDK، Developer Portal، Sandbox، Metering و حاکمیت چرخه عمر پیشنهادی |
 | مهندسی | [قرارداد رویداد canonical](engineering/canonical-event-contract.md) | LOT-EVENT-001؛ پاکت و معنای تحویل رویداد پیشنهادی |
 | مهندسی | [قرارداد Wire API افیلیت](engineering/affiliate-api-wire-contract.md) | LOT-AFFILIATE-WIRE-001؛ پروفایل پیشنهادی OpenAPI/AsyncAPI و ورودی CloudEvents؛ بدون تصویب Endpoint یا نگاشت شریک |
+| مهندسی | [بازبینی امنیتی قرارداد Wire افیلیت](engineering/affiliate-wire-security-review.md) | LOT-AFFILIATE-SEC-001؛ بازبینی تهدیدمحور قرارداد، یافته‌ها و دروازه‌های پیش از پیاده‌سازی/Production |
 | معماری | [استاندارد بومی‌سازی جهانی](architecture/global-localization-standard.md) | LOT-I18N-001؛ ۱۲ زبان عرضه و دروازه کیفیت برابر |
 | معماری | [Live Chat و ارتباط با مشتری](architecture/live-chat-and-communications.md) | LOT-COMMS-001؛ پشتیبانی چندزبانه و تحویل به انسان |
 | معماری | [معماری یکپارچه پلتفرم B2B2C چندمستاجری](architecture/unified-b2b2c-platform-architecture.md) | LOT-PLATFORM-001؛ تجربه‌های B2B/B2C/White-Label، Tenant، هویت، داشبورد، Wallet، پرداخت، Chat، امنیت و نقشه راه پیشنهادی |
