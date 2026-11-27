@@ -2,7 +2,7 @@
 
 **Document ID:** LOT-AFFILIATE-G09-A14-001  
 **Version:** 0.1.0  
-**Status:** IN PROGRESS — implementation candidate committed; exact-head CI and lockfile finalization pending  
+**Status:** TECHNICAL HARDENING VERIFIED — owner decisions remain open (A14-C05)  
 **Date:** 2026-11-28  
 **Parent:** LOT-AFFILIATE-G09-A13-001  
 **Scope:** Contract/CI validation only. No runtime implementation, persistence selection, partner integration, financial operation, merge or deployment authorization.
@@ -47,7 +47,7 @@ The validator now describes the AsyncAPI 3.0.0 default correctly: absent `schema
 
 OpenAPI 3.2.1 instance checks remain isolated in the Ajv 2020-12 instance. Redocly remains the full OpenAPI document validator.
 
-### A14-C04 — Lockfile bootstrap and reproducible installation path
+### A14-C04 — Isolated lockfiles and reproducible installation
 
 Added separate exact-version manifests at `.github/contract-tools/package.json` and `.github/schema-tools/package.json`. The two prefixes intentionally isolate the AsyncAPI/Redocly CLI dependency graph from the Ajv fixture-validator dependency graph, avoiding transitive Ajv/plugin collisions. Both generated lockfiles have been verified and committed:
 - `.github/contract-tools/package-lock.json` — 1,409 package records.
@@ -55,7 +55,7 @@ Added separate exact-version manifests at `.github/contract-tools/package.json` 
 
 The temporary bootstrap, artifact-upload and write-back job have been removed. The final workflow requires strict `npm ci` in both isolated prefixes and fails if either committed lockfile is absent. Node/npm versions are recorded; the runner uses `ubuntu-24.04` rather than the moving `ubuntu-latest` label.
 
-**Verification pending:** A13-F04 remains OPEN until strict installation from these committed lockfiles passes on the final exact head. The hosted runner image is still updated by GitHub; `ubuntu-24.04` narrows the OS family but is not a fully immutable image digest.
+**Verified:** strict `npm ci` succeeded from both committed lockfiles on exact head `3a008718ab9cf40a551441e3a195f73874788f26`; A13-F04 is CLOSED for dependency-graph reproducibility. The hosted runner image is still updated by GitHub; `ubuntu-24.04` narrows the OS family but is not a fully immutable image digest.
 
 ### A14-C05 — 202/503/UNKNOWN response-state alignment
 
@@ -86,18 +86,18 @@ This is a completeness guard over the declared schema-root inventory, not a proo
 - `contracts/asyncapi/affiliate-domain-events.v1.json`
 - bilingual `affiliate-api-wire-contract.md`
 
-The script's static fixture-label cross-check currently reports 53 manifest fixtures and 53 unique executable fixture labels with no missing, extra or duplicate IDs. This is a source inspection result, not an executed Node/Ajv test result.
+The exact-head Node/Ajv run executed all 53 manifest fixtures with no missing, extra or duplicate IDs; it also passed the schema-root and fixture parity assertions.
 
 ## 4. A13 finding disposition
 
 | A13 finding | A14 treatment | Current disposition |
 |---|---|---|
-| F01 — exact operation security/scope mapping | exact manifest, operation assertions and seven mutation cases | IMPLEMENTED CANDIDATE; CI pending |
+| F01 — exact operation security/scope mapping | exact manifest, operation assertions and seven mutation cases | VERIFIED BY EXACT-HEAD CI; runtime authorization remains unproven |
 | F02 — CloudEvents extension syntax/type vs installation allowlist | generic schema profile and negative fixtures; runtime allowlist retained as a separate blocker | PARTIAL; runtime requirement OPEN |
-| F03 — AsyncAPI dialect wording | corrected comment/output and guarded Ajv subset | IMPLEMENTED CANDIDATE; CI pending |
-| F04 — transitive dependency reproducibility | isolated package manifests and committed lockfiles; strict npm ci workflow | COMMITTED; final exact-head strict npm ci pending |
+| F03 — AsyncAPI dialect wording | corrected comment/output and guarded Ajv subset | VERIFIED BY EXACT-HEAD CI and AsyncAPI CLI |
+| F04 — transitive dependency reproducibility | isolated package manifests and committed lockfiles; strict npm ci workflow | VERIFIED; both strict npm ci installs passed on exact head |
 | F05 — 202/503/UNKNOWN alignment | conditional response language and explicit UNKNOWN boundary | PARTIAL; owner decision and runtime proof OPEN |
-| F06 — schema fixture coverage | 11-root/53-fixture machine manifest and exact-set assertions | IMPLEMENTED CANDIDATE; CI pending |
+| F06 — schema fixture coverage | 11-root/53-fixture machine manifest and exact-set assertions | VERIFIED BY EXACT-HEAD CI; 66 assertions passed |
 
 ## 5. Required verification before marking A14 complete
 
