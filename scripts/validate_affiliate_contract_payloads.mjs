@@ -3,8 +3,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { createRequire } from "node:module";
 
-const prefix = process.env.CONTRACT_TOOLS_PREFIX;
-assert.ok(prefix, "CONTRACT_TOOLS_PREFIX must point to the pinned contract-tools install");
+const prefix = process.env.SCHEMA_TOOLS_PREFIX;
+assert.ok(prefix, "SCHEMA_TOOLS_PREFIX must point to the isolated pinned schema-tools install");
 const require = createRequire(path.join(prefix, "package.json"));
 const Ajv2020Module = require("ajv/dist/2020");
 const AjvModule = require("ajv");
