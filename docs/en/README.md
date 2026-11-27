@@ -109,3 +109,5 @@ Read repository-root [AGENTS.md](../../AGENTS.md). Use a working branch and pull
 - [Affiliate G09-A7 — 47-Case Traceability & Decision Closure Blueprint](engineering/affiliate-g09-a7-47-case-traceability.md) — LOT-AFFILIATE-G09-A7-001; 47 individual stable A4 cases, synthetic fixtures, protocol/persistence/security/financial assertions, independent oracles, evidence contract, deterministic race schedules and F01–F10 closure register. Design only; all cases NOT RUN; runtime remains blocked.
 
 - [Affiliate G09-A8 — Independent Verification & Adversarial Challenge](engineering/affiliate-g09-a8-independent-verification.md) — design self-review only; independent review pending; no runtime authorization.
+
+- [Affiliate ADR-001 — Durable WorkItem Claim, Lease & Fencing](engineering/adr-001-workitem-claim-lease-fencing.md) — proposed temporal protocol; owner approval and independent review pending; no runtime authorization.
