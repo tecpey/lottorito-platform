@@ -90,3 +90,8 @@ Read repository-root [AGENTS.md](../../AGENTS.md). Use a working branch and pull
 ## Affiliate G09-A3 security decisions and runtime proof
 
 - [Affiliate G09-A3 decision packet and synthetic runtime proof plan](engineering/affiliate-g09-a3-decision-and-runtime-proof.md) — LOT-AFFILIATE-G09-A3-001; proposed decision records for IAM, installation/event registry, idempotency/fingerprinting, resource governance, data lifecycle, audit and economic-effect boundary, plus an isolated synthetic runtime proof plan. No decisions are approved and no runtime implementation is claimed.
+
+
+## Affiliate G09-A4 runtime proof architecture
+
+- [Affiliate G09-A4 runtime proof architecture and adversarial test design](engineering/affiliate-g09-a4-runtime-proof-architecture.md) — LOT-AFFILIATE-G09-A4-001; proposed isolated harness, trust boundaries, persistence invariants, 47 adversarial cases, independent test oracles, evidence requirements and stop gates. No runtime implementation or technology selection is approved.
