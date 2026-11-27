@@ -49,14 +49,15 @@ OpenAPI 3.2.1 instance checks remain isolated in the Ajv 2020-12 instance. Redoc
 
 ### A14-C04 — Lockfile bootstrap and reproducible installation path
 
-Added a dedicated exact-version tool manifest at `.github/contract-validation/package.json`. The workflow now:
+Added separate exact-version manifests at `.github/contract-tools/package.json` and `.github/schema-tools/package.json`. The two prefixes intentionally isolate the AsyncAPI/Redocly CLI dependency graph from the Ajv fixture-validator dependency graph; this preserves the earlier separation and avoids transitive Ajv/plugin collisions. The workflow now:
 1. temporarily generates a lockfile only when it is absent;
-2. installs using `npm ci`;
-3. uploads the one-time generated lockfile as a short-retention workflow artifact;
-4. records Node and npm versions;
-5. uses `ubuntu-24.04` rather than the moving `ubuntu-latest` label.
+2. installs each isolated prefix using `npm ci`;
+3. uploads both one-time generated lockfiles as a short-retention workflow artifact;
+4. uses a separate, narrowly scoped `contents: write` job to verify and commit only those two lockfiles to the same-repository PR branch (the validator job itself remains read-only);
+5. records Node and npm versions;
+6. uses `ubuntu-24.04` rather than the moving `ubuntu-latest` label.
 
-**Not closed yet:** the generated lockfile must be retrieved, inspected and committed. Then the temporary bootstrap and artifact-upload steps must be removed, leaving a strict `npm ci` workflow that fails when the committed lockfile is missing. Until that final change and exact-head CI pass, A13-F04 remains OPEN. The hosted runner image itself is still updated by GitHub; `ubuntu-24.04` narrows the OS family but is not a fully immutable image digest.
+**Not closed yet:** both generated lockfiles must be retrieved, inspected and committed. Then the temporary bootstrap, lockfile-persistence job and artifact-upload steps must be removed, leaving strict `npm ci` installs in both isolated prefixes that fails when the committed lockfile is missing. Until that final change and exact-head CI pass, A13-F04 remains OPEN. The hosted runner image itself is still updated by GitHub; `ubuntu-24.04` narrows the OS family but is not a fully immutable image digest.
 
 ### A14-C05 — 202/503/UNKNOWN response-state alignment
 
