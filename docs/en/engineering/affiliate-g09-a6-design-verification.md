@@ -128,8 +128,8 @@ Still blocked:
 
 ## 7. References and applicability
 
-- OWASP API Security Top 10 (2023): https://owasp.org/API-Security/ — threat taxonomy, not certification.
-- OWASP ASVS: https://owasp.org/www-project-application-security-verification-standard/ — verification catalogue; select version/level through Security review.
+- OWASP API Security Top 10 (2023): https://api-security.owasp.org/ — threat taxonomy, not certification.
+- OWASP ASVS: https://owasp.org/projects/ASVS — verification catalogue; select version/level through Security review.
 - RFC 8785: https://www.rfc-editor.org/rfc/rfc8785 — JSON Canonicalization Scheme; does not replace ingress parser policy.
 - CloudEvents specifications: https://cloudevents.io/ — event envelope semantics; does not approve a partner mapping.
 - PostgreSQL INSERT: https://www.postgresql.org/docs/current/sql-insert.html ; explicit locking: https://www.postgresql.org/docs/current/explicit-locking.html ; transaction isolation: https://www.postgresql.org/docs/current/transaction-iso.html — conditional references only if PostgreSQL is selected.
