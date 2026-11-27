@@ -53,7 +53,7 @@ Scopeهای حداقلی پیشنهادی به‌صورت Extension عملیات
 
 ۱. Integration، Tenant، Product، Environment و Namespace مجاز Source از هویت ماشینی احرازشده استخراج شود.
 ۲. مقدار `source` در CloudEvents باید با Namespace ثبت‌شده برای همان Installation منطبق باشد؛ `type` نیز باید در Allowlist صریح Eventهای آن قرار داشته باشد.
-۳. زوج `source + id` در CloudEvents هویت رویداد منبع است. این زوج در Namespace احرازشده Source یکتا است.
+۳. زوج `source + id` در CloudEvents هویت رویداد منبع است. Namespace مربوط به Source باید Allowlist و به Integration Installation احرازشده متصل باشد. مرز یکتایی پایدار در دیتابیس برابر `tenant_id + product_id + integration_installation_id + source + id` اعمال شود.
 ۴. `data` ورودی غیرقابل‌اعتماد Provider است. پیش از Normalization باید با Schema دقیق و نسخه‌بندی‌شده Provider که برای همان Integration پیکربندی شده اعتبارسنجی شود. Schema عمومی Object در OpenAPI فقط مرز انتقال را تعریف می‌کند؛ مجوز پذیرش فیلد دلخواه یا Event Type ناشناخته نیست.
 ۵. به Tenant، Product، Affiliate، Currency، Amount، Role، Commission یا وضعیت Payable ادعاشده در Payload اعتماد نشود. نگاشت و راستی‌آزمایی آن‌ها با پیکربندی و قواعد دامنه تحت مالکیت سرور انجام شود.
 ۶. Provenance و Hash تمامیت Payload طبق سیاست Retention و دسترسی مصوب حفظ شود. دسترسی به Payload خام محدود باشد و Payload خام در Logهای عادی کپی نشود.
