@@ -206,3 +206,7 @@ Guard مربوط به Claim/Transition باید Binding تغییرناپذیر T
 - AWS Builders’ Library، «Timeouts, retries, and backoff with jitter» — تشدید بار ناشی از Retry، Idempotency و Backoff: https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/
 
 منابع، پیشنهاد را پشتیبانی می‌کنند؛ انطباق محصول یا تصویب فناوری را اثبات نمی‌کنند.
+
+### قید نمونه‌برداری زمان
+
+مقایسه انقضای Lease باید **پس از اخذ نقطه Serialization مربوط به WorkItem** انجام شود، نه بر اساس Timestampی که پیش از انتظار احتمالی برای Lock گرفته شده است. Timestamp ابتدای Transaction لزوماً مناسب نیست: برای نمونه، مستندات PostgreSQL می‌گویند CURRENT_TIMESTAMP/now() زمان شروع Transaction را نشان می‌دهند، درحالی‌که clock_timestamp() زمان واقعی لحظه فراخوانی را برمی‌گرداند. این صرفاً هشدار درباره Semantics است و به‌معنای انتخاب PostgreSQL نیست. Candidate نهایی باید دقیقاً ثابت کند عبارت زمان نسبت به اخذ Lock، ارزیابی مجدد Update هم‌زمان و Commit چه زمانی ارزیابی می‌شود. اگر این موضوع قابل اثبات نباشد، پروتکل Lease روی آن Candidate قابل پذیرش نیست.
