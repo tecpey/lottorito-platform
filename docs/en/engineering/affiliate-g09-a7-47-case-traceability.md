@@ -232,3 +232,25 @@ Before proposing runtime proof, all eight A4 gates must be explicitly approved b
 ## 10. Limitations
 
 This is a technology-neutral test-design artifact derived from A4's canonical catalogue and A5/A6 findings. It has not been executed and proves no database, queue, IAM, network policy, worker or financial boundary. Green documentation CI validates only configured documentation/contract checks on the exact commit.
+
+
+## 11. G09-A8/A9 adversarial subcase extension — design only
+
+The eight subcases below extend existing stable A4 cases without changing the canonical 47-case count or IDs. They are proposed traceability additions, not executed tests. All remain NOT RUN; policy/ADR-dependent cases are additionally blocked.
+
+| Subcase ID | Parent A4 ID | Deterministic challenge | Required assertion | Independent oracle/evidence | Status |
+|---|---|---|---|---|---|
+| A8-DUR-05a | A4-DUR-05 | Lease expires; old worker attempts a guarded transition before any new claimant increments generation. | Expired lease fails the guard at the linearization point; zero protected-row changes. | O-DB/O-TX/O-WRK; authoritative time, transaction ordering, affected-row count. | BLOCKED — ADR-001 / DB TIME & LOCK SEMANTICS |
+| A8-DUR-05b | A4-DUR-05 | Heartbeat races with expiry and a second worker's reclaim. | One serialized winner; heartbeat cannot resurrect an expired lease; generation advances only for successful reclaim. | O-DB/O-TX/O-WRK; barrier schedule, generation timeline, lease values. | BLOCKED — ADR-001 / DB TIME & LOCK SEMANTICS |
+| A8-DUR-05c | A4-DUR-05 | Old worker attempts completion after generation increments and after process restart. | Old owner/token/generation changes zero protected rows; no state regression. | O-DB/O-TX/O-WRK; durable row history, old-token attempt and affected-row count. | BLOCKED — ADR-001 / WORKER PROTOCOL |
+| A8-DUR-08a | A4-DUR-08 | Restore durable state while an old worker/process may still be alive. | Claims remain stopped until old workers/identities are fenced and a non-reusable recovery incarnation is established. | O-WRK/O-IAM/O-DB/O-OBS; restore attestation, identity revocation, incarnation and rejection evidence. | BLOCKED — RESTORE/RECOVERY ADR |
+| A8-AUTH-06a | A4-AUTH-06 | Suspension/revocation commits between lifecycle read and worker transition. | Owner-approved lifecycle linearization policy is enforced atomically or by version-conditioned serialization. | O-DB/O-TX/O-WRK/O-IAM; lifecycle version, barrier timeline and state diff. | BLOCKED — OWNER LIFECYCLE POLICY |
+| A8-DUR-02a | A4-DUR-02 | Commit outcome unknown while primary is unavailable and a replica may be stale. | No false absence or acceptance; indeterminate result until authoritative reconciliation is possible. | O-DB/O-TX/O-API; primary/replica consistency evidence, retry outcome and cardinality. | BLOCKED — PERSISTENCE/RECONCILIATION ADR |
+| A8-FIN-01a | A4-FIN-01 | Attempt indirect financial capability through service discovery, workload identity, secret mount or metadata route. | Denied at independently observed enforcement points; no credential, connection, call or financial effect. | O-FIN/O-NET/O-OBS/O-DB; capability inventory, denied probes and secret-canary scan. | BLOCKED — A4-GATE-07 / SECURITY-FINANCE ATTESTATION |
+| A8-DATA-04a | A4-DATA-04 | Evidence deletion/expiry races with backup/restore and legal-hold state. | Outcome follows approved lifecycle policy and is independently evidenced across primary, backup and evidence stores. | O-DATA/O-DB/O-OBS; policy version, deletion/restore evidence and access audit. | BLOCKED — A4-GATE-05 / DATA LIFECYCLE POLICY |
+
+### Temporal protocol reference
+
+Proposed LOT-AFFILIATE-G09-ADR-001 defines a durable per-WorkItem claim generation, authenticated owner/token, persistence-authoritative guarded transition, lease-expiry linearization rule and restore/recovery fence. It remains PROPOSED and requires owner approval, independent review and candidate persistence semantics. It does not select a database or authorize runtime execution.
+
+Subcases are mapped to their parent cases; they do not add to the canonical 47-case total. The future runner must report parent and subcase outcomes separately so a passing parent cannot hide a failed interleaving.
