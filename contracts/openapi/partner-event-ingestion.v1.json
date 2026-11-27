@@ -70,7 +70,7 @@
         },
         "responses": {
           "200": {
-            "description": "Exact duplicate; existing receipt returned and no second processing job created.",
+            "description": "Exact duplicate with the same authenticated source identity and approved payload fingerprint; return the stable existing receipt and create no second WorkItem.",
             "content": {
               "application/json": {
                 "schema": {
@@ -80,7 +80,7 @@
             }
           },
           "202": {
-            "description": "Proposed success response for a new event. It MUST be emitted only after the Inbox receipt and processing job are committed atomically and the owner-approved durability acknowledgement condition is satisfied. The supported failure model, RPO and promotion/recovery behavior remain unapproved; this description is not runtime authorization or a production durability claim.",
+            "description": "Proposed success response for a new event. It MUST be emitted only after the InboxReceipt and WorkItem are committed atomically and the owner-approved durability acknowledgement condition is satisfied. The supported failure model, RPO and promotion/recovery behavior remain unapproved; this description is not runtime authorization or a production durability claim.",
             "content": {
               "application/json": {
                 "schema": {
