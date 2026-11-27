@@ -3,8 +3,14 @@
   "info": {
     "title": "Lottorito Partner Event Ingestion API",
     "version": "0.1.0",
-    "description": "Proposed provider-neutral event-ingress wire profile. The integration-specific event schemas and source allowlists must be configured from an approved partner contract. No server URL is published or verified. See LOT-AFFILIATE-WIRE-001."
+    "description": "Proposed provider-neutral event-ingress wire profile. The integration-specific event schemas and source allowlists must be configured from an approved partner contract. The relative `/` server base is explicit; no host, environment URL or deployed partner endpoint is specified or verified. See LOT-AFFILIATE-WIRE-001."
   },
+  "servers": [
+    {
+      "url": "/",
+      "description": "Relative base only; no environment host or deployment is specified."
+    }
+  ],
   "paths": {
     "/v1/integrations/{integrationId}/events": {
       "post": {
