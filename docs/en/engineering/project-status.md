@@ -133,3 +133,13 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 - On exact reviewed head `e6808bda79a65c84d0dfab6e8b07094014184910`, Affiliate Contract Validation run `46060385984` (#73) and Documentation Governance run `46060385973` (#956) both completed successfully. These are documentation/contract workflow results only, not runtime evidence.
 - PR #76 remains Open/Draft. A4-GATE-01..08 remain mandatory. No runtime implementation or execution, vendor selection, partner integration, financial operation, merge or deployment is authorized.
 - Next controlled step: close F01–F10 in bilingual documents, add a 47-row case/oracle manifest, then re-run exact-head CI. Runtime remains BLOCKED.
+
+
+## G09-A7 continuation — 2026-11-27
+- Added bilingual LOT-AFFILIATE-G09-A7-001. The manifest contains 47 unique stable A4 IDs (6 IAM, 7 AUTH, 8 IDEM, 6 PARSE, 5 RES, 8 DUR, 4 DATA, 3 FIN) in both language versions; an automated repository read confirmed 47 rows and 47 unique IDs per file, with identical ID order.
+- Each row now maps fixture, deterministic stimulus, expected protocol/authorization, persistence and financial non-effect assertions, independent oracle/evidence, and explicit NOT RUN or policy/ADR BLOCKED status.
+- Added five abstract deterministic schedules: concurrent duplicate ingress, unknown commit outcome, stale-worker fencing, atomic-pair crash matrix and tenant lifecycle race. These are design contracts only, not executed tests.
+- Proposed mandatory atomic pair is InboxReceipt + WorkItem. DeliveryOutbox is separately conditional for downstream publication and cannot replace WorkItem. This is a proposed design clarification, not an approved physical schema or technology choice.
+- F01 is ready for independent review; F02–F10 remain open pending accountable decisions, ADRs and evidence. No numeric quota, retention duration, vendor or runtime is selected.
+- OWASP ASVS is pinned to stable 5.0.0 for future requirement mapping; bleeding-edge content is not silently adopted. No ASVS compliance claim is made.
+- No runtime/harness/DB/queue implementation or execution, partner integration, financial operation, merge or deployment is authorized. All eight A4 gates remain mandatory.
