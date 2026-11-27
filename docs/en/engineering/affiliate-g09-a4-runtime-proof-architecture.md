@@ -7,7 +7,7 @@
 
 G09-A4 turns the G09-A3 security decisions and P0–P6 proof stages into a reviewable test architecture, adversarial catalogue, evidence model and execution order. It is not an implementation plan authorization, technology selection, penetration-test report or production-readiness claim.
 
-The proof objective is deliberately narrow: for generated tenants and installations, prove that a synthetic authenticated source event can be accepted or rejected deterministically; that an accepted event creates one durable Inbox receipt and one durable Job/Outbox record atomically; that retries, concurrency and worker failures do not create duplicate durable work or stale state; and that the path has no financial side effects.
+The proof objective is deliberately narrow: for generated tenants and installations, prove that a synthetic authenticated source event can be accepted or rejected deterministically; that an accepted event creates one durable Inbox receipt and one durable WorkItem (processing-job) record atomically; that retries, concurrency and worker failures do not create duplicate durable work or stale state; and that the path has no financial side effects.
 
 **Non-goals:** partner adapter, real partner traffic or credentials, public endpoint, production/staging access, commercial attribution or commission calculation, wallet/ledger/payment/payout operation, external schema retrieval, deployment, load generation against shared systems, or a claim of exactly-once delivery/economic execution.
 
@@ -39,7 +39,7 @@ Threat actors considered: unauthenticated caller; authenticated but wrong-tenant
 | Replay, identity collision and tampering | Event source/id, fingerprint, request retry key, concurrent delivery | A4-IDEM-01..08 | LOT-EVENT-001; RFC 8785 candidate profile |
 | Parsing and schema supply chain | JSON parser, CloudEvents attributes/extensions, schema reference, remote fetch | A4-PARSE-01..06 | OWASP API7/API9/API10:2023 |
 | Resource exhaustion | Body, nesting, arrays, parser CPU/memory, concurrency, tenant fairness | A4-RES-01..05 | OWASP API4:2023 |
-| Transaction/worker correctness | Inbox, Job/Outbox, commit/ack, lease, fencing, crash and retry | A4-DUR-01..08 | LOT-AFFILIATE-G09-A3-001 |
+| Transaction/worker correctness | InboxReceipt, WorkItem, commit/ack, lease, fencing, crash and retry | A4-DUR-01..08 | LOT-AFFILIATE-G09-A3-001 |
 | Privacy and audit | Logs, traces, errors, audit, evidence artifacts | A4-DATA-01..04 | LOT-SEC-001; applicable privacy decisions |
 | Financial side effects | DB permissions, service calls, network egress, economic-effect records | A4-FIN-01..03 | LOT-FIN-POST-001 |
 
@@ -55,7 +55,7 @@ OWASP API Security Top 10 is a coverage taxonomy, not a certification. A passing
 4. **Ingress system under test:** production-intended parsing, authentication, authorization, registry lookup and persistence path, with test-only endpoints/configuration visibly isolated.
 5. **Strict parser and schema fixture store:** bounded parser; local pinned schemas only; no runtime network resolver; duplicate JSON members rejected before object materialization.
 6. **Transactional persistence adapter:** actual selected disposable database and transaction engine. Independent connections/processes are required for race tests. A mock cannot prove DB invariants.
-7. **Outbox/worker subsystem:** durable Job/Outbox committed with Inbox; queue notifications are at-least-once hints; worker claims use an explicit lease and monotonically changing fencing/claim token if that model is selected.
+7. **Outbox/worker subsystem:** durable WorkItem committed atomically with Inbox; queue notifications are at-least-once hints; worker claims use an explicit lease and monotonically changing fencing/claim token if that model is selected.
 8. **Fault and time controller:** injects failures at declared boundaries and advances a controllable clock for expiry/lease/retry tests.
 9. **Egress deny layer:** network policy/firewall or equivalent denies outbound access by default; DNS and connection attempts are observable. No exception for schema URLs.
 10. **Financial isolation sentinel:** test DB roles and service wiring expose no wallet/ledger/payment/payout connection; instrument attempted access as a hard failure.
@@ -67,16 +67,16 @@ OWASP API Security Top 10 is a coverage taxonomy, not a certification. A passing
 - **TB-1 External request → ingress:** bytes are untrusted. Enforce transport/body limits before expensive parsing; authenticate before trusting client identity.
 - **TB-2 Principal → installation binding:** tenant is resolved from a server-controlled active installation/client binding, not a caller-supplied tenant field.
 - **TB-3 Event → registry/parser:** source, type, extensions and schema version must match a locally approved registry record. Payload-controlled URLs are data, never fetch instructions.
-- **TB-4 Ingress → persistence:** source identity, fingerprint, Inbox receipt and durable Job/Outbox are committed atomically under database-enforced uniqueness.
+- **TB-4 Ingress → persistence:** source identity, fingerprint, InboxReceipt and mandatory WorkItem are committed atomically under database-enforced uniqueness.
 - **TB-5 Outbox → queue → worker:** queue is a wake-up channel; durable state is authoritative. Worker must re-check installation/tenant/status and claim ownership before transition.
 - **TB-6 Runtime → financial domains:** this proof has no route, credential, network path or DB grant to financial domains. Any attempted access is a failed test and stop event.
 - **TB-7 Runtime → observability/evidence:** telemetry is a separate data sink with field allowlist/redaction; evidence access is restricted and retention bounded.
 
 ### 4.3 Persistence invariants to prove
 
-Let E be one accepted source-event identity, I its Inbox row and J its durable Job/Outbox row.
+Let E be one accepted source-event identity, I its InboxReceipt row and J its mandatory WorkItem row.
 
-- **INV-01 Atomic pair:** after transaction completion, either I and J both exist or neither exists; no externally acknowledged acceptance before commit.
+- **INV-01 Atomic pair:** the mandatory InboxReceipt + WorkItem pair commits together or neither exists; no externally acknowledged acceptance before commit. A conditional DeliveryOutbox is a separate downstream-publication record and never substitutes for WorkItem.
 - **INV-02 Unique source identity:** database-enforced uniqueness scopes the source-event identity using the accepted tenant/product/installation/source/id tuple. Application pre-checks alone are insufficient.
 - **INV-03 Stable replay:** same identity and same accepted fingerprint returns/points to the original durable receipt; it does not create a second job.
 - **INV-04 Integrity conflict:** same identity with a different fingerprint cannot overwrite the original event or enqueue new work; it produces a bounded, auditable conflict outcome.
@@ -106,8 +106,8 @@ The exact schema, isolation level, lock/claim statement, unique index, retry sta
 | A4-AUTH-05 | Response includes internal fields, credentials, raw payload or another tenant's metadata | Property-level response allowlist; sensitive/cross-tenant fields absent |
 | A4-AUTH-06 | Membership or installation suspended between acceptance and worker execution | Worker re-checks required current state; defined policy prevents unauthorized processing |
 | A4-AUTH-07 | Confused-deputy attempt via worker message carrying a forged tenant/install reference | Worker derives authority from durable trusted record and verifies binding; message fields alone confer no authority |
-| A4-IDEM-01 | Same event delivered sequentially with same semantic payload | One durable Inbox identity and one Job/Outbox; replay links to original outcome |
-| A4-IDEM-02 | N concurrent identical deliveries on independent connections | Exactly one durable receipt/job pair; all other requests converge to duplicate outcome |
+| A4-IDEM-01 | Same event delivered sequentially with same semantic payload | One durable InboxReceipt and one WorkItem; replay links to original outcome |
+| A4-IDEM-02 | N concurrent identical deliveries on independent connections | Exactly one durable InboxReceipt/WorkItem pair; all other requests converge to duplicate outcome |
 | A4-IDEM-03 | Same source identity, changed payload/fingerprint | Conflict; original immutable record unchanged; no second job |
 | A4-IDEM-04 | Same event ID but different source, installation or tenant | Identity namespaces remain distinct only where contract says; no accidental global collision or cross-tenant dedupe |
 | A4-IDEM-05 | Different raw JSON byte order/whitespace but same accepted semantic JSON | Result follows the explicitly selected fingerprint profile; raw digest and canonical digest remain distinguishable |
