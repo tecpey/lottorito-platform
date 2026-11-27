@@ -4,7 +4,7 @@
 **Decision ID:** LOT-AFFILIATE-G09-ADR-002  
 **Related:** LOT-AFFILIATE-SEC-ACC-001; G09-A4; G09-A5; G09-A7; G09-A8  
 **Status:** PROPOSED — owner decision and genuinely independent review required  
-**Version:** 0.1.0 | **Date:** 2026-11-28  
+**Version:** 0.2.0 | **Date:** 2026-11-28  
 **Scope:** Synthetic Affiliate ingress acceptance only. No commission qualification, financial posting, external side effect, partner integration or production authority.
 
 ## 1. Decision requested
@@ -48,7 +48,7 @@ Keep three identity namespaces separate:
 - HTTP request Idempotency-Key, with its own scope and retention policy;
 - future economic-effect identity owned by a separately authorized commission/finance command.
 
-Do not assume globally unique event_id. A repeated source identity with the same approved immutable binding may be a duplicate; the same identity with a different tenant, installation, source, event type, schema version or approved fingerprint is a conflict/security signal, not an update.
+Do not assume globally unique event_id. A repeated source identity within the same authenticated tenant/installation scope may be a duplicate only when all approved immutable bindings match. A different tenant is a separate identity scope unless a signed source contract explicitly defines global uniqueness; never perform cross-tenant lookup or disclose another tenant's record. A mismatch against the authenticated tenant/installation context is an authorization failure. Source, event type, schema version and approved fingerprint mismatches within the same scope are conflicts, not updates.
 
 ## 4. Atomic acceptance invariants
 
@@ -65,7 +65,7 @@ One logical transaction must:
 **C.** No queue publish, external HTTP call, financial command or partner callback occurs inside the acceptance transaction.  
 **D.** Uniqueness is enforced by a persistence-level constraint or equivalent atomic/serializable primitive. Application-only read-then-insert is insufficient under concurrency.
 
-A partial pair is an invariant breach, not a normal retry state. Stop acceptance for the affected scope, preserve evidence, prevent worker pickup and downstream effects, alert the responsible operator, and require controlled audited repair. Never silently synthesize the missing half during ordinary retry.
+Atomicity only makes writes actually included in one transaction all-or-none; it does not prove application code cannot omit one write and still commit. The selected candidate must demonstrate a commit-time or capability-enforced exactly-one pair invariant. A partial pair is an invariant breach, not a normal retry state. Stop acceptance for the affected scope, preserve evidence, prevent worker pickup and downstream effects, alert the responsible operator, and require controlled audited repair. Never silently synthesize the missing half during ordinary retry.
 
 ## 5. Commit outcomes and caller behavior
 
@@ -87,9 +87,9 @@ Exact HTTP status/envelope follows the approved API contract. This ADR does not 
 
 1. Preserve original source identity, request idempotency key, trusted tenant/installation binding and approved fingerprint version across retries.
 2. Never generate a new event identity because a response was lost.
-3. Query the authoritative persistence authority by the full approved unique tuple. A stale replica, cache or asynchronously replicated projection cannot establish absence.
+3. Query the authoritative persistence authority by the full approved unique tuple using one consistent snapshot or atomic query for receipt/work-item cardinality and linkage. A stale replica, cache or asynchronously replicated projection cannot establish absence.
 4. If exactly one receipt and exactly one linked WorkItem exist, verify tenant/installation/source/event/fingerprint/schema bindings and linkage. If valid, classify as already accepted and return the existing stable reference.
-5. If neither exists on an authoritative read, re-enter the same atomic acceptance operation. The uniqueness/serialization mechanism arbitrates concurrent attempts. Re-read and classify a concurrent conflict.
+5. If neither exists on an authoritative read, re-enter the same atomic acceptance operation. The original transaction may still be in flight: the uniqueness/serialization mechanism must arbitrate both attempts on the same key, waiting/serializing or returning a definitive conflict/abort before the retry classifies the winner. Re-read and compare immutable bindings; never assume the original attempt has terminated merely because one snapshot returned no row.
 6. If only one half exists, multiple WorkItems link to one receipt, linkage is broken or immutable fields disagree, classify invariant breach/conflict; quarantine scope and stop automated retry.
 7. If authoritative read or commit status is unavailable, preserve UNKNOWN/UNAVAILABLE and retry reconciliation only under a future approved bounded backoff/jitter/resource policy. Never use stale replica reads to manufacture certainty.
 8. Record a sanitized append-only reconciliation decision: correlation IDs, read authority/source, consistency class, observed cardinality, decision and evidence reference. Never log credentials, raw payloads or unnecessary PII.
@@ -207,3 +207,50 @@ This ADR is **PROPOSED**. It is not an approved architecture decision, implement
 - NIST SP 800-204D, Software Supply Chain Security in DevSecOps CI/CD Pipelines: https://csrc.nist.gov/pubs/sp/800/204/d/final
 
 References inform evaluation; they neither select technology nor prove Lottorito behavior.
+
+## 16. Adversarial design challenge — same-author review, not independent sign-off
+
+This is a further analytical challenge based on the official references in §15. It is a same-author review, **not** independent sign-off, runtime proof or owner decision. These clarifications supersede inconsistent earlier wording.
+
+### 16.1 Tenant-scoped identity and non-disclosure
+
+The candidate uniqueness tuple is tenant-scoped. Therefore, the same source namespace and event ID in two different tenants is **not automatically a cross-tenant conflict**. It is a separate scoped identity unless a signed source contract explicitly establishes a globally shared namespace and global uniqueness. Never query another tenant's row to detect a collision or disclose its existence. Authenticate and bind tenant/installation before idempotency lookup. A mismatch against the authenticated installation is an authorization failure, not a cross-tenant duplicate response.
+
+### 16.2 Request idempotency binding
+
+The request Idempotency-Key is separate, but must bind to a stable request fingerprint and resolved source-event identity within its approved scope. Reuse of the same key with a different body, tenant/installation binding or source-event identity is a conflict; do not replay the earlier response as if the requests were equivalent. Different request keys for the same valid source-event identity still converge on one accepted pair. Key scope, retention and response replay remain owner decisions.
+
+### 16.3 Absence, in-flight commits and uniqueness arbitration
+
+An authoritative read returning no row is only a snapshot observation; it does not prove that an earlier transaction whose commit response was lost has terminated. A reconciliation retry may race an original still-in-flight transaction. The persistence candidate must prove both attempts arbitrate on the same unique source-event key: the second attempt must wait/serialize or receive a definitive conflict/abort, then re-read and compare the winner. It must never create a second pair. If the engine cannot prove this under its documented isolation and failover model, it is unacceptable.
+
+Receipt and WorkItem cardinality/linkage must be checked in one consistent snapshot or atomic query. Two independent reads must not manufacture a false partial-pair diagnosis during concurrent commit visibility.
+
+### 16.4 Acknowledged durability across failover
+
+“Commit acknowledged” is meaningful only relative to a declared durability and failure model. The candidate must prove an acknowledged acceptance survives every failover/restore class in the explicitly supported failure model, or the API must not promise durability across that class. RPO, replication acknowledgement, promotion eligibility, recovery-point selection and post-restore replay behavior must be explicit. A readable replica is not necessarily authoritative. If acknowledged data may be absent after promotion, acceptance remains unresolved and the system must quarantine/reconcile without issuing a second accepted identity or allowing worker execution from divergent history.
+
+### 16.5 Commit-time pair invariant, not merely crash atomicity
+
+Atomic transaction semantics make writes actually included in a transaction all-or-none; they do not prove application code cannot commit a receipt while omitting its WorkItem. The candidate must demonstrate a commit-time or capability-enforced invariant that accepted receipts cannot commit without exactly one WorkItem and WorkItems cannot exist without their receipt. Possible mechanisms include a database-enforced deferred invariant, a single atomic aggregate representation, or a narrowly controlled transaction boundary with database privileges and independently tested code-path guarantees. The mechanism must be justified; a prose promise or happy-path test is insufficient. If exact-one pairing cannot be enforced or convincingly proven, redesign before runtime approval.
+
+### 16.6 Fingerprint and conflict safety
+
+A same-identity retry may be called a duplicate only when the approved canonicalization/fingerprint profile and immutable comparison fields are finalized and versioned. Until then, a matching identity with payload differences that cannot be safely compared is unresolved/conflict and must not silently reuse prior acceptance. Canonicalization version changes must not reinterpret old receipts without a migration/compatibility decision.
+
+### 16.7 Additional future test cases
+
+All remain **NOT RUN** and require relevant owner/technology decisions.
+
+| Case | Adversarial challenge | Required result |
+|---|---|---|
+| C18 | Original commit is still in flight; authoritative snapshot reads no row; reconciliation retries concurrently. | Unique-key arbitration serializes attempts; exactly one pair; loser resolves winner or waits for definitive abort. |
+| C19 | Acknowledged commit is followed by primary loss and promotion/restore to a candidate recovery point. | Behavior matches declared durability/RPO contract; no false accepted/absent claim; workers remain fenced on divergent history. |
+| C20 | Faulted application path attempts to commit InboxReceipt without WorkItem, or WorkItem without Receipt. | Commit-time/capability invariant rejects partial acceptance, or candidate is rejected pending redesign. |
+| C21 | Receipt and WorkItem are read in separate snapshots while a concurrent acceptance commits. | Reconciliation uses one consistent snapshot/atomic query; no false partial-pair quarantine. |
+| C22 | Same source namespace/event ID is presented by two distinct authenticated tenants. | Tenant-scoped identities remain isolated; no cross-tenant lookup or existence disclosure. |
+| C23 | Same HTTP Idempotency-Key is reused with a different body/source identity; separately, different keys retry the same source event. | First case conflicts without replaying an unrelated response; second converges to one source-event pair. |
+
+### 16.8 Reference-derived cautions
+
+Google Spanner guidance explicitly describes UNKNOWN commit status and recommends a subsequent database read; it also explains why blind automatic retry can duplicate business effects. This is provider-specific guidance, not a universal guarantee for any future Lottorito persistence engine. PostgreSQL documentation demonstrates that snapshots and conflict handling vary by isolation level and statement shape; separate statements can observe different committed snapshots under Read Committed. AWS outbox guidance confirms downstream publication can be duplicated and consumers need idempotency. These references reinforce candidate-proof requirements; none selects a vendor or proves Lottorito behavior.
