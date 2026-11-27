@@ -175,3 +175,11 @@
 - نه Subcase خصمانه پیشنهادی زیر Parentهای A4/A8 ثبت شد؛ ۴۷ شناسه Canonical در A4 تغییر نکردند. تمام Subcaseها NOT RUN هستند.
 - این سند Self-review در همان جریان است و تأیید مستقل نیست. LDR-056 در هر دو Decision Register ثبت شد. ADR-002 پیشنهادی باقی می‌ماند؛ یافته‌های A7/A8 باز هستند؛ هر هشت Gate A4 تصویب‌نشده‌اند. هیچ مجوز Runtime، Database، Queue، Partner، عملیات مالی، Merge یا Deploy صادر نشده است.
 - منابع تحقیق شامل راهنمای رسمی Google Spanner درباره Unknown Commit و مستندات PostgreSQL درباره HA، Replication و Durability در WAL است. هیچ Provider/فناوری انتخاب نشده است.
+
+
+## G09-A12 — یکپارچه‌سازی ADR-002 نسخه ۰.۳.۰ (2026-11-28)
+- موانع طراحی A11 در ADR-002 دوزبانه نسخه ۰.۳.۰ یکپارچه شدند: Authority Epoch تک‌نویسنده و Fencing Primary قدیمی؛ Durability/RPO مربوط به Commit تأییدشده؛ Dedup/Tombstone مربوط به Source Event محدود به Replay Horizon؛ Quarantine مرحله‌ای و منع Claim توسط Worker؛ و Semantics پاسخ صرفاً Acceptance.
+- یافته‌های A11-F01 تا F08 در سند بازبینی دوزبانه تطبیق داده شدند. این Crosswalk همان تدوین‌گر است، نه بستن مستقل یافته‌ها. هر هشت یافته تا تصمیم مالک، بازبینی مستقل و شواهد Candidate باز هستند.
+- A7 دوزبانه با ۹ Subcase مربوط به A11 و چهار Subcase تکمیلی A10 توسعه یافت؛ ۴۷ شناسه Canonical در A4 تغییر نکرده‌اند. تمام Subcaseهای افزوده NOT RUN/BLOCKED هستند.
+- ADR-002 همچنان PROPOSED است. هیچ فناوری، Authority Service، Database، Queue، Runtime، شریک، عملیات مالی، Merge یا Deploy مجاز نشده است. هر هشت Gate مربوط به A4 تصویب‌نشده‌اند.
+- پس از این Commitها CI دقیق Head باید دوباره بررسی شود؛ موفقیت Workflow قبلی به Head جدید منتقل نمی‌شود.
