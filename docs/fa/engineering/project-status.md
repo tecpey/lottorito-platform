@@ -133,3 +133,13 @@
 - روی Head دقیق بررسی‌شده `e6808bda79a65c84d0dfab6e8b07094014184910`، اجرای Affiliate Contract Validation با شناسه `46060385984` (شماره ۷۳) و Documentation Governance با شناسه `46060385973` (شماره ۹۵۶) هر دو با موفقیت تکمیل شدند. این نتایج صرفاً مربوط به Workflowهای مستندات/قراردادند، نه شواهد Runtime.
 - PR #76 همچنان Open/Draft است. هر هشت Gate در A4 لازم‌اند. هیچ پیاده‌سازی یا اجرای Runtime، انتخاب فروشنده، Integration شریک، عملیات مالی، Merge یا Deploy مجاز نیست.
 - گام کنترل‌شده بعدی: بستن F01 تا F10 در اسناد دوزبانه، افزودن Manifest چهل‌وهفت‌ردیفی Case/Oracle و سپس اجرای مجدد CI روی Head دقیق. Runtime همچنان BLOCKED است.
+
+
+## ادامه G09-A7 — ۲۰۲۶-۱۱-۲۷
+- سند دوزبانه LOT-AFFILIATE-G09-A7-001 اضافه شد. Manifest در هر دو زبان شامل ۴۷ شناسه پایدار و یکتای A4 است (۶ IAM، ۷ AUTH، ۸ IDEM، ۶ PARSE، ۵ RES، ۸ DUR، ۴ DATA و ۳ FIN). خواندن خودکار مخزن، وجود ۴۷ ردیف و ۴۷ شناسه یکتا در هر فایل و ترتیب یکسان شناسه‌ها را تأیید کرد.
+- هر ردیف Fixture، Stimulus قطعی، انتظار پروتکل/مجوزدهی، Assertionهای Persistence و عدم اثر مالی، Oracle/Evidence مستقل و وضعیت صریح NOT RUN یا BLOCKED مبتنی بر Policy/ADR دارد.
+- پنج برنامه انتزاعی قطعی اضافه شد: Ingress تکراری هم‌زمان، نتیجه نامعلوم Commit، Fencing Worker قدیمی، ماتریس Crash جفت اتمیک و Race چرخه عمر Tenant. این‌ها قرارداد طراحی‌اند و تست اجراشده نیستند.
+- جفت اتمیک پیشنهادی InboxReceipt + WorkItem است. DeliveryOutbox برای انتشار پایین‌دستی جدا و مشروط است و نمی‌تواند جای WorkItem را بگیرد. این شفاف‌سازی پیشنهادی است، نه Schema فیزیکی یا انتخاب فناوری مصوب.
+- F01 آماده بازبینی مستقل است؛ F02 تا F10 تا زمان تصمیم مالک پاسخ‌گو، ADR و Evidence باز می‌مانند. هیچ Quota عددی، Retention، Vendor یا Runtime انتخاب نشده است.
+- OWASP ASVS برای نگاشت آتی Requirementها روی نسخه پایدار 5.0.0 Pin شده است؛ محتوای Bleeding Edge بی‌صدا پذیرفته نمی‌شود. ادعای انطباق ASVS وجود ندارد.
+- هیچ پیاده‌سازی/اجرای Runtime/Harness/DB/Queue، Integration شریک، عملیات مالی، Merge یا Deploy مجاز نیست. هر هشت Gate در A4 همچنان الزامی‌اند.
