@@ -83,3 +83,22 @@
 
 ## انضباط شواهد
 این سند خلاصه بازبینی مخزن است، نه ممیزی بیرونی. پیش از اتکا به Head SHA یا وضعیت CI، Metadata و وضعیت Commit جاری را دوباره دریافت کن.
+
+## آخرین شواهد PR شماره ۷۶ و نقطه ادامه G09-A3
+
+- PR شماره ۷۶ همچنان Open/Draft است؛ Base برابر `docs/affiliate-api-capability-contract-v1` و شاخه Head برابر `docs/g09-affiliate-api-wire-contract-v1` است. Merge یا Deploy انجام نشود.
+- Head دقیق PR راستی‌آزمایی‌شده: `59414d2cc7544fed187e41e9c823e1d453c41a3a`.
+- Documentation Governance، Run ID برابر `46054529199`، شماره ۹۳۹: **PASS**.
+- Affiliate Contract Validation، Run ID برابر `46054529202`، شماره ۴۸: **PASS**؛ Job شماره `140693686036` با موفقیت تکمیل شد.
+- Run شماره ۴۸، Redocly 2.83.0 را اجرا کرد (هر دو سند OpenAPI معتبر؛ یک Warning غیرمسدودکننده License برای هر سند)، AsyncAPI CLI 6.2.2 (سند AsyncAPI 3.0.0 معتبر؛ پیشنهاد Informational برای نسخه 3.1.0) و **۴۶ Assertion مثبت/منفی Payload و مرز امنیتی** با Ajv 8.17.1 / ajv-formats 3.0.1.
+- ۴۶ Assertion شامل مرز ProgramPage در ۱۰۰/۱۰۱ و کنترل قراردادی جدایی Bearer Schemeهای Management/Ingress و وجود Scope Metadata پیشنهادی و غیرخالی برای تمام Operationهای محافظت‌شده است.
+- خود CI تصریح می‌کند که Authorization زمان اجرا، Tenant Binding، اتمیک بودن Inbox/Job، Deduplication، اثر Ledger یا Allowlist Provider را تست نمی‌کند. این موارد در Runtime همچنان NOT TESTED هستند.
+- سند دوزبانه LOT-AFFILIATE-SEC-ACC-001 اضافه شد؛ مشخصات پیشنهادی پذیرش امنیتی و مرز Runtime شامل مرز Principal/Authorization، جریان Ingress مورداعتماد، Idempotency/Fingerprint، حاکمیت Event/Schema، حفاظت منابع، ناورداهای Persistence/Worker، Privacy/Audit، ماتریس تست Runtime و چهار Gate انتشار. این سند پیاده‌سازی یا تأیید امنیتی نیست.
+- Checkout مربوط به Workflow از Merge Ref شماره `ad0cd3237e0dbe94cb4a49f257cba0ac00bd167d` استفاده کرده که Head تست‌شده PR را با Base ترکیب می‌کند. Head خود PR همان Commit دقیق بالاست.
+- اعلان‌های غیرمسدودکننده ابزارها: Warningهای License در Redocly؛ توصیه Informational نسخه جدیدتر AsyncAPI؛ هشدارهای Deprecation برخی Dependencyهای npm؛ و هشدار Deprecation مربوط به Node 20 در Actionهای Pinشده GitHub. این موارد را بدون ارزیابی جداگانه، نه Failure اعتبارسنجی و نه ریسک قطعی Production تلقی نکنید.
+
+### ادامه کنترل‌شده
+۱. LOT-AFFILIATE-SEC-ACC-001 را بازبینی و هر الزام را با LOT-API-PLATFORM-001، LOT-IAM-TENANT-001، LOT-EVENT-001، LOT-FIN-POST-001 و LOT-QA-001 تطبیق دهید.
+۲. برگه تصمیم‌های مالک برای Identity، Capability، چرخه Installation، مالکیت Registry، ADR Fingerprint، Quota عددی، Retention/Audit و Economic-effect Identity کمیسیون تهیه کنید؛ مقادیر نامعلوم صریحاً TBD بمانند.
+۳. برنامه اثبات Runtime ایزوله و فقط Synthetic و مرزهای Test Harness را تعریف کنید. تا زمان تصمیم‌های لازم و دریافت مستندات واقعی شریک و مجوز، Adapter عملیاتی، Credential واقعی شریک، Posting مالی یا درخواست Sandbox انجام نشود.
+۴. پس از به‌روزرسانی Index و Status، حاکمیت مستندات دوزبانه دوباره اجرا و Head نهایی PR و تمام Workflowها را بررسی کنید.
