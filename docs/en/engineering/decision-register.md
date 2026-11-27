@@ -69,6 +69,8 @@ This register prevents agents from turning discussion, examples or proposals int
 
 | LDR-046 | Affiliate API wire contract and canonical event profile | Proposed technical contract | LOT-AFFILIATE-WIRE-001 and the OpenAPI 3.2.1 / AsyncAPI 3.0.0 / CloudEvents 1.0.2 artifacts define a narrow Affiliate management API and separate authenticated partner-event ingress, with source-event/economic-effect identity separation and durable at-least-once processing. | Extends LOT-API-001, LOT-EVENT-001 and LOT-AFFILIATE-API-001; no endpoint, OAuth profile, partner schema, transport, commercial rule or production access is approved. Validate exact toolchain compatibility and obtain actual partner documentation/sandbox before implementation. |
 
+| LDR-047 | Affiliate wire contract security review | Proposed security review / implementation gates | LOT-AFFILIATE-SEC-001 records threat-oriented findings for object-level authorization, principal separation, token trust, scope semantics, event identity/fingerprinting, CloudEvents extension/schema allowlists, SSRF, resource ceilings, privacy and audit. | Proposed controls only; not a penetration test or production security approval. Authentication profile, quota values, canonical fingerprint implementation, retention and runtime controls require explicit platform/domain decisions and test evidence before implementation/production. |
+
 ## Decision-change protocol
 1. Propose a change with rationale, alternatives, impact and evidence.
 2. Identify the decision owner and affected documents/domains.
