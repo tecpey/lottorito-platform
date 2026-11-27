@@ -143,3 +143,12 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 - F01 is ready for independent review; F02–F10 remain open pending accountable decisions, ADRs and evidence. No numeric quota, retention duration, vendor or runtime is selected.
 - OWASP ASVS is pinned to stable 5.0.0 for future requirement mapping; bleeding-edge content is not silently adopted. No ASVS compliance claim is made.
 - No runtime/harness/DB/queue implementation or execution, partner integration, financial operation, merge or deployment is authorized. All eight A4 gates remain mandatory.
+
+
+## G09-A8 continuation — 2026-11-27
+- Added bilingual LOT-AFFILIATE-G09-A8-001. This is an adversarial **self-review**, not independent approval; no runtime/infrastructure was inspected or executed.
+- Recorded 12 additional findings: lease-validity at mutation, external-side-effect fencing, complete financial capability denial, lifecycle linearization, oracle independence, generation/token lifecycle, unknown-commit reconciliation, evidence provenance/time integrity, retention/deletion conflict, missing interleavings, resource amplification/fairness and semantic bilingual parity.
+- Added eight proposed subcases under existing A4 IDs; the canonical 47 IDs are not renumbered and no tests have run.
+- A7 F01–F10 remain open as previously classified. A7-F01 is still only ready for a genuinely independent review; A8 does not close it. A8-F01..F12 are OPEN.
+- A4-GATE-01..08 remain NOT APPROVED; runtime/harness/database/queue/IAM execution remains BLOCKED. No partner integration, financial operation, merge or deployment is authorized.
+- Next: obtain independent reviewer disposition; resolve temporal protocol and financial capability proof; update A7 subcase traceability and create accountable ADRs; revalidate bilingual governance and exact-head CI.
