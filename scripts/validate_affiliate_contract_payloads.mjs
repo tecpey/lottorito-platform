@@ -54,6 +54,8 @@ invalid("Program rejects undeclared properties", program, { id: "p", name: "N", 
 
 const programPage = oasValidator("ProgramPage");
 valid("ProgramPage resolves local $ref", programPage, { data: [{ id: "p", name: "N", status: "draft" }], nextCursor: null });
+valid("ProgramPage accepts the documented maximum page size", programPage, { data: Array.from({ length: 100 }, (_, i) => ({ id: `p-${i}`, name: "N", status: "draft" })) });
+invalid("ProgramPage rejects more than 100 items", programPage, { data: Array.from({ length: 101 }, (_, i) => ({ id: `p-${i}`, name: "N", status: "draft" })) });
 invalid("ProgramPage rejects invalid nested Program", programPage, { data: [{ id: "p", name: "N", status: "unknown" }] });
 
 const affiliateSelf = oasValidator("AffiliateSelf");
