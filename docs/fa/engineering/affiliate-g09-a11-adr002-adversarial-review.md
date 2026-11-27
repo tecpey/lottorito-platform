@@ -106,3 +106,33 @@ Read بدون جفت، Insert بدون Guard را مجاز نمی‌کند. فق
 - AWS Transactional Outbox: https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html
 
 این منابع Semantics شکست واقعی را روشن می‌کنند؛ PostgreSQL، Spanner، AWS یا Provider دیگری را انتخاب نمی‌کنند و رفتار Runtime در Lottorito را اثبات نمی‌کنند.
+
+
+## ۹. تطبیق بازبینی با ADR-002 نسخه ۰.۲.۰ / ۰.۳.۰
+
+بازبینی اولیه بالا ADR-002 نسخه ۰.۱.۰ را ارزیابی کرده است. نسخه‌های بعدی بخشی از یافته‌ها را در طراحی منعکس کرده‌اند؛ اما **این موضوع به‌معنای بسته‌شدن یافته‌ها نیست**: این بخش نیز تطبیق همان تدوین‌گر است و راستی‌آزمایی مستقل لازم دارد.
+
+| یافته | پاسخ طراحی موجود | شواهد باقیمانده برای بستن |
+|---|---|---|
+| A11-F01 Durability در Failover | بخش ۱۷.۲ ADR-002 قرارداد صریح Durability/RPO برای Commit تأییدشده را الزام می‌کند. | Failure Model مصوب مالک؛ Semantics مربوط به Replication/Flush/Promotion در Candidate؛ تست خطا برای بقای Writeهای تأییدشده در Failover پشتیبانی‌شده. |
+| A11-F02 مرجعیت/Split-brain | بخش ۱۷.۱ ADR-002، Authority Epoch افزایشی، اثبات تک‌نویسنده، Fencing Primary قدیمی و حفاظت Restore را الزام می‌کند. | تعیین ریشه مرجعیت؛ اثبات عدم Fork/Rollback در Epoch؛ رد Writer قدیمی در Partition شبکه/Control Plane و بازگشت مجدد. |
+| A11-F03 Read منفی/Commit درحال‌اجرا | بخش‌های ۱۶.۳ و ۱۷.۱ ADR-002، Arbitration همان Key روی مرجع فعال و Fenced را الزام می‌کنند؛ Snapshot منفی به‌معنای خاتمه تراکنش قبلی نیست. | Schedule قطعی Commit اولیه/Retry/Promotion روی Engine کاندید؛ اثبات دقیق Conflict/Serialization و Consistency خواندن. |
+| A11-F04 Cardinality جفت | بخش‌های ۱۶.۵ و ۱۷.۷ ADR-002، اعمال جفت در لحظه Commit/Capability و اثبات Cardinality/Linkage را الزام می‌کنند. | Constraintهای Unique/FK/Relationship مخصوص Candidate یا Aggregate توجیه‌شده؛ تست مستقیم رابطه صفر/یک/چندگانه، از جمله Restore/Corruption. |
+| A11-F05 نسخه Fingerprint | بخش ۱۶.۶ ADR-002، تشخیص Duplicate را به پروفایل Canonicalization/Fingerprint نهایی و نسخه‌دار وابسته می‌کند. | هم‌راستایی LOT-EVENT-001؛ تصمیم Parser/Canonicalization و Vectorهای چندزبانه؛ تست Compatibility و Migration. |
+| A11-F06 افق Retention | بخش ۱۷.۳ ADR-002، Replay Horizon مصوب مالک و Policy مربوط به Tombstone/Backup/Offboarding را الزام می‌کند. | قرارداد واقعی Source؛ تصمیم حقوقی/حریم خصوصی؛ تست حذف/Restore/Legal Hold و Replay دیرهنگام. هیچ افق عددی فرض نشده است. |
+| A11-F07 دامنه Quarantine | بخش ۱۷.۴ ADR-002، مهار مرحله‌ای Event ← Installation/Source ← Tenant و منع Claim توسط Worker را الزام می‌کند. | Scope مصوب مالک؛ Policy مجوزدهی/Audit/Expiry/Recovery؛ تست Poisoning هدفمند/Noisy-neighbor و Race Claim. |
+| A11-F08 تفکیک Acceptance از Execution | بخش ۱۷.۵ ADR-002 پاسخ را فقط پذیرش پایدار با Reference ثابت و بدون وعده Completion تعریف می‌کند. | هم‌راستایی Wire Contract/API؛ رفتار پس از Quarantine؛ تست قرارداد برای عدم ساخت WorkItem تکراری و عدم افشای State Worker. |
+
+### ۹.۱ شفاف‌سازی‌های تکمیلی هویت و Snapshot
+
+ADR-002 نسخه ۰.۲.۰ همچنین روشن می‌کند هویت Source در Scope هر Tenant نباید باعث Lookup/افشای بین‌مستاجری شود؛ Request Idempotency-Key باید به Fingerprint پایدار درخواست و Source Identity حل‌شده متصل باشد؛ بررسی Linkage Receipt/WorkItem باید در یک Snapshot سازگار انجام شود؛ و تغییر Fingerprint Profile نباید Receipt قدیمی را بی‌صدا بازتفسیر کند. چهار Case تکمیلی A10-DUR-02d، A10-DUR-02e، A10-AUTH-06b و A10-IDEM-08a در A7 ردیابی شده‌اند. نه Subcase مربوط به A11 نیز در آن منعکس شده‌اند. Catalogue اصلی A4 همچنان ۴۷ شناسه دارد.
+
+نسخه سند مورد تطبیق در این بخش ADR-002 v0.3.0 است؛ اما هیچ بازبینی مستقلی روی نسخه ۰.۲.۰/۰.۳.۰ انجام نشده است. بازبین مستقل از نویسنده باید کل ADR جاری، Mappingهای A7 و تمام یافته‌ها را از ابتدا بازبینی کند و به این Crosswalk اکتفا نکند.
+
+## ۱۰. وضعیت فعلی
+
+- A11-F01 تا F08 همچنان OPEN هستند؛ متن طراحی تقویت شده اما یافته‌ها بسته نشده‌اند.
+- تمام Subcaseهای A11 و A10 همچنان NOT RUN/BLOCKED هستند.
+- Catalogue Canonical در A4 همچنان ۴۷ مورد است؛ توسعه‌ها جداگانه ردیابی می‌شوند.
+- هر هشت Gate مربوط به A4 تصویب نشده‌اند.
+- هیچ Database/Queue/Provider/Authority Service، Runtime، شریک، عملیات مالی، Merge یا Deploy مجاز نشده است.
