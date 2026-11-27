@@ -102,3 +102,11 @@
 ۲. برگه تصمیم‌های مالک برای Identity، Capability، چرخه Installation، مالکیت Registry، ADR Fingerprint، Quota عددی، Retention/Audit و Economic-effect Identity کمیسیون تهیه کنید؛ مقادیر نامعلوم صریحاً TBD بمانند.
 ۳. برنامه اثبات Runtime ایزوله و فقط Synthetic و مرزهای Test Harness را تعریف کنید. تا زمان تصمیم‌های لازم و دریافت مستندات واقعی شریک و مجوز، Adapter عملیاتی، Credential واقعی شریک، Posting مالی یا درخواست Sandbox انجام نشود.
 ۴. پس از به‌روزرسانی Index و Status، حاکمیت مستندات دوزبانه دوباره اجرا و Head نهایی PR و تمام Workflowها را بررسی کنید.
+
+
+## بسته تصمیم‌های G09-A3 و برنامه اثبات Runtime ساختگی — ۲۰۲۶-۱۱-۲۷
+
+- سند دوزبانه LOT-AFFILIATE-G09-A3-001 در مسیرهای `docs/en/engineering/affiliate-g09-a3-decision-and-runtime-proof.md` و `docs/fa/engineering/affiliate-g09-a3-decision-and-runtime-proof.md` اضافه شد.
+- این بسته ۱۵ مورد تصمیم صریح را در حوزه Principal/IAM، مجوزدهی، Credential، رجیستری Installation و Event/Schema، هویت رویداد، Fingerprinting، هم‌زمانی، سقف منابع، طبقه‌بندی/نگهداری/رمزنگاری داده، Audit و مرز عدم اثر مالی ثبت می‌کند. تمام موارد Proposed یا Open هستند و هیچ تأیید مالک مفروض نیست.
+- مراحل اثبات ساختگی P0 تا P6 شامل ایزولاسیون Harness، مرز هویت/Tenant، Parse سخت‌گیرانه و Registry، Idempotency/Concurrency، Transaction/Crash Recovery، منابع/حریم خصوصی و اثبات صفر اثر مالی تعریف شدند.
+- اثبات Runtime هنوز آغاز نشده است. شروع آن نیازمند تصویب صریح دامنه توسط مالک، تأیید ایزولاسیون توسط امنیت/عملیات و انتخاب کاندید Persistence دورریختنی با قیود تراکنشی واقعی است. ساخت Adapter شریک، Credential واقعی، فراخوانی Sandbox، ثبت مالی، Merge یا Deploy مجاز نیست.
