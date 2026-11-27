@@ -194,3 +194,10 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 - The package explicitly does not constitute an independent review. No reviewer has been assigned or signed off; A11-F01..F08 remain OPEN, all A7 extension cases remain NOT RUN/BLOCKED, ADR-002 remains PROPOSED and all eight A4 gates remain NOT APPROVED.
 - Corrected duplicate ADR-002 section numbering and a duplicated Persian A7 statement. These are editorial corrections only and do not close any design finding.
 - Exact-head CI must be rechecked after the final sequential commits. No technology, runtime, partner, financial operation, merge or deployment is authorized.
+
+
+## G09-A13 — contract validation assurance review (2026-11-28)
+- Both workflows on exact source head `e88c6b6fac04b451926a8137ca68571f19e18fa8` completed SUCCESS: Documentation Governance #1014 and Affiliate Contract Validation #151. Job steps confirm OpenAPI lint, AsyncAPI CLI validation and representative Ajv payload fixtures ran.
+- Added bilingual LOT-AFFILIATE-G09-A13-001 as a same-author assurance review, explicitly not independent. Findings A13-F01..F06 remain OPEN: operation-specific scheme/scope assertions, CloudEvents extension conformance/installation allowlist boundary, AsyncAPI dialect wording, transitive dependency reproducibility, 202/503/UNKNOWN response alignment with ADR-002, and fixture coverage completeness.
+- Existing contract and security documentation already state runtime allowlist and scope semantics remain open; this review does not claim those are newly implemented. ADR-002 remains PROPOSED; A11-F01..F08 remain OPEN; A7 remains design-only; all eight A4 gates remain NOT APPROVED.
+- Recommended next package G09-A14 is contract-validator hardening and response-state alignment. No runtime implementation, technology selection, partner integration, financial operation, merge or deployment is authorized.
