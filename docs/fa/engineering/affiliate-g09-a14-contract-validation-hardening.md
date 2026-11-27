@@ -34,7 +34,7 @@ Envelope شریک و Payload رویداد Canonical اکنون یک Profile عم
 - نام Property متشکل از حروف کوچک ASCII و ارقام؛
 - کاراکتر نخست حرف کوچک؛
 - حداکثر ۲۰ کاراکتر (پروژه عمداً توصیه SHOULD در CloudEvents را به قاعده محلی MUST سخت‌گیرانه‌تر تبدیل می‌کند)؛
-- مقدار Extension محدود به String، Boolean یا Integer علامت‌دار ۳۲ بیتی در JSON؛
+- مقدار Extension محدود به String، Boolean یا Integer علامت‌دار ۳۲ بیتی در JSON؛ Stringها نیز باید کاراکترهای کنترلی ممنوع CloudEvents، Surrogate جفت‌نشده و Unicode Noncharacter نداشته باشند؛
 - هیچ Property سطح بالای ناشناخته‌ای خارج از فیلدهای Core و الگوی نحوی معتبر Extension پذیرفته نمی‌شود.
 
 هیچ عددی برای تعداد Extension، اندازه Byte، زمان Parse، عمق Nesting یا Quota اختراع نشده است. سقف منابع همچنان به تصمیم مالک/عملیات در SEC-AFF-08 و شواهد Load وابسته است.
@@ -73,7 +73,7 @@ Manifest فعلی تمام ۱۱ Schema Root را فهرست می‌کند:
 - ۳ Schema در OpenAPI مربوط به Partner Ingestion؛
 - ۱ Payload رویداد Canonical در AsyncAPI.
 
-در مجموع ۴۵ شناسه Fixture مثبت/منفی ثبت شده‌اند. Validator Manifest را دقیقاً با Schema Rootهای واقعی و Fixtureهای اجراشده تطبیق می‌دهد. Schema Root جدید یا حذف‌شده، Fixture مفقود/اضافه، شناسه تکراری یا Fixture متصل به Root اشتباه باعث شکست اعتبارسنجی می‌شود. Operation جدید نیز تا زمان ثبت صریح در Manifest امنیت عملیات Fail می‌شود.
+در مجموع ۵۱ شناسه Fixture مثبت/منفی ثبت شده‌اند. Validator Manifest را دقیقاً با Schema Rootهای واقعی و Fixtureهای اجراشده تطبیق می‌دهد. Schema Root جدید یا حذف‌شده، Fixture مفقود/اضافه، شناسه تکراری یا Fixture متصل به Root اشتباه باعث شکست اعتبارسنجی می‌شود. Operation جدید نیز تا زمان ثبت صریح در Manifest امنیت عملیات Fail می‌شود.
 
 این Guard جامعیت فهرست اعلام‌شده Schema Root را کنترل می‌کند؛ اثبات تمام رفتارهای معنایی یا تمام ورودی‌های ممکن نیست.
 
@@ -87,7 +87,7 @@ Manifest فعلی تمام ۱۱ Schema Root را فهرست می‌کند:
 - `contracts/asyncapi/affiliate-domain-events.v1.json`
 - فایل دوزبانه `affiliate-api-wire-contract.md`
 
-تطبیق ایستای برچسب Fixtureها در اسکریپت اکنون ۴۵ Fixture در Manifest و ۴۵ شناسه یکتای اجرایی را بدون شناسه مفقود، اضافه یا تکراری نشان می‌دهد. این نتیجه بازرسی منبع است، نه نتیجه اجرای Node/Ajv.
+تطبیق ایستای برچسب Fixtureها در اسکریپت اکنون ۵۱ Fixture در Manifest و ۵۱ شناسه یکتای اجرایی را بدون شناسه مفقود، اضافه یا تکراری نشان می‌دهد. این نتیجه بازرسی منبع است، نه نتیجه اجرای Node/Ajv.
 
 ## ۴. تعیین تکلیف یافته‌های A13
 
@@ -98,7 +98,7 @@ Manifest فعلی تمام ۱۱ Schema Root را فهرست می‌کند:
 | F03 — توصیف Dialect در AsyncAPI | اصلاح Comment/Output و Guard برای Ajv | نامزد پیاده‌سازی؛ CI باقی است |
 | F04 — بازتولیدپذیری Dependencyهای Transitive | Manifest ابزار و Bootstrap یک‌باره Lockfile | باز تا Commit Lockfile و PASS در npm ci سخت‌گیرانه |
 | F05 — هم‌ترازی 202/503/UNKNOWN | متن پاسخ مشروط و مرز صریح UNKNOWN | جزئی؛ تصمیم مالک و Proof Runtime باز است |
-| F06 — پوشش Fixtureهای Schema | Manifest ماشینی ۱۱ Root/۴۵ Fixture و Assertion برابری دقیق | نامزد پیاده‌سازی؛ CI باقی است |
+| F06 — پوشش Fixtureهای Schema | Manifest ماشینی ۱۱ Root/۵۱ Fixture و Assertion برابری دقیق | نامزد پیاده‌سازی؛ CI باقی است |
 
 ## ۵. اعتبارسنجی الزامی پیش از تکمیل A14
 
