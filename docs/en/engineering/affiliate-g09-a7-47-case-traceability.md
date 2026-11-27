@@ -269,5 +269,3 @@ The twenty-one subcases below extend existing stable A4 cases without changing t
 Proposed LOT-AFFILIATE-G09-ADR-001 defines a durable per-WorkItem claim generation, authenticated owner/token, persistence-authoritative guarded transition, lease-expiry linearization rule and restore/recovery fence. It remains PROPOSED and requires owner approval, independent review and candidate persistence semantics. It does not select a database or authorize runtime execution.
 
 Subcases are mapped to their parent cases; they do not add to the canonical 47-case total. ADR-002 v0.3.0 adds authority-epoch fencing, acknowledged-commit durability/RPO, retention-bounded dedupe, quarantine containment and acceptance-versus-execution response semantics. The future runner must report parent and subcase outcomes separately so a passing parent cannot hide a failed interleaving.
-
-<!-- ADR-002 A11 case traceability extension is maintained in the bilingual A11 review record. -->
