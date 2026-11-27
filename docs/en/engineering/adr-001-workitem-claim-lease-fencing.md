@@ -1,5 +1,6 @@
 # ADR-001 — Durable WorkItem Claim, Lease and Fencing Protocol
 
+**Document ID:** LOT-AFFILIATE-G09-ADR-001  
 **Decision ID:** LOT-AFFILIATE-G09-ADR-001  
 **Related findings:** A7-F01; A8-F01, A8-F04, A8-F06, A8-F10  
 **Status:** PROPOSED — owner approval and independent review required  
