@@ -1,0 +1,170 @@
+{
+  "manifestVersion": "1.0.0",
+  "purpose": "Fail-closed inventory for exact operation security metadata and executable payload-schema fixture coverage. This is contract validation metadata, not runtime authorization policy.",
+  "operationSecurity": {
+    "affiliate-management.v1.json": {
+      "securityScheme": "bearerAuth",
+      "operations": {
+        "listAffiliatePrograms": {
+          "requiredScopes": [
+            "affiliate.programs.read"
+          ]
+        },
+        "getAffiliateSelf": {
+          "requiredScopes": [
+            "affiliate.profile.read"
+          ]
+        },
+        "createReferralLink": {
+          "requiredScopes": [
+            "affiliate.links.write"
+          ]
+        },
+        "getReferralLink": {
+          "requiredScopes": [
+            "affiliate.links.read"
+          ]
+        },
+        "getAttribution": {
+          "requiredScopes": [
+            "affiliate.attributions.read"
+          ]
+        }
+      }
+    },
+    "partner-event-ingestion.v1.json": {
+      "securityScheme": "partnerBearerAuth",
+      "operations": {
+        "submitPartnerEvent": {
+          "requiredScopes": [
+            "partner.events.write"
+          ]
+        }
+      }
+    }
+  },
+  "schemaRoots": [
+    {
+      "id": "management.Program",
+      "contract": "affiliate-management.v1.json",
+      "pointer": "components.schemas.Program",
+      "fixtureIds": [
+        "Program",
+        "Program rejects unknown status",
+        "Program rejects undeclared properties"
+      ]
+    },
+    {
+      "id": "management.ProgramPage",
+      "contract": "affiliate-management.v1.json",
+      "pointer": "components.schemas.ProgramPage",
+      "fixtureIds": [
+        "ProgramPage resolves local $ref",
+        "ProgramPage accepts the documented maximum page size",
+        "ProgramPage rejects more than 100 items",
+        "ProgramPage rejects invalid nested Program"
+      ]
+    },
+    {
+      "id": "management.AffiliateSelf",
+      "contract": "affiliate-management.v1.json",
+      "pointer": "components.schemas.AffiliateSelf",
+      "fixtureIds": [
+        "AffiliateSelf",
+        "AffiliateSelf rejects duplicate roles"
+      ]
+    },
+    {
+      "id": "management.CreateReferralLink",
+      "contract": "affiliate-management.v1.json",
+      "pointer": "components.schemas.CreateReferralLink",
+      "fixtureIds": [
+        "CreateReferralLink",
+        "CreateReferralLink rejects arbitrary destination URL field",
+        "CreateReferralLink rejects malformed date-time"
+      ]
+    },
+    {
+      "id": "management.ReferralLink",
+      "contract": "affiliate-management.v1.json",
+      "pointer": "components.schemas.ReferralLink",
+      "fixtureIds": [
+        "ReferralLink",
+        "ReferralLink rejects invalid status"
+      ]
+    },
+    {
+      "id": "management.Attribution",
+      "contract": "affiliate-management.v1.json",
+      "pointer": "components.schemas.Attribution",
+      "fixtureIds": [
+        "Attribution",
+        "Attribution rejects missing decision timestamp"
+      ]
+    },
+    {
+      "id": "management.Problem",
+      "contract": "affiliate-management.v1.json",
+      "pointer": "components.schemas.Problem",
+      "fixtureIds": [
+        "Problem permits RFC 9457 extension members",
+        "Problem rejects non-error status"
+      ]
+    },
+    {
+      "id": "partner.PartnerCloudEvent",
+      "contract": "partner-event-ingestion.v1.json",
+      "pointer": "components.schemas.PartnerCloudEvent",
+      "fixtureIds": [
+        "Partner CloudEvent with top-level extension attribute",
+        "Partner CloudEvent rejects missing source identity",
+        "Partner CloudEvent rejects unsupported specversion",
+        "Partner CloudEvent rejects wrong data content type",
+        "Partner CloudEvent rejects non-object data",
+        "Partner CloudEvent enforces data maxProperties",
+        "Partner CloudEvent rejects uppercase extension name",
+        "Partner CloudEvent rejects extension name with underscore",
+        "Partner CloudEvent rejects extension name over 20 characters",
+        "Partner CloudEvent rejects array extension value",
+        "Partner CloudEvent rejects null extension value",
+        "Partner CloudEvent rejects object extension value",
+        "Partner CloudEvent rejects out-of-range integer extension"
+      ]
+    },
+    {
+      "id": "partner.EventReceipt",
+      "contract": "partner-event-ingestion.v1.json",
+      "pointer": "components.schemas.EventReceipt",
+      "fixtureIds": [
+        "EventReceipt",
+        "EventReceipt rejects unknown status"
+      ]
+    },
+    {
+      "id": "partner.Problem",
+      "contract": "partner-event-ingestion.v1.json",
+      "pointer": "components.schemas.Problem",
+      "fixtureIds": [
+        "Partner Problem Details",
+        "Partner Problem Details rejects non-error status"
+      ]
+    },
+    {
+      "id": "asyncapi.AffiliateCanonicalEvent.payload",
+      "contract": "affiliate-domain-events.v1.json",
+      "pointer": "components.messages.AffiliateCanonicalEvent.payload",
+      "fixtureIds": [
+        "Canonical Affiliate CloudEvent example",
+        "Canonical event allows a top-level CloudEvents extension",
+        "Canonical event rejects missing trusted tenant context",
+        "Canonical event rejects wrong product domain",
+        "Canonical event rejects unversioned/non-domain event type",
+        "Canonical event rejects malformed timestamp",
+        "Canonical event rejects non-object data",
+        "Canonical event rejects uppercase extension name",
+        "Canonical event rejects invalid extension value type",
+        "Canonical event rejects out-of-range integer extension"
+      ]
+    }
+  ]
+}
