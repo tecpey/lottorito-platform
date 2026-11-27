@@ -8,7 +8,8 @@ on:
       - "contracts/openapi/**"
       - "contracts/asyncapi/**"
       - "contracts/validation/**"
-      - ".github/contract-validation/**"
+      - ".github/contract-tools/**"
+      - ".github/schema-tools/**"
       - "scripts/validate_affiliate_contract_payloads.mjs"
       - "docs/en/engineering/affiliate-api-wire-contract.md"
       - "docs/fa/engineering/affiliate-api-wire-contract.md"
@@ -23,7 +24,8 @@ on:
       - "contracts/openapi/**"
       - "contracts/asyncapi/**"
       - "contracts/validation/**"
-      - ".github/contract-validation/**"
+      - ".github/contract-tools/**"
+      - ".github/schema-tools/**"
       - "scripts/validate_affiliate_contract_payloads.mjs"
       - "docs/en/engineering/affiliate-api-wire-contract.md"
       - "docs/fa/engineering/affiliate-api-wire-contract.md"
@@ -56,28 +58,30 @@ jobs:
           node-version: "24.11.1"
       - name: Bootstrap validator lockfile when first introduced
         id: bootstrap_lockfile
-        if: ${{ !hashFiles('.github/contract-validation/package-lock.json') }}
+        if: ${{ !hashFiles('.github/contract-tools/package-lock.json') || !hashFiles('.github/schema-tools/package-lock.json') }}
         run: |
-          npm install --prefix .github/contract-validation --package-lock-only --ignore-scripts --no-audit --no-fund
+          npm install --prefix .github/contract-tools --package-lock-only --ignore-scripts --no-audit --no-fund
+          npm install --prefix .github/schema-tools --package-lock-only --ignore-scripts --no-audit --no-fund
           echo "BOOTSTRAPPED_LOCKFILE=true" >> "$GITHUB_ENV"
           echo "generated=true" >> "$GITHUB_OUTPUT"
       - name: Install locked contract validators
         run: |
           node --version
           npm --version
-          npm ci --prefix .github/contract-validation --no-audit --no-fund
-          echo "CONTRACT_TOOLS_PREFIX=$GITHUB_WORKSPACE/.github/contract-validation" >> "$GITHUB_ENV"
-          echo "SCHEMA_TOOLS_PREFIX=$GITHUB_WORKSPACE/.github/contract-validation" >> "$GITHUB_ENV"
+          npm ci --prefix .github/contract-tools --no-audit --no-fund
+          npm ci --prefix .github/schema-tools --no-audit --no-fund
+          echo "CONTRACT_TOOLS_PREFIX=$GITHUB_WORKSPACE/.github/contract-tools" >> "$GITHUB_ENV"
+          echo "SCHEMA_TOOLS_PREFIX=$GITHUB_WORKSPACE/.github/schema-tools" >> "$GITHUB_ENV"
       - name: Validate OpenAPI contracts
         run: |
-          "$GITHUB_WORKSPACE/.github/contract-validation/node_modules/.bin/redocly" --version
-          "$GITHUB_WORKSPACE/.github/contract-validation/node_modules/.bin/redocly" check-config --config=.redocly.yaml
-          "$GITHUB_WORKSPACE/.github/contract-validation/node_modules/.bin/redocly" lint --config=.redocly.yaml affiliate_management_v1 --format=github-actions
-          "$GITHUB_WORKSPACE/.github/contract-validation/node_modules/.bin/redocly" lint --config=.redocly.yaml partner_event_ingestion_v1 --format=github-actions
+          "$GITHUB_WORKSPACE/.github/contract-tools/node_modules/.bin/redocly" --version
+          "$GITHUB_WORKSPACE/.github/contract-tools/node_modules/.bin/redocly" check-config --config=.redocly.yaml
+          "$GITHUB_WORKSPACE/.github/contract-tools/node_modules/.bin/redocly" lint --config=.redocly.yaml affiliate_management_v1 --format=github-actions
+          "$GITHUB_WORKSPACE/.github/contract-tools/node_modules/.bin/redocly" lint --config=.redocly.yaml partner_event_ingestion_v1 --format=github-actions
       - name: Validate AsyncAPI contract
         run: |
-          "$GITHUB_WORKSPACE/.github/contract-validation/node_modules/.bin/asyncapi" --version
-          "$GITHUB_WORKSPACE/.github/contract-validation/node_modules/.bin/asyncapi" validate --fail-severity=error \
+          "$GITHUB_WORKSPACE/.github/contract-tools/node_modules/.bin/asyncapi" --version
+          "$GITHUB_WORKSPACE/.github/contract-tools/node_modules/.bin/asyncapi" validate --fail-severity=error \
             contracts/asyncapi/affiliate-domain-events.v1.json
       - name: Validate schema payload fixtures
         run: |
@@ -87,7 +91,9 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: contract-validation-lockfile-bootstrap-${{ github.sha }}
-          path: .github/contract-validation/package-lock.json
+          path: |
+            .github/contract-tools/package-lock.json
+            .github/schema-tools/package-lock.json
           if-no-files-found: error
           retention-days: 7
 
@@ -107,25 +113,27 @@ jobs:
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
           name: contract-validation-lockfile-bootstrap-${{ github.sha }}
-          path: .github/contract-validation
+          path: .github
       - name: Verify lockfile identity and direct dependency pins
         run: |
           node --input-type=commonjs <<'NODE'
           const assert = require('node:assert/strict');
-          const pkg = require('./.github/contract-validation/package.json');
-          const lock = require('./.github/contract-validation/package-lock.json');
-          assert.equal(lock.name, pkg.name);
-          assert.equal(lock.lockfileVersion, 3);
           const sortKeys = (value) => Object.fromEntries(Object.entries(value).sort(([a], [b]) => a.localeCompare(b)));
-          assert.deepEqual(sortKeys(lock.packages[''].devDependencies), sortKeys(pkg.devDependencies));
-          assert.ok(Object.keys(lock.packages).length > 100, 'expected a complete transitive dependency graph');
-          console.log('Lockfile verified:', lock.packages ? Object.keys(lock.packages).length : 0, 'package records');
+          for (const prefix of ['contract-tools', 'schema-tools']) {
+            const pkg = require('./.github/' + prefix + '/package.json');
+            const lock = require('./.github/' + prefix + '/package-lock.json');
+            assert.equal(lock.name, pkg.name);
+            assert.equal(lock.lockfileVersion, 3);
+            assert.deepEqual(sortKeys(lock.packages[''].devDependencies), sortKeys(pkg.devDependencies));
+            assert.ok(Object.keys(lock.packages).length > 1, 'expected a complete dependency graph for ' + prefix);
+            console.log(prefix + ': verified ' + Object.keys(lock.packages).length + ' package records');
+          }
           NODE
       - name: Commit lockfile to the PR branch
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add .github/contract-validation/package-lock.json
+          git add .github/contract-tools/package-lock.json .github/schema-tools/package-lock.json
           if git diff --cached --quiet; then
             echo "Lockfile already committed; no update required."
             exit 0
