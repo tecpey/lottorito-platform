@@ -185,3 +185,5 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 - Exact-head CI must be rechecked after these commits; prior workflow success does not transfer.
 
 - Follow-up synchronization: ADR-002 v0.3.0 now includes the A11 authority-epoch, durability/RPO, replay-retention, quarantine and response-semantics requirements; PostgreSQL HA/failover/WAL references are linked as comparative evidence only. A7 EN/FA each contain the same 47 canonical A4 IDs and 21 unique extension subcases (8 prior + 9 A11 + 4 A10); README EN/FA link the A11 review. All extensions remain NOT RUN/BLOCKED.
+
+- A7 parent-reference precision correction: A11-DUR-02b is now explicitly mapped to both A4-DUR-02 and A4-IDEM-02 in English and Persian; the canonical 47-case set and 21 extension-subcase count are unchanged.
