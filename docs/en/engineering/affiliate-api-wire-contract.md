@@ -53,7 +53,7 @@ Ingress rules:
 
 1. Resolve the integration, tenant, product, environment and permitted source namespace from the authenticated machine identity.
 2. Require the incoming CloudEvents `source` to match a source namespace registered for that installation; require `type` to match its explicit event allowlist.
-3. Treat CloudEvents `source + id` as the source-event identity. The pair is unique within the authenticated source namespace.
+3. Treat CloudEvents `source + id` as the source-event identity. The source namespace must be allowlisted and bound to the authenticated integration installation. Enforce the durable uniqueness boundary at `tenant_id + product_id + integration_installation_id + source + id`.
 4. Treat `data` as untrusted provider input. Validate it against the exact, versioned provider schema configured for the integration before normalization. The generic OpenAPI object schema is a transport boundary only; it is not permission to accept arbitrary fields or unknown event types.
 5. Do not trust tenant, product, affiliate, currency, amount, role, commission or payable status asserted in provider payloads. Map and verify these values using server-owned configuration and domain rules.
 6. Preserve provenance and a payload integrity hash under approved retention and access controls. Raw payload access is restricted and raw payloads must not be copied into ordinary logs.
