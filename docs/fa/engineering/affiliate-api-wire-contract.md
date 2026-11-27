@@ -84,8 +84,8 @@ Scope لازم است اما کافی نیست. هر درخواست علاوه �
 
 | وضعیت | پاسخ | رفتار الزامی |
 |---|---:|---|
-| پذیرش پیشنهادی رویداد جدید | 202 | فقط پس از Commit اتمیک Inbox + Job و تحقق شرط Acknowledgement مربوط به Durability که مالک تصویب می‌کند؛ Failure Model/RPO فعلی تصویب نشده است |
-| Duplicate دقیق با Source + ID + Fingerprint یکسان | 200 | Receipt قبلی برگردد؛ Job دوم ایجاد نشود |
+| پذیرش پیشنهادی رویداد جدید | 202 | فقط پس از Commit اتمیک InboxReceipt + WorkItem و تحقق شرط Acknowledgement مربوط به Durability که مالک تصویب می‌کند؛ Failure Model/RPO فعلی تصویب نشده است |
+| Duplicate دقیق با Source + ID + Fingerprint یکسان | 200 | Receipt پایدار قبلی برگردد؛ WorkItem دوم ایجاد نشود |
 | Source + ID یکسان با Fingerprint متفاوت | 409 | تعارض هویت ثبت/قرنطینه شود؛ هیچ Side Effect ایجاد نشود |
 | Schema یا Type نامعتبر/پشتیبانی‌نشده | 422 | طبق قرارداد تنظیم‌شده رد یا قرنطینه شود؛ بدون اثر اقتصادی |
 | Body بیش از حد مجاز | 413 | پیش از Parse پرهزینه رد شود |
@@ -93,7 +93,7 @@ Scope لازم است اما کافی نیست. هر درخواست علاوه �
 | Rate Limit یا Quota مربوط به Tenant تمام شده | 429 | راهنمای Retry برگردد؛ حذف بی‌صدا ممنوع |
 | عدم دسترسی موقت سرویس | 503 | عدم پذیرش فقط زمانی قطعی اعلام شود که عدم Commit اثبات شده باشد؛ UNKNOWN نباید رد قطعی تلقی شود؛ تطبیق/Retry با همان Source + ID |
 
-**مرز تصویب:** این موارد معنای پیشنهادی Wire هستند، نه تضمین Runtime تصویب‌شده. ADR-002 همچنان PROPOSED است؛ هیچ Candidate مربوط به Persistence، Failure Model، RPO، قاعده Promotion یا Recovery Point تصویب نشده است. پاسخ `202` فقط پس از تأیید Persistence اتمیک Inbox + WorkItem و تحقق شرط Acknowledgement مربوط به Durability که مالک تصویب کرده است مجاز خواهد بود.
+**مرز تصویب:** این موارد معنای پیشنهادی Wire هستند، نه تضمین Runtime تصویب‌شده. ADR-002 همچنان PROPOSED است؛ هیچ Candidate مربوط به Persistence، Failure Model، RPO، قاعده Promotion یا Recovery Point تصویب نشده است. پاسخ `202` فقط پس از تأیید Persistence اتمیک InboxReceipt + WorkItem و تحقق شرط Acknowledgement مربوط به Durability که مالک تصویب کرده است مجاز خواهد بود.
 
 نتیجه Commit از نوع `UNKNOWN` نه پذیرش قطعی است و نه عدم پذیرش قطعی. API نباید آن را به‌عنوان شکست اثبات‌شده پیش از Commit توصیف کند. نگاشت دقیق HTTP Status و خطای Machine-readable برای UNKNOWN همچنان تصمیم باز مالک است. هر Retry باید همان CloudEvents `source + id` احرازشده را حفظ کند و در مرجع Persistence فعال و معتبر تطبیق داده شود؛ Read منفی به‌تنهایی مجوز Insert دوم نیست.
 
