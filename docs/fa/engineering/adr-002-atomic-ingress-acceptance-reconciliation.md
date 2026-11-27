@@ -4,7 +4,7 @@
 **شناسه تصمیم:** LOT-AFFILIATE-G09-ADR-002  
 **اسناد مرتبط:** LOT-AFFILIATE-SEC-ACC-001؛ G09-A4؛ G09-A5؛ G09-A7؛ G09-A8  
 **وضعیت:** پیشنهادی — نیازمند تصمیم مالک و بازبینی واقعاً مستقل  
-**نسخه:** ۰.۱.۰ | **تاریخ:** ۲۰۲۶-۱۱-۲۸  
+**نسخه:** ۰.۲.۰ | **تاریخ:** ۲۰۲۶-۱۱-۲۸  
 **دامنه:** فقط پذیرش Ingress مصنوعی Affiliate؛ بدون احراز کمیسیون، ثبت مالی، اثر جانبی خارجی، اتصال شریک یا مجوز Production.
 
 ## ۱. تصمیم پیشنهادی
@@ -48,7 +48,7 @@ Tuple پیشنهادی یکتایی Event منبع:
 - HTTP Request Idempotency-Key با Scope و Retention مستقل؛
 - هویت آتی اثر اقتصادی متعلق به فرمان جداگانه و مجازشده کمیسیون/مالی.
 
-هیچ‌کدام جای دیگری استفاده نشود. یکتایی جهانی event_id فرض نشود. تکرار Source Identity با Binding تغییرناپذیر یکسان می‌تواند Duplicate باشد؛ همان هویت با Tenant، Installation، Source، Event Type، Schema Version یا Fingerprint متفاوت، Conflict/سیگنال امنیتی است، نه Update.
+هیچ‌کدام جای دیگری استفاده نشود. یکتایی جهانی event_id فرض نشود. تکرار Source Identity در Scope همان Tenant/Installation احراز‌شده فقط در صورت تطابق تمام Bindingهای تغییرناپذیر مصوب می‌تواند Duplicate باشد. Tenant متفاوت Scope هویتی جداگانه است، مگر قرارداد امضاشده منبع صراحتاً یکتایی سراسری تعریف کند؛ هرگز رکورد Tenant دیگر را Query یا وجود آن را افشا نکنید. عدم تطابق با Context مربوط به Tenant/Installation احراز‌شده، شکست مجوزدهی است. عدم تطابق Source، Event Type، Schema Version یا Fingerprint مصوب در همان Scope، Conflict است نه Update.
 
 ## ۴. ناورداهای پذیرش اتمیک
 
@@ -65,7 +65,7 @@ Tuple پیشنهادی یکتایی Event منبع:
 **C.** هیچ Queue Publish، HTTP خارجی، فرمان مالی یا Callback شریک داخل تراکنش پذیرش انجام نشود.  
 **D.** یکتایی با Constraint سطح Persistence یا Primitive اتمیک/Serializable معادل اعمال شود. Read-then-insert صرفاً در Application در حضور هم‌زمانی کافی نیست.
 
-جفت ناقص نقض Invariant است، نه وضعیت عادی Retry. پذیرش در Scope مربوط متوقف، شواهد حفظ، Pickup توسط Worker و اثرات پایین‌دستی مسدود، اپراتور مسئول مطلع و Repair فقط از مسیر کنترل‌شده و Auditدار انجام شود. در Retry عادی نیمه مفقود را بی‌صدا نسازید.
+Atomicity فقط Writeهایی را که واقعاً در یک Transaction قرار گرفته‌اند همه با هم Commit یا Rollback می‌کند؛ به‌تنهایی ثابت نمی‌کند Application نمی‌تواند یکی از دو Write را حذف کند و همچنان Commit کند. Candidate منتخب باید Invariant دقیقاً یک جفت را در لحظه Commit یا با محدودسازی Capability اثبات کند. جفت ناقص نقض Invariant است، نه وضعیت عادی Retry. پذیرش در Scope مربوط متوقف، شواهد حفظ، Pickup توسط Worker و اثرات پایین‌دستی مسدود، اپراتور مسئول مطلع و Repair فقط از مسیر کنترل‌شده و Auditدار انجام شود. در Retry عادی نیمه مفقود را بی‌صدا نسازید.
 
 ## ۵. نتایج Commit و رفتار Caller
 
@@ -87,9 +87,9 @@ Status Code و Envelope دقیق HTTP تابع قرارداد API مصوب اس�
 
 ۱. Source Identity، Request Idempotency Key، Binding معتبر Tenant/Installation و نسخه Fingerprint مصوب در تمام Retryها حفظ شود.  
 ۲. به‌دلیل گم‌شدن پاسخ، Event Identity جدید تولید نشود.  
-۳. مرجع Persistence معتبر با Tuple یکتای کامل مصوب Query شود. Replica قدیمی، Cache یا Projection با Replication ناهمگام برای اثبات نبود کافی نیست.  
+۳. مرجع Persistence معتبر با Tuple یکتای کامل مصوب و با یک Snapshot سازگار یا Query اتمیک برای Cardinality و Linkage Receipt/WorkItem Query شود. Replica قدیمی، Cache یا Projection با Replication ناهمگام برای اثبات نبود کافی نیست.  
 ۴. اگر دقیقاً یک Receipt و دقیقاً یک WorkItem مرتبط وجود دارد، Bindingهای Tenant/Installation/Source/Event/Fingerprint/Schema و ارتباطشان بررسی شود. در صورت صحت، Already accepted و Reference پایدار موجود برگردانده شود.  
-۵. اگر در Read معتبر هیچ‌کدام وجود نداشت، همان عملیات پذیرش اتمیک دوباره آغاز شود. Constraint/Serialization رقابت Attemptهای هم‌زمان را حل کند؛ Conflict هم‌زمان دوباره خوانده و طبقه‌بندی شود.  
+۵. اگر در Read معتبر هیچ‌کدام وجود نداشت، همان عملیات پذیرش اتمیک دوباره آغاز شود. تراکنش اولیه ممکن است هنوز در حال اجرا باشد: سازوکار Unique/Serialization باید هر دو Attempt را روی همان Key داوری کند؛ Retry باید منتظر بماند/سریال شود یا Conflict/Abort قطعی بگیرد، سپس برنده را دوباره بخواند و Bindingهای تغییرناپذیر را مقایسه کند. صرف مشاهده Snapshot خالی، خاتمه Attempt اولیه را ثابت نمی‌کند.  
 ۶. وجود فقط یک نیمه، چند WorkItem برای یک Receipt، Link شکسته یا فیلدهای تغییرناپذیر ناسازگار، Invariant breach/Conflict است؛ Scope قرنطینه و Retry خودکار متوقف شود.  
 ۷. اگر Read معتبر یا وضعیت Commit در دسترس نیست، UNKNOWN/UNAVAILABLE حفظ و تطبیق فقط طبق Policy آتی Backoff/Jitter/Resource مصوب تکرار شود. برای ایجاد قطعیت از Replica قدیمی استفاده نشود.  
 ۸. تصمیم تطبیق Sanitized و Append-only شامل Correlation ID، مرجع/منبع Read، کلاس Consistency، تعداد رکورد، تصمیم و Evidence Reference ثبت شود. Credential، Payload خام یا PII غیرضروری Log نشود.
@@ -207,3 +207,50 @@ ADR-002 فقط زمانی از PROPOSED خارج شود که:
 - NIST SP 800-204D، امنیت زنجیره تأمین نرم‌افزار در DevSecOps CI/CD: https://csrc.nist.gov/pubs/sp/800/204/d/final
 
 این منابع در ارزیابی کمک می‌کنند؛ نه فناوری‌ای انتخاب می‌کنند و نه رفتار Lottorito را اثبات می‌کنند.
+
+## ۱۶. چالش خصمانه طراحی — بازبینی همان تدوین‌گر، نه تأیید مستقل
+
+این بخش یک چالش تحلیلی تکمیلی بر پایه منابع رسمی بخش ۱۵ است. این بررسی توسط همان جریان تدوین انجام شده و **بازبینی مستقل**، اثبات Runtime یا تصمیم مالک محسوب نمی‌شود. شفاف‌سازی‌های زیر برای دور بعدی بازبینی الزام‌آورند و هر عبارت ناسازگار در بخش‌های قبلی را اصلاح می‌کنند.
+
+### ۱۶.۱ هویت Tenant-scoped و منع افشای بین‌مستاجری
+
+Tuple یکتایی پیشنهادی در Scope هر Tenant تعریف شده است. بنابراین، Source Namespace و Source Event ID یکسان در دو Tenant متفاوت، **به‌صورت خودکار Conflict بین‌مستاجری نیست**؛ مگر آنکه قرارداد امضاشده منبع صراحتاً Namespace و یکتایی سراسری را تعریف کند. برای کشف Collision، رکورد Tenant دیگر Query نشود و وجود آن افشا نگردد. پیش از Lookup مربوط به Idempotency، Tenant/Installation احراز و متصل شود. عدم تطابق Tenant با Installation احراز‌شده، شکست مجوزدهی است، نه پاسخ Duplicate بین‌مستاجری.
+
+### ۱۶.۲ اتصال Request Idempotency
+
+Request Idempotency-Key هویت جداگانه‌ای است، اما باید برای Scope مصوب به Fingerprint پایدار درخواست و Source Event Identity حل‌شده متصل شود. استفاده مجدد از همان Key با Body، Binding مربوط به Tenant/Installation یا Source Event Identity متفاوت، Conflict است؛ نباید پاسخ درخواست قبلی طوری Replay شود که انگار درخواست جدید معادل آن بوده است. Keyهای متفاوت برای یک Source Event معتبر باید به همان جفت پذیرفته‌شده همگرا شوند. Scope، Retention و Replay پاسخ همچنان تصمیم مالک هستند.
+
+### ۱۶.۳ اثبات نبود، Commit درحال‌اجرا و Arbitration یکتایی
+
+Read معتبر که هیچ Row نشان نمی‌دهد، فقط مشاهده یک Snapshot است؛ اثبات نمی‌کند تراکنش قبلی که پاسخ Commit آن گم شده، خاتمه یافته است. Retry تطبیق ممکن است با تراکنش اولیه‌ای که هنوز در حال Commit است رقابت کند. Persistence Candidate باید ثابت کند هر دو Attempt بر سر همان Unique Source-event Key داوری می‌شوند: Attempt دوم باید منتظر بماند/سریال شود یا Conflict/Abort قطعی دریافت کند و سپس برنده را دوباره بخواند. هرگز نباید جفت دوم بسازد. اگر Engine نتواند این رفتار را تحت Isolation و مدل Failover مستندش اثبات کند، قابل‌قبول نیست.
+
+بررسی Cardinality و Linkage مربوط به Receipt و WorkItem باید در یک Snapshot سازگار یا Query اتمیک انجام شود؛ تا دو Read مستقل هنگام مشاهده هم‌زمان Commit، تشخیص کاذب جفت ناقص نسازند.
+
+### ۱۶.۴ دوام Commit تأییدشده در Failover
+
+«Commit تأییدشده» فقط نسبت به مدل خرابی و Durability تعریف‌شده معنا دارد. Candidate منتخب باید ثابت کند پذیرشی که به Caller تأیید شده، در تمام کلاس‌های Failover/Restore داخل Failure Model پشتیبانی‌شده باقی می‌ماند؛ در غیر این صورت API نباید دوام پذیرش را برای آن کلاس وعده دهد. RPO، تأیید Replication، شرایط مجاز Promotion، انتخاب Recovery Point و رفتار Replay پس از Restore باید صریح باشند. صرفاً قابل‌خواندن بودن یک Replica، آن را به مرجع معتبر تبدیل نمی‌کند. اگر داده تأییدشده پس از Promotion غایب شود، وضعیت پذیرش حل‌نشده باقی می‌ماند و سامانه باید بدون صدور هویت پذیرش دوم یا اجازه اجرای Worker روی تاریخچه واگرا، قرنطینه و تطبیق را انجام دهد.
+
+### ۱۶.۵ Invariant جفت در لحظه Commit، نه فقط Atomicity در Crash
+
+Semantics تراکنش اتمیک تضمین می‌کند Writeهایی که واقعاً داخل تراکنش قرار گرفته‌اند یا همگی ثبت شوند یا هیچ‌کدام؛ اما به‌تنهایی ثابت نمی‌کند کد Application نمی‌تواند Receipt را بدون WorkItem Commit کند. Candidate پیاده‌سازی باید یک Invariant در لحظه Commit یا مبتنی بر محدودسازی Capability ارائه کند تا Receipt پذیرفته‌شده بدون دقیقاً یک WorkItem Commit نشود و WorkItem بدون Receipt نیز وجود نداشته باشد. راه‌حل ممکن است Deferred Invariant در سطح Database، نمایش یک Aggregate اتمیک یا مرز تراکنش بسیار محدود همراه با Database Privilege و شواهد مستقل تضمین مسیر کد باشد. روش انتخابی باید مستدل شود؛ وعده متنی یا تست مسیر موفق کافی نیست. اگر جفت دقیقاً یک‌به‌یک قابل اعمال یا اثبات متقاعدکننده نباشد، مدل Persistence پیش از تصویب Runtime باید بازطراحی شود.
+
+### ۱۶.۶ Fingerprint و ایمنی Conflict
+
+Retry با هویت یکسان فقط زمانی Duplicate نامیده شود که پروفایل Canonicalization/Fingerprint مصوب و فیلدهای تغییرناپذیر مقایسه‌شونده نهایی و نسخه‌دار شده باشند. تا آن زمان، هویت یکسان همراه با تفاوت Payload که قابل مقایسه ایمن نیست، unresolved/conflict است و نباید بی‌صدا پذیرش قبلی را استفاده کند. تغییر نسخه Canonicalization نباید بدون تصمیم Migration/Compatibility، Receiptهای قدیمی را به‌صورت بازگشتی تفسیر کند.
+
+### ۱۶.۷ تست‌های خصمانه تکمیلی آتی
+
+همه موارد همچنان **NOT RUN** هستند و به تصمیم‌های مالک/فناوری مربوط نیاز دارند.
+
+| مورد | چالش خصمانه | نتیجه الزامی |
+|---|---|---|
+| C18 | Commit اولیه هنوز در حال اجراست؛ Snapshot معتبر هیچ Row نمی‌بیند؛ Reconciliation هم‌زمان Retry می‌شود. | Arbitration بر اساس Unique Key دو Attempt را سریال کند؛ دقیقاً یک جفت؛ بازنده برنده را بازیابی کند یا تا Abort قطعی منتظر بماند. |
+| C19 | پس از Commit تأییدشده، Primary از دست می‌رود و Promotion/Restore به Recovery Point کاندید انجام می‌شود. | رفتار مطابق قرارداد Durability/RPO مصوب باشد؛ ادعای کاذب پذیرش/عدم پذیرش نشود؛ Worker روی تاریخچه واگرا Fence بماند. |
+| C20 | مسیر خطادار Application می‌خواهد InboxReceipt بدون WorkItem یا WorkItem بدون Receipt را Commit کند. | Invariant در لحظه Commit یا Capability این پذیرش ناقص را رد کند؛ در غیر این صورت Candidate تا بازطراحی رد شود. |
+| C21 | Receipt و WorkItem هنگام Commit هم‌زمان در دو Snapshot جدا خوانده می‌شوند. | تطبیق از یک Snapshot سازگار/Query اتمیک استفاده کند؛ قرنطینه کاذب جفت ناقص رخ ندهد. |
+| C22 | Source Namespace و Event ID یکسان از دو Tenant احراز‌شده متفاوت ارائه می‌شود. | هویت‌های Tenant-scoped جدا بمانند؛ هیچ Lookup یا افشای وجود بین Tenantها انجام نشود. |
+| C23 | همان HTTP Idempotency-Key با Body/Source Identity متفاوت استفاده می‌شود؛ جداگانه، Keyهای متفاوت همان Source Event را Retry می‌کنند. | حالت اول Conflict و بدون Replay پاسخ نامرتبط؛ حالت دوم همگرایی به یک جفت Source Event. |
+
+### ۱۶.۸ ملاحظات برگرفته از منابع
+
+راهنمای منتشرشده Google Spanner صراحتاً UNKNOWN Commit Status را شرح می‌دهد و Read بعدی از Database را توصیه می‌کند؛ همچنین خطر تکرار اثر کسب‌وکار با Retry خودکار کور را توضیح می‌دهد. این فقط نمونه‌ای از راهنمایی اختصاصی Provider است و تضمین عمومی برای هر Persistence Engine آینده Lottorito نیست. مستندات PostgreSQL نشان می‌دهد Snapshot تراکنش و Conflict Handling با Isolation Level و شکل Statement تغییر می‌کند؛ از جمله دو Statement جدا در Read Committed ممکن است Snapshotهای Commit‌شده متفاوتی ببینند. راهنمای AWS Outbox نیز تأیید می‌کند انتشار پایین‌دستی ممکن است تکراری باشد و Consumerها باید Idempotent باشند. این منابع نیاز به Proof برای Candidate را تقویت می‌کنند؛ هیچ‌کدام Vendor انتخاب نمی‌کند یا رفتار Lottorito را اثبات می‌کند.
