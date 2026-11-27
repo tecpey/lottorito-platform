@@ -84,8 +84,8 @@ For event ingress:
 
 | Condition | Response | Required behavior |
 |---|---:|---|
-| Proposed new-event acceptance | 202 | Only after atomic Inbox + Job commit AND the owner-approved durability acknowledgement condition; current failure model/RPO is not approved |
-| Exact duplicate source + id + payload fingerprint | 200 | Return the existing receipt; do not enqueue another job |
+| Proposed new-event acceptance | 202 | Only after atomic InboxReceipt + WorkItem commit AND the owner-approved durability acknowledgement condition; current failure model/RPO is not approved |
+| Exact duplicate source + id + payload fingerprint | 200 | Return the stable existing receipt; do not create another WorkItem |
 | Same source + id but different payload fingerprint | 409 | Quarantine/record the identity collision; no side effect |
 | Invalid or unsupported event schema/type | 422 | Reject or quarantine according to the configured contract; no economic effect |
 | Oversized body | 413 | Reject before expensive parsing |
@@ -93,7 +93,7 @@ For event ingress:
 | Rate/tenant quota exhausted | 429 | Return retry guidance; never silently drop |
 | Temporary service unavailability | 503 | Assert non-acceptance only when non-commit is known; UNKNOWN must not be represented as confirmed rejection; reconcile/retry with the same source + id |
 
-**Approval boundary:** These are proposed wire semantics, not an approved runtime promise. ADR-002 remains PROPOSED; no persistence candidate, failure model, RPO, promotion rule or recovery-point policy has been approved. A `202` MUST NOT be emitted until atomic Inbox + WorkItem persistence is confirmed and the owner-approved durability acknowledgement condition is met.
+**Approval boundary:** These are proposed wire semantics, not an approved runtime promise. ADR-002 remains PROPOSED; no persistence candidate, failure model, RPO, promotion rule or recovery-point policy has been approved. A `202` MUST NOT be emitted until atomic InboxReceipt + WorkItem persistence is confirmed and the owner-approved durability acknowledgement condition is met.
 
 A commit outcome of `UNKNOWN` is neither confirmed acceptance nor confirmed non-acceptance. The API MUST NOT describe it as a proven pre-commit failure. The exact HTTP status and machine-readable error mapping for UNKNOWN remain open owner decisions. Any retry must preserve the same authenticated CloudEvents `source + id` and be reconciled against the active authoritative persistence authority; a negative read alone does not authorize a second insert.
 
