@@ -250,7 +250,7 @@ The twenty-one subcases below extend existing stable A4 cases without changing t
 | A8-DATA-04a | A4-DATA-04 | Evidence deletion/expiry races with backup/restore and legal-hold state. | Outcome follows approved lifecycle policy and is independently evidenced across primary, backup and evidence stores. | O-DATA/O-DB/O-OBS; policy version, deletion/restore evidence and access audit. | BLOCKED — A4-GATE-05 / DATA LIFECYCLE POLICY |
 
 
-| A11-DUR-02b | A4-DUR-02 / A4-IDEM | Original commit remains in flight while same-identity retry starts. | Exactly one pair; retry cannot bypass unique arbitration. | O-DB/O-TX/O-API; deterministic barriers, transaction state and final cardinality. | BLOCKED — ADR-002 |
+| A11-DUR-02b | A4-DUR-02 / A4-IDEM-02 | Original commit remains in flight while same-identity retry starts. | Exactly one pair; retry cannot bypass unique arbitration. | O-DB/O-TX/O-API; deterministic barriers, transaction state and final cardinality. | BLOCKED — ADR-002 |
 | A11-DUR-02c | A4-DUR-02 | Original transaction aborts while retry races. | At most one successful pair; loser resolves final durable state. | O-DB/O-TX; abort/commit schedule and pair cardinality. | BLOCKED — ADR-002 |
 | A11-DUR-08b | A4-DUR-08 | Primary acknowledges local commit but failover candidate lacks the write. | No false durability claim; behavior follows explicit acknowledged-write RPO. | O-DB/O-TX/O-OBS; replication acknowledgement and recovery-point evidence. | BLOCKED — ADR-002 |
 | A11-DUR-08c | A4-DUR-08 | Old primary returns after promotion and attempts a write. | Old authority epoch rejected; no split-brain acceptance. | O-DB/O-NET/O-OBS; epoch and fencing evidence. | BLOCKED — ADR-002 |
