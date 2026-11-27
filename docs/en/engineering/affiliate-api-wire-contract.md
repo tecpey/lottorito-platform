@@ -84,16 +84,20 @@ For event ingress:
 
 | Condition | Response | Required behavior |
 |---|---:|---|
-| New event durably accepted and queued | 202 | Inbox and processing job committed atomically before ACK |
+| Proposed new-event acceptance | 202 | Only after atomic Inbox + Job commit AND the owner-approved durability acknowledgement condition; current failure model/RPO is not approved |
 | Exact duplicate source + id + payload fingerprint | 200 | Return the existing receipt; do not enqueue another job |
 | Same source + id but different payload fingerprint | 409 | Quarantine/record the identity collision; no side effect |
 | Invalid or unsupported event schema/type | 422 | Reject or quarantine according to the configured contract; no economic effect |
 | Oversized body | 413 | Reject before expensive parsing |
 | Unsupported content type | 415 | Reject |
 | Rate/tenant quota exhausted | 429 | Return retry guidance; never silently drop |
-| Temporary service unavailability before durable receipt | 503 | Caller may retry with the same source + id |
+| Temporary service unavailability | 503 | Assert non-acceptance only when non-commit is known; UNKNOWN must not be represented as confirmed rejection; reconcile/retry with the same source + id |
 
-A successful HTTP response means durable receipt only. It does not mean business qualification, attribution, commission assessment, ledger posting, payment, settlement or payout.
+**Approval boundary:** These are proposed wire semantics, not an approved runtime promise. ADR-002 remains PROPOSED; no persistence candidate, failure model, RPO, promotion rule or recovery-point policy has been approved. A `202` MUST NOT be emitted until atomic Inbox + WorkItem persistence is confirmed and the owner-approved durability acknowledgement condition is met.
+
+A commit outcome of `UNKNOWN` is neither confirmed acceptance nor confirmed non-acceptance. The API MUST NOT describe it as a proven pre-commit failure. The exact HTTP status and machine-readable error mapping for UNKNOWN remain open owner decisions. Any retry must preserve the same authenticated CloudEvents `source + id` and be reconciled against the active authoritative persistence authority; a negative read alone does not authorize a second insert.
+
+A successful HTTP response means acceptance/receipt only under the approved durability contract. It does not mean business qualification, attribution, commission assessment, ledger posting, payment, settlement or payout.
 
 Errors use RFC 9457 Problem Details with `application/problem+json`. Error details MUST NOT reveal cross-tenant resource existence, secrets, raw provider payloads, SQL, internal hosts or sensitive mapping rules. A server-generated request/correlation identifier is returned for support.
 
@@ -117,7 +121,7 @@ At ingress, the partner's CloudEvents `source + id` is stored as source provenan
 | `received_at` / `recorded_at` | `receivedat` / `recordedat` extensions |
 | domain payload | CloudEvents `data` |
 
-CloudEvents extension attribute names use lowercase alphanumeric names; the compact names above are deliberate. The logical AsyncAPI channel is `affiliate.canonical-events`. It does not select Kafka, RabbitMQ, HTTP callbacks or another transport.
+The generic Lottorito CloudEvents JSON profile enforces lowercase ASCII alphanumeric attribute names, a lowercase-letter prefix, a maximum of 20 characters, and primitive extension values (string, boolean or signed 32-bit integer). This adopts CloudEvents SHOULD guidance as a stricter local profile rule. It does not define an installation allowlist: runtime must still require each extension name and semantic type to be registered for the authenticated installation and must reject unknown/unregistered extensions before normalization. String-valued extension semantics (URI, URI-reference, timestamp, binary/base64, or ordinary string) remain installation-profile-specific. The logical AsyncAPI channel is `affiliate.canonical-events`. It does not select Kafka, RabbitMQ, HTTP callbacks or another transport.
 
 ## 9. Data and financial semantics
 
@@ -160,13 +164,13 @@ These are acceptance requirements, not evidence that tests have already run.
 
 The contract CI also runs `scripts/validate_affiliate_contract_payloads.mjs` against representative positive and negative instances:
 
-- OpenAPI 3.2.1 component schemas are instance-checked with an Ajv 2020-12 instance. The current schemas use JSON Schema 2020-12 keywords; Redocly remains the validator for the complete OpenAPI document and its OAS dialect.
+- OpenAPI 3.2.1 component schemas are instance-checked with an Ajv 2020-12 instance. The current schemas use JSON Schema 2020-12-compatible instance keywords; Redocly remains the validator for the complete OpenAPI document and its OAS dialect.
 - AsyncAPI 3.0.0 message payload is instance-checked with a separate Draft 07 Ajv instance, matching the AsyncAPI 3.0.0 Schema Object baseline.
 - Local component references, required fields, types, enums, bounds, date-time/URI formats, uniqueness, closed objects and RFC 9457 extension members have representative positive/negative cases.
-- CloudEvents top-level extension properties remain structurally accepted by the envelope schema. This does **not** authorize arbitrary extensions: the runtime must enforce an integration-specific extension/event/source allowlist before normalization.
+- The generic CloudEvents envelope applies the Lottorito extension syntax/type profile (lowercase alphanumeric names, first character lowercase letter, max 20 characters; string/boolean/signed-32-bit-integer values). This does **not** authorize arbitrary extensions: the runtime must enforce an installation-specific extension name and semantic-type allowlist before normalization.
 - The suite does not prove runtime authentication, tenant binding, durable Inbox/Job atomicity, deduplication, replay handling, ledger effects, or provider compatibility.
 
-The two dialect validators are deliberately separate. Do not move AsyncAPI payloads into the 2020-12 instance or infer that Ajv instance validation replaces Redocly/AsyncAPI document validation.
+The two dialect validators are deliberately separate. AsyncAPI 3.0.0 defaults this payload to the AsyncAPI 3.0 Schema Object, a superset of JSON Schema Draft 07. Ajv checks only the guarded Draft-07-compatible keyword subset; the AsyncAPI CLI validates the complete document and normative dialect. Do not move AsyncAPI payloads into the 2020-12 instance or infer that Ajv instance validation replaces Redocly/AsyncAPI document validation.
 
 ## 11. Standards and version governance
 
