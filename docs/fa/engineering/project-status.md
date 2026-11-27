@@ -160,3 +160,10 @@
 - هشت Subcase مربوط به A8 به اسناد ردیابی A7 در هر دو زبان اضافه شد و به والدهای A4 متصل شد. تعداد Canonical در A4 همچنان ۴۷ است؛ نتایج والد و Subcase باید جداگانه گزارش شوند. همه Subcaseها NOT RUN/BLOCKED هستند.
 - ADR-001 پیشنهادی است. تصمیم‌های مالک درباره زمان مرجع/Failover، Semantics Serialization در Persistence، اتمام ظرفیت Generation، مرجع Recovery Incarnation، Policy چرخه عمر و محدودیت Transaction/Worker باز هستند. هیچ DB/Queue/Vendor یا مقدار عددی انتخاب نشده.
 - بازبینی مستقل همچنان لازم است. F01 تا F10 در A7 و F01 تا F12 در A8 باز هستند. هر هشت Gate در A4 تصویب نشده‌اند؛ پیاده‌سازی/اجرای Runtime/Harness/Database/Queue/IAM مسدود است. هیچ مجوز شریک، عملیات مالی، Merge یا Deploy صادر نشده است.
+
+
+## G09-A10 / ADR-002 — پذیرش اتمیک و تطبیق نتیجه نامعلوم Commit (2026-11-28)
+- سند دوزبانه LOT-AFFILIATE-G09-ADR-002 افزوده شد. این سند دقیقاً یک جفت پایدار InboxReceipt + WorkItem را در یک تراکنش اتمیک پیشنهاد می‌کند؛ پاسخ موفق فقط پس از Commit تأییدشده؛ UNKNOWN به‌عنوان وضعیت مستقل؛ تطبیق معتبر با هویت پایدار Event؛ Fail-closed هنگام عدم دسترسی به مرجع؛ قرنطینه Conflict و جفت ناقص؛ و مرز جداگانه و مشروط DeliveryOutbox.
+- ماتریس ۱۷ موردی Crash/Concurrency/Failover (C01 تا C17)، الزامات Oracle/Evidence مستقل، گزینه‌های ردشده و تصمیم‌های باز مالک ثبت شد. همه موارد NOT RUN هستند. هیچ DB، Isolation Level، Queue، Vendor، Schema، Quota، مقدار Retention یا توپولوژی انتخاب نشده است.
+- LDR-055 در هر دو دفتر تصمیم ثبت شد. ADR-002 پیشنهادی است؛ تصویب مالک و بازبینی واقعاً مستقل در انتظارند. A7-F01 تا F10 و A8-F01 تا F12 باز هستند؛ هر هشت Gate مربوط به A4 تصویب نشده‌اند. مجوز Runtime، شریک، مالی، Merge یا Deploy صادر نشده است.
+- Head زنده PR #76 پیش از این Update برابر 3112f7e4db83c27c223a054db497665619df5164 بود. Workflowهای همان Head در صف بودند؛ CI باید روی Head نهایی دوباره بررسی شود. شکست قبلی Documentation Governance ناشی از نبود فیلد پایدار Document ID در دو نسخه ADR-001 بود؛ هر دو فایل اصلاح شده‌اند و این اصلاح باید در CI مربوط به Head نهایی تأیید شود.
