@@ -206,3 +206,7 @@ Costs and limitations:
 - AWS Builders’ Library, “Timeouts, retries, and backoff with jitter” — retry amplification, idempotency and backoff: https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/
 
 References inform the proposal; they do not establish product compliance or approve a technology.
+
+### Time-sampling constraint
+
+The authoritative expiry comparison must occur **after the WorkItem serialization point has been acquired**, not from a timestamp captured before a potentially blocking lock wait. A transaction-start timestamp is not automatically suitable: for example, PostgreSQL documents that CURRENT_TIMESTAMP/now() represent transaction start, while clock_timestamp() represents the actual time at the instant it is called. This is a semantic warning only, not a PostgreSQL selection. The eventual candidate must prove exactly when its time expression is evaluated relative to lock acquisition, concurrent update re-check and commit. If it cannot, the lease protocol cannot be accepted on that candidate.
