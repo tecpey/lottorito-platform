@@ -83,3 +83,22 @@ Legal entity and operating model; initial jurisdiction; provider and source-of-t
 
 ## Evidence discipline
 This record summarizes repository inspection, not an external audit. Re-fetch PR metadata and commit statuses before relying on a head SHA or CI state.
+
+## Latest PR #76 evidence and G09-A3 continuation
+
+- PR #76 remains Open/Draft, base `docs/affiliate-api-capability-contract-v1`, head branch `docs/g09-affiliate-api-wire-contract-v1`; do not merge or deploy.
+- Exact PR head verified: `59414d2cc7544fed187e41e9c823e1d453c41a3a`.
+- Documentation Governance run `46054529199` (#939): **PASS**.
+- Affiliate Contract Validation run `46054529202` (#48): **PASS**; job `140693686036` completed successfully.
+- Run #48 validated Redocly 2.83.0 (both OpenAPI documents valid; one non-blocking missing-license warning per document), AsyncAPI CLI 6.2.2 (AsyncAPI 3.0.0 valid; informational 3.1.0 recommendation), and **46 positive/negative payload and security-boundary assertions** using Ajv 8.17.1 / ajv-formats 3.0.1.
+- The 46 assertions include ProgramPage boundary 100/101 and contract-level checks for separate Management/Ingress bearer schemes and non-empty proposed scope metadata on every secured operation.
+- CI explicitly states it does not test runtime authorization, tenant binding, Inbox/Job atomicity, deduplication, ledger effects or provider allowlists. These remain NOT TESTED at runtime.
+- Added bilingual LOT-AFFILIATE-SEC-ACC-001, a proposed runtime security acceptance and boundary specification. It defines principal/authorization boundaries, trusted ingress flow, idempotency/fingerprint semantics, event/schema governance, resource protection, persistence/worker invariants, privacy/audit, a runtime test matrix and four release gates. It is not implementation or security approval.
+- The workflow checkout used PR merge ref `ad0cd3237e0dbe94cb4a49f257cba0ac00bd167d`, which combines the tested PR head with its base. The PR head remains the exact commit above.
+- Remaining non-blocking tool notices: Redocly license metadata warnings; AsyncAPI informational latest-version recommendation; npm dependency deprecation warnings; GitHub Actions Node 20 deprecation notice for pinned actions. Do not silently treat these as validation failures or production risks without separate assessment.
+
+### Next controlled work
+1. Review LOT-AFFILIATE-SEC-ACC-001 and reconcile every requirement with LOT-API-PLATFORM-001, LOT-IAM-TENANT-001, LOT-EVENT-001, LOT-FIN-POST-001 and LOT-QA-001.
+2. Produce an owner-decision sheet for unresolved identity, capability, installation lifecycle, registry ownership, fingerprint ADR, numeric quotas, retention/audit and commission-effect identity; leave unknown values explicitly TBD.
+3. Define a synthetic-only isolated runtime proof plan and its test harness boundaries. No production adapter, real partner credentials, financial posting or sandbox request until the required decisions and actual partner documentation/authorization exist.
+4. Re-run bilingual documentation governance after index/status updates and verify the exact final PR head and all workflows.
