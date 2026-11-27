@@ -111,3 +111,9 @@ Read repository-root [AGENTS.md](../../AGENTS.md). Use a working branch and pull
 - [Affiliate G09-A8 — Independent Verification & Adversarial Challenge](engineering/affiliate-g09-a8-independent-verification.md) — design self-review only; independent review pending; no runtime authorization.
 
 - [Affiliate ADR-001 — Durable WorkItem Claim, Lease & Fencing](engineering/adr-001-workitem-claim-lease-fencing.md) — proposed temporal protocol; owner approval and independent review pending; no runtime authorization.
+
+
+## Affiliate G09 decision records
+
+- [Affiliate ADR-001 — Durable WorkItem Claim, Lease & Fencing](engineering/adr-001-workitem-claim-lease-fencing.md) — proposed temporal protocol; owner approval and independent review pending.
+- [Affiliate ADR-002 — Atomic Ingress Acceptance & Unknown-Commit Reconciliation](engineering/adr-002-atomic-ingress-acceptance-reconciliation.md) — proposed atomic InboxReceipt + WorkItem acceptance, unknown-commit reconciliation, crash matrix and open owner decisions; no runtime authorization.
