@@ -84,3 +84,5 @@ This register prevents agents from turning discussion, examples or proposals int
 
 ## Required next decisions
 Prioritize jurisdiction/operating model and initial Lottery product boundary; provider selection and source-of-truth policy; technology/deployment ADR; financial account ownership and USD 100 credit policy; commission basis/NGR and network progression; and the exact initial commercial release scope.
+
+| LDR-049 | Affiliate G09-A4 runtime proof architecture and adversarial test design | Proposed test architecture | LOT-AFFILIATE-G09-A4-001 defines a synthetic-only proof harness, seven trust boundaries, eight persistence invariants, 47 adversarial cases across IAM/authorization/idempotency/parsing/resources/durability/privacy/financial non-effect, six independent test oracles, evidence bundles, eight approval gates and stop rules. | Design only. No database, queue, runtime, identity provider, numeric quota, retention period, test vendor or partner is selected. Execution is blocked until the relevant A4 gates and owner/reviewer approvals are recorded; runtime implementation, partner integration, financial access, merge and deployment are not authorized. |
