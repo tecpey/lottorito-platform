@@ -128,7 +128,10 @@
         "Partner CloudEvent rejects array extension value",
         "Partner CloudEvent rejects null extension value",
         "Partner CloudEvent rejects object extension value",
-        "Partner CloudEvent rejects out-of-range integer extension"
+        "Partner CloudEvent rejects out-of-range integer extension",
+        "Partner CloudEvent rejects extension string control character",
+        "Partner CloudEvent rejects extension string unpaired surrogate",
+        "Partner CloudEvent rejects extension string Unicode noncharacter"
       ]
     },
     {
@@ -163,7 +166,10 @@
         "Canonical event rejects non-object data",
         "Canonical event rejects uppercase extension name",
         "Canonical event rejects invalid extension value type",
-        "Canonical event rejects out-of-range integer extension"
+        "Canonical event rejects out-of-range integer extension",
+        "Canonical event rejects extension string control character",
+        "Canonical event rejects extension string unpaired surrogate",
+        "Canonical event rejects extension string Unicode noncharacter"
       ]
     }
   ]
