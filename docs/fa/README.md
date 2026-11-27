@@ -117,3 +117,6 @@ Validator ساختاری در [scripts/check_docs.py](../../scripts/check_docs.p
 
 - [ADR-001 افیلیت — پروتکل Claim، Lease و Fencing پایدار WorkItem](engineering/adr-001-workitem-claim-lease-fencing.md) — پروتکل زمانی پیشنهادی؛ تصویب مالک و بازبینی مستقل در انتظار.
 - [ADR-002 افیلیت — پذیرش اتمیک Ingress و تطبیق نتیجه نامعلوم Commit](engineering/adr-002-atomic-ingress-acceptance-reconciliation.md) — جفت اتمیک InboxReceipt + WorkItem، تطبیق Commit نامعلوم، ماتریس Crash و تصمیم‌های باز مالک؛ بدون مجوز Runtime.
+
+
+- [Affiliate G09-A11 — بازبینی خصمانه طراحی ADR-002](engineering/affiliate-g09-a11-adr002-adversarial-review.md) — خودبازبینی در همان جریان؛ هشت یافته مهم و نه Subcase پیشنهادی NOT RUN؛ بازبینی مستقل در انتظار؛ بدون مجوز Runtime.
