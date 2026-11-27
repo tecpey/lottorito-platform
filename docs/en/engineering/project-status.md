@@ -102,3 +102,11 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 2. Produce an owner-decision sheet for unresolved identity, capability, installation lifecycle, registry ownership, fingerprint ADR, numeric quotas, retention/audit and commission-effect identity; leave unknown values explicitly TBD.
 3. Define a synthetic-only isolated runtime proof plan and its test harness boundaries. No production adapter, real partner credentials, financial posting or sandbox request until the required decisions and actual partner documentation/authorization exist.
 4. Re-run bilingual documentation governance after index/status updates and verify the exact final PR head and all workflows.
+
+
+## G09-A3 decision packet and synthetic runtime proof plan — 2026-11-27
+
+- Added bilingual LOT-AFFILIATE-G09-A3-001 at `docs/en/engineering/affiliate-g09-a3-decision-and-runtime-proof.md` and `docs/fa/engineering/affiliate-g09-a3-decision-and-runtime-proof.md`.
+- The packet records 15 explicit decision items across principal/IAM, authorization, credentials, installation and event/schema registry, event identity, fingerprinting, concurrency, resource ceilings, data classification/retention/encryption, audit and the financial non-effect boundary. Every item remains Proposed or Open; no owner approval is implied.
+- It defines P0–P6 synthetic proof stages covering harness isolation, identity/tenant boundaries, strict parsing and registry controls, idempotency/concurrency, transaction/crash recovery, resource/privacy controls and zero financial side effects.
+- Runtime proof is not started. It requires explicit owner scope approval, security/operations isolation approval and an approved disposable persistence candidate with real transactional constraints. No partner adapter, real credential, sandbox call, financial posting, merge or deployment is authorized.
