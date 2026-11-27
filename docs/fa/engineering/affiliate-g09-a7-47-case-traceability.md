@@ -237,7 +237,7 @@ G09-A7 Manifest طراحی در سطح هر Case و مسیر پیشنهادی ب
 | A8-DATA-04a | A4-DATA-04 | حذف/انقضای Evidence با Backup/Restore و وضعیت Legal Hold رقابت کند. | نتیجه مطابق Policy مصوب چرخه عمر داده و به‌صورت مستقل در Primary، Backup و Evidence Store اثبات شود. | O-DATA/O-DB/O-OBS؛ نسخه Policy، شواهد حذف/بازیابی و Audit دسترسی. | BLOCKED — A4-GATE-05 / Policy چرخه عمر داده |
 
 
-| A11-DUR-02b | A4-DUR-02 / A4-IDEM | Commit اولیه درحال‌اجراست و Retry با همان Identity آغاز می‌شود. | دقیقاً یک جفت؛ Retry نتواند Arbitration یکتا را دور بزند. | O-DB/O-TX/O-API؛ Barrier قطعی، وضعیت تراکنش و Cardinality نهایی. | BLOCKED — ADR-002 |
+| A11-DUR-02b | A4-DUR-02 / A4-IDEM-02 | Commit اولیه درحال‌اجراست و Retry با همان Identity آغاز می‌شود. | دقیقاً یک جفت؛ Retry نتواند Arbitration یکتا را دور بزند. | O-DB/O-TX/O-API؛ Barrier قطعی، وضعیت تراکنش و Cardinality نهایی. | BLOCKED — ADR-002 |
 | A11-DUR-02c | A4-DUR-02 | تراکنش اولیه هم‌زمان با Retry Abort می‌شود. | حداکثر یک جفت موفق؛ بازنده State پایدار نهایی را بازیابی کند. | O-DB/O-TX؛ Schedule Abort/Commit و Cardinality جفت. | BLOCKED — ADR-002 |
 | A11-DUR-08b | A4-DUR-08 | Primary Commit محلی را تأیید می‌کند اما Failover Candidate آن Write را ندارد. | ادعای نادرست Durability نشود؛ نتیجه مطابق RPO مصوب باشد. | O-DB/O-TX/O-OBS؛ Replication Acknowledgement و Recovery Point. | BLOCKED — ADR-002 |
 | A11-DUR-08c | A4-DUR-08 | Primary قدیمی پس از Promotion بازمی‌گردد و Write می‌کند. | Authority Epoch قدیمی رد شود؛ پذیرش Split-brain رخ ندهد. | O-DB/O-NET/O-OBS؛ Epoch و شواهد Fencing. | BLOCKED — ADR-002 |
