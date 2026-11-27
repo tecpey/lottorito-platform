@@ -152,6 +152,18 @@ The wire-contract test suite MUST cover at least:
 
 These are acceptance requirements, not evidence that tests have already run.
 
+### Machine-checked schema-instance suite
+
+The contract CI also runs `scripts/validate_affiliate_contract_payloads.mjs` against representative positive and negative instances:
+
+- OpenAPI 3.2.1 component schemas are instance-checked with an Ajv 2020-12 instance. The current schemas use JSON Schema 2020-12 keywords; Redocly remains the validator for the complete OpenAPI document and its OAS dialect.
+- AsyncAPI 3.0.0 message payload is instance-checked with a separate Draft 07 Ajv instance, matching the AsyncAPI 3.0.0 Schema Object baseline.
+- Local component references, required fields, types, enums, bounds, date-time/URI formats, uniqueness, closed objects and RFC 9457 extension members have representative positive/negative cases.
+- CloudEvents top-level extension properties remain structurally accepted by the envelope schema. This does **not** authorize arbitrary extensions: the runtime must enforce an integration-specific extension/event/source allowlist before normalization.
+- The suite does not prove runtime authentication, tenant binding, durable Inbox/Job atomicity, deduplication, replay handling, ledger effects, or provider compatibility.
+
+The two dialect validators are deliberately separate. Do not move AsyncAPI payloads into the 2020-12 instance or infer that Ajv instance validation replaces Redocly/AsyncAPI document validation.
+
 ## 11. Standards and version governance
 
 - OpenAPI Specification 3.2.1 for HTTP API contracts.
