@@ -120,3 +120,5 @@ Validator ساختاری در [scripts/check_docs.py](../../scripts/check_docs.p
 
 
 - [Affiliate G09-A11 — بازبینی خصمانه طراحی ADR-002](engineering/affiliate-g09-a11-adr002-adversarial-review.md) — خودبازبینی در همان جریان؛ هشت یافته مهم و نه Subcase پیشنهادی NOT RUN؛ بازبینی مستقل در انتظار؛ بدون مجوز Runtime.
+
+- [G09-A12 افیلیت — بسته بازبینی مستقل ADR-002](engineering/affiliate-g09-a12-adr002-independent-review-package.md) — پروتکل چالش و ماتریس شواهد برای بازبین مستقل؛ بازبینی مستقل هنوز انجام نشده؛ تمام یافته‌های A11 باز هستند؛ بدون مجوز Runtime.
