@@ -127,8 +127,8 @@ A4-DATA-04 تا تصویب معنای Retention، Deletion، Backup و Restore �
 
 ## ۷. منابع و دامنه کاربرد
 
-- OWASP API Security Top 10 (2023): https://owasp.org/API-Security/ — طبقه‌بندی تهدید، نه گواهی.
-- OWASP ASVS: https://owasp.org/www-project-application-security-verification-standard/ — کاتالوگ راستی‌آزمایی؛ نسخه/سطح باید توسط Security انتخاب شود.
+- OWASP API Security Top 10 (2023): https://api-security.owasp.org/ — طبقه‌بندی تهدید، نه گواهی.
+- OWASP ASVS: https://owasp.org/projects/ASVS — کاتالوگ راستی‌آزمایی؛ نسخه/سطح باید توسط Security انتخاب شود.
 - RFC 8785: https://www.rfc-editor.org/rfc/rfc8785 — استاندارد Canonicalization JSON؛ جایگزین Policy Parser ورودی نیست.
 - مشخصات CloudEvents: https://cloudevents.io/ — معنای Envelope رویداد؛ تأیید نگاشت شریک نیست.
 - PostgreSQL INSERT: https://www.postgresql.org/docs/current/sql-insert.html؛ قفل‌گذاری صریح: https://www.postgresql.org/docs/current/explicit-locking.html؛ Isolation تراکنش: https://www.postgresql.org/docs/current/transaction-iso.html — فقط در صورت انتخاب PostgreSQL.
