@@ -131,7 +131,8 @@
         "Partner CloudEvent rejects out-of-range integer extension",
         "Partner CloudEvent rejects extension string control character",
         "Partner CloudEvent rejects extension string unpaired surrogate",
-        "Partner CloudEvent rejects extension string Unicode noncharacter"
+        "Partner CloudEvent rejects extension string Unicode noncharacter",
+        "Partner CloudEvent rejects prohibited Unicode in core id"
       ]
     },
     {
@@ -169,7 +170,8 @@
         "Canonical event rejects out-of-range integer extension",
         "Canonical event rejects extension string control character",
         "Canonical event rejects extension string unpaired surrogate",
-        "Canonical event rejects extension string Unicode noncharacter"
+        "Canonical event rejects extension string Unicode noncharacter",
+        "Canonical event rejects prohibited Unicode in core id"
       ]
     }
   ]
