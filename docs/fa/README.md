@@ -107,3 +107,5 @@ Validator ساختاری در [scripts/check_docs.py](../../scripts/check_docs.p
 ## G09-A7 افیلیت — ردیابی ۴۷ سناریو
 
 - [G09-A7 افیلیت — نقشه ردیابی ۴۷ سناریو و بستن تصمیم‌ها](engineering/affiliate-g09-a7-47-case-traceability.md) — LOT-AFFILIATE-G09-A7-001؛ ۴۷ Case مستقل A4، Fixture ساختگی، Assertionهای پروتکل/Persistence/امنیت/عدم اثر مالی، Oracle مستقل، قرارداد Evidence، برنامه‌های قطعی Race و دفتر بستن F01 تا F10. صرفاً طراحی؛ تمام Caseها NOT RUN و Runtime مسدود است.
+
+- [وابسته G09-A8 — راستی‌آزمایی و چالش خصمانه](engineering/affiliate-g09-a8-independent-verification.md) — خودبازبینی طراحی؛ بازبینی مستقل در انتظار؛ بدون مجوز Runtime.
