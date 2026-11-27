@@ -4,7 +4,7 @@
 **Decision ID:** LOT-AFFILIATE-G09-ADR-002  
 **Related:** LOT-AFFILIATE-SEC-ACC-001; G09-A4; G09-A5; G09-A7; G09-A8  
 **Status:** PROPOSED — owner decision and genuinely independent review required  
-**Version:** 0.2.0 | **Date:** 2026-11-28  
+**Version:** 0.3.0 | **Date:** 2026-11-28  
 **Scope:** Synthetic Affiliate ingress acceptance only. No commission qualification, financial posting, external side effect, partner integration or production authority.
 
 ## 1. Decision requested
@@ -259,3 +259,29 @@ Google Spanner guidance explicitly describes UNKNOWN commit status and recommend
 ## 16. Adversarial review linkage (G09-A11)
 
 The same-workflow adversarial self-review is recorded in [G09-A11](affiliate-g09-a11-adr002-adversarial-review.md). It is not independent approval. The following findings block approval of this ADR until resolved with owner decisions, independent review and candidate-specific evidence: A11-F01 (commit durability across failover), A11-F02 (single-writer authority epoch and split-brain fencing), A11-F03 (negative reconciliation read versus in-flight commit), A11-F06 (retention-bounded idempotency), plus High findings A11-F04/F05/F07/F08. Nine proposed A11 subcases are NOT RUN. This linkage does not authorize runtime execution or waive any A4 gate.
+
+
+## 17. A11 closure requirements — authority, durability, retention and containment
+
+The following are mandatory candidate-evaluation requirements, not a vendor choice or a claim that a mechanism exists.
+
+### 17.1 Single-writer authority and epoch fencing
+Introduce a logical Persistence Authority Epoch/Incarnation distinct from WorkItem Claim Generation. The candidate must prove: monotonic non-reusable epoch across promotion/restore; exactly one active writer; every ingress write and reconciliation decision bound to the active epoch; stale-epoch writes rejected at an independently enforced boundary; promotion blocked until the old writer is terminated or externally fenced at network/storage/compute level; old primary remains read-only/quarantined on rejoin until reconciliation and explicit re-admission; and restore cannot roll the epoch backward. A database-local counter is insufficient if isolated primaries can each advance it. If single-writer authority cannot be proven, ingress and workers fail closed.
+
+### 17.2 Acknowledged-commit durability contract
+Define the success acknowledgement against an explicit failure model. Candidate evidence must specify local durable flush, replication/consensus acknowledgement point, promotion-eligible replicas, recovery-point selection, acknowledged-write RPO per supported failure class, and behavior when durability acknowledgement is uncertain. Do not infer zero loss from a “synchronous” label. If acknowledged acceptance may disappear in a failure class, either exclude that class from the durability promise and document bounded loss, or withhold success acknowledgement/worker execution until the required durability condition holds. Never silently turn a lost acknowledged pair into a new acceptance after failover.
+
+### 17.3 Retention-bounded idempotency
+Source-event dedupe is bounded by the lifetime of identity evidence. Owner must define replay horizon from a real source contract and business/legal requirements. Retain a minimal non-sensitive identity tombstone at least for that horizon, including backup/restore and tenant-offboarding lifecycle. If replay is unbounded, retain the tombstone indefinitely under an approved privacy/legal basis or explicitly weaken the guarantee. Request-key retention is separate. No numeric duration is selected.
+
+### 17.4 Quarantine containment and worker exclusion
+Containment is graduated and evidence-driven: event identity first; installation/source partition only when necessary; tenant-wide only when demonstrated blast radius requires it. An untrusted event cannot trigger broad quarantine alone. Quarantine requires authenticated authority, immutable audit, reason/evidence reference, review/expiry and controlled recovery. Independently enforce that quarantined/inconsistent pairs cannot be claimed by workers; race quarantine against claim and prove one serialization outcome. Unaffected tenants remain serviceable.
+
+### 17.5 Acceptance response semantics
+A successful ingress response means only **durably accepted/recorded under the declared durability contract**; it does not mean claimed, processed, qualified, commission-calculated or financially posted. Return a stable opaque acceptance reference. Duplicate retries derive the same reference from durable state and never create/enqueue a second WorkItem. Post-acceptance quarantine does not rewrite history or imply completion; response/status resources distinguish accepted, quarantined, processing and completed without leaking internal worker/security details.
+
+### 17.6 A11 blockers
+A11-F01..F08 remain open: acknowledged durability/RPO (Critical); authority epoch/split-brain fencing (Critical); negative read versus in-flight commit (Critical); pair cardinality/referential invariants (High); fingerprint versioning (High); retention-bounded idempotency (Critical); quarantine blast radius/DoS (High); acceptance versus execution semantics (High). Nine A11 subcases and A10-DUR-02d, A10-DUR-02e, A10-AUTH-06b and A10-IDEM-08a must appear in the executable manifest. Canonical A4 remains 47; all extensions remain NOT RUN/BLOCKED.
+
+### 17.7 Approval blockers
+ADR-002 cannot be approved until authority epoch/fencing root, acknowledged durability/RPO, in-flight attempt arbitration, identity retention/replay horizon, pair cardinality and tenant/installation linkage, fingerprint versioning, quarantine scope/worker exclusion and wire-response semantics are decided and independently evidenced. Documentation CI alone closes none of these.
