@@ -67,14 +67,14 @@ OWASP API Security Top 10 یک طبقه‌بندی پوشش است، نه گوا
 - **TB-1 درخواست بیرونی ← Ingress:** بایت‌ها غیرقابل‌اعتمادند. محدودیت Transport/Body پیش از Parse پرهزینه اعمال شود؛ هویت Client فقط پس از Authentication معتبر است.
 - **TB-2 Principal ← Installation Binding:** Tenant از Binding فعال و کنترل‌شده سمت سرور برای Installation/Client استخراج می‌شود، نه فیلد Tenant ارسالی Caller.
 - **TB-3 Event ← Registry/Parser:** Source، Type، Extension و Schema Version باید با رکورد محلی مصوب تطبیق کند. URL تحت کنترل Payload صرفاً داده است، نه دستور Fetch.
-- **TB-4 Ingress ← Persistence:** Source Identity، Fingerprint، Inbox Receipt و WorkItem پایدار در یک Transaction و تحت Uniqueness اعمال‌شده توسط DB Commit می‌شوند.
+- **TB-4 Ingress ← Persistence:** Source Identity، Fingerprint، InboxReceipt و WorkItem الزامی در یک Transaction و تحت Uniqueness اعمال‌شده توسط DB Commit می‌شوند.
 - **TB-5 Outbox ← Queue ← Worker:** Queue کانال بیدارسازی است؛ State پایدار مرجع است. Worker پیش از Transition باید Tenant/Installation/Status و مالکیت Claim را دوباره بررسی کند.
 - **TB-6 Runtime ← دامنه مالی:** این اثبات هیچ Route، Credential، مسیر شبکه یا DB Grant به دامنه مالی ندارد. هر تلاش دسترسی، تست ناموفق و Stop Event است.
 - **TB-7 Runtime ← Observability/Evidence:** Telemetry یک Sink داده مستقل با Allowlist فیلد و Redaction است؛ دسترسی شواهد محدود و Retention آن مشخص باشد.
 
 ### ۴.۳ ناورداهای Persistence برای اثبات
 
-فرض کنیم E یک Source Event پذیرفته‌شده، I رکورد Inbox و J رکورد پایدار Job/Outbox آن باشد.
+فرض کنیم E یک Source Event پذیرفته‌شده، I رکورد InboxReceipt و J رکورد الزامی WorkItem آن باشد.
 
 - **INV-01 جفت اتمیک:** جفت الزامی InboxReceipt + WorkItem با هم Commit می‌شود یا هیچ‌کدام وجود ندارند؛ پیش از Commit هیچ ACK پذیرشی صادر نمی‌شود. DeliveryOutbox مشروط، رکورد جداگانه انتشار پایین‌دستی است و هرگز جای WorkItem را نمی‌گیرد.
 - **INV-02 هویت منبع یکتا:** Uniqueness در DB هویت Source Event را بر اساس Tuple مصوب Tenant/Product/Installation/Source/ID اعمال می‌کند. Pre-check برنامه به‌تنهایی کافی نیست.
