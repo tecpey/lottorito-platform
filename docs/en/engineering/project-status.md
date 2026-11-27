@@ -119,3 +119,8 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 - It defines six independent test oracles, an evidence bundle, eight owner/reviewer approval gates, execution ordering, severity and immediate stop conditions. OWASP API Security Top 10 (2023), RFC 8785, CloudEvents and conditional PostgreSQL references are cited as design references, not as implementation/vendor approvals.
 - No test harness or runtime implementation has been built or run. A4 execution remains BLOCKED pending explicit scope/isolation approval, approved disposable persistence/queue candidates, test identity profile, data/evidence policy, workload ceilings and finance/security attestation of zero financial reachability.
 - No partner adapter, real credential, external sandbox request, commission calculation, financial posting, merge or deployment is authorized.
+
+## G09-A5 continuation point (2026-11-27)
+- Added bilingual LOT-AFFILIATE-G09-A5-001. It translates the 47 stable A4 cases into a technology-neutral persistence/atomicity model, claim-generation fencing protocol, synthetic identity fixtures, failure-injection mapping, executable test contract, independent oracles and gated execution sequence.
+- No database, queue, IAM provider, runtime, quota, retention period or physical schema was selected. A5 is a design blueprint only; A4's eight approval gates remain binding. Runtime implementation and execution remain BLOCKED pending explicit approvals.
+- The blueprint explicitly separates source-event identity, request idempotency key and economic-effect identity; requires durable uniqueness and atomic Receipt+Work creation; treats queue messages as wake-up hints; and requires stale-worker fencing and zero financial reachability.
