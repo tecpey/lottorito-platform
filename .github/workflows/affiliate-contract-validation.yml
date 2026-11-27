@@ -7,6 +7,8 @@ on:
     paths:
       - "contracts/openapi/**"
       - "contracts/asyncapi/**"
+      - "contracts/validation/**"
+      - ".github/contract-validation/**"
       - "scripts/validate_affiliate_contract_payloads.mjs"
       - "docs/en/engineering/affiliate-api-wire-contract.md"
       - "docs/fa/engineering/affiliate-api-wire-contract.md"
@@ -20,6 +22,8 @@ on:
     paths:
       - "contracts/openapi/**"
       - "contracts/asyncapi/**"
+      - "contracts/validation/**"
+      - ".github/contract-validation/**"
       - "scripts/validate_affiliate_contract_payloads.mjs"
       - "docs/en/engineering/affiliate-api-wire-contract.md"
       - "docs/fa/engineering/affiliate-api-wire-contract.md"
@@ -39,7 +43,7 @@ concurrency:
 jobs:
   validate:
     name: OpenAPI, AsyncAPI and payload contract validation
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - name: Check out repository
@@ -48,27 +52,37 @@ jobs:
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: "24.11.1"
-      - name: Install pinned contract validators
+      - name: Bootstrap validator lockfile when first introduced
+        if: \${{ !hashFiles('.github/contract-validation/package-lock.json') }}
         run: |
-          npm install --prefix "$RUNNER_TEMP/contract-tools" --no-save --no-audit --no-fund \
-            @redocly/cli@2.83.0 \
-            @asyncapi/cli@6.2.2
-          npm install --prefix "$RUNNER_TEMP/schema-tools" --no-save --no-audit --no-fund \
-            ajv@8.17.1 \
-            ajv-formats@3.0.1
-          echo "CONTRACT_TOOLS_PREFIX=$RUNNER_TEMP/contract-tools" >> "$GITHUB_ENV"
-          echo "SCHEMA_TOOLS_PREFIX=$RUNNER_TEMP/schema-tools" >> "$GITHUB_ENV"
+          npm install --prefix .github/contract-validation --package-lock-only --no-audit --no-fund
+          echo "BOOTSTRAPPED_LOCKFILE=true" >> "$GITHUB_ENV"
+      - name: Install locked contract validators
+        run: |
+          node --version
+          npm --version
+          npm ci --prefix .github/contract-validation --no-audit --no-fund
+          echo "CONTRACT_TOOLS_PREFIX=$GITHUB_WORKSPACE/.github/contract-validation" >> "$GITHUB_ENV"
+          echo "SCHEMA_TOOLS_PREFIX=$GITHUB_WORKSPACE/.github/contract-validation" >> "$GITHUB_ENV"
       - name: Validate OpenAPI contracts
         run: |
-          "$RUNNER_TEMP/contract-tools/node_modules/.bin/redocly" --version
-          "$RUNNER_TEMP/contract-tools/node_modules/.bin/redocly" check-config --config=.redocly.yaml
-          "$RUNNER_TEMP/contract-tools/node_modules/.bin/redocly" lint --config=.redocly.yaml affiliate_management_v1 --format=github-actions
-          "$RUNNER_TEMP/contract-tools/node_modules/.bin/redocly" lint --config=.redocly.yaml partner_event_ingestion_v1 --format=github-actions
+          $GITHUB_WORKSPACE/.github/contract-validation/node_modules/.bin/redocly" --version
+          $GITHUB_WORKSPACE/.github/contract-validation/node_modules/.bin/redocly" check-config --config=.redocly.yaml
+          $GITHUB_WORKSPACE/.github/contract-validation/node_modules/.bin/redocly" lint --config=.redocly.yaml affiliate_management_v1 --format=github-actions
+          $GITHUB_WORKSPACE/.github/contract-validation/node_modules/.bin/redocly" lint --config=.redocly.yaml partner_event_ingestion_v1 --format=github-actions
       - name: Validate AsyncAPI contract
         run: |
-          "$RUNNER_TEMP/contract-tools/node_modules/.bin/asyncapi" --version
-          "$RUNNER_TEMP/contract-tools/node_modules/.bin/asyncapi" validate --fail-severity=error \
+          $GITHUB_WORKSPACE/.github/contract-validation/node_modules/.bin/asyncapi" --version
+          $GITHUB_WORKSPACE/.github/contract-validation/node_modules/.bin/asyncapi" validate --fail-severity=error \
             contracts/asyncapi/affiliate-domain-events.v1.json
       - name: Validate schema payload fixtures
         run: |
           node scripts/validate_affiliate_contract_payloads.mjs
+      - name: Upload one-time lockfile bootstrap artifact
+        if: always() && env.BOOTSTRAPPED_LOCKFILE == 'true' && hashFiles('.github/contract-validation/package-lock.json') != ''
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: contract-validation-lockfile-bootstrap-\${{ github.sha }}
+          path: .github/contract-validation/package-lock.json
+          if-no-files-found: error
+          retention-days: 7
