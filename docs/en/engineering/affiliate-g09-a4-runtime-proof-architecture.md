@@ -141,7 +141,7 @@ The exact schema, isolation level, lock/claim statement, unique index, retry sta
 | A4-FIN-02 | Duplicate, conflict, retry, exception and replay variants | Zero wallet/ledger/payment/settlement/payout writes and zero economic-effect records for all paths |
 | A4-FIN-03 | Forged commission/amount/currency/beneficiary fields included in synthetic event | Fields are not treated as authority or posting instruction; no financial calculation or mutation |
 
-**Count:** 51 adversarial cases. Case numbering is stable; add cases rather than renumbering existing evidence references. A test may cover multiple cases only if its report identifies each case separately.
+**Count:** 47 adversarial cases. Case numbering is stable; add cases rather than renumbering existing evidence references. A test may cover multiple cases only if its report identifies each case separately.
 
 ## 6. Test oracles and evidence requirements
 
@@ -198,7 +198,7 @@ No severity may be downgraded solely because the environment is synthetic. Synth
 ## 9. Required outputs before runtime implementation
 
 G09-A4 is ready for owner review when:
-- all 51 cases have an explicit owner, precondition, expected outcome and evidence oracle;
+- all 47 cases have an explicit owner, precondition, expected outcome and evidence oracle;
 - test environment, database/queue candidate and isolation mechanism are selected through approved ADRs;
 - the eight A4 gates are explicitly Accepted or clearly Blocked with accountable owners;
 - no test requires real partner data, production credentials or financial access;
