@@ -1,6 +1,6 @@
 # Lottorito — English Documentation
 
-**Document ID:** LOT-DOC-INDEX-EN-001 | **Version:** 2.3.0 | **Status:** Maintained index
+**Document ID:** LOT-DOC-INDEX-EN-001 | **Version:** 2.4.0 | **Status:** Maintained index
 
 This directory is the authoritative English documentation space for Lottorito. The Persian documentation under docs/fa/ is equally authoritative.
 
@@ -44,7 +44,8 @@ LOT-FIN-POST-001 defines proposed financial posting and reconciliation controls;
 | Security | [Threat model](security/threat-model.md) | LOT-SEC-TM-001; proposed trust boundaries, abuse cases and controls |
 | Engineering | [API resource specification](engineering/api-resource-specification.md) | LOT-API-001; proposed API, auth, error, pagination and webhook conventions |
 | Engineering | [API platform and developer experience](engineering/api-platform-and-developer-experience.md) | LOT-API-PLATFORM-001; proposed control/data planes, app registration, entitlement catalog, credentials, webhooks, SDKs, Developer Portal, sandbox, metering and lifecycle governance |
-| Engineering | [Canonical event contract](engineering/canonical-event-contract.md) | Proposed event envelope and delivery semantics |
+| Engineering | [Canonical event contract](engineering/canonical-event-contract.md) | LOT-EVENT-001; proposed event envelope and delivery semantics |
+| Engineering | [Affiliate API wire contract](engineering/affiliate-api-wire-contract.md) | LOT-AFFILIATE-WIRE-001; proposed OpenAPI/AsyncAPI wire profile and CloudEvents ingress; no endpoint or partner mapping approved |
 | Architecture | [Global localization standard](architecture/global-localization-standard.md) | LOT-I18N-001; 12 launch languages and equal quality gates |
 | Architecture | [Live chat and customer communications](architecture/live-chat-and-communications.md) | LOT-COMMS-001; multilingual support and human handoff |
 | Architecture | [Unified multi-tenant B2B2C platform architecture](architecture/unified-b2b2c-platform-architecture.md) | LOT-PLATFORM-001; proposed B2B/B2C/white-label experiences, tenants, identity, dashboards, wallet, payments, chat, security and delivery roadmap |
