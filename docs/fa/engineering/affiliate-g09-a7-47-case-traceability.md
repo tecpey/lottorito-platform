@@ -236,8 +236,23 @@ G09-A7 Manifest طراحی در سطح هر Case و مسیر پیشنهادی ب
 | A8-FIN-01a | A4-FIN-01 | Capability مالی غیرمستقیم از Service Discovery، Workload Identity، Secret Mount یا Metadata Route امتحان شود. | در Enforcement Pointهای مستقل و قابل مشاهده رد شود؛ بدون Credential، اتصال، فراخوانی یا اثر مالی. | O-FIN/O-NET/O-OBS/O-DB؛ Inventory قابلیت، Probe ردشده و Secret Canary Scan. | BLOCKED — A4-GATE-07 / Attestation امنیت و مالی |
 | A8-DATA-04a | A4-DATA-04 | حذف/انقضای Evidence با Backup/Restore و وضعیت Legal Hold رقابت کند. | نتیجه مطابق Policy مصوب چرخه عمر داده و به‌صورت مستقل در Primary، Backup و Evidence Store اثبات شود. | O-DATA/O-DB/O-OBS؛ نسخه Policy، شواهد حذف/بازیابی و Audit دسترسی. | BLOCKED — A4-GATE-05 / Policy چرخه عمر داده |
 
+
+| A11-DUR-02b | A4-DUR-02 / A4-IDEM | Commit اولیه درحال‌اجراست و Retry با همان Identity آغاز می‌شود. | دقیقاً یک جفت؛ Retry نتواند Arbitration یکتا را دور بزند. | O-DB/O-TX/O-API؛ Barrier قطعی، وضعیت تراکنش و Cardinality نهایی. | BLOCKED — ADR-002 |
+| A11-DUR-02c | A4-DUR-02 | تراکنش اولیه هم‌زمان با Retry Abort می‌شود. | حداکثر یک جفت موفق؛ بازنده State پایدار نهایی را بازیابی کند. | O-DB/O-TX؛ Schedule Abort/Commit و Cardinality جفت. | BLOCKED — ADR-002 |
+| A11-DUR-08b | A4-DUR-08 | Primary Commit محلی را تأیید می‌کند اما Failover Candidate آن Write را ندارد. | ادعای نادرست Durability نشود؛ نتیجه مطابق RPO مصوب باشد. | O-DB/O-TX/O-OBS؛ Replication Acknowledgement و Recovery Point. | BLOCKED — ADR-002 |
+| A11-DUR-08c | A4-DUR-08 | Primary قدیمی پس از Promotion بازمی‌گردد و Write می‌کند. | Authority Epoch قدیمی رد شود؛ پذیرش Split-brain رخ ندهد. | O-DB/O-NET/O-OBS؛ Epoch و شواهد Fencing. | BLOCKED — ADR-002 |
+| A11-DUR-08d | A4-DUR-08 | هنگام گم‌شدن پاسخ Commit، Promotion رخ می‌دهد. | تا Fence شدن مرجع جدید و تطبیق Durability، UNKNOWN باقی بماند. | O-DB/O-TX/O-API؛ Timeline Promotion و State معتبر. | BLOCKED — ADR-002 |
+| A11-IDEM-09 | A4-IDEM-08 | Replay پس از انقضا/حذف هویت Event می‌رسد. | نتیجه مطابق Replay Horizon/Tombstone Policy مصوب باشد. | O-DB/O-DATA؛ شواهد Retention و Backup/Restore. | BLOCKED — ADR-002 |
+| A11-IDEM-10 | A4-IDEM-08 | همان Source Identity با Fingerprint/Parser Version تغییرکرده می‌رسد. | Conflict آگاه از نسخه؛ بدون بازتفسیر بی‌صدا. | O-API/O-DB؛ شواهد نسخه Parser/Fingerprint. | BLOCKED — ADR-002 |
+| A11-AUTH-08 | A4-AUTH-08 | Event آلوده می‌کوشد Quarantine گسترده ایجاد کند. | مهار مرحله‌ای؛ Tenantهای نامرتبط فعال بمانند. | O-IAM/O-DB/O-OBS؛ Audit دامنه و شواهد Noisy-neighbor. | BLOCKED — ADR-002 |
+| A11-WRK-01 | A4-AUTH-08 / A4-DUR-05 | Quarantine با Worker Claim رقابت می‌کند. | یک برنده سریال‌شده؛ پس از مرز Quarantine هیچ Pickup رخ ندهد. | O-DB/O-TX/O-WRK؛ Barrier و نتیجه Claim. | BLOCKED — ADR-002 |
+| A10-DUR-02d | A4-DUR-02 | مسیر خطادار فقط Receipt یا فقط WorkItem را Commit می‌کند. | Invariant در لحظه Commit/Capability جفت ناقص را رد کند. | O-DB/O-TX؛ Fault Injection و Query Cardinality. | BLOCKED — ADR-002 |
+| A10-DUR-02e | A4-DUR-02 | Receipt و WorkItem هنگام پذیرش هم‌زمان در Snapshotهای جدا خوانده می‌شوند. | یک Snapshot سازگار/Query اتمیک؛ بدون تشخیص کاذب جفت ناقص. | O-DB/O-TX؛ Trace Snapshot/Statement. | BLOCKED — ADR-002 |
+| A10-AUTH-06b | A4-AUTH-06 | Source Namespace و Event ID یکسان از دو Tenant احراز‌شده ارسال می‌شود. | جداسازی Tenant-scoped؛ بدون Lookup/افشای بین‌مستاجری. | O-IAM/O-DB/O-API؛ Binding هویت و Audit Query. | BLOCKED — ADR-002 |
+| A10-IDEM-08a | A4-IDEM-08 | همان Request Key با Body تغییرکرده استفاده می‌شود؛ Keyهای متفاوت یک Source Event را Retry می‌کنند. | Body تغییرکرده Conflict؛ Keyهای متفاوت به یک جفت همگرا شوند. | O-API/O-DB/O-TX؛ Binding کلید و Cardinality جفت. | BLOCKED — ADR-002 |
+
 ### ارجاع پروتکل زمانی
 
 سند پیشنهادی LOT-AFFILIATE-G09-ADR-001، Claim Generation پایدار مختص WorkItem، Owner/Token احراز‌شده، انتقال Guardشده با مرجع Persistence، قاعده Linearization انقضای Lease و Recovery Fence را تعریف می‌کند. این ADR همچنان PROPOSED است و به تصویب مالک، بازبینی مستقل و تعیین Semantics پایگاه داده کاندید نیاز دارد. این سند Database انتخاب نمی‌کند و مجوز اجرای Runtime نیست.
 
-Subcaseها به Case والد متصل‌اند و به تعداد Canonical چهل‌وهفت‌گانه اضافه نمی‌شوند. ADR-002 نسخه ۰.۳.۰، Fencing مبتنی بر Authority Epoch، Durability/RPO مربوط به Commit تأییدشده، Dedup محدود به Retention، مهار Quarantine و تفکیک پاسخ Acceptance از Execution را اضافه می‌کند. Runner آتی باید نتیجه والد و هر Subcase را جداگانه گزارش کند تا PASS والد، شکست یک Interleaving را پنهان نکند.
+Subcaseها به Case والد متصل‌اند و به تعداد Canonical چهل‌وهفت‌گانه اضافه نمی‌شوند. ADR-002 نسخه ۰.۳.۰، Fencing مبتنی بر Authority Epoch، Durability/RPO مربوط به Commit تأییدشده، Dedup محدود به Retention، مهار Quarantine و تفکیک پاسخ Acceptance از Execution را اضافه می‌کند. ADR-002 نسخه ۰.۳.۰، Authority Epoch/Fencing، Durability/RPO، Retention هویت، مهار Quarantine و تفکیک Acceptance از Execution را الزام می‌کند. Runner آتی باید نتیجه والد و هر Subcase را جداگانه گزارش کند تا PASS والد، شکست یک Interleaving را پنهان نکند.
