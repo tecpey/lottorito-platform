@@ -213,3 +213,9 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 
 ### G09-A14 lockfile checkpoint
 - Both isolated lockfiles are committed at the branch tip: contract-tools (1,409 package records) and schema-tools (7 package records), lockfileVersion 3. The bootstrap/artifact/write-back mechanism has been removed; the validator workflow now uses strict `npm ci` for both prefixes. Final exact-head verification is pending.
+
+### G09-A14 exact-head verification — 2026-11-28
+- Verified exact head `3a008718ab9cf40a551441e3a195f73874788f26`: Documentation Governance #1057 SUCCESS (`46070895494`) and Affiliate Contract Validation #227 SUCCESS (`46070891292`).
+- Both strict `npm ci` installs from committed isolated lockfiles passed on Node 24.11.1/npm 11.6.2. Redocly OpenAPI, AsyncAPI CLI 6.2.2 and Node/Ajv payload validation passed: 66 assertions, 11 schema roots, 53 positive/negative fixtures.
+- A13-F01/F03/F04/F06 are verified for contract/CI scope. A13-F02 remains partial pending installation-specific runtime allowlist proof; A13-F05 remains open pending owner decisions and candidate-specific durability/UNKNOWN proof. Non-blocking notices: missing `info.license` metadata and AsyncAPI CLI recommendation to consider 3.1.0; no license or dialect migration is inferred.
+- ADR-002 remains PROPOSED; A11-F01..F08 OPEN; A7/A8 design-only/NOT RUN; all A4 gates NOT APPROVED; independent review outstanding. No runtime, persistence/queue selection, partner integration, financial operation, merge or deployment authorized.
