@@ -394,7 +394,8 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/Program"
-            }
+            },
+            "maxItems": 100
           },
           "nextCursor": {
             "type": [
