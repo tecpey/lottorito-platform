@@ -6,9 +6,12 @@ import { createRequire } from "node:module";
 const prefix = process.env.CONTRACT_TOOLS_PREFIX;
 assert.ok(prefix, "CONTRACT_TOOLS_PREFIX must point to the pinned contract-tools install");
 const require = createRequire(path.join(prefix, "package.json"));
-const Ajv2020 = require("ajv/dist/2020").default;
-const AjvDraft7 = require("ajv").default;
-const addFormats = require("ajv-formats").default;
+const Ajv2020Module = require("ajv/dist/2020");
+const AjvModule = require("ajv");
+const addFormatsModule = require("ajv-formats");
+const Ajv2020 = Ajv2020Module.default ?? Ajv2020Module;
+const AjvDraft7 = AjvModule.default ?? AjvModule;
+const addFormats = addFormatsModule.default ?? addFormatsModule;
 
 const readJson = (file) => JSON.parse(fs.readFileSync(file, "utf8"));
 const openApi = readJson("contracts/openapi/affiliate-management.v1.json");
