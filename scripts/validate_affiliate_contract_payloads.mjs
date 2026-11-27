@@ -184,6 +184,35 @@ const partnerEvent = ajv2020.compile({
   $defs: { PartnerCloudEvent: partnerSchema },
   $ref: "#/$defs/PartnerCloudEvent",
 });
+function isValidCloudEventsString(value) {
+  if (!value.isWellFormed() || /[\u0000-\u001f\u007f-\u009f]/u.test(value)) return false;
+  for (const character of value) {
+    const codePoint = character.codePointAt(0);
+    if ((codePoint >= 0xfdd0 && codePoint <= 0xfdef) ||
+        (codePoint & 0xffff) === 0xfffe || (codePoint & 0xffff) === 0xffff) return false;
+  }
+  return true;
+}
+function withCloudEventsStringSemantics(schemaValidator, coreAttributes) {
+  const validate = (event) => {
+    if (!schemaValidator(event)) {
+      validate.errors = schemaValidator.errors;
+      return false;
+    }
+    for (const [name, value] of Object.entries(event)) {
+      if (!coreAttributes.has(name) && typeof value === "string" && !isValidCloudEventsString(value)) {
+        validate.errors = [{ keyword: "cloudEventsString", message: "extension string contains a prohibited Unicode code point" }];
+        return false;
+      }
+    }
+    validate.errors = null;
+    return true;
+  };
+  return validate;
+}
+const partnerEventValidator = withCloudEventsStringSemantics(partnerEvent,
+  new Set(["specversion", "id", "source", "type", "subject", "time", "datacontenttype", "dataschema", "data"]));
+
 const partnerFixture = {
   specversion: "1.0",
   id: "source-event-1",
@@ -194,19 +223,22 @@ const partnerFixture = {
   data: { externalSubjectReference: "subject-1" },
   traceparent: "00-opaque",
 };
-valid("Partner CloudEvent with top-level extension attribute", partnerEvent, partnerFixture);
-invalid("Partner CloudEvent rejects missing source identity", partnerEvent, { ...partnerFixture, id: "" });
-invalid("Partner CloudEvent rejects unsupported specversion", partnerEvent, { ...partnerFixture, specversion: "0.3" });
-invalid("Partner CloudEvent rejects wrong data content type", partnerEvent, { ...partnerFixture, datacontenttype: "text/plain" });
-invalid("Partner CloudEvent rejects non-object data", partnerEvent, { ...partnerFixture, data: "not-an-object" });
-invalid("Partner CloudEvent enforces data maxProperties", partnerEvent, { ...partnerFixture, data: Object.fromEntries(Array.from({ length: 65 }, (_, i) => [`k${i}`, i])) });
-invalid("Partner CloudEvent rejects uppercase extension name", partnerEvent, { ...partnerFixture, TraceParent: "00-opaque" });
-invalid("Partner CloudEvent rejects extension name with underscore", partnerEvent, { ...partnerFixture, trace_parent: "00-opaque" });
-invalid("Partner CloudEvent rejects extension name over 20 characters", partnerEvent, { ...partnerFixture, abcdefghijklmnopqrstu: "x" });
-invalid("Partner CloudEvent rejects array extension value", partnerEvent, { ...partnerFixture, traceparent: ["bad"] });
-invalid("Partner CloudEvent rejects null extension value", partnerEvent, { ...partnerFixture, traceparent: null });
-invalid("Partner CloudEvent rejects object extension value", partnerEvent, { ...partnerFixture, traceparent: { value: "bad" } });
-invalid("Partner CloudEvent rejects out-of-range integer extension", partnerEvent, { ...partnerFixture, retrycount: 2147483648 });
+valid("Partner CloudEvent with top-level extension attribute", partnerEventValidator, partnerFixture);
+invalid("Partner CloudEvent rejects missing source identity", partnerEventValidator, { ...partnerFixture, id: "" });
+invalid("Partner CloudEvent rejects unsupported specversion", partnerEventValidator, { ...partnerFixture, specversion: "0.3" });
+invalid("Partner CloudEvent rejects wrong data content type", partnerEventValidator, { ...partnerFixture, datacontenttype: "text/plain" });
+invalid("Partner CloudEvent rejects non-object data", partnerEventValidator, { ...partnerFixture, data: "not-an-object" });
+invalid("Partner CloudEvent enforces data maxProperties", partnerEventValidator, { ...partnerFixture, data: Object.fromEntries(Array.from({ length: 65 }, (_, i) => [`k${i}`, i])) });
+invalid("Partner CloudEvent rejects uppercase extension name", partnerEventValidator, { ...partnerFixture, TraceParent: "00-opaque" });
+invalid("Partner CloudEvent rejects extension name with underscore", partnerEventValidator, { ...partnerFixture, trace_parent: "00-opaque" });
+invalid("Partner CloudEvent rejects extension name over 20 characters", partnerEventValidator, { ...partnerFixture, abcdefghijklmnopqrstu: "x" });
+invalid("Partner CloudEvent rejects array extension value", partnerEventValidator, { ...partnerFixture, traceparent: ["bad"] });
+invalid("Partner CloudEvent rejects null extension value", partnerEventValidator, { ...partnerFixture, traceparent: null });
+invalid("Partner CloudEvent rejects object extension value", partnerEventValidator, { ...partnerFixture, traceparent: { value: "bad" } });
+invalid("Partner CloudEvent rejects out-of-range integer extension", partnerEventValidator, { ...partnerFixture, retrycount: 2147483648 });
+invalid("Partner CloudEvent rejects extension string control character", partnerEventValidator, { ...partnerFixture, traceparent: "bad\u0001value" });
+invalid("Partner CloudEvent rejects extension string unpaired surrogate", partnerEventValidator, { ...partnerFixture, traceparent: "\uD800" });
+invalid("Partner CloudEvent rejects extension string Unicode noncharacter", partnerEventValidator, { ...partnerFixture, traceparent: "\uFDD0" });
 
 activeSchemaRoot = "partner.EventReceipt";
 const receipt = ajv2020.compile({
@@ -252,17 +284,22 @@ assertDraft7CompatibleSubset(canonicalSchema);
 // validates the complete document and its normative schema dialect.
 activeSchemaRoot = "asyncapi.AffiliateCanonicalEvent.payload";
 const canonicalEvent = ajv07.compile(canonicalSchema);
+const canonicalEventValidator = withCloudEventsStringSemantics(canonicalEvent,
+  new Set(["specversion", "id", "source", "type", "subject", "time", "datacontenttype", "dataschema", "tenantid", "productdomain", "correlationid", "causationid", "sourcesystem", "sourceeventid", "receivedat", "recordedat", "data"]));
 const canonicalFixture = asyncApi.components.messages.AffiliateCanonicalEvent.examples[0].payload;
-valid("Canonical Affiliate CloudEvent example", canonicalEvent, canonicalFixture);
-valid("Canonical event allows a top-level CloudEvents extension", canonicalEvent, { ...canonicalFixture, tenantregion: "eu" });
-invalid("Canonical event rejects missing trusted tenant context", canonicalEvent, (() => { const x = { ...canonicalFixture }; delete x.tenantid; return x; })());
-invalid("Canonical event rejects wrong product domain", canonicalEvent, { ...canonicalFixture, productdomain: "wallet" });
-invalid("Canonical event rejects unversioned/non-domain event type", canonicalEvent, { ...canonicalFixture, type: "affiliate.registration" });
-invalid("Canonical event rejects malformed timestamp", canonicalEvent, { ...canonicalFixture, receivedat: "not-a-date" });
-invalid("Canonical event rejects non-object data", canonicalEvent, { ...canonicalFixture, data: [] });
-invalid("Canonical event rejects uppercase extension name", canonicalEvent, { ...canonicalFixture, TenantRegion: "eu" });
-invalid("Canonical event rejects invalid extension value type", canonicalEvent, { ...canonicalFixture, tenantregion: ["eu"] });
-invalid("Canonical event rejects out-of-range integer extension", canonicalEvent, { ...canonicalFixture, retrycount: -2147483649 });
+valid("Canonical Affiliate CloudEvent example", canonicalEventValidator, canonicalFixture);
+valid("Canonical event allows a top-level CloudEvents extension", canonicalEventValidator, { ...canonicalFixture, tenantregion: "eu" });
+invalid("Canonical event rejects missing trusted tenant context", canonicalEventValidator, (() => { const x = { ...canonicalFixture }; delete x.tenantid; return x; })());
+invalid("Canonical event rejects wrong product domain", canonicalEventValidator, { ...canonicalFixture, productdomain: "wallet" });
+invalid("Canonical event rejects unversioned/non-domain event type", canonicalEventValidator, { ...canonicalFixture, type: "affiliate.registration" });
+invalid("Canonical event rejects malformed timestamp", canonicalEventValidator, { ...canonicalFixture, receivedat: "not-a-date" });
+invalid("Canonical event rejects non-object data", canonicalEventValidator, { ...canonicalFixture, data: [] });
+invalid("Canonical event rejects uppercase extension name", canonicalEventValidator, { ...canonicalFixture, TenantRegion: "eu" });
+invalid("Canonical event rejects invalid extension value type", canonicalEventValidator, { ...canonicalFixture, tenantregion: ["eu"] });
+invalid("Canonical event rejects out-of-range integer extension", canonicalEventValidator, { ...canonicalFixture, retrycount: -2147483649 });
+invalid("Canonical event rejects extension string control character", canonicalEventValidator, { ...canonicalFixture, tenantregion: "bad\u0001value" });
+invalid("Canonical event rejects extension string unpaired surrogate", canonicalEventValidator, { ...canonicalFixture, tenantregion: "\uD800" });
+invalid("Canonical event rejects extension string Unicode noncharacter", canonicalEventValidator, { ...canonicalFixture, tenantregion: "\uFDD0" });
 
 const expectedRoots = validationManifest.schemaRoots.map((entry) => entry.id).sort();
 const actualRoots = [
