@@ -75,7 +75,7 @@
             },
             "type": {
               "type": "string",
-              "pattern": "^com\\\\.lottorito\\\\.affiliate\\\\.[a-z0-9.-]+\\\\.v[1-9][0-9]*$",
+              "pattern": "^com[.]lottorito[.]affiliate[.][a-z0-9.-]+[.]v[1-9][0-9]*$",
               "description": "Domain-qualified, versioned event type."
             },
             "subject": {
