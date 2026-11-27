@@ -49,14 +49,15 @@ Validator اکنون پیش‌فرض AsyncAPI 3.0.0 را درست توصیف م�
 
 ### A14-C04 — Bootstrap برای Lockfile و مسیر نصب بازتولیدپذیر
 
-Manifest ابزار با نسخه‌های مستقیم دقیق در `.github/contract-validation/package.json` اضافه شد. Workflow اکنون:
+Manifestهای نسخه‌دقیق و جداگانه در `.github/contract-tools/package.json` و `.github/schema-tools/package.json` اضافه شدند. دو Prefix عمداً Dependency Graph مربوط به CLIهای AsyncAPI/Redocly را از Dependencyهای Ajv مربوط به Fixture جدا می‌کنند؛ این جداسازی از Collision نسخه‌های Transitive مربوط به Ajv/Plugin جلوگیری می‌کند و جداسازی قبلی را حفظ می‌کند. Workflow اکنون:
 ۱. فقط در صورت نبود Lockfile، موقتاً آن را تولید می‌کند؛
-۲. با `npm ci` نصب انجام می‌دهد؛
-۳. Lockfile تولیدشده را به‌صورت Artifact کوتاه‌مدت Workflow بارگذاری می‌کند؛
-۴. نسخه Node و npm را ثبت می‌کند؛
-۵. به‌جای برچسب متغیر `ubuntu-latest` از `ubuntu-24.04` استفاده می‌کند.
+۲. هر Prefix را جداگانه با `npm ci` نصب می‌کند؛
+۳. هر دو Lockfile تولیدشده را به‌صورت Artifact کوتاه‌مدت Workflow بارگذاری می‌کند؛
+۴. یک Job مستقل با مجوز محدود `contents: write` فقط همان دو Lockfile را بررسی و به Branch مربوط به PR داخل همین Repository Commit می‌کند (Job اعتبارسنجی همچنان Read-only است)؛
+۵. نسخه Node و npm را ثبت می‌کند؛
+۶. به‌جای برچسب متغیر `ubuntu-latest` از `ubuntu-24.04` استفاده می‌کند.
 
-**هنوز بسته نشده:** Lockfile تولیدشده باید دریافت، بررسی و Commit شود. سپس مراحل موقت Bootstrap و Upload Artifact باید حذف شوند و Workflow فقط `npm ci` سخت‌گیرانه داشته باشد؛ در نبود Lockfile ثبت‌شده باید Fail شود. تا زمان این تغییر نهایی و PASS روی Head دقیق، A13-F04 باز است. Image میزبانی‌شده Runner همچنان توسط GitHub به‌روزرسانی می‌شود؛ `ubuntu-24.04` خانواده سیستم‌عامل را محدود می‌کند اما Digest کاملاً Immutable نیست.
+**هنوز بسته نشده:** هر دو Lockfile تولیدشده باید دریافت، بررسی و Commit شوند. سپس Bootstrap موقت، Job ثبت Lockfile و مراحل Upload Artifact باید حذف شوند و Workflow در هر دو Prefix مجزا فقط `npm ci` سخت‌گیرانه داشته باشد؛ در نبود Lockfile ثبت‌شده باید Fail شود. تا زمان این تغییر نهایی و PASS روی Head دقیق، A13-F04 باز است. Image میزبانی‌شده Runner همچنان توسط GitHub به‌روزرسانی می‌شود؛ `ubuntu-24.04` خانواده سیستم‌عامل را محدود می‌کند اما Digest کاملاً Immutable نیست.
 
 ### A14-C05 — هم‌ترازی وضعیت پاسخ 202/503/UNKNOWN
 
