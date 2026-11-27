@@ -124,3 +124,5 @@ Validator ساختاری در [scripts/check_docs.py](../../scripts/check_docs.p
 - [G09-A12 افیلیت — بسته بازبینی مستقل ADR-002](engineering/affiliate-g09-a12-adr002-independent-review-package.md) — پروتکل چالش و ماتریس شواهد برای بازبین مستقل؛ بازبینی مستقل هنوز انجام نشده؛ تمام یافته‌های A11 باز هستند؛ بدون مجوز Runtime.
 
 - [G09-A13 افیلیت — بازبینی اطمینان‌بخشی اعتبارسنجی قرارداد](engineering/affiliate-g09-a13-contract-validation-assurance-review.md) — بازبینی همان نویسنده درباره دامنه CI، Assertionهای امنیت/Scope، Dialect در AsyncAPI، بازتولیدپذیری Dependency، محدودیت Extension و معنای پاسخ UNKNOWN؛ یافته‌ها باز هستند.
+
+- [G09-A14 افیلیت — سخت‌سازی اعتبارسنجی قرارداد و هم‌ترازی وضعیت پاسخ](engineering/affiliate-g09-a14-contract-validation-hardening.md) — سخت‌سازی Assertionهای دقیق Security/Scope، پروفایل Extensionهای CloudEvents، بررسی Dialect در AsyncAPI، نصب Lockfile و پوشش Schema/Fixture؛ تا نهایی‌شدن Lockfile و CI روی Head دقیق در وضعیت IN PROGRESS.
