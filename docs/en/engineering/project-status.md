@@ -1,6 +1,6 @@
 # Verified Project Status and Continuation Point
 
-**Document ID:** LOT-OPS-001 | **Version:** 1.7.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-24
+**Document ID:** LOT-OPS-001 | **Version:** 1.8.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-24
 
 ## Verified repository state
 - Repository: tecpey/lottorito-platform; default branch main; public visibility by owner decision.
@@ -42,6 +42,8 @@ The finance, security, API and technology/deployment references are proposals, n
 - **LOT-API-PLATFORM-001:** proposed API platform and developer-experience contract extending LOT-API-001/LOT-EVENT-001 with control/data planes, app/client registration, entitlement catalog, credential lifecycle, webhook subscriptions, SDK generation, Developer Portal, isolated sandbox, metering/quotas and lifecycle governance. No API gateway, portal, SDK, sandbox or production API access is claimed.
 - **LOT-AFFILIATE-API-001:** proposed provider-neutral Affiliate & Agent API capability inventory for programs, memberships, hierarchy, campaigns, referral links, attribution, partner event intake, commission statements and reporting. Financial mutations remain in wallet/ledger/payment/payout domains; no partner, commercial formula, endpoint or integration is approved.
 
+- **LOT-AFFILIATE-WIRE-001:** proposed wire-level extension of LOT-AFFILIATE-API-001 / LOT-API-001 / LOT-EVENT-001. Adds separate Affiliate management and partner-event ingress OpenAPI contracts plus a transport-neutral AsyncAPI canonical-event profile. Exact partner schemas, auth issuer/profile, transport and endpoint deployment remain unverified; JSON artifacts have not yet passed a dedicated OpenAPI/AsyncAPI validator.
+
 ## Not verified
 No application implementation, physical database schema/migrations, provider API connection, sandbox certification, financial calculation/posting, payout, penetration test or production deployment has been verified. Documentation Governance CI exists and has passed structural checks on selected PR heads; it does not prove semantic bilingual parity, runtime behavior, legal eligibility or security.
 
@@ -72,6 +74,7 @@ No application implementation, physical database schema/migrations, provider API
 15. Review LOT-API-PLATFORM-001 with architecture/security/finance/legal/operations; approve API audiences, app/credential model, sandbox, webhook and lifecycle gates before building the Developer Portal or publishing APIs.
 16. Review LOT-AFFILIATE-API-001 against the actual first-pilot partner contract and sandbox; approve the narrow event/resource allowlist, attribution and commission semantics before implementing an adapter or exposing production APIs.
 17. Only after decisions, scaffold the platform and implement isolated vertical slices with tests.
+18. Review LOT-AFFILIATE-WIRE-001 and its machine-readable contracts; validate them with pinned OpenAPI/AsyncAPI/JSON Schema tooling, then reconcile the exact resource/event allowlist with approved partner documentation and sandbox evidence.
 
 ## Owner decisions still required
 Legal entity and operating model; initial jurisdiction; provider and source-of-truth rules; USD 100 illustrative agent credit; commission/NGR and network progression; account mapping and funding/custody; payout permissions; technology and deployment choices; data residency and retention; official logo source asset.
