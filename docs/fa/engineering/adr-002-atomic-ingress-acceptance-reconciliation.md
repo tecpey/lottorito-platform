@@ -4,7 +4,7 @@
 **شناسه تصمیم:** LOT-AFFILIATE-G09-ADR-002  
 **اسناد مرتبط:** LOT-AFFILIATE-SEC-ACC-001؛ G09-A4؛ G09-A5؛ G09-A7؛ G09-A8  
 **وضعیت:** پیشنهادی — نیازمند تصمیم مالک و بازبینی واقعاً مستقل  
-**نسخه:** ۰.۲.۰ | **تاریخ:** ۲۰۲۶-۱۱-۲۸  
+**نسخه:** ۰.۳.۰ | **تاریخ:** ۲۰۲۶-۱۱-۲۸  
 **دامنه:** فقط پذیرش Ingress مصنوعی Affiliate؛ بدون احراز کمیسیون، ثبت مالی، اثر جانبی خارجی، اتصال شریک یا مجوز Production.
 
 ## ۱. تصمیم پیشنهادی
@@ -259,3 +259,29 @@ Retry با هویت یکسان فقط زمانی Duplicate نامیده شود �
 ## ۱۶. پیوند بازبینی خصمانه (G09-A11)
 
 گزارش خودبازبینی خصمانه در همان جریان در [G09-A11](affiliate-g09-a11-adr002-adversarial-review.md) ثبت شده است و تأیید مستقل محسوب نمی‌شود. یافته‌های زیر تا زمان تعیین تکلیف با تصمیم مالک، بازبینی مستقل و شواهد مختص Candidate مانع تصویب این ADR هستند: A11-F01 (Durability Commit در Failover)، A11-F02 (Epoch مرجع تک‌نویسنده و Fencing در برابر Split-brain)، A11-F03 (Race بین Read منفی تطبیق و Commit درحال‌اجرا)، A11-F06 (Idempotency محدود به Retention)، و یافته‌های با شدت بالا A11-F04/F05/F07/F08. نه Subcase پیشنهادی A11 همگی NOT RUN هستند. این پیوند مجوز اجرای Runtime ایجاد نمی‌کند و هیچ Gate مربوط به A4 را حذف نمی‌کند.
+
+
+## ۱۷. الزامات بستن A11 — مرجعیت، Durability، Retention و مهار
+
+موارد زیر الزامات اجباری ارزیابی Candidate هستند، نه انتخاب Vendor یا ادعای وجود مکانیزم.
+
+### ۱۷.۱ مرجعیت تک‌نویسنده و Fencing مبتنی بر Epoch
+یک Persistence Authority Epoch/Incarnation منطقی و مستقل از WorkItem Claim Generation تعریف شود. Candidate باید Epoch یکنواخت افزایشی و غیرقابل‌بازیافت در Promotion/Restore، دقیقاً یک Writer فعال، اتصال تمام Writeهای Ingress و تصمیم‌های Reconciliation به Epoch فعال، رد Epoch قدیمی در مرز Enforcement مستقل، توقف Promotion تا Termination یا Fencing بیرونی Writer قدیمی در سطح Network/Storage/Compute، Read-only/Quarantined ماندن Primary قدیمی پس از بازگشت تا Reconciliation و پذیرش مجدد، و جلوگیری از Rollback شدن Epoch در Restore را اثبات کند. Counter محلی Database کافی نیست اگر Primaryهای جداافتاده بتوانند هرکدام آن را افزایش دهند. اگر مرجعیت تک‌نویسنده اثبات نشود، Ingress و Worker باید Fail closed شوند.
+
+### ۱۷.۲ قرارداد Durability برای Commit تأییدشده
+پاسخ موفق باید نسبت به Failure Model صریح تعریف شود. شواهد Candidate باید Flush پایدار محلی، نقطه Acknowledgement مربوط به Replication/Consensus، Replicaهای مجاز Promotion، انتخاب Recovery Point، RPO مربوط به Write تأییدشده برای هر کلاس خرابی و رفتار هنگام نامعلوم‌بودن Durability را مشخص کنند. از برچسب Synchronous تضمین اتلاف صفر استنباط نشود. اگر پذیرش تأییدشده در یک کلاس خرابی ممکن است ناپدید شود، یا آن کلاس از وعده Durability خارج و اتلاف محدود مستند شود، یا تا تحقق شرط Durability لازم پاسخ موفق/اجرای Worker متوقف بماند. جفت تأییدشده ازدست‌رفته پس از Failover هرگز بی‌صدا به پذیرش جدید تبدیل نشود.
+
+### ۱۷.۳ Idempotency محدود به Retention
+Dedup مربوط به Source Event به عمر شواهد هویت محدود است. مالک باید Replay Horizon را بر اساس قرارداد واقعی منبع و نیازهای کسب‌وکار/حقوقی تعیین کند. Tombstone هویتی حداقلی و فاقد داده حساس دست‌کم تا آن افق، با احتساب Backup/Restore و Offboarding Tenant نگهداری شود. اگر Replay نامحدود است، Tombstone تحت مبنای مصوب حریم خصوصی/حقوقی نامحدود نگهداری یا تضمین صریحاً محدود شود. Retention مربوط به Request Key جداست. هیچ مدت عددی انتخاب نشده است.
+
+### ۱۷.۴ دامنه Quarantine و منع Claim توسط Worker
+مهار باید مرحله‌ای و مبتنی بر شواهد باشد: ابتدا Event Identity؛ سپس Installation/Source Partition فقط در صورت نیاز؛ و Tenant-wide فقط با اثبات دامنه اثر. Event غیرقابل‌اعتماد به‌تنهایی نباید Quarantine گسترده ایجاد کند. Quarantine به Authority احراز‌شده، Audit تغییرناپذیر، دلیل/Evidence، بازبینی/انقضا و Recovery کنترل‌شده نیاز دارد. جفت Quarantined/ناسازگار باید مستقلاً از Claim توسط Worker منع شود؛ Race بین Quarantine و Claim اجرا و یک نتیجه Serialization اثبات شود. Tenantهای نامرتبط باید فعال بمانند.
+
+### ۱۷.۵ Semantics پاسخ Acceptance
+پاسخ موفق Ingress فقط به‌معنای **پذیرش/ثبت پایدار طبق قرارداد Durability اعلام‌شده** است؛ نه Claim، Processing، Qualification، محاسبه کمیسیون یا ثبت مالی. Acceptance Reference پایدار و Opaque برگردانده شود. Retry تکراری همان Reference را از State پایدار استخراج کند و هرگز WorkItem دوم نسازد/Enqueue نکند. Quarantine پس از پذیرش تاریخچه را بازنویسی نمی‌کند و به‌معنای Completion نیست؛ Response/Status باید Accepted، Quarantined، Processing و Completed را بدون افشای جزئیات داخلی Worker/Security تفکیک کند.
+
+### ۱۷.۶ موانع A11
+A11-F01 تا F08 باز هستند: Durability/RPO پذیرش تأییدشده (بحرانی)؛ Authority Epoch/Fencing در برابر Split-brain (بحرانی)؛ Read منفی در برابر Commit درحال‌اجرا (بحرانی)؛ Cardinality/Referential جفت (زیاد)؛ Versioning مربوط به Fingerprint (زیاد)؛ Idempotency محدود به Retention (بحرانی)؛ دامنه Quarantine/DoS (زیاد)؛ تفکیک Acceptance از Execution (زیاد). نه Subcase مربوط به A11 و چهار مورد A10-DUR-02d، A10-DUR-02e، A10-AUTH-06b و A10-IDEM-08a باید در Manifest اجرایی باشند. تعداد Canonical در A4 همان ۴۷ است؛ همه توسعه‌ها NOT RUN/BLOCKED هستند.
+
+### ۱۷.۷ موانع تصویب
+ADR-002 تا تعیین و اثبات مستقل Authority Epoch/Fencing، Durability/RPO، Arbitration Attemptهای درحال‌اجرا، Retention هویت/Replay Horizon، Cardinality جفت و Binding Tenant/Installation، Versioning Fingerprint، Scope قرنطینه/منع Claim Worker و Semantics پاسخ Wire تصویب نشود. CI مستندات به‌تنهایی هیچ‌یک را نمی‌بندد.
