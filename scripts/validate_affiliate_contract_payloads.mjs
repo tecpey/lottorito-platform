@@ -193,15 +193,18 @@ function isValidCloudEventsString(value) {
   }
   return true;
 }
-function withCloudEventsStringSemantics(schemaValidator, coreAttributes) {
+function withCloudEventsStringSemantics(schemaValidator) {
   const validate = (event) => {
     if (!schemaValidator(event)) {
       validate.errors = schemaValidator.errors;
       return false;
     }
     for (const [name, value] of Object.entries(event)) {
-      if (!coreAttributes.has(name) && typeof value === "string" && !isValidCloudEventsString(value)) {
-        validate.errors = [{ keyword: "cloudEventsString", message: "extension string contains a prohibited Unicode code point" }];
+      // "data" is the event payload, not a CloudEvents context attribute.
+      // All other string-valued context attributes, core and extension, share
+      // the CloudEvents String constraints.
+      if (name !== "data" && typeof value === "string" && !isValidCloudEventsString(value)) {
+        validate.errors = [{ keyword: "cloudEventsString", message: "context string contains a prohibited Unicode code point" }];
         return false;
       }
     }
@@ -210,8 +213,7 @@ function withCloudEventsStringSemantics(schemaValidator, coreAttributes) {
   };
   return validate;
 }
-const partnerEventValidator = withCloudEventsStringSemantics(partnerEvent,
-  new Set(["specversion", "id", "source", "type", "subject", "time", "datacontenttype", "dataschema", "data"]));
+const partnerEventValidator = withCloudEventsStringSemantics(partnerEvent);
 
 const partnerFixture = {
   specversion: "1.0",
@@ -239,6 +241,7 @@ invalid("Partner CloudEvent rejects out-of-range integer extension", partnerEven
 invalid("Partner CloudEvent rejects extension string control character", partnerEventValidator, { ...partnerFixture, traceparent: "bad\u0001value" });
 invalid("Partner CloudEvent rejects extension string unpaired surrogate", partnerEventValidator, { ...partnerFixture, traceparent: "\uD800" });
 invalid("Partner CloudEvent rejects extension string Unicode noncharacter", partnerEventValidator, { ...partnerFixture, traceparent: "\uFDD0" });
+invalid("Partner CloudEvent rejects prohibited Unicode in core id", partnerEventValidator, { ...partnerFixture, id: "bad\\u0001id" });
 
 activeSchemaRoot = "partner.EventReceipt";
 const receipt = ajv2020.compile({
@@ -284,8 +287,7 @@ assertDraft7CompatibleSubset(canonicalSchema);
 // validates the complete document and its normative schema dialect.
 activeSchemaRoot = "asyncapi.AffiliateCanonicalEvent.payload";
 const canonicalEvent = ajv07.compile(canonicalSchema);
-const canonicalEventValidator = withCloudEventsStringSemantics(canonicalEvent,
-  new Set(["specversion", "id", "source", "type", "subject", "time", "datacontenttype", "dataschema", "tenantid", "productdomain", "correlationid", "causationid", "sourcesystem", "sourceeventid", "receivedat", "recordedat", "data"]));
+const canonicalEventValidator = withCloudEventsStringSemantics(canonicalEvent);
 const canonicalFixture = asyncApi.components.messages.AffiliateCanonicalEvent.examples[0].payload;
 valid("Canonical Affiliate CloudEvent example", canonicalEventValidator, canonicalFixture);
 valid("Canonical event allows a top-level CloudEvents extension", canonicalEventValidator, { ...canonicalFixture, tenantregion: "eu" });
@@ -300,6 +302,7 @@ invalid("Canonical event rejects out-of-range integer extension", canonicalEvent
 invalid("Canonical event rejects extension string control character", canonicalEventValidator, { ...canonicalFixture, tenantregion: "bad\u0001value" });
 invalid("Canonical event rejects extension string unpaired surrogate", canonicalEventValidator, { ...canonicalFixture, tenantregion: "\uD800" });
 invalid("Canonical event rejects extension string Unicode noncharacter", canonicalEventValidator, { ...canonicalFixture, tenantregion: "\uFDD0" });
+invalid("Canonical event rejects prohibited Unicode in core id", canonicalEventValidator, { ...canonicalFixture, id: "bad\\u0001id" });
 
 const expectedRoots = validationManifest.schemaRoots.map((entry) => entry.id).sort();
 const actualRoots = [
