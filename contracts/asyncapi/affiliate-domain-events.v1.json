@@ -41,7 +41,7 @@
         "contentType": "application/cloudevents+json",
         "payload": {
           "type": "object",
-          "additionalProperties": true,
+          "additionalProperties": false,
           "required": [
             "specversion",
             "id",
@@ -135,6 +135,31 @@
               "type": "object",
               "description": "Validated and minimized domain payload; its schema is owned and versioned by the Affiliate domain.",
               "additionalProperties": true
+            }
+          },
+          "description": "Lottorito generic CloudEvents JSON profile: property names are lowercase ASCII alphanumeric, start with a letter and are at most 20 characters; non-core extension values use only the CloudEvents JSON primitive forms string, boolean or signed 32-bit integer. Installation-specific extension registration, semantic type checks and allowlisting remain runtime responsibilities.",
+          "propertyNames": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20,
+            "pattern": "^[a-z][a-z0-9]*$"
+          },
+          "patternProperties": {
+            "^(?!(?:specversion|id|source|type|subject|time|datacontenttype|dataschema|tenantid|productdomain|correlationid|causationid|sourcesystem|sourceeventid|receivedat|recordedat|data)$)[a-z][a-z0-9]{0,19}$": {
+              "description": "Generic CloudEvents extension attribute. Runtime MUST additionally validate the registered installation-specific name, semantic type and value constraints.",
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                }
+              ]
             }
           }
         },
