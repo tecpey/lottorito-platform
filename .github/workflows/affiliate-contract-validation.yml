@@ -7,6 +7,7 @@ on:
     paths:
       - "contracts/openapi/**"
       - "contracts/asyncapi/**"
+      - ".redocly.yaml"
       - ".github/workflows/affiliate-contract-validation.yml"
   pull_request:
     branches:
@@ -14,6 +15,7 @@ on:
     paths:
       - "contracts/openapi/**"
       - "contracts/asyncapi/**"
+      - ".redocly.yaml"
       - ".github/workflows/affiliate-contract-validation.yml"
   workflow_dispatch:
 
@@ -44,10 +46,8 @@ jobs:
       - name: Validate OpenAPI contracts
         run: |
           redocly --version
-          redocly lint --format=github-actions \
-            contracts/openapi/affiliate-management.v1.json
-          redocly lint --format=github-actions \
-            contracts/openapi/partner-event-ingestion.v1.json
+          redocly lint affiliate-management@v1 --format=github-actions
+          redocly lint partner-event-ingestion@v1 --format=github-actions
       - name: Validate AsyncAPI contract
         run: |
           asyncapi --version
