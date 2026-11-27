@@ -3,8 +3,14 @@
   "info": {
     "title": "Lottorito Affiliate Management API",
     "version": "0.1.0",
-    "description": "Proposed, non-production wire contract for a narrow Affiliate & Agent management slice. No server URL is published because no deployed API endpoint has been verified. See LOT-AFFILIATE-WIRE-001."
+    "description": "Proposed, non-production wire contract for a narrow Affiliate & Agent management slice. The relative `/` server base is explicit; no host, environment URL or deployed API endpoint is specified or verified. See LOT-AFFILIATE-WIRE-001."
   },
+  "servers": [
+    {
+      "url": "/",
+      "description": "Relative base only; no environment host or deployment is specified."
+    }
+  ],
   "tags": [
     {
       "name": "Affiliate",
