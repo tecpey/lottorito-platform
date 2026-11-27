@@ -2,7 +2,7 @@
 
 **شناسه سند:** LOT-AFFILIATE-G09-A14-001  
 **نسخه:** ۰.۱.۰  
-**وضعیت:** IN PROGRESS — نامزد پیاده‌سازی ثبت شده؛ CI روی Head دقیق و نهایی‌سازی Lockfile باقی است  
+**وضعیت:** سخت‌سازی فنی تأیید شد — تصمیم‌های مالک همچنان باز هستند (A14-C05)  
 **تاریخ:** ۲۰۲۶-۱۱-۲۸  
 **والد:** LOT-AFFILIATE-G09-A13-001  
 **محدوده:** صرفاً اعتبارسنجی قرارداد/CI. بدون پیاده‌سازی Runtime، انتخاب Persistence، اتصال شریک، عملیات مالی، Merge یا مجوز Deploy.
@@ -47,7 +47,7 @@ Validator اکنون پیش‌فرض AsyncAPI 3.0.0 را درست توصیف م�
 
 بررسی Instance در OpenAPI 3.2.1 در Ajv 2020-12 جدا باقی می‌ماند. Redocly همچنان Validator کامل سند OpenAPI است.
 
-### A14-C04 — Bootstrap برای Lockfile و مسیر نصب بازتولیدپذیر
+### A14-C04 — Lockfileهای مجزا و نصب بازتولیدپذیر
 
 Manifestهای نسخه‌دقیق و جداگانه در `.github/contract-tools/package.json` و `.github/schema-tools/package.json` اضافه شدند. دو Prefix عمداً Dependency Graph مربوط به CLIهای AsyncAPI/Redocly را از Dependencyهای Ajv مربوط به Fixture جدا می‌کنند تا Collision نسخه‌های Transitive مربوط به Ajv/Plugin رخ ندهد. هر دو Lockfile تولید، بررسی و Commit شده‌اند:
 - `.github/contract-tools/package-lock.json` — شامل ۱٬۴۰۹ رکورد Package.
@@ -55,7 +55,7 @@ Manifestهای نسخه‌دقیق و جداگانه در `.github/contract-tool
 
 Bootstrap موقت، Artifact Upload و Job نوشتن Lockfile حذف شده‌اند. Workflow نهایی در هر دو Prefix مجزا، `npm ci` سخت‌گیرانه را اجباری می‌کند و در صورت نبود هر Lockfile ثبت‌شده Fail می‌شود. نسخه Node/npm ثبت می‌شود و Runner از `ubuntu-24.04` به‌جای برچسب متغیر `ubuntu-latest` استفاده می‌کند.
 
-**اعتبارسنجی باقی‌مانده:** A13-F04 تا زمان موفقیت نصب سخت‌گیرانه از Lockfileهای ثبت‌شده روی Head نهایی دقیق، باز می‌ماند. Image میزبانی‌شده Runner همچنان توسط GitHub به‌روزرسانی می‌شود؛ `ubuntu-24.04` خانواده سیستم‌عامل را محدود می‌کند اما Digest کاملاً Immutable نیست.
+**تأییدشده:** هر دو اجرای سخت‌گیرانه `npm ci` از Lockfileهای ثبت‌شده روی Head دقیق `3a008718ab9cf40a551441e3a195f73874788f26` موفق شدند؛ A13-F04 از نظر بازتولیدپذیری Dependency Graph بسته شد. Image میزبانی‌شده Runner همچنان توسط GitHub به‌روزرسانی می‌شود؛ `ubuntu-24.04` خانواده سیستم‌عامل را محدود می‌کند اما Digest کاملاً Immutable نیست.
 
 ### A14-C05 — هم‌ترازی وضعیت پاسخ 202/503/UNKNOWN
 
@@ -92,23 +92,26 @@ Manifest فعلی تمام ۱۱ Schema Root را فهرست می‌کند:
 
 | یافته A13 | اقدام A14 | وضعیت فعلی |
 |---|---|---|
-| F01 — نگاشت دقیق Security/Scope عملیات | Manifest دقیق، Assertion عملیات و هفت Mutation Case | نامزد پیاده‌سازی؛ CI باقی است |
+| F01 — نگاشت دقیق Security/Scope عملیات | Manifest دقیق، Assertion عملیات و هفت Mutation Case | با CI روی Head دقیق تأیید شد؛ Authorization در Runtime اثبات نشده است |
 | F02 — Syntax/Type در Extensionهای CloudEvents در برابر Allowlist نصب | Profile عمومی Schema و Fixture منفی؛ Allowlist Runtime جدا باقی می‌ماند | جزئی؛ الزام Runtime باز است |
-| F03 — توصیف Dialect در AsyncAPI | اصلاح Comment/Output و Guard برای Ajv | نامزد پیاده‌سازی؛ CI باقی است |
-| F04 — بازتولیدپذیری Dependencyهای Transitive | Manifestهای مجزای ابزار و Lockfileهای Commit‌شده؛ Workflow مبتنی بر npm ci سخت‌گیرانه | Lockfileها ثبت شده‌اند؛ CI نهایی روی Head دقیق باقی است |
+| F03 — توصیف Dialect در AsyncAPI | اصلاح Comment/Output و Guard برای Ajv | با CI روی Head دقیق و AsyncAPI CLI تأیید شد |
+| F04 — بازتولیدپذیری Dependencyهای Transitive | Manifestهای مجزای ابزار و Lockfileهای Commit‌شده؛ Workflow مبتنی بر npm ci سخت‌گیرانه | تأیید شد؛ هر دو npm ci سخت‌گیرانه موفق شدند |
 | F05 — هم‌ترازی 202/503/UNKNOWN | متن پاسخ مشروط و مرز صریح UNKNOWN | جزئی؛ تصمیم مالک و Proof Runtime باز است |
-| F06 — پوشش Fixtureهای Schema | Manifest ماشینی ۱۱ Root/۵۳ Fixture و Assertion برابری دقیق | نامزد پیاده‌سازی؛ CI باقی است |
+| F06 — پوشش Fixtureهای Schema | Manifest ماشینی ۱۱ Root/۵۳ Fixture و Assertion برابری دقیق | با CI روی Head دقیق تأیید شد؛ ۶۶ Assertion موفق |
 
-## ۵. اعتبارسنجی الزامی پیش از تکمیل A14
+## ۵. شواهد اعتبارسنجی روی Head دقیق
 
-۱. تأیید موفقیت `npm ci` سخت‌گیرانه از هر دو Lockfile ثبت‌شده روی Head نهایی دقیق؛ هیچ مسیر جایگزین Bootstrap باقی نمانده است.
-۳. تأیید اینکه Mutationهای Security/Scope دقیقاً مطابق انتظار Fail می‌شوند.
-۴. تأیید Caseهای مثبت/منفی Profile Extensionهای CloudEvents در Ajv 2020-12 و Subset محافظت‌شده Draft 07.
-۵. موفقیت AsyncAPI CLI و کنترل کامل سند توسط Redocly.
-۶. تطبیق دقیق ۱۱ Schema Root و ۵۳ شناسه Fixture.
-۷. اجرای Documentation Governance و Affiliate Contract Validation روی یک Head نهایی مشترک؛ بررسی تمام Job Stepها و ثبت SHA دقیق.
-۸. بازخوانی اسناد فارسی و انگلیسی و مقایسه هم‌ارزی معنایی.
-۹. ثبت تمام تصمیم‌های باز مالک بدون تغییر وضعیت آن‌ها.
+**Head تأییدشده:** `3a008718ab9cf40a551441e3a195f73874788f26`
+
+- Documentation Governance #1057 — SUCCESS (Run: `46070895494`).
+- Affiliate Contract Validation #227 — SUCCESS (Run: `46070891292`).
+- هر دو نصب سخت‌گیرانه `npm ci` با Node نسخه `24.11.1` و npm نسخه `11.6.2` موفق شدند.
+- کنترل‌های OpenAPI توسط Redocly موفق شدند؛ اعتبارسنجی کامل سند AsyncAPI توسط CLI نسخه `6.2.2` نیز موفق شد.
+- Validator مبتنی بر Node/Ajv با **۶۶ Assertion**، شامل **۱۱ Schema Root** و **۵۳ Fixture مثبت/منفی** موفق شد.
+- نگاشت دقیق Security/Scope و هفت Mutation Case، Profile عمومی CloudEvents و کنترل Unicode، Guard مربوط به Dialect در AsyncAPI و برابری Manifest/Fixture موفق شدند.
+- هشدارهای Governance غیرمسدودکننده: Redocly نبود Metadata مربوط به `info.license` را گزارش کرد؛ AsyncAPI CLI نسخه 3.1.0 را آخرین نسخه Schema اعلام کرد، درحالی‌که قرارداد فعلی عمداً 3.0.0 باقی مانده است. از این هشدارها هیچ License یا Migration مربوط به Dialect جعل یا استنباط نمی‌شود.
+
+**موارد باز پیش از تصویب ADR-002:** بازبینی مستقل؛ Proof مربوط به Allowlist نصب در Runtime؛ تصمیم‌های مالک و Proof اختصاصی Candidate برای نگاشت UNKNOWN Commit، Failure Model، RPO، نقطه Acknowledgement و قواعد Promotion/Recovery. این موارد شکست CI نیستند و با این بسته بسته نمی‌شوند.
 
 ## ۶. استانداردها و منابع
 
