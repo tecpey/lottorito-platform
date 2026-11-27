@@ -201,3 +201,12 @@
 - سند دوزبانه LOT-AFFILIATE-G09-A13-001 به‌عنوان بازبینی اطمینان‌بخشی همان نویسنده اضافه شد؛ این بازبینی مستقل نیست. یافته‌های A13-F01 تا F06 باز هستند: Assertion دقیق Scheme/Scope هر Operation، انطباق Extensionهای CloudEvents و مرز Allowlist نصب، توصیف Dialect در AsyncAPI، بازتولیدپذیری وابستگی‌های Transitive، هم‌ترازی پاسخ 202/503/UNKNOWN با ADR-002 و کامل‌بودن پوشش Fixtureها.
 - اسناد فعلی قرارداد و امنیت از قبل بازبودن Allowlist و معنای Scope در Runtime را تصریح کرده‌اند؛ این بازبینی ادعای پیاده‌سازی آن‌ها را ندارد. ADR-002 همچنان PROPOSED، A11-F01 تا F08 باز، A7 صرفاً طراحی و هر هشت Gate مربوط به A4 تصویب‌نشده‌اند.
 - بسته پیشنهادی بعدی G09-A14 سخت‌سازی Validator قرارداد و هم‌ترازی وضعیت پاسخ است. هیچ پیاده‌سازی Runtime، انتخاب فناوری، اتصال شریک، عملیات مالی، Merge یا Deploy مجاز نیست.
+
+
+## G09-A14 — سخت‌سازی اعتبارسنجی قرارداد (۲۰۲۶-۱۱-۲۸)
+- سند دوزبانه LOT-AFFILIATE-G09-A14-001 و Manifest ماشینی `contracts/validation/affiliate-contract-validation-manifest.v1.json` اضافه شدند.
+- نامزد Validator اکنون Scheme و `x-required-scopes` دقیق هر Operation را با Manifest تطبیق می‌دهد و هفت Mutation منفی دارد؛ نام/نوع عمومی Extensionهای CloudEvents و Semantics مربوط به Unicode در Stringها را کنترل می‌کند؛ توصیف پیش‌فرض AsyncAPI 3.0 Schema Object را اصلاح و Subset سازگار با Draft 07 در Ajv را Guard می‌کند؛ تمام ۱۱ Schema Root فعلی و ۵۱ Fixture مثبت/منفی را فهرست می‌کند.
+- متن پاسخ‌های Wire مربوط به 202/503 به Persistence اتمیک و شرط Durability تصویب‌شده مالک مشروط شده است؛ UNKNOWN صریحاً نه پذیرش قطعی و نه رد قطعی است. نگاشت دقیق HTTP/Error برای UNKNOWN، Failure Model، RPO و تصمیم‌های Promotion/Recovery باز هستند.
+- Manifest نسخه دقیق ابزارهای Validator و مسیر موقت Bootstrap/Artifact برای Lockfile اضافه شد. **هنوز package-lock.json ثبت‌شده در مخزن وجود ندارد**؛ A13-F04 تا دریافت، بازبینی و Commit Artifact و حذف Bootstrap به نفع `npm ci` سخت‌گیرانه باز می‌ماند.
+- A14 در وضعیت IN PROGRESS است. تطبیق ایستای منبع، ۵۱ شناسه یکتای Fixture در اسکریپت را با ۵۱ شناسه Manifest برابر یافت؛ این نتیجه اجرای Node/Ajv نیست. CI روی Head دقیق فعلی A14 باید پس از آخرین Commitهای متوالی بررسی شود.
+- A13-F02 برای Allowlistهای Runtime مختص Installation جزئاً باز است؛ A13-F05 برای تصمیم مالک و Proof اختصاصی Candidate باز است. ADR-002 همچنان PROPOSED؛ A11-F01 تا F08 باز؛ A7/A8 صرفاً طراحی و NOT RUN؛ هر هشت Gate مربوط به A4 تصویب‌نشده‌اند. بدون مجوز Runtime، انتخاب Persistence، اتصال شریک، عملیات مالی، Merge یا Deploy.
