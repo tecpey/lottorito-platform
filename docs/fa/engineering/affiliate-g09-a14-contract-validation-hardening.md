@@ -49,15 +49,13 @@ Validator اکنون پیش‌فرض AsyncAPI 3.0.0 را درست توصیف م�
 
 ### A14-C04 — Bootstrap برای Lockfile و مسیر نصب بازتولیدپذیر
 
-Manifestهای نسخه‌دقیق و جداگانه در `.github/contract-tools/package.json` و `.github/schema-tools/package.json` اضافه شدند. دو Prefix عمداً Dependency Graph مربوط به CLIهای AsyncAPI/Redocly را از Dependencyهای Ajv مربوط به Fixture جدا می‌کنند؛ این جداسازی از Collision نسخه‌های Transitive مربوط به Ajv/Plugin جلوگیری می‌کند و جداسازی قبلی را حفظ می‌کند. Workflow اکنون:
-۱. فقط در صورت نبود Lockfile، موقتاً آن را تولید می‌کند؛
-۲. هر Prefix را جداگانه با `npm ci` نصب می‌کند؛
-۳. هر دو Lockfile تولیدشده را به‌صورت Artifact کوتاه‌مدت Workflow بارگذاری می‌کند؛
-۴. یک Job مستقل با مجوز محدود `contents: write` فقط همان دو Lockfile را بررسی و به Branch مربوط به PR داخل همین Repository Commit می‌کند (Job اعتبارسنجی همچنان Read-only است)؛
-۵. نسخه Node و npm را ثبت می‌کند؛
-۶. به‌جای برچسب متغیر `ubuntu-latest` از `ubuntu-24.04` استفاده می‌کند.
+Manifestهای نسخه‌دقیق و جداگانه در `.github/contract-tools/package.json` و `.github/schema-tools/package.json` اضافه شدند. دو Prefix عمداً Dependency Graph مربوط به CLIهای AsyncAPI/Redocly را از Dependencyهای Ajv مربوط به Fixture جدا می‌کنند تا Collision نسخه‌های Transitive مربوط به Ajv/Plugin رخ ندهد. هر دو Lockfile تولید، بررسی و Commit شده‌اند:
+- `.github/contract-tools/package-lock.json` — شامل ۱٬۴۰۹ رکورد Package.
+- `.github/schema-tools/package-lock.json` — شامل ۷ رکورد Package.
 
-**هنوز بسته نشده:** هر دو Lockfile تولیدشده باید دریافت، بررسی و Commit شوند. سپس Bootstrap موقت، Job ثبت Lockfile و مراحل Upload Artifact باید حذف شوند و Workflow در هر دو Prefix مجزا فقط `npm ci` سخت‌گیرانه داشته باشد؛ در نبود Lockfile ثبت‌شده باید Fail شود. تا زمان این تغییر نهایی و PASS روی Head دقیق، A13-F04 باز است. Image میزبانی‌شده Runner همچنان توسط GitHub به‌روزرسانی می‌شود؛ `ubuntu-24.04` خانواده سیستم‌عامل را محدود می‌کند اما Digest کاملاً Immutable نیست.
+Bootstrap موقت، Artifact Upload و Job نوشتن Lockfile حذف شده‌اند. Workflow نهایی در هر دو Prefix مجزا، `npm ci` سخت‌گیرانه را اجباری می‌کند و در صورت نبود هر Lockfile ثبت‌شده Fail می‌شود. نسخه Node/npm ثبت می‌شود و Runner از `ubuntu-24.04` به‌جای برچسب متغیر `ubuntu-latest` استفاده می‌کند.
+
+**اعتبارسنجی باقی‌مانده:** A13-F04 تا زمان موفقیت نصب سخت‌گیرانه از Lockfileهای ثبت‌شده روی Head نهایی دقیق، باز می‌ماند. Image میزبانی‌شده Runner همچنان توسط GitHub به‌روزرسانی می‌شود؛ `ubuntu-24.04` خانواده سیستم‌عامل را محدود می‌کند اما Digest کاملاً Immutable نیست.
 
 ### A14-C05 — هم‌ترازی وضعیت پاسخ 202/503/UNKNOWN
 
@@ -81,7 +79,7 @@ Manifest فعلی تمام ۱۱ Schema Root را فهرست می‌کند:
 ## ۳. فهرست فعلی پیاده‌سازی
 
 - `contracts/validation/affiliate-contract-validation-manifest.v1.json`
-- `.github/contract-validation/package.json`
+- `.github/contract-tools/package.json` و `.github/schema-tools/package.json` همراه با Lockfileهای ثبت‌شده
 - `.github/workflows/affiliate-contract-validation.yml`
 - `scripts/validate_affiliate_contract_payloads.mjs`
 - `contracts/openapi/partner-event-ingestion.v1.json`
@@ -97,18 +95,17 @@ Manifest فعلی تمام ۱۱ Schema Root را فهرست می‌کند:
 | F01 — نگاشت دقیق Security/Scope عملیات | Manifest دقیق، Assertion عملیات و هفت Mutation Case | نامزد پیاده‌سازی؛ CI باقی است |
 | F02 — Syntax/Type در Extensionهای CloudEvents در برابر Allowlist نصب | Profile عمومی Schema و Fixture منفی؛ Allowlist Runtime جدا باقی می‌ماند | جزئی؛ الزام Runtime باز است |
 | F03 — توصیف Dialect در AsyncAPI | اصلاح Comment/Output و Guard برای Ajv | نامزد پیاده‌سازی؛ CI باقی است |
-| F04 — بازتولیدپذیری Dependencyهای Transitive | Manifest ابزار و Bootstrap یک‌باره Lockfile | باز تا Commit Lockfile و PASS در npm ci سخت‌گیرانه |
+| F04 — بازتولیدپذیری Dependencyهای Transitive | Manifestهای مجزای ابزار و Lockfileهای Commit‌شده؛ Workflow مبتنی بر npm ci سخت‌گیرانه | Lockfileها ثبت شده‌اند؛ CI نهایی روی Head دقیق باقی است |
 | F05 — هم‌ترازی 202/503/UNKNOWN | متن پاسخ مشروط و مرز صریح UNKNOWN | جزئی؛ تصمیم مالک و Proof Runtime باز است |
 | F06 — پوشش Fixtureهای Schema | Manifest ماشینی ۱۱ Root/۵۳ Fixture و Assertion برابری دقیق | نامزد پیاده‌سازی؛ CI باقی است |
 
 ## ۵. اعتبارسنجی الزامی پیش از تکمیل A14
 
-۱. دریافت و بررسی Artifact مربوط به Bootstrap Lockfile و Commit کردن همان Lockfile تولیدشده.
-۲. حذف منطق Bootstrap/Artifact موقت و الزام `npm ci` با Lockfile ثبت‌شده.
+۱. تأیید موفقیت `npm ci` سخت‌گیرانه از هر دو Lockfile ثبت‌شده روی Head نهایی دقیق؛ هیچ مسیر جایگزین Bootstrap باقی نمانده است.
 ۳. تأیید اینکه Mutationهای Security/Scope دقیقاً مطابق انتظار Fail می‌شوند.
 ۴. تأیید Caseهای مثبت/منفی Profile Extensionهای CloudEvents در Ajv 2020-12 و Subset محافظت‌شده Draft 07.
 ۵. موفقیت AsyncAPI CLI و کنترل کامل سند توسط Redocly.
-۶. تطبیق دقیق ۱۱ Schema Root و ۴۵ شناسه Fixture.
+۶. تطبیق دقیق ۱۱ Schema Root و ۵۳ شناسه Fixture.
 ۷. اجرای Documentation Governance و Affiliate Contract Validation روی یک Head نهایی مشترک؛ بررسی تمام Job Stepها و ثبت SHA دقیق.
 ۸. بازخوانی اسناد فارسی و انگلیسی و مقایسه هم‌ارزی معنایی.
 ۹. ثبت تمام تصمیم‌های باز مالک بدون تغییر وضعیت آن‌ها.
