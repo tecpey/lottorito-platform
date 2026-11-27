@@ -167,3 +167,11 @@
 - ماتریس ۱۷ موردی Crash/Concurrency/Failover (C01 تا C17)، الزامات Oracle/Evidence مستقل، گزینه‌های ردشده و تصمیم‌های باز مالک ثبت شد. همه موارد NOT RUN هستند. هیچ DB، Isolation Level، Queue، Vendor، Schema، Quota، مقدار Retention یا توپولوژی انتخاب نشده است.
 - LDR-055 در هر دو دفتر تصمیم ثبت شد. ADR-002 پیشنهادی است؛ تصویب مالک و بازبینی واقعاً مستقل در انتظارند. A7-F01 تا F10 و A8-F01 تا F12 باز هستند؛ هر هشت Gate مربوط به A4 تصویب نشده‌اند. مجوز Runtime، شریک، مالی، Merge یا Deploy صادر نشده است.
 - Head زنده PR #76 پیش از این Update برابر 3112f7e4db83c27c223a054db497665619df5164 بود. Workflowهای همان Head در صف بودند؛ CI باید روی Head نهایی دوباره بررسی شود. شکست قبلی Documentation Governance ناشی از نبود فیلد پایدار Document ID در دو نسخه ADR-001 بود؛ هر دو فایل اصلاح شده‌اند و این اصلاح باید در CI مربوط به Head نهایی تأیید شود.
+
+
+## G09-A11 — بازبینی خصمانه طراحی ADR-002 (2026-11-28)
+- سند دوزبانه LOT-AFFILIATE-G09-A11-001 برای ADR-002 نسخه ۰.۱.۰ / Head بازبینی‌شده 985cfee7ce233e6297b7de2d5d2339d8484b843e افزوده شد.
+- هشت یافته ثبت شد: A11-F01 Durability Commit در Failover (بحرانی)؛ F02 Epoch مرجعیت و Fencing در برابر Split-brain (بحرانی)؛ F03 Race بین Read منفی و Commit درحال‌اجرا (بحرانی)؛ F04 Cardinality و Constraint رابطه جفت (زیاد)؛ F05 وابستگی به Fingerprint Profile/Version (زیاد)؛ F06 Idempotency محدود به Retention (بحرانی)؛ F07 دامنه Quarantine و DoS (زیاد)؛ F08 تفکیک معنای پذیرش از اجرای کار (زیاد).
+- نه Subcase خصمانه پیشنهادی زیر Parentهای A4/A8 ثبت شد؛ ۴۷ شناسه Canonical در A4 تغییر نکردند. تمام Subcaseها NOT RUN هستند.
+- این سند Self-review در همان جریان است و تأیید مستقل نیست. LDR-056 در هر دو Decision Register ثبت شد. ADR-002 پیشنهادی باقی می‌ماند؛ یافته‌های A7/A8 باز هستند؛ هر هشت Gate A4 تصویب‌نشده‌اند. هیچ مجوز Runtime، Database، Queue، Partner، عملیات مالی، Merge یا Deploy صادر نشده است.
+- منابع تحقیق شامل راهنمای رسمی Google Spanner درباره Unknown Commit و مستندات PostgreSQL درباره HA، Replication و Durability در WAL است. هیچ Provider/فناوری انتخاب نشده است.
