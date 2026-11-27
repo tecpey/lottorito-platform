@@ -219,3 +219,25 @@ G09-A7 Manifest طراحی در سطح هر Case و مسیر پیشنهادی ب
 ## ۱۰. محدودیت‌ها
 
 این Artifact طراحی تست مستقل از فناوری است که از Catalogue مرجع A4 و یافته‌های A5/A6 استخراج شده است. اجرا نشده و رفتار هیچ DB، Queue، IAM، Network Policy، Worker یا مرز مالی را اثبات نمی‌کند. CI سبز مستندات فقط کنترل‌های پیکربندی‌شده مستندات/قرارداد را روی Commit دقیق اعتبارسنجی می‌کند.
+
+
+## ۱۱. توسعه زیرسناریوهای خصمانه G09-A8/A9 — صرفاً طراحی
+
+هشت زیرسناریوی زیر، Caseهای پایدار A4 را توسعه می‌دهند؛ بدون تغییر تعداد یا شناسه‌های Canonical چهل‌وهفت‌گانه. این موارد افزوده‌های پیشنهادی برای ردیابی هستند، نه تست اجراشده. همه NOT RUN هستند و موارد وابسته به Policy/ADR علاوه بر آن مسدودند.
+
+| شناسه Subcase | شناسه والد A4 | چالش قطعی | Assertion لازم | Oracle/Evidence مستقل | وضعیت |
+|---|---|---|---|---|---|
+| A8-DUR-05a | A4-DUR-05 | Lease منقضی می‌شود؛ Worker قدیمی پیش از افزایش Generation توسط Claimant جدید انتقال Guardشده را امتحان می‌کند. | Lease منقضی در نقطه Linearization Guard را رد کند؛ صفر تغییر در Row محافظت‌شده. | O-DB/O-TX/O-WRK؛ زمان مرجع، ترتیب Transaction و تعداد Row تغییرکرده. | BLOCKED — ADR-001 / SEMANTICS زمان و Lock پایگاه داده |
+| A8-DUR-05b | A4-DUR-05 | Heartbeat با انقضا و Reclaim توسط Worker دوم رقابت می‌کند. | یک برنده سریال‌شده؛ Heartbeat نتواند Lease منقضی را احیا کند؛ Generation فقط برای Reclaim موفق افزایش یابد. | O-DB/O-TX/O-WRK؛ Barrier، Timeline نسل و مقادیر Lease. | BLOCKED — ADR-001 / SEMANTICS زمان و Lock پایگاه داده |
+| A8-DUR-05c | A4-DUR-05 | Worker قدیمی پس از افزایش Generation و Restart فرایند، Completion را امتحان می‌کند. | Owner/Token/Generation قدیمی صفر Row محافظت‌شده را تغییر دهد؛ Regression وضعیت رخ ندهد. | O-DB/O-TX/O-WRK؛ تاریخچه Durable Row، تلاش Token قدیمی و تعداد Row تغییرکرده. | BLOCKED — ADR-001 / پروتکل Worker |
+| A8-DUR-08a | A4-DUR-08 | داده پایدار Restore شود درحالی‌که ممکن است Worker/Process قدیمی هنوز زنده باشد. | Claimها تا Fence شدن Worker/Identity قدیمی و برقراری Recovery Incarnation غیرقابل استفاده مجدد متوقف بمانند. | O-WRK/O-IAM/O-DB/O-OBS؛ Attestation بازیابی، لغو Identity، Incarnation و شواهد رد Token قدیمی. | BLOCKED — ADR بازیابی/Restore |
+| A8-AUTH-06a | A4-AUTH-06 | Suspension/Revocation بین Lifecycle Read و Worker Transition Commit شود. | Policy خطی‌شدن چرخه عمر که مالک تصویب کرده، به‌صورت اتمیک یا با Serialization مبتنی بر Version اجرا شود. | O-DB/O-TX/O-WRK/O-IAM؛ Lifecycle Version، Timeline سد هم‌زمانی و State Diff. | BLOCKED — Policy چرخه عمر مالک |
+| A8-DUR-02a | A4-DUR-02 | نتیجه Commit نامعلوم است، Primary در دسترس نیست و Replica ممکن است قدیمی باشد. | عدم وجود یا پذیرش کاذب اعلام نشود؛ تا امکان Reconciliation معتبر، نتیجه Indeterminate باشد. | O-DB/O-TX/O-API؛ شواهد Consistency Primary/Replica، نتیجه Retry و Cardinality. | BLOCKED — ADR Persistence/Reconciliation |
+| A8-FIN-01a | A4-FIN-01 | Capability مالی غیرمستقیم از Service Discovery، Workload Identity، Secret Mount یا Metadata Route امتحان شود. | در Enforcement Pointهای مستقل و قابل مشاهده رد شود؛ بدون Credential، اتصال، فراخوانی یا اثر مالی. | O-FIN/O-NET/O-OBS/O-DB؛ Inventory قابلیت، Probe ردشده و Secret Canary Scan. | BLOCKED — A4-GATE-07 / Attestation امنیت و مالی |
+| A8-DATA-04a | A4-DATA-04 | حذف/انقضای Evidence با Backup/Restore و وضعیت Legal Hold رقابت کند. | نتیجه مطابق Policy مصوب چرخه عمر داده و به‌صورت مستقل در Primary، Backup و Evidence Store اثبات شود. | O-DATA/O-DB/O-OBS؛ نسخه Policy، شواهد حذف/بازیابی و Audit دسترسی. | BLOCKED — A4-GATE-05 / Policy چرخه عمر داده |
+
+### ارجاع پروتکل زمانی
+
+سند پیشنهادی LOT-AFFILIATE-G09-ADR-001، Claim Generation پایدار مختص WorkItem، Owner/Token احراز‌شده، انتقال Guardشده با مرجع Persistence، قاعده Linearization انقضای Lease و Recovery Fence را تعریف می‌کند. این ADR همچنان PROPOSED است و به تصویب مالک، بازبینی مستقل و تعیین Semantics پایگاه داده کاندید نیاز دارد. این سند Database انتخاب نمی‌کند و مجوز اجرای Runtime نیست.
+
+Subcaseها به Case والد متصل‌اند و به تعداد Canonical چهل‌وهفت‌گانه اضافه نمی‌شوند. Runner آتی باید نتیجه والد و هر Subcase را جداگانه گزارش کند تا PASS والد، شکست یک Interleaving را پنهان نکند.
