@@ -43,7 +43,7 @@ All operations require HTTPS and a bearer access token. The OpenAPI contract del
 
 Scopes are necessary but not sufficient. Every request MUST additionally enforce current tenant membership or integration binding, product entitlement, object ownership, role, resource state and any applicable policy. Tenant and product context MUST be resolved from trusted server-side identity/configuration. A caller-supplied tenant identifier is never authority.
 
-Suggested minimum scopes are recorded as operation extensions in the OpenAPI file. Final scope names, consent/delegation behavior and privileged step-up requirements remain open.
+Proposed minimum capabilities are recorded as the custom `x-required-scopes` operation extension in the OpenAPI file. This is not the standard OAuth2 `security` scope mechanism: the current HTTP bearer schemes intentionally do not invent an OAuth issuer or flow. The extension is review metadata until LOT-API-PLATFORM-001 approves its semantics; once approved, the resource server MUST enforce every listed capability, and client generators MUST NOT treat the extension as a token-acquisition flow. Final names, consent/delegation behavior and privileged step-up requirements remain open.
 
 ## 5. Partner event ingress profile
 
