@@ -236,7 +236,7 @@ This is a technology-neutral test-design artifact derived from A4's canonical ca
 
 ## 11. G09-A8/A9 adversarial subcase extension — design only
 
-The eight subcases below extend existing stable A4 cases without changing the canonical 47-case count or IDs. They are proposed traceability additions, not executed tests. All remain NOT RUN; policy/ADR-dependent cases are additionally blocked.
+The twenty-one subcases below extend existing stable A4 cases without changing the canonical 47-case count or IDs. They are proposed traceability additions, not executed tests. All remain NOT RUN; policy/ADR-dependent cases are additionally blocked.
 
 | Subcase ID | Parent A4 ID | Deterministic challenge | Required assertion | Independent oracle/evidence | Status |
 |---|---|---|---|---|---|
@@ -249,10 +249,25 @@ The eight subcases below extend existing stable A4 cases without changing the ca
 | A8-FIN-01a | A4-FIN-01 | Attempt indirect financial capability through service discovery, workload identity, secret mount or metadata route. | Denied at independently observed enforcement points; no credential, connection, call or financial effect. | O-FIN/O-NET/O-OBS/O-DB; capability inventory, denied probes and secret-canary scan. | BLOCKED — A4-GATE-07 / SECURITY-FINANCE ATTESTATION |
 | A8-DATA-04a | A4-DATA-04 | Evidence deletion/expiry races with backup/restore and legal-hold state. | Outcome follows approved lifecycle policy and is independently evidenced across primary, backup and evidence stores. | O-DATA/O-DB/O-OBS; policy version, deletion/restore evidence and access audit. | BLOCKED — A4-GATE-05 / DATA LIFECYCLE POLICY |
 
+
+| A11-DUR-02b | A4-DUR-02 / A4-IDEM | Original commit remains in flight while same-identity retry starts. | Exactly one pair; retry cannot bypass unique arbitration. | O-DB/O-TX/O-API; deterministic barriers, transaction state and final cardinality. | BLOCKED — ADR-002 |
+| A11-DUR-02c | A4-DUR-02 | Original transaction aborts while retry races. | At most one successful pair; loser resolves final durable state. | O-DB/O-TX; abort/commit schedule and pair cardinality. | BLOCKED — ADR-002 |
+| A11-DUR-08b | A4-DUR-08 | Primary acknowledges local commit but failover candidate lacks the write. | No false durability claim; behavior follows explicit acknowledged-write RPO. | O-DB/O-TX/O-OBS; replication acknowledgement and recovery-point evidence. | BLOCKED — ADR-002 |
+| A11-DUR-08c | A4-DUR-08 | Old primary returns after promotion and attempts a write. | Old authority epoch rejected; no split-brain acceptance. | O-DB/O-NET/O-OBS; epoch and fencing evidence. | BLOCKED — ADR-002 |
+| A11-DUR-08d | A4-DUR-08 | Promotion occurs while commit response is lost. | UNKNOWN until new authority is fenced and durability reconciliation completes. | O-DB/O-TX/O-API; promotion timeline and authoritative state. | BLOCKED — ADR-002 |
+| A11-IDEM-09 | A4-IDEM-08 | Replay arrives after event identity expiry/deletion. | Result follows approved replay horizon/tombstone policy. | O-DB/O-DATA; retention and backup/restore evidence. | BLOCKED — ADR-002 |
+| A11-IDEM-10 | A4-IDEM-08 | Same source identity arrives under changed fingerprint/parser version. | Version-aware conflict; no silent reinterpretation. | O-API/O-DB; parser/fingerprint version evidence. | BLOCKED — ADR-002 |
+| A11-AUTH-08 | A4-AUTH-08 | Poisoned event attempts broad quarantine. | Graduated containment; unrelated tenants remain serviceable. | O-IAM/O-DB/O-OBS; scope audit and noisy-neighbor evidence. | BLOCKED — ADR-002 |
+| A11-WRK-01 | A4-AUTH-08 / A4-DUR-05 | Quarantine races with worker claim. | One serialized winner; no pickup after quarantine boundary. | O-DB/O-TX/O-WRK; barrier schedule and claim result. | BLOCKED — ADR-002 |
+| A10-DUR-02d | A4-DUR-02 | Faulted application path commits only Receipt or only WorkItem. | Commit-time/capability invariant rejects partial acceptance. | O-DB/O-TX; fault injection and cardinality query. | BLOCKED — ADR-002 |
+| A10-DUR-02e | A4-DUR-02 | Receipt and WorkItem read in separate snapshots during concurrent acceptance. | One consistent snapshot/atomic query; no false partial-pair diagnosis. | O-DB/O-TX; snapshot/statement trace. | BLOCKED — ADR-002 |
+| A10-AUTH-06b | A4-AUTH-06 | Same source namespace/event ID arrives from two authenticated tenants. | Tenant-scoped isolation; no cross-tenant lookup/disclosure. | O-IAM/O-DB/O-API; principal/tenant binding and query audit. | BLOCKED — ADR-002 |
+| A10-IDEM-08a | A4-IDEM-08 | Same request key reused with changed body; different keys retry one source event. | Changed body conflicts; different keys converge on one pair. | O-API/O-DB/O-TX; key binding and pair cardinality. | BLOCKED — ADR-002 |
+
 ### Temporal protocol reference
 
 Proposed LOT-AFFILIATE-G09-ADR-001 defines a durable per-WorkItem claim generation, authenticated owner/token, persistence-authoritative guarded transition, lease-expiry linearization rule and restore/recovery fence. It remains PROPOSED and requires owner approval, independent review and candidate persistence semantics. It does not select a database or authorize runtime execution.
 
-Subcases are mapped to their parent cases; they do not add to the canonical 47-case total. The future runner must report parent and subcase outcomes separately so a passing parent cannot hide a failed interleaving.
+Subcases are mapped to their parent cases; they do not add to the canonical 47-case total. ADR-002 v0.3.0 adds authority-epoch fencing, acknowledged-commit durability/RPO, retention-bounded dedupe, quarantine containment and acceptance-versus-execution response semantics. The future runner must report parent and subcase outcomes separately so a passing parent cannot hide a failed interleaving.
 
 <!-- ADR-002 A11 case traceability extension is maintained in the bilingual A11 review record. -->
