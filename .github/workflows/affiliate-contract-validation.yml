@@ -87,7 +87,7 @@ jobs:
         run: |
           node scripts/validate_affiliate_contract_payloads.mjs
       - name: Upload one-time lockfile bootstrap artifact
-        if: always() && env.BOOTSTRAPPED_LOCKFILE == 'true' && hashFiles('.github/contract-validation/package-lock.json') != ''
+        if: always() && env.BOOTSTRAPPED_LOCKFILE == 'true' && hashFiles('.github/contract-tools/package-lock.json') != '' && hashFiles('.github/schema-tools/package-lock.json') != ''
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: contract-validation-lockfile-bootstrap-${{ github.sha }}
