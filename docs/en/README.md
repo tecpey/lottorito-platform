@@ -81,3 +81,7 @@ Every meaningful change under docs/en/ must be made in the same branch and pull 
 ## Governance
 
 Read repository-root [AGENTS.md](../../AGENTS.md). Use a working branch and pull request. Do not merge, deploy, change repository settings or perform destructive operations without explicit owner authorization.
+
+## Affiliate security acceptance
+
+- [Affiliate security acceptance and runtime boundary](engineering/affiliate-security-acceptance-runtime-boundary.md) — LOT-AFFILIATE-SEC-ACC-001; proposed runtime acceptance matrix, trust boundaries, idempotency, persistence, privacy and release gates; no runtime implementation or production approval.
