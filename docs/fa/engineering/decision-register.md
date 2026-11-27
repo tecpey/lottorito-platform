@@ -72,6 +72,9 @@
 
 | LDR-047 | بازبینی امنیتی قرارداد Wire افیلیت | بازبینی امنیتی پیشنهادی / دروازه‌های پیاده‌سازی | LOT-AFFILIATE-SEC-001 یافته‌های تهدیدمحور مربوط به مجوزدهی Object-level، جداسازی Principal، Trust توکن، معنای Scope، هویت/Fingerprint رویداد، Allowlist مربوط به Extension/Schema در CloudEvents، SSRF، سقف منابع، حریم خصوصی و Audit را ثبت می‌کند. | صرفاً کنترل‌های پیشنهادی است؛ تست نفوذ یا تأیید امنیت Production نیست. پروفایل احراز هویت، مقادیر Quota، پیاده‌سازی Canonical Fingerprint، Retention و کنترل‌های Runtime پیش از پیاده‌سازی/Production به تصمیم صریح Platform/Domain و شواهد تست نیاز دارند. |
 
+
+| LDR-048 | تصمیم‌های امنیتی G09-A3 افیلیت و اثبات Runtime ساختگی | بسته تصمیم پیشنهادی | LOT-AFFILIATE-G09-A3-001 تصمیم‌های IAM/Principal و مجوزدهی، رجیستری Installation و Event/Schema، Idempotency/Fingerprint، سقف منابع، چرخه داده، Audit و مرز Economic Effect را به رکوردهای صریح تبدیل می‌کند و برنامه اثبات Runtime ایزوله و ساختگی را تعریف می‌کند. | هیچ Issuer، پروفایل Token، Quota عددی، مدت Retention، DB/Queue، KMS یا شریکی تصویب نشده است. پیش از پذیرش، مالک/بازبین پاسخ‌گو و شواهد باید ثبت شوند؛ اثبات Runtime نیازمند تصویب دامنه و کاندید Persistence تراکنشی واقعی و ایزوله است. PR شماره ۷۶ همچنان Draft است. |
+
 ## پروتکل تغییر تصمیم
 ۱. تغییر را همراه منطق، گزینه‌ها، اثر و شواهد پیشنهاد کنید.
 ۲. مالک تصمیم و اسناد/دامنه‌های متأثر را مشخص کنید.
