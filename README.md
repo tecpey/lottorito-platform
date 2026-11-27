@@ -1,4 +1,4 @@
-# Lottorito Platform
+# <picture><source media="(prefers-color-scheme: dark)" srcset="assets/logo/wordmark-dark.svg"><img src="assets/logo/wordmark.svg" alt="Lottorito" height="42"></picture>
 
 **Universal Affiliate, Agent Network & Loyalty Infrastructure**
 
@@ -8,6 +8,7 @@ Lottorito is an independent, API-first platform for partner programs, multi-leve
 - English documentation: docs/en/README.md
 - Agent operating guide: AGENTS.md
 - Verified project status: docs/en/engineering/project-status.md
+- Brand assets and usage rules: assets/logo/README.md
 
 ## Non-negotiable principles
 1. Partner-independent core; partner-specific behavior belongs in adapters.

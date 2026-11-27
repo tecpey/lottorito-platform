@@ -11,6 +11,7 @@
 - PR #7 is Open and Draft with 8 changed files; it has not been merged.
 - Latest reviewed PR head: `4d3714e7181c32e8519aba4ea49bdcfc5aae2879`.
 - Issue #8 tracks the final roundtable; Issue #9 tracks the initial documentation audit; Issues #10–#14 track new gaps in Attribution, QA, Threat Model/Data Governance, UX, and SRE.
+- Official vector brand assets and favicon are committed in `assets/logo/` with dual-theme SVG support and documented in bilingual specification `LOT-BRAND-001`.
 - An initial content review of documentation has been completed; the final independent roundtable and specialist product audit have not been conducted.
 
 ## Initial audit conclusion
