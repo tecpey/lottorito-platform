@@ -117,3 +117,6 @@ Read repository-root [AGENTS.md](../../AGENTS.md). Use a working branch and pull
 
 - [Affiliate ADR-001 — Durable WorkItem Claim, Lease & Fencing](engineering/adr-001-workitem-claim-lease-fencing.md) — proposed temporal protocol; owner approval and independent review pending.
 - [Affiliate ADR-002 — Atomic Ingress Acceptance & Unknown-Commit Reconciliation](engineering/adr-002-atomic-ingress-acceptance-reconciliation.md) — proposed atomic InboxReceipt + WorkItem acceptance, unknown-commit reconciliation, crash matrix and open owner decisions; no runtime authorization.
+
+
+- [Affiliate G09-A11 — ADR-002 Adversarial Design Review](engineering/affiliate-g09-a11-adr002-adversarial-review.md) — same-workflow self-review; eight material findings and nine proposed NOT RUN subcases; independent review pending; no runtime authorization.
