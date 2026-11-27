@@ -1,6 +1,6 @@
 # وضعیت واقعی پروژه و نقطه ادامه کار
 
-**شناسه:** LOT-OPS-001 | **نسخه:** ۱.۸.۰ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۴
+**شناسه:** LOT-OPS-001 | **نسخه:** ۱.۹.۰ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۷
 
 ## وضعیت تأییدشده مخزن
 - مخزن tecpey/lottorito-platform؛ شاخه پیش‌فرض main؛ سطح دسترسی Public طبق تصمیم مالک.
@@ -42,7 +42,7 @@
 - **LOT-API-PLATFORM-001:** قرارداد پیشنهادی API Platform و تجربه توسعه‌دهنده که LOT-API-001/LOT-EVENT-001 را با Control/Data Plane، ثبت App/Client، کاتالوگ Entitlement، چرخه Credential، Webhook Subscription، تولید SDK، Developer Portal، Sandbox ایزوله، Metering/Quota و حاکمیت چرخه عمر گسترش می‌دهد. هیچ Gateway، Portal، SDK، Sandbox یا دسترسی API Production ادعا نمی‌شود.
 - **LOT-AFFILIATE-API-001:** فهرست قابلیت API پیشنهادی و مستقل از Provider برای Program، Membership، سلسله‌مراتب، Campaign، Referral Link، Attribution، دریافت Event شریک، Statement کمیسیون و گزارش Affiliate/Agent. تغییرات مالی در دامنه Wallet/Ledger/Payment/Payout باقی می‌مانند؛ هیچ شریک، فرمول تجاری، Endpoint یا اتصالی تصویب نشده است.
 
-- **LOT-AFFILIATE-WIRE-001:** توسعه پیشنهادی در سطح Wire برای LOT-AFFILIATE-API-001 / LOT-API-001 / LOT-EVENT-001. دو قرارداد OpenAPI مستقل برای مدیریت Affiliate و ورودی رویداد شریک، به‌علاوه پروفایل رویداد Canonical مستقل از Transport اضافه شده‌اند. Schemaهای دقیق شریک، صادرکننده/پروفایل احراز هویت، Transport و استقرار Endpoint هنوز راستی‌آزمایی نشده‌اند؛ Artifactهای JSON هنوز از Validator اختصاصی OpenAPI/AsyncAPI عبور نکرده‌اند.
+- **LOT-AFFILIATE-WIRE-001:** توسعه پیشنهادی در سطح Wire برای LOT-AFFILIATE-API-001 / LOT-API-001 / LOT-EVENT-001. دو قرارداد OpenAPI مستقل برای مدیریت Affiliate و ورودی رویداد شریک، به‌علاوه پروفایل رویداد Canonical مستقل از Transport اضافه شده‌اند. Lint دو قرارداد OpenAPI با Redocly و اعتبارسنجی AsyncAPI CLI روی Head شماره `239590b390d2624d28b02e32f34f426778ab7c34` موفق بوده است (Affiliate Contract Validation، Run ID `46053185802`، شماره ۹)؛ این نتیجه اعتبار سند/قرارداد در Toolchain منتخب را می‌سنجد، نه رفتار Runtime را. پس از آن، مجموعه تست نمونه‌های مثبت/منفی Payload با Validatorهای جداگانه هر Dialect اضافه شده و بررسی اجرای آن روی Head جدید هنوز در انتظار است. Schemaهای دقیق شریک، صادرکننده/پروفایل احراز هویت، Transport و استقرار Endpoint همچنان راستی‌آزمایی نشده‌اند.
 
 ## موارد تأییدنشده
 هیچ پیاده‌سازی برنامه، Schema/Migration فیزیکی، اتصال API Provider، Certification سندباکس، محاسبه/ثبت مالی، پرداخت، تست نفوذ یا Deploy عملیاتی تأیید نشده است. Documentation Governance CI وجود دارد و روی برخی Headهای PR کنترل ساختاری موفق داشته است؛ این کنترل هم‌ارزی معنایی فارسی/انگلیسی، رفتار Runtime، صلاحیت قانونی یا امنیت را اثبات نمی‌کند.
@@ -74,7 +74,7 @@
 ۱۵. LOT-API-PLATFORM-001 با معماری/امنیت/مالی/حقوقی/عملیات بازبینی شود؛ مخاطبان API، مدل App/Credential، Sandbox، Webhook و دروازه چرخه عمر پیش از ساخت Developer Portal یا انتشار API تصویب شوند.
 ۱۶. LOT-AFFILIATE-API-001 با قرارداد و Sandbox واقعی شریک پایلوت تطبیق داده شود؛ Allowlist محدود Event/Resource و معنای Attribution/Commission پیش از پیاده‌سازی Adapter یا ارائه API Production تصویب شود.
 ۱۷. فقط پس از تصمیم‌ها، ایجاد اسکلت پلتفرم و پیاده‌سازی Vertical Sliceهای مستقل همراه تست.
-۱۸. LOT-AFFILIATE-WIRE-001 و قراردادهای Machine-readable آن بازبینی شوند؛ با Toolchain نسخه‌بندی‌شده OpenAPI/AsyncAPI/JSON Schema اعتبارسنجی و سپس Allowlist دقیق Resource/Event با مستندات مصوب شریک و شواهد Sandbox تطبیق داده شود.
+۱۸. LOT-AFFILIATE-WIRE-001 و قراردادهای Machine-readable آن بازبینی شوند؛ اعتبارسنجی سند کامل OpenAPI/AsyncAPI روی Head قبلی موفق شده است. اجرای مجموعه جدید تست نمونه‌های Payload با Validatorهای نسخه‌بندی‌شده و جداگانه هر Dialect روی Head جدید تأیید شود؛ سپس Allowlist دقیق Resource/Event با مستندات مصوب شریک و شواهد Sandbox تطبیق داده شود.
 
 ## تصمیم‌های موردنیاز مالک
 شخصیت حقوقی و مدل عملیاتی؛ حوزه قضایی اولیه؛ Provider و منبع حقیقت؛ اعتبار نمونه ۱۰۰ دلاری Agent؛ کمیسیون/NGR و پیشرفت شبکه؛ نگاشت حساب و تأمین/نگهداری وجه؛ مجوز پرداخت؛ انتخاب فناوری و استقرار؛ محل و مدت نگهداری داده؛ فایل رسمی لوگو.
