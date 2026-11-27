@@ -1,0 +1,55 @@
+name: Affiliate Contract Validation
+
+on:
+  push:
+    branches:
+      - docs/g09-affiliate-api-wire-contract-v1
+    paths:
+      - "contracts/openapi/**"
+      - "contracts/asyncapi/**"
+      - ".github/workflows/affiliate-contract-validation.yml"
+  pull_request:
+    branches:
+      - docs/affiliate-api-capability-contract-v1
+    paths:
+      - "contracts/openapi/**"
+      - "contracts/asyncapi/**"
+      - ".github/workflows/affiliate-contract-validation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: affiliate-contract-validation-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: OpenAPI and AsyncAPI specification validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: "24.11.1"
+      - name: Install pinned contract validators
+        run: |
+          npm install --global --no-audit --no-fund \
+            @redocly/cli@2.83.0 \
+            @asyncapi/cli@6.2.2
+      - name: Validate OpenAPI contracts
+        run: |
+          redocly --version
+          redocly lint --format=github-actions \
+            contracts/openapi/affiliate-management.v1.json
+          redocly lint --format=github-actions \
+            contracts/openapi/partner-event-ingestion.v1.json
+      - name: Validate AsyncAPI contract
+        run: |
+          asyncapi --version
+          asyncapi validate --fail-severity=error \
+            contracts/asyncapi/affiliate-domain-events.v1.json
