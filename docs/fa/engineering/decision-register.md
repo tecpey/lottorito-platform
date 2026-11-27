@@ -70,6 +70,8 @@
 
 | LDR-046 | قرارداد Wire API افیلیت و پروفایل رویداد Canonical | قرارداد فنی پیشنهادی | LOT-AFFILIATE-WIRE-001 و Artifactهای OpenAPI 3.2.1 / AsyncAPI 3.0.0 / CloudEvents 1.0.2، API محدود مدیریت Affiliate و ورودی مستقل رویداد شریک با احراز هویت را تعریف می‌کنند؛ هویت رویداد منبع از اثر اقتصادی جداست و پردازش پایدار At-least-once است. | توسعه LOT-API-001، LOT-EVENT-001 و LOT-AFFILIATE-API-001 است؛ هیچ Endpoint، پروفایل OAuth، Schema شریک، Transport، قاعده تجاری یا دسترسی Production تصویب نمی‌شود. سازگاری Toolchain باید بررسی و پیش از پیاده‌سازی مستندات واقعی شریک/Sandbox دریافت شود. |
 
+| LDR-047 | بازبینی امنیتی قرارداد Wire افیلیت | بازبینی امنیتی پیشنهادی / دروازه‌های پیاده‌سازی | LOT-AFFILIATE-SEC-001 یافته‌های تهدیدمحور مربوط به مجوزدهی Object-level، جداسازی Principal، Trust توکن، معنای Scope، هویت/Fingerprint رویداد، Allowlist مربوط به Extension/Schema در CloudEvents، SSRF، سقف منابع، حریم خصوصی و Audit را ثبت می‌کند. | صرفاً کنترل‌های پیشنهادی است؛ تست نفوذ یا تأیید امنیت Production نیست. پروفایل احراز هویت، مقادیر Quota، پیاده‌سازی Canonical Fingerprint، Retention و کنترل‌های Runtime پیش از پیاده‌سازی/Production به تصمیم صریح Platform/Domain و شواهد تست نیاز دارند. |
+
 ## پروتکل تغییر تصمیم
 ۱. تغییر را همراه منطق، گزینه‌ها، اثر و شواهد پیشنهاد کنید.
 ۲. مالک تصمیم و اسناد/دامنه‌های متأثر را مشخص کنید.
