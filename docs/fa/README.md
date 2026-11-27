@@ -97,3 +97,8 @@ Validator ساختاری در [scripts/check_docs.py](../../scripts/check_docs.p
 - [معماری اثبات Runtime و طراحی تست‌های خصمانه G09-A4](engineering/affiliate-g09-a4-runtime-proof-architecture.md) — LOT-AFFILIATE-G09-A4-001؛ Harness ایزوله پیشنهادی، مرزهای اعتماد، ناورداهای Persistence، ۴۷ سناریوی خصمانه، Oracleهای مستقل تست، الزامات شواهد و Gateهای توقف. هیچ پیاده‌سازی Runtime یا انتخاب فناوری تصویب نشده است.
 
 - [G09-A5 افیلیت — آمادگی اثبات Runtime و نقشه اجرایی پیاده‌سازی](engineering/affiliate-g09-a5-runtime-proof-readiness.md) — مدل منطقی Persistence، اتمیک‌بودن، Fencing مربوط به Worker، Fixture، تزریق خطا و نقشه تست اجرایی؛ بدون مجوز Runtime.
+
+
+## راستی‌آزمایی طراحی G09-A6 افیلیت
+
+- [G09-A6 افیلیت — راستی‌آزمایی طراحی و بستن شکاف‌های اثبات](engineering/affiliate-g09-a6-design-verification.md) — LOT-AFFILIATE-G09-A6-001؛ بازبینی مستقل اسناد A4/A5، ردیابی ۴۷ سناریو، ده یافته و موانع اثبات Runtime. صرفاً قبولی مشروط طراحی؛ بدون مجوز Runtime.
