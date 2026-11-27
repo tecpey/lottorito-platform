@@ -46,8 +46,8 @@ jobs:
       - name: Validate OpenAPI contracts
         run: |
           redocly --version
-          redocly lint affiliate-management@v1 --format=github-actions
-          redocly lint partner-event-ingestion@v1 --format=github-actions
+          redocly lint affiliate_management_v1 --format=github-actions
+          redocly lint partner_event_ingestion_v1 --format=github-actions
       - name: Validate AsyncAPI contract
         run: |
           asyncapi --version
