@@ -110,3 +110,12 @@
 - این بسته ۱۵ مورد تصمیم صریح را در حوزه Principal/IAM، مجوزدهی، Credential، رجیستری Installation و Event/Schema، هویت رویداد، Fingerprinting، هم‌زمانی، سقف منابع، طبقه‌بندی/نگهداری/رمزنگاری داده، Audit و مرز عدم اثر مالی ثبت می‌کند. تمام موارد Proposed یا Open هستند و هیچ تأیید مالک مفروض نیست.
 - مراحل اثبات ساختگی P0 تا P6 شامل ایزولاسیون Harness، مرز هویت/Tenant، Parse سخت‌گیرانه و Registry، Idempotency/Concurrency، Transaction/Crash Recovery، منابع/حریم خصوصی و اثبات صفر اثر مالی تعریف شدند.
 - اثبات Runtime هنوز آغاز نشده است. شروع آن نیازمند تصویب صریح دامنه توسط مالک، تأیید ایزولاسیون توسط امنیت/عملیات و انتخاب کاندید Persistence دورریختنی با قیود تراکنشی واقعی است. ساخت Adapter شریک، Credential واقعی، فراخوانی Sandbox، ثبت مالی، Merge یا Deploy مجاز نیست.
+
+
+## معماری اثبات Runtime و طراحی تست خصمانه G09-A4 — ۲۰۲۶-۱۱-۲۷
+
+- سند دوزبانه LOT-AFFILIATE-G09-A4-001 در مسیرهای `docs/en/engineering/affiliate-g09-a4-runtime-proof-architecture.md` و `docs/fa/engineering/affiliate-g09-a4-runtime-proof-architecture.md` اضافه شد.
+- طراحی شامل Harness دورریختنی صرفاً ساختگی، هفت مرز اعتماد، هشت ناوردای Persistence و ۴۷ شناسه پایدار سناریوی خصمانه در حوزه هویت، مجوز Object/Function/Property، Idempotency/Canonicalization، Parser/Schema/SSRF، حاکمیت منابع، بازیابی Transaction/Worker، حریم خصوصی/Audit و عدم اثر مالی است.
+- شش Oracle مستقل تست، بسته شواهد، هشت Gate تصویب مالک/بازبین، ترتیب اجرا، شدت و شرایط توقف فوری تعریف شدند. OWASP API Security Top 10 (2023)، RFC 8785، CloudEvents و مرجع مشروط PostgreSQL صرفاً منابع طراحی‌اند و تصویب فناوری/Provider محسوب نمی‌شوند.
+- هیچ Harness یا Runtime ساخته یا اجرا نشده است. اجرای A4 تا تصویب صریح دامنه/ایزولاسیون، انتخاب کاندید DB/Queue دورریختنی، پروفایل هویت تستی، Policy داده/شواهد، سقف بار و تأیید مالی/امنیت درباره عدم دسترسی مالی BLOCKED است.
+- ساخت Adapter شریک، Credential واقعی، درخواست Sandbox خارجی، محاسبه کمیسیون، ثبت مالی، Merge یا Deploy مجاز نیست.
