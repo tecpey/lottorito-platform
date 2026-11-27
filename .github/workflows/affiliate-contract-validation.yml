@@ -7,6 +7,7 @@ on:
     paths:
       - "contracts/openapi/**"
       - "contracts/asyncapi/**"
+      - "scripts/validate_affiliate_contract_payloads.mjs"
       - ".redocly.yaml"
       - ".github/workflows/affiliate-contract-validation.yml"
   pull_request:
@@ -15,6 +16,7 @@ on:
     paths:
       - "contracts/openapi/**"
       - "contracts/asyncapi/**"
+      - "scripts/validate_affiliate_contract_payloads.mjs"
       - ".redocly.yaml"
       - ".github/workflows/affiliate-contract-validation.yml"
   workflow_dispatch:
@@ -28,7 +30,7 @@ concurrency:
 
 jobs:
   validate:
-    name: OpenAPI and AsyncAPI specification validation
+    name: OpenAPI, AsyncAPI and payload contract validation
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -40,17 +42,23 @@ jobs:
           node-version: "24.11.1"
       - name: Install pinned contract validators
         run: |
-          npm install --global --no-audit --no-fund \
+          npm install --prefix "$RUNNER_TEMP/contract-tools" --no-save --no-audit --no-fund \
             @redocly/cli@2.83.0 \
-            @asyncapi/cli@6.2.2
+            @asyncapi/cli@6.2.2 \
+            ajv@8.17.1 \
+            ajv-formats@3.0.1
+          echo "CONTRACT_TOOLS_PREFIX=$RUNNER_TEMP/contract-tools" >> "$GITHUB_ENV"
       - name: Validate OpenAPI contracts
         run: |
-          redocly --version
-          redocly check-config --config=.redocly.yaml
-          redocly lint --config=.redocly.yaml affiliate_management_v1 --format=github-actions
-          redocly lint --config=.redocly.yaml partner_event_ingestion_v1 --format=github-actions
+          "$RUNNER_TEMP/contract-tools/node_modules/.bin/redocly" --version
+          "$RUNNER_TEMP/contract-tools/node_modules/.bin/redocly" check-config --config=.redocly.yaml
+          "$RUNNER_TEMP/contract-tools/node_modules/.bin/redocly" lint --config=.redocly.yaml affiliate_management_v1 --format=github-actions
+          "$RUNNER_TEMP/contract-tools/node_modules/.bin/redocly" lint --config=.redocly.yaml partner_event_ingestion_v1 --format=github-actions
       - name: Validate AsyncAPI contract
         run: |
-          asyncapi --version
-          asyncapi validate --fail-severity=error \
+          "$RUNNER_TEMP/contract-tools/node_modules/.bin/asyncapi" --version
+          "$RUNNER_TEMP/contract-tools/node_modules/.bin/asyncapi" validate --fail-severity=error \
             contracts/asyncapi/affiliate-domain-events.v1.json
+      - name: Validate schema payload fixtures
+        run: |
+          node scripts/validate_affiliate_contract_payloads.mjs
