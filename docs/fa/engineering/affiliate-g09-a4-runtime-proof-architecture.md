@@ -7,7 +7,7 @@
 
 G09-A4 تصمیم‌های امنیتی و مراحل اثبات P0 تا P6 در G09-A3 را به معماری تست قابل‌بازبینی، کاتالوگ سناریوهای خصمانه، مدل شواهد و ترتیب اجرا تبدیل می‌کند. این سند مجوز پیاده‌سازی، انتخاب فناوری، گزارش تست نفوذ یا ادعای آمادگی Production نیست.
 
-هدف اثبات عمداً محدود است: برای Tenant و Installation ساختگی ثابت کنیم رویداد منبع ساختگی و احراز هویت‌شده به‌شکل قطعی پذیرفته یا رد می‌شود؛ رویداد پذیرفته‌شده دقیقاً یک Inbox Receipt و یک Job/Outbox پایدار را به‌صورت اتمیک ایجاد می‌کند؛ Retry، هم‌زمانی و خطای Worker کار پایدار تکراری یا وضعیت قدیمی ایجاد نمی‌کنند؛ و این مسیر هیچ اثر مالی ندارد.
+هدف اثبات عمداً محدود است: برای Tenant و Installation ساختگی ثابت کنیم رویداد منبع ساختگی و احراز هویت‌شده به‌شکل قطعی پذیرفته یا رد می‌شود؛ رویداد پذیرفته‌شده دقیقاً یک InboxReceipt و یک WorkItem پایدار را به‌صورت اتمیک ایجاد می‌کند؛ Retry، هم‌زمانی و خطای Worker کار پایدار تکراری یا وضعیت قدیمی ایجاد نمی‌کنند؛ و این مسیر هیچ اثر مالی ندارد.
 
 **موارد خارج از دامنه:** Adapter شریک، ترافیک یا Credential واقعی شریک، Endpoint عمومی، دسترسی Production/Staging، Attribution یا محاسبه کمیسیون تجاری، عملیات Wallet/Ledger/Payment/Payout، دریافت Schema خارجی، Deploy، تولید بار روی سیستم مشترک یا ادعای تحویل/اجرای اقتصادی Exactly-once.
 
@@ -20,7 +20,7 @@ G09-A4 تصمیم‌های امنیتی و مراحل اثبات P0 تا P6 در
 | A4-GATE-01 دامنه و ایزولاسیون | تصویب کتبی دامنه فقط Synthetic، محیط دورریختنی، منع Egress خارجی، نبود اتصال مالی، تخریب محیط و مدیریت شواهد | مالک محصول، امنیت، عملیات/SRE |
 | A4-GATE-02 Fixture هویت | پروفایل اعتماد صرفاً تستی و سناریوهای تهدید؛ Issuer و Credential محلی/غیرتولیدی | IAM/امنیت، معماری |
 | A4-GATE-03 کاندید Persistence | انتخاب کاندید دورریختنی در ADR فناوری؛ مستندسازی Transaction، Uniqueness، Isolation و Crash | معماری، داده/پلتفرم، SRE |
-| A4-GATE-04 Queue/Worker | انتخاب مالکیت Job/Outbox پایدار و مدل Retry/Lease/Fencing؛ اعلان Queue منبع حقیقت نیست | معماری، SRE |
+| A4-GATE-04 Queue/Worker | انتخاب مالکیت WorkItem پایدار و مدل Retry/Lease/Fencing؛ اعلان Queue منبع حقیقت نیست | معماری، SRE |
 | A4-GATE-05 داده و Audit | تصویب فهرست فیلدهای صرفاً ساختگی، Redaction، Retention و دسترسی/انقضای شواهد | حریم خصوصی/حقوقی، امنیت، عملیات |
 | A4-GATE-06 پروفایل منابع | تصویب پروفایل بار محدود و سقف‌ها پیش از آزمایش ظرفیت یا N/N+1 | محصول، امنیت، SRE، مالک |
 | A4-GATE-07 عدم اثر مالی | اثبات نبود اتصال مالی و مجوز نوشتن از طریق DB Role/Schema و مرز شبکه | مالی، امنیت، معماری |
@@ -39,7 +39,7 @@ G09-A4 تصمیم‌های امنیتی و مراحل اثبات P0 تا P6 در
 | Replay، برخورد هویت و دستکاری | Source/ID رویداد، Fingerprint، کلید Retry و تحویل هم‌زمان | A4-IDEM-01..08 | LOT-EVENT-001؛ پروفایل کاندید RFC 8785 |
 | Parse و زنجیره تأمین Schema | JSON Parser، Attribute/Extensionهای CloudEvents، ارجاع Schema و Fetch خارجی | A4-PARSE-01..06 | OWASP API7/API9/API10:2023 |
 | Exhaustion منابع | Body، Nesting، Array، CPU/Memory Parser، هم‌زمانی و عدالت Tenant | A4-RES-01..05 | OWASP API4:2023 |
-| صحت Transaction/Worker | Inbox، Job/Outbox، Commit/ACK، Lease، Fencing، Crash و Retry | A4-DUR-01..08 | LOT-AFFILIATE-G09-A3-001 |
+| صحت Transaction/Worker | InboxReceipt، WorkItem، Commit/ACK، Lease، Fencing، Crash و Retry | A4-DUR-01..08 | LOT-AFFILIATE-G09-A3-001 |
 | حریم خصوصی و Audit | Log، Trace، Error، Audit و Artifact شواهد | A4-DATA-01..04 | LOT-SEC-001؛ تصمیم‌های حریم خصوصی قابل‌اعمال |
 | اثر مالی | مجوز DB، فراخوانی سرویس، Egress شبکه و رکورد Economic Effect | A4-FIN-01..03 | LOT-FIN-POST-001 |
 
@@ -55,7 +55,7 @@ OWASP API Security Top 10 یک طبقه‌بندی پوشش است، نه گوا
 ۴. **Ingress تحت آزمون:** مسیر Parse، Authentication، Authorization، Registry و Persistence موردنظر Production، با Endpoint/Config تستی که آشکارا ایزوله شده باشد.
 ۵. **Strict Parser و Schema Fixture Store:** Parser محدود؛ فقط Schema محلی و Pinشده؛ بدون Resolver شبکه‌ای در Runtime؛ Member تکراری JSON پیش از Materialization شیء رد شود.
 ۶. **Transactional Persistence Adapter:** DB دورریختنی منتخب و موتور Transaction واقعی. برای تست Race به Connection/Process مستقل نیاز است. Mock ناورداهای DB را اثبات نمی‌کند.
-۷. **Outbox/Worker Subsystem:** Job/Outbox پایدار همراه Inbox Commit شود؛ اعلان Queue فقط Hint با تحویل At-least-once است؛ Claim Worker از Lease صریح و در صورت انتخاب این مدل از Fencing/Claim Token افزایشی استفاده کند.
+۷. **Outbox/Worker Subsystem:** WorkItem پایدار همراه Inbox Commit شود؛ اعلان Queue فقط Hint با تحویل At-least-once است؛ Claim Worker از Lease صریح و در صورت انتخاب این مدل از Fencing/Claim Token افزایشی استفاده کند.
 ۸. **Fault و Time Controller:** تزریق خطا در مرزهای اعلام‌شده و جلو بردن Clock قابل‌کنترل برای Expiry/Lease/Retry.
 ۹. **Egress Deny Layer:** Policy شبکه یا Firewall معادل، خروجی را پیش‌فرض مسدود کند؛ تلاش DNS و Connection قابل مشاهده باشد. برای URLهای Schema استثنا ایجاد نشود.
 ۱۰. **Financial Isolation Sentinel:** DB Role و Wiring سرویس تست، اتصال Wallet/Ledger/Payment/Payout نداشته باشد؛ هر تلاش دسترسی Failure قطعی است.
@@ -67,7 +67,7 @@ OWASP API Security Top 10 یک طبقه‌بندی پوشش است، نه گوا
 - **TB-1 درخواست بیرونی ← Ingress:** بایت‌ها غیرقابل‌اعتمادند. محدودیت Transport/Body پیش از Parse پرهزینه اعمال شود؛ هویت Client فقط پس از Authentication معتبر است.
 - **TB-2 Principal ← Installation Binding:** Tenant از Binding فعال و کنترل‌شده سمت سرور برای Installation/Client استخراج می‌شود، نه فیلد Tenant ارسالی Caller.
 - **TB-3 Event ← Registry/Parser:** Source، Type، Extension و Schema Version باید با رکورد محلی مصوب تطبیق کند. URL تحت کنترل Payload صرفاً داده است، نه دستور Fetch.
-- **TB-4 Ingress ← Persistence:** Source Identity، Fingerprint، Inbox Receipt و Job/Outbox پایدار در یک Transaction و تحت Uniqueness اعمال‌شده توسط DB Commit می‌شوند.
+- **TB-4 Ingress ← Persistence:** Source Identity، Fingerprint، Inbox Receipt و WorkItem پایدار در یک Transaction و تحت Uniqueness اعمال‌شده توسط DB Commit می‌شوند.
 - **TB-5 Outbox ← Queue ← Worker:** Queue کانال بیدارسازی است؛ State پایدار مرجع است. Worker پیش از Transition باید Tenant/Installation/Status و مالکیت Claim را دوباره بررسی کند.
 - **TB-6 Runtime ← دامنه مالی:** این اثبات هیچ Route، Credential، مسیر شبکه یا DB Grant به دامنه مالی ندارد. هر تلاش دسترسی، تست ناموفق و Stop Event است.
 - **TB-7 Runtime ← Observability/Evidence:** Telemetry یک Sink داده مستقل با Allowlist فیلد و Redaction است؛ دسترسی شواهد محدود و Retention آن مشخص باشد.
@@ -76,7 +76,7 @@ OWASP API Security Top 10 یک طبقه‌بندی پوشش است، نه گوا
 
 فرض کنیم E یک Source Event پذیرفته‌شده، I رکورد Inbox و J رکورد پایدار Job/Outbox آن باشد.
 
-- **INV-01 جفت اتمیک:** پس از پایان Transaction یا I و J هر دو وجود دارند یا هیچ‌کدام؛ پیش از Commit هیچ ACK پذیرشی صادر نمی‌شود.
+- **INV-01 جفت اتمیک:** جفت الزامی InboxReceipt + WorkItem با هم Commit می‌شود یا هیچ‌کدام وجود ندارند؛ پیش از Commit هیچ ACK پذیرشی صادر نمی‌شود. DeliveryOutbox مشروط، رکورد جداگانه انتشار پایین‌دستی است و هرگز جای WorkItem را نمی‌گیرد.
 - **INV-02 هویت منبع یکتا:** Uniqueness در DB هویت Source Event را بر اساس Tuple مصوب Tenant/Product/Installation/Source/ID اعمال می‌کند. Pre-check برنامه به‌تنهایی کافی نیست.
 - **INV-03 Replay پایدار:** هویت یکسان با Fingerprint پذیرفته‌شده یکسان به Receipt اصلی ارجاع می‌دهد؛ Job دوم نمی‌سازد.
 - **INV-04 Conflict یکپارچگی:** هویت یکسان با Fingerprint متفاوت نمی‌تواند Event اصلی را بازنویسی یا Work جدید Enqueue کند؛ نتیجه Conflict محدود و قابل Audit تولید می‌شود.
@@ -106,8 +106,8 @@ Schema دقیق، Isolation Level، Statement قفل/Claim، Unique Index، Stat
 | A4-AUTH-05 | Response شامل فیلد داخلی، Credential، Payload خام یا Metadata مستأجر دیگر باشد | Allowlist فیلد پاسخ؛ فیلد حساس/Cross-tenant غایب باشد |
 | A4-AUTH-06 | Membership یا Installation بین پذیرش و اجرای Worker تعلیق شود | Worker State جاری لازم را دوباره بررسی کند؛ Policy مصوب مانع پردازش غیرمجاز شود |
 | A4-AUTH-07 | تلاش Confused Deputy با پیام Worker دارای Tenant/Install جعلی | Worker از رکورد پایدار مورداعتماد اختیار را استخراج و Binding را بررسی کند؛ فیلد پیام به‌تنهایی اختیار نمی‌دهد |
-| A4-IDEM-01 | همان Event با Payload معنایی یکسان به‌صورت ترتیبی ارسال شود | یک Inbox Identity و یک Job/Outbox پایدار؛ Replay به نتیجه اصلی ارجاع دهد |
-| A4-IDEM-02 | N تحویل هم‌زمان یکسان با Connection مستقل | دقیقاً یک جفت Receipt/Job پایدار؛ سایر درخواست‌ها به Duplicate همگرا شوند |
+| A4-IDEM-01 | همان Event با Payload معنایی یکسان به‌صورت ترتیبی ارسال شود | یک Inbox Identity و یک WorkItem پایدار؛ Replay به نتیجه اصلی ارجاع دهد |
+| A4-IDEM-02 | N تحویل هم‌زمان یکسان با Connection مستقل | دقیقاً یک جفت InboxReceipt/WorkItem پایدار؛ سایر درخواست‌ها به Duplicate همگرا شوند |
 | A4-IDEM-03 | Source Identity یکسان، Payload/Fingerprint تغییرکرده | Conflict؛ رکورد اصلی تغییر نکند؛ Job دوم ساخته نشود |
 | A4-IDEM-04 | Event ID یکسان با Source، Installation یا Tenant متفاوت | Namespace هویت فقط طبق قرارداد متمایز بماند؛ برخورد سراسری ناخواسته یا Dedup بین Tenant رخ ندهد |
 | A4-IDEM-05 | ترتیب بایت/Whitespace خام JSON متفاوت ولی JSON معنایی پذیرفته‌شده یکسان | نتیجه مطابق پروفایل Fingerprint صریحاً منتخب؛ Raw Digest از Canonical Digest قابل تفکیک باشد |
