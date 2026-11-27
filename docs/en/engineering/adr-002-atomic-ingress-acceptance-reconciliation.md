@@ -202,6 +202,10 @@ This ADR is **PROPOSED**. It is not an approved architecture decision, implement
 - PostgreSQL INSERT / ON CONFLICT (illustrative candidate semantics only): https://www.postgresql.org/docs/current/sql-insert.html
 - PostgreSQL Transaction Isolation: https://www.postgresql.org/docs/current/transaction-iso.html
 - PostgreSQL Constraints: https://www.postgresql.org/docs/current/ddl-constraints.html
+- PostgreSQL High Availability and replication/failover: https://www.postgresql.org/docs/current/high-availability.html
+- PostgreSQL synchronous replication: https://www.postgresql.org/docs/current/warm-standby.html
+- PostgreSQL failover and old-primary STONITH/fencing caution: https://www.postgresql.org/docs/current/warm-standby-failover.html
+- PostgreSQL asynchronous commit durability window: https://www.postgresql.org/docs/current/wal-async-commit.html
 - AWS Prescriptive Guidance, Transactional Outbox: https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html
 - Google Cloud Spanner, Unknown Commit Status and safe retry guidance: https://docs.cloud.google.com/spanner/docs/queues/queues-at-most-once
 - NIST SP 800-204D, Software Supply Chain Security in DevSecOps CI/CD Pipelines: https://csrc.nist.gov/pubs/sp/800/204/d/final
