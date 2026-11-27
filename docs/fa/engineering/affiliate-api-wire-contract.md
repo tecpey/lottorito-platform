@@ -152,6 +152,18 @@ LOT-EVENT-001 همچنان مرجع معنایی Lottorito است. CloudEvents �
 
 این موارد معیار پذیرش‌اند، نه ادعای اجرای موفق تست‌ها.
 
+### مجموعه اعتبارسنجی ماشینی نمونه‌های Schema
+
+CI قرارداد علاوه بر اعتبارسنجی سند کامل، اسکریپت `scripts/validate_affiliate_contract_payloads.mjs` را روی نمونه‌های مثبت و منفی نماینده اجرا می‌کند:
+
+- Schemaهای Component در OpenAPI 3.2.1 با نمونه مستقل Ajv مبتنی بر JSON Schema 2020-12 اعتبارسنجی می‌شوند. Schemaهای فعلی از Keywordهای استاندارد این نسخه استفاده می‌کنند؛ Redocly همچنان اعتبارسنج کامل سند OpenAPI و Dialect مربوط به OAS است.
+- Payload پیام AsyncAPI 3.0.0 با نمونه مستقل Ajv مبتنی بر Draft 07 اعتبارسنجی می‌شود؛ مطابق مبنای Schema Object در AsyncAPI 3.0.0.
+- ارجاع‌های محلی Component، فیلدهای الزامی، نوع، Enum، حدود، Formatهای date-time/URI، یکتایی، Objectهای بسته و Extensionهای RFC 9457 دارای نمونه‌های مثبت/منفی نماینده هستند.
+- Extensionهای سطح بالای CloudEvents از نظر ساختاری در Schema پاکت مجاز می‌مانند. این موضوع **مجوز پذیرش Extension دلخواه نیست**؛ Runtime باید پیش از Normalization، Allowlist اختصاصی Integration برای Extension/Event/Source را اعمال کند.
+- این مجموعه، احراز هویت Runtime، Binding مستأجر، اتمیک‌بودن پایدار Inbox/Job، Deduplication، Replay، اثر دفترکل یا سازگاری Provider را اثبات نمی‌کند.
+
+Validatorهای دو Dialect عمداً جدا هستند. Payloadهای AsyncAPI را به Validator نسخه 2020-12 منتقل نکنید و اعتبارسنجی نمونه با Ajv را جایگزین اعتبارسنجی سند کامل توسط Redocly/AsyncAPI تلقی نکنید.
+
 ## ۱۱. استانداردها و حاکمیت نسخه
 
 - OpenAPI Specification 3.2.1 برای قرارداد HTTP API.
