@@ -90,3 +90,8 @@ Validator ساختاری در [scripts/check_docs.py](../../scripts/check_docs.p
 ## تصمیم‌های امنیتی و اثبات Runtime افیلیت G09-A3
 
 - [بسته تصمیم‌های G09-A3 و برنامه اثبات Runtime ساختگی](engineering/affiliate-g09-a3-decision-and-runtime-proof.md) — LOT-AFFILIATE-G09-A3-001؛ رکوردهای تصمیم پیشنهادی برای IAM، رجیستری Installation/Event، Idempotency/Fingerprint، حاکمیت منابع، چرخه داده، Audit و مرز اثر مالی، به‌همراه برنامه اثبات Runtime ایزوله و ساختگی. هیچ تصمیمی تصویب نشده و ادعای پیاده‌سازی Runtime وجود ندارد.
+
+
+## معماری اثبات Runtime افیلیت G09-A4
+
+- [معماری اثبات Runtime و طراحی تست‌های خصمانه G09-A4](engineering/affiliate-g09-a4-runtime-proof-architecture.md) — LOT-AFFILIATE-G09-A4-001؛ Harness ایزوله پیشنهادی، مرزهای اعتماد، ناورداهای Persistence، ۴۷ سناریوی خصمانه، Oracleهای مستقل تست، الزامات شواهد و Gateهای توقف. هیچ پیاده‌سازی Runtime یا انتخاب فناوری تصویب نشده است.
