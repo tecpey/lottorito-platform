@@ -85,3 +85,8 @@ Validator ساختاری در [scripts/check_docs.py](../../scripts/check_docs.p
 ## پذیرش امنیتی افیلیت
 
 - [مشخصات پذیرش امنیتی و مرز Runtime افیلیت](engineering/affiliate-security-acceptance-runtime-boundary.md) — LOT-AFFILIATE-SEC-ACC-001؛ ماتریس پیشنهادی پذیرش Runtime، مرز اعتماد، Idempotency، Persistence، حفاظت داده و Gateهای انتشار؛ بدون پیاده‌سازی Runtime یا تأیید Production.
+
+
+## تصمیم‌های امنیتی و اثبات Runtime افیلیت G09-A3
+
+- [بسته تصمیم‌های G09-A3 و برنامه اثبات Runtime ساختگی](engineering/affiliate-g09-a3-decision-and-runtime-proof.md) — LOT-AFFILIATE-G09-A3-001؛ رکوردهای تصمیم پیشنهادی برای IAM، رجیستری Installation/Event، Idempotency/Fingerprint، حاکمیت منابع، چرخه داده، Audit و مرز اثر مالی، به‌همراه برنامه اثبات Runtime ایزوله و ساختگی. هیچ تصمیمی تصویب نشده و ادعای پیاده‌سازی Runtime وجود ندارد.
