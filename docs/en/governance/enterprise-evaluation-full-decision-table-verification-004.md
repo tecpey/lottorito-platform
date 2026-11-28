@@ -3,7 +3,7 @@
 **Document ID:** LOT-EVAL-RDM-004-001  
 **Version:** 0.2.0  
 **Date:** 2026-11-28  
-**Status:** VERIFIED FOR THE BOUNDED FIXTURE SET — exact-head run #1225 succeeded  
+**Status:** VERIFIED FOR THE BOUNDED FIXTURE SET — exact-head run #1231 succeeded  
 **Parent:** LOT-EVAL-001 v0.3.0  
 **Inputs:** LOT-EVAL-RDM-003A decision-rule catalogue v0.1.0; LOT-EVAL-RDM-001; LOT-EVAL-AVT-001 v0.2.0
 
@@ -112,7 +112,7 @@ The exact-head Documentation Governance workflow runs:
 
 The recorded CI run must match the exact PR head SHA. A prior-head run does not verify a later source change. Results must report row checks, metamorphic checks and targeted mutations separately.
 
-**Exact-head verification:** Documentation Governance run #1225 (ID `46161484120`) succeeded on PR head `79751ad277968346fcd0044d74951af2a2c3301c`. The bilingual validator, existing RDM-001 harness and RDM-004 runner all completed successfully. The RDM-004 runner's exit condition requires 36/36 row checks, 10/10 metamorphic checks and 4/4 targeted mutation checks to pass. This verifies the bounded synthetic fixtures at that exact code SHA only. A passing run is bounded verification of these fixtures only; it is not proof of full matrix-property coverage, standard adequacy, independent assurance, owner approval or operational readiness.
+**Exact-head verification:** Documentation Governance run #1231 (ID `46161867851`) succeeded on code head `2e0eadfcc2bc6200af1410197dcbeaa563e8fed0`. The bilingual validator, RDM-001 harness and RDM-004 runner all completed successfully. The RDM-004 runner's exit condition at this SHA requires 36/36 row checks, 11/11 metamorphic checks and 4/4 targeted mutation checks to pass. This verifies the bounded synthetic fixtures at that exact code SHA only. A passing run is bounded verification of these fixtures only; it is not proof of full matrix-property coverage, standard adequacy, independent assurance, owner approval or operational readiness.
 
 ## 9. Governance and authorization
 
@@ -121,7 +121,7 @@ LOT-EVAL-001 remains PROPOSED. REV-01…REV-14 owner dispositions remain PENDING
 ## 10. Change history
 
 - 0.1.0 (2026-11-28): initial 36 row checks, six metamorphic checks and four targeted mutations.
-- 0.2.0 (2026-11-28): corrected DT-03 precedence, DT-04 mandatory-gate precedence and DT-05 inherent/residual risk-pair and evidence-field modelling; expanded metamorphic checks from six to eleven; added strict dimension uniqueness and non-blank evidence validation. Exact-head CI #1225 succeeded on `79751ad277968346fcd0044d74951af2a2c3301c`.
+- 0.2.0 (2026-11-28): corrected DT-03 precedence, DT-04 mandatory-gate precedence and DT-05 inherent/residual risk-pair and evidence-field modelling; expanded metamorphic checks from six to eleven; added strict dimension uniqueness and non-blank evidence validation. Exact-head CI #1231 succeeded on `2e0eadfcc2bc6200af1410197dcbeaa563e8fed0`.
 
 
 ### Subsequent schema-hardening verification
