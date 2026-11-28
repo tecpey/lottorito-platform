@@ -164,10 +164,10 @@ Validator ساختاری در [scripts/check_docs.py](../../scripts/check_docs.p
 - [LOT-EVAL-RDM-003A — کاتالوگ قواعد هنجاری و جدول‌های تصمیم](governance/enterprise-evaluation-decision-rule-catalogue-001.md) — تجزیه به‌دست نویسنده از LOT-EVAL-001 به قواعد اتمی، پنج جدول تصمیم، دفتر ابهام‌های حل‌نشده و ردیابی قاعده به آزمون؛ بازبینی Oracle مستقل و تعیین تکلیف مالک در انتظار.
 
 
-## LOT-EVAL-RDM-003B — بازبینی کور Oracle مستقل
+## پیش‌نویس تاریخی بازبینی کور LOT-EVAL-RDM-003B — منسوخ‌شده
 
-- [LOT-EVAL-RDM-003B — بسته بازبینی کورِ مستقل برای استخراج Oracle](governance/enterprise-evaluation-blind-oracle-review-003b.md) — پروتکل مخصوص بازبین، Manifest منابع و Blobهای Freezeشده، ۱۸ شناسه قاعده اتمی، ۲۱ سناریوی صرفاً ورودی و ۳۵ ردیف ورودی جدول تصمیم؛ بدون افشای خروجی‌های مورد انتظار نویسنده. وضعیت: PENDING_EXTERNAL_REVIEW.
-- [LOT-EVAL-RDM-003B — Worksheet استخراج مستقل Oracle](governance/enterprise-evaluation-blind-oracle-worksheet-003b.md) — اعلامیه بازبین، فرم Oracle برای هر مورد، فهرست پوشش ۷۴ موردی و سابقه Freeze/تطبیق. تا Freeze شدن Worksheet مستقل، RDM-003A یا خروجی RDM-001 افشا نشود.
+- [بسته تاریخی بازبینی کور LOT-EVAL-RDM-003B](governance/enterprise-evaluation-blind-oracle-review-003b.md) — پیش‌نویس منسوخ‌شده؛ بازبینی کور انجام نشد و بسته ورودی ۳۵ ردیفی ناقص بود. به‌عنوان Gate فعال بازبینی استفاده نشود.
+- [Worksheet تاریخی LOT-EVAL-RDM-003B](governance/enterprise-evaluation-blind-oracle-worksheet-003b.md) — قالب خالی منسوخ‌شده؛ عدد ۷۴ مورد سابقه تاریخی است و نباید به‌عنوان ۷۴ آزمون مستقل معرفی شود.
 
 
 ### اصلاح مسیر بازبینی RDM-003B
