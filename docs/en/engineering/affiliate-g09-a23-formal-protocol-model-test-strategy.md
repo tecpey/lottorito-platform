@@ -1,7 +1,7 @@
 # G09-A23 — Formal Protocol Model & Adversarial Test Strategy
 
 **Document ID:** LOT-AFFILIATE-G09-A23-001  
-**Version:** 0.1.7 | **Status:** PROPOSED; M0 AND M1 TLC-CHECKED WITHIN FINITE BOUNDS; RUNTIME NOT EXECUTED; M2–M7 NOT AUTHORED  
+**Version:** 0.1.8 | **Status:** PROPOSED; M0 AND M1 TLC-CHECKED WITHIN FINITE BOUNDS; RUNTIME NOT EXECUTED; M2–M7 NOT AUTHORED  
 **Date:** 2026-11-28  
 **Review basis:** G09-A21, G09-A22, G09-A20, G09-A7, ADR-001 and ADR-002  
 **Authority:** Advisory design; no owner decision, candidate, gate or execution permission is approved.
@@ -311,4 +311,4 @@ These sources support methods and failure classes; they do not prove Lottorito c
 **Conclusion:** A23 upgrades modeling and testing from a list of scenarios to a traceable engineering method; it does not claim real execution or system acceptance.
 
 
-**Version 0.1.7 review note:** M0 and M1 were run independently on PR head `b9fd70090a158b09131aa4f848e194fe7cefe273` and synthetic merge commit `0ceabe3`. M0 Run `46171267528`: 52 distinct baseline states; all three mutants produced expected counterexamples; artifact ID `15273950539`, SHA-256 `d2f1eb916a2c6f2316acf6932aa03ab5caab5a846eac53091cbb452a3a5315b5`. M1 Run `46171267569`: both baselines (same/different fingerprint) had 19 distinct and 25 generated states, depth 8; the three mutants violated `NoRetryCommitWhileOriginalInflight`, `ReceiptCardinality` and `ConflictSoundness`, respectively; artifact ID `15273009002`, SHA-256 `b48aa95a3b6145082eb7f637dac3950d8e9656270a7ecea0c166f9c806dd2737`. Both workflows used Checkout v7.0.1 and Upload Artifact v7.0.2 pinned to immutable SHAs; persisted credentials were disabled. This evidence is limited to the bounded models; independent review, candidate refinement, Jepsen/history checking and simulation have not occurred. M2–M7 are not authored.
+**Version 0.1.8 review note:** M0 and M1 were run independently on PR head `10d143bfb8eaff1892a74e3277f4dcac1f024337` and synthetic merge commit `a7a670bd6453a2c86fd7733c4aeae3f8aa7b4777`. M0 Run `46171482274`: 52 distinct baseline states; all three mutants produced expected counterexamples; artifact ID `15273523034`, SHA-256 `5cd254c2bd9b7121af93c0b7384d9927f054031d2acbd7c6eef1e41670eb72d9`. M1 Run `46171482180`: both baselines (same/different fingerprint) had 19 distinct and 25 generated states, depth 8; the three mutants violated `NoRetryCommitWhileOriginalInflight`, `ReceiptCardinality` and `ConflictSoundness`, respectively; artifact ID `15273920318`, SHA-256 `eb38518421706ed88d03c8bf77339d1747036c5aff6811e6d666ef62b7b78ea9`. Both workflows used Checkout v7.0.1 and Upload Artifact v7.0.2 pinned to immutable SHAs; persisted credentials were disabled. This evidence is limited to the bounded models; independent review, candidate refinement, Jepsen/history checking and simulation have not occurred. M2–M7 are not authored.
