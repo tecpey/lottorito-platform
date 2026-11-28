@@ -3,7 +3,7 @@
 **Document ID:** LOT-EVAL-RDM-001  
 **Version:** 0.1.0  
 **Date:** 2026-11-28  
-**Status:** CORRECTED AFTER AUTHOR-LED SECOND-PASS REVIEW — exact-head CI #1195 SUCCESS; no independent assurance or owner disposition implied
+**Status:** CORRECTED AFTER AUTHOR-LED SECOND-PASS REVIEW — exact-head CI #1202 SUCCESS; no independent assurance or owner disposition implied
 **Parent baseline:** LOT-EVAL-001 v0.3.0 and LOT-EVAL-AVT-001 v0.2.0  
 **Frozen parent commit:** `e7aed0892a0de212fc3fd7603a6976eee503a76f`  
 **Authority:** Deterministic reference behavior for the mapped synthetic acceptance vectors only. This is not the Lottorito product runtime, a procurement engine, a legal/security assurance, standard adoption, owner approval or production authorization.
@@ -100,4 +100,4 @@ Current model semantics:
 
 The updated harness has 21 registered AVT checks, 8 model-guard checks, 10 hand-authored specification mutants and 210 AVT mutant/check evaluations. Guard checks are reported separately and are not included in the 210 count. AVT-17 remains a single registered check but its behavior is now distinct from AVT-16.
 
-**Verification state:** exact-head Documentation Governance run #1195 (ID `46122995317`) succeeded on `aebdd6c44cbebf953e007dae2fd3e3c3ac2f9fb4`, validating 67 bilingual Markdown pairs, 172 local links, 21/21 AVT checks, 6/6 model guards and 10/10 hand-authored mutants across 210 AVT mutant/check evaluations. Two further guard checks were added after that run (boolean capability ratings and boolean risk anchors); those latest changes require a new exact-head CI run. The #1195 result does not apply to later commits. This is bounded harness/structural evidence only, not full matrix-property coverage. The author-led second-pass review is not blind, not a second-person review and not formal IV&V.
+**Verification state:** exact-head Documentation Governance run #1202 (ID `46123183828`) succeeded on `2dd02e5fd4b06d46c995ee1e934053d15987c001`: 67 bilingual Markdown pairs, 172 local links, 21/21 AVT checks, 8/8 model guards, 10/10 hand-authored mutants killed and 210 AVT mutant/check evaluations, with zero failures and zero surviving mutants. This is bounded harness/structural evidence only, not full matrix-property coverage. The author-led second-pass review is not blind, not a second-person review and not formal IV&V.
