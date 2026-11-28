@@ -114,7 +114,7 @@ A second author-led pass examined internal consistency, scoring semantics, decis
 
 The project owner instructed the assistant on 2026-11-28 to apply technically supported corrections throughout the relevant project artifacts, using evidence and professional judgment. This authorizes preparation and application of document-level technical corrections within the current PR scope. It does **not** convert any REV item into an owner disposition, accept residual risk, approve a rubric for a named procurement decision, authorize a supplier or jurisdiction, or permit production/financial activity. The owner-disposition register therefore remains PENDING until the owner records item-level decisions.
 
-The current correction set is LOT-EVAL-001 v0.3.0, including a revised §8.3 rubric and normative follow-up rules in §17.10. These are proposed document controls and remain subject to owner/specialist review and exact-head documentation validation.
+The current correction set includes LOT-EVAL-001 v0.3.0, LOT-PROVIDER-EVAL-001 v0.2.0, LOT-TECH-ADR-001 v0.2.0 and LOT-SEC-TM-001 v0.2.0. The specialist provider/technology scorecards now inherit the parent evidence/rating semantics; the threat model references the parent risk-assessment anchors while retaining its own security scope. These are proposed document controls and remain subject to owner/security-specialist review and exact-head documentation validation.
 
 ## 7. References
 
