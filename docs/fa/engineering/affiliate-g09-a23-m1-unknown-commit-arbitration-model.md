@@ -1,7 +1,7 @@
 # G09-A23-M1 — مدل داوری Commit نامعلوم و Retry هم‌زمان
 
 **شناسه سند:** LOT-AFFILIATE-G09-A23-M1-001  
-**نسخه:** ۰.۱.۶  
+**نسخه:** ۰.۱.۷  
 **وضعیت:** مدل محدود با TLC اجرا شده؛ بازبینی مستقل و Refinement به Candidate همچنان باز  
 **مدل:** `formal/G09M1UnknownCommitArbitration.tla`  
 **پیکربندی‌ها:** دو Baseline و سه Negative Control در `formal/G09M1*.cfg`  
@@ -87,11 +87,11 @@ M1 ادعای Liveness یا زمان محدود برای Resolve کردن UNKNOW
 
 ## ۸. آخرین شواهد اجرای قابل‌بازتولید
 
-**آخرین PR head:** `a6831c4be9bb904efe0ccf7809e5179db26661a1`
-**Synthetic merge commit اجراشده:** `fe42d58c84388ba3f2bc3b4b503e5eb220f1d52b` (Base: `f032065f47fe85de2aabf8d47565a57af6af3ae9`)
-**GitHub Actions Run:** [46172262017 — G09 M1 Unknown Commit Arbitration](https://github.com/tecpey/lottorito-platform/actions/runs/46172262017) — PASS
-**Artifact:** [g09-a23-m1-tlc-46172262017-1](https://github.com/tecpey/lottorito-platform/actions/runs/46172262017/artifacts/15273828706)
-**Artifact ZIP SHA-256:** `97a5d879f4ddfba8ddb133c25232ce3ec34985c4d1609bd9c7c990eaadc29fd7`
+**آخرین PR head:** `fca277f4cae18735f9ce45f3e5b9b0a8c9909f8d`
+**Synthetic merge commit اجراشده:** `547989755f863440eb35bb42afee936c811b66dd` (Base: `f032065f47fe85de2aabf8d47565a57af6af3ae9`)
+**GitHub Actions Run:** [46172700577 — G09 M1 Unknown Commit Arbitration](https://github.com/tecpey/lottorito-platform/actions/runs/46172700577) — PASS
+**Artifact:** [g09-a23-m1-tlc-46172700577-1](https://github.com/tecpey/lottorito-platform/actions/runs/46172700577/artifacts/15274271466)
+**Artifact ZIP SHA-256:** `52c8340c8a3d73b7597957589ddba619029b79e0728ec8ac6796881cdb64e751`
 
 Toolchain: TLA+ Tools v1.7.4 / TLC 2.19؛ JAR SHA-256 `936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88`؛ Eclipse Temurin 17.0.21.1؛ Ubuntu 24.04؛ BFS، یک Worker، Seed=1، fp=0، Heap برابر 1 GiB. Checkout و Upload Artifact با SHA ثابت و `persist-credentials: false`.
 
@@ -103,7 +103,7 @@ Toolchain: TLA+ Tools v1.7.4 / TLC 2.19؛ JAR SHA-256 `936a262061c914694dfd669a5
 | Double commit | `ReceiptCardinality` نقض شد | 25 / 19 | 7 |
 | Premature conflict | `ConflictSoundness` نقض شد | 14 / 12 | 5 |
 
-Documentation Governance Run [46172262013](https://github.com/tecpey/lottorito-platform/actions/runs/46172262013) و Affiliate Contract Validation Run [46172262015](https://github.com/tecpey/lottorito-platform/actions/runs/46172262015) نیز روی همین Head موفق شدند.
+Documentation Governance Run [46172700574](https://github.com/tecpey/lottorito-platform/actions/runs/46172700574) و Affiliate Contract Validation Run [46172700592](https://github.com/tecpey/lottorito-platform/actions/runs/46172700592) نیز روی همین Head موفق شدند.
 
 **مرز تفسیر:** این شواهد فقط مدل محدود M1 و فرض‌هایش را بررسی می‌کند؛ رفتار واقعی دیتابیس، تعریف definitive abort در Adapter، Candidate refinement، Jepsen/History checking، Simulation و Runtime هنوز اثبات نشده‌اند. Run روی Synthetic merge انجام شده است.
 
