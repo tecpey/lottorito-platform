@@ -27,10 +27,6 @@ PrincipalOf(w) == "worker-service"
 NoOwner == "none"
 NoToken == "no-token"
 TokenValues == {"claim-token-alpha", "claim-token-beta", "claim-token-gamma"}
-NextClaimToken ==
-    CASE Cardinality(claimEvents) = 0 -> "claim-token-alpha"
-      [] Cardinality(claimEvents) = 1 -> "claim-token-beta"
-      [] Cardinality(claimEvents) = 2 -> "claim-token-gamma"
 WrongToken(t) ==
     IF t = "claim-token-alpha" THEN "claim-token-beta"
     ELSE "claim-token-alpha"
@@ -120,6 +116,11 @@ Init ==
 ClaimEligible ==
     \/ workState = "ready"
     \/ (workState \in {"claimed", "processing"} /\ persistenceTime >= leaseExpiry)
+
+NextClaimToken ==
+    CASE Cardinality(claimEvents) = 0 -> "claim-token-alpha"
+      [] Cardinality(claimEvents) = 1 -> "claim-token-beta"
+      [] Cardinality(claimEvents) = 2 -> "claim-token-gamma"
 
 ClaimEventRecord(w, kind) ==
     <<claimGeneration, claimGeneration + 1, w, PrincipalOf(w),
