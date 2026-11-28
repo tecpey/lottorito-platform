@@ -29,7 +29,7 @@ A22 یک اصلاحیه همراه و کنترل‌شده است. این سند 
 
 تصمیم مالک حل‌نشده با OPEN_OWNER_INPUT، مدرک مفقود با MISSING_EVIDENCE، ادعای پشتیبانی‌نشده با UNVERIFIED، Assertion نقض‌شده با FAIL و نتیجه مبهم/ناقص با INCONCLUSIVE مشخص می‌شود. این وضعیت‌ها هرگز نباید به PASS تبدیل شوند.
 
-## ۳. ردیابی Requirement-to-Proof
+## ۳. ردیابی Requirement-to-Proof — A21-F07
 
 هر Requirement اجباری و Assertion بحرانی MUST رکورد Trace با فیلدهای زیر داشته باشد:
 
@@ -230,7 +230,7 @@ Restore پیش/پس از Event Commitشده؛ Backup ناقص و شکاف WAL؛ 
 
 **Evidence خروج:** افق/راهبرد چرخه عمر مصوب؛ رویه Clean-room Restore؛ Oracleهای Reconciliation؛ اثبات Isolation؛ گزارش Restore در سطح Domain. Retention/RPO/RTO عددی تا Evidence مالک باز می‌ماند.
 
-## ۸. قرارداد Oracle، Evidence و نتیجه — رابط A21-F06/F08
+## ۸. قرارداد Oracle، Evidence و نتیجه — رابط A21-F06/A21-F08
 
 A22 استقلال Oracle را ادعا نمی‌کند؛ A24 Trust Boundary را ارزیابی می‌کند. هر Test Record باید Assertion/Property؛ نسخه/پیاده‌سازی Oracle و Query/Algorithm دقیق؛ منبع داده/Consistency؛ وابستگی‌های مشترک با System Under Test؛ Credential/Admin/Clock/Failure Domain؛ مسیر Evidence خام/Hash/منبع Timestamp/Custody؛ کنترل کامل‌بودن و Blind Spotها را مشخص کند.
 
@@ -304,8 +304,8 @@ Record نهایی باید تغییرناپذیر یا دارای تاریخچه
 | F04 External Effects | §6 | قرارداد مقصدها و تست مرز کامل | OPEN |
 | F05 Retention/Restore | §7 | افق مصوب، چرخه عمر و Evidence Clean-room Restore | OPEN |
 | F06 Oracle Trust | §8 + A24 | ماتریس Trust Boundary، Negative Control و Corroboration | OPEN |
-| F07 Traceability | §3 | ماتریس دوطرفه کامل و بررسی Orphan | OPEN |
-| F08 Result Contract | §8 و §10 | Schema، طبقه‌بندی قطعی و Record کامل | OPEN |
+| A21-F07 Traceability | §3 | ماتریس دوطرفه کامل و بررسی Orphan | OPEN |
+| A21-F08 Result Contract | §8 و §10 | Schema، طبقه‌بندی قطعی و Record کامل | OPEN |
 | F09 Financial Boundary | §9 | اثبات Isolation و مجوز محدود | OPEN |
 | F10 Recovery Controls | §7.2–7.3 | Evidence صحت Restore و تطبیق Domain | OPEN |
 
