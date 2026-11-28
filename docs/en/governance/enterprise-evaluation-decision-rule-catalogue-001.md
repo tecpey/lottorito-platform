@@ -76,8 +76,8 @@ The method follows a requirements-to-verification chain:
 | DT01-R2 | No | Yes | – | – | Any | T2 |
 | DT01-R3 | No | No | Yes | No | Any | T1 |
 | DT01-R4 | No | No | No | No | Any | T0 only if every §4 T0 condition is evidenced for the exact decision unit |
-| DT01-R5 | No/Unknown | Any | Any | Yes | Any | Highest plausible tier pending resolution |
-| DT01-R6 | Unknown | Unknown | Unknown | Unknown | Unknown | UNRESOLVED; do not default to T0 |
+| DT01-R5 | No/Unknown | Any | Any | Yes — highest plausible tier identified | Any | Retain that specifically identified highest plausible tier pending resolution |
+| DT01-R6 | Unknown | Unknown | Unknown | Unknown/unbounded | Unknown | UNRESOLVED; the highest plausible tier cannot be bounded; do not default to T0 or T3 |
 
 Notes:
 - “Bounded synthetic test” is not a tier by itself. It only prevents automatic inheritance of a future operational T3 permission.
@@ -114,6 +114,8 @@ Open interpretation: §7 allows a gate to be conditional for a bounded experimen
 | DT03-R8 | Partial atomic coverage only | Parent compound criterion not fully supported | Some atoms unsupported | Partial at parent / atom-level states retained | Unsupported atoms NS; no parent pass |
 | DT03-R9 | Yes for one scope only | Claim requested for wider scope | Scope mismatch | NS for unsupported scope | No extrapolated rating |
 
+Apply DT03 in this precedence order: (1) requested-scope mismatch → DT03-R9; (2) partial atomic coverage → DT03-R8; (3) otherwise insufficient evidence for the full atomic scope → DT03-R1; (4) only then map sufficient full-scope evidence to DT03-R2…R7. Record atom-level and parent-level states separately. These rows are decision precedence, not mutually exclusive independent facts.
+
 The table does not convert an evidence state to a score mechanically. The capability anchor must be defined in the frozen criterion before evidence is evaluated.
 
 ## 7. Decision Table DT-04 — N/A and aggregate publication
@@ -134,14 +136,15 @@ Evaluate this table only after the N/A decision has passed the prior-approval an
 
 ## 8. Decision Table DT-05 — risk record completeness
 
-| Rule | Scenario | Horizon-specific likelihood rationale | Impact dimensions and rationale | Inherent/residual pair | Control operating evidence | Expected outcome |
-|---|---|---|---|---|---|---|
-| DT05-R1 | Present | Present | Present | Both preserved | Present / not applicable with rationale | Complete for review, subject to authority and evidence quality |
+| Rule | Scenario | Horizon-specific likelihood rationale | Impact dimensions and rationale | Inherent/residual pair | Control operating evidence | Other required fields (objectives, assumptions, uncertainty, treatment, owner, acceptance authority) | Expected outcome |
+|---|---|---|---|---|---|---|---|
+| DT05-R1 | Present | Present | Present | Both preserved | Present / not applicable with rationale | All present | Complete for review, subject to authority and evidence quality |
 | DT05-R2 | Missing | Any | Any | Any | Any | Incomplete |
 | DT05-R3 | Present | Missing or not tied to horizon | Any | Any | Any | Incomplete; likelihood cannot be compared as if horizon-matched |
 | DT05-R4 | Present | Present | Missing | Any | Any | Incomplete; impact profile hidden |
 | DT05-R5 | Present | Present | Present | Collapsed to L×I only | Any | Invalid representation |
-| DT05-R6 | Present | Present | Present | Preserved | Claimed control without operating evidence | Do not credit control as effective; preserve uncertainty |
+| DT05-R6 | Present | Present | Present | Preserved | Claimed control without operating evidence | Any | Do not credit control as effective; preserve uncertainty |
+| DT05-R7 | Present | Present | Present | Preserved | Present / justified N/A | One or more other required fields missing | Incomplete; missing mandatory risk-record fields |
 
 ## 9. Ambiguity and decision-issue register
 
