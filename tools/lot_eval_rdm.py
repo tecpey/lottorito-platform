@@ -365,8 +365,12 @@ def _(m):
     after = score_candidates(original_weights={"C1": 40, "C2": 30, "C3": 30},
         excluded={"C3"}, approved_before_scoring=True, mandatory_gates={},
         candidates={"A": {"C1": 5, "C2": 2}, "B": {"C1": 3, "C2": 4}}, mutant=m)
-    return (before.get("scores", {}).get("A", 0) < before.get("scores", {}).get("B", 0)
-            and after.get("scores", {}).get("A", 0) > after.get("scores", {}).get("B", 0)
+    return (before.get("scores", {}).get("A") == 52.0
+            and before.get("scores", {}).get("B") == 78.0
+            and after.get("scores", {}).get("A") == 74.29
+            and after.get("scores", {}).get("B") == 68.57
+            and before["scores"]["A"] < before["scores"]["B"]
+            and after["scores"]["A"] > after["scores"]["B"]
             and after.get("denominator") == 70)
 
 
