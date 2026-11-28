@@ -164,7 +164,7 @@ Read repository-root [AGENTS.md](../../AGENTS.md). Use a working branch and pull
 
 - [LOT-EVAL-RDM-003A — Normative Rule Catalogue & Decision Tables](governance/enterprise-evaluation-decision-rule-catalogue-001.md) — author-led decomposition of LOT-EVAL-001 into atomic rules, five decision tables, unresolved-ambiguity register and rule-to-test traceability; independent oracle review and owner disposition pending.
 
-- [LOT-EVAL-RDM-004 — Full Decision-Table Verification](governance/enterprise-evaluation-full-decision-table-verification-004.md) — executable row-level checks for all 36 decision-table rows, six metamorphic checks and four targeted specification mutations; exact-head CI verification required; unresolved policy and non-covered atomic rules remain open.
+- [LOT-EVAL-RDM-004 — Full Decision-Table Verification](governance/enterprise-evaluation-full-decision-table-verification-004.md) — executable row-level checks for all 36 decision-table rows, ten metamorphic checks and four targeted specification mutations; exact-head CI #1225 passed on code SHA `79751ad277968346fcd0044d74951af2a2c3301c`; unresolved policy and non-covered atomic rules remain open.
 
 
 ## Historical LOT-EVAL-RDM-003B blind-review draft — superseded
