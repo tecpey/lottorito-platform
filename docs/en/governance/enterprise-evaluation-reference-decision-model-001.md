@@ -45,7 +45,7 @@ The model does not choose risk appetite, decide legal status, approve authority,
 | AVT-14…AVT-17 | Prior N/A approval, mandatory gates, denominator and uniform scoring |
 | AVT-18…AVT-21 | Atomic subcriteria, conjunction and scope conservation |
 
-The harness executes each baseline vector once, then runs all 21 oracles against each of the ten deliberate mutants: 210 mutant/vector evaluations. A mutant is killed only when at least one mapped oracle fails against the mutated behavior.
+The harness executes each baseline vector once, then runs all 21 oracles against each of the ten deliberate mutants: 210 mutant/vector evaluations. A mutant is killed only when at least one mapped oracle fails against the mutated behavior. AVT-14 now supplies two visible synthetic candidate score sets before the post-score N/A attempt, so the prior-approval guard is tested after comparative results are available.
 
 ## 5. Local execution record
 
