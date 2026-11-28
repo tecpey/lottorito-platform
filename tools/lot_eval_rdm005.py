@@ -139,11 +139,12 @@ def heading_exists(text: str, section_number: str) -> bool:
 def source_clauses_by_rule(catalogue_text: str) -> dict[str, set[str]]:
     result: dict[str, set[str]] = {}
     for line in catalogue_text.splitlines():
-        if not line.startswith("| RDM-R"):
+        match = re.match(r"^\|\s*(RDM-R\d{2})\s*\|", line)
+        if not match:
             continue
         cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
         if len(cells) >= 3:
-            result[cells[0]] = set(re.findall(r"§\s*([0-9]+(?:\.[0-9]+)*)", cells[2]))
+            result[match.group(1)] = set(re.findall(r"§\s*([0-9]+(?:\.[0-9]+)*)", cells[2]))
     return result
 
 
@@ -219,7 +220,7 @@ def run() -> dict:
 
     # Every rule must have a real parent clause and an explicit coverage state.
     for rule, spec in RULE_TRACE.items():
-        check(set(spec["clauses"]) == catalogue_sources.get(rule, set()),
+        check({clause.removeprefix("§") for clause in spec["clauses"]} == catalogue_sources.get(rule, set()),
               f"{rule}: declared parent clauses differ from catalogue source column",
               failures)
         check(bool(spec["clauses"]), f"{rule}: no parent clause", failures)
@@ -266,9 +267,9 @@ def run() -> dict:
             check(set(linked_rules).issubset(expected_rules), f"{label} {item}: unknown rule reference", failures)
 
     # Source clauses and test IDs must also exist in both language baselines.
-    check(ids(fa_catalogue, r"RDM-R\d{2}") == expected_rules, "FA rule population differs from EN", failures)
-    check(ids(fa_matrix, r"AVT-\d{2}") == expected_avt, "FA AVT population differs from EN", failures)
-    check(ids(fa_matrix, r"MUT-\d{2}") == expected_mut, "FA mutation population differs from EN", failures)
+    check(ids(fa_catalogue, r"\bRDM-R\d{2}\b") == expected_rules, "FA rule population differs from EN", failures)
+    check(ids(fa_matrix, r"\bAVT-\d{2}\b") == expected_avt, "FA AVT population differs from EN", failures)
+    check(ids(fa_matrix, r"\bMUT-\d{2}\b") == expected_mut, "FA mutation population differs from EN", failures)
     for section in ["4", "7", "8.3", "5.1", "5.2", "17.10.1", "17.10.2", "17.10.3", "17.10.4", "17.10.6"]:
         number = re.escape(section)
         check(heading_exists(fa_standard, section), f"FA parent section {section} missing", failures)
