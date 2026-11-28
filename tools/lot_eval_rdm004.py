@@ -330,7 +330,7 @@ def _():
     return (_full_risk() == "COMPLETE_FOR_REVIEW"
             and _full_risk(mutant="MUT-RISK-PRODUCT") == "INVALID_PRODUCT_ONLY")
 @row("DT05-R6")
-def _(): return _full_risk(control_operating_evidence=False) == "CONTROL_NOT_CREDITED"
+def _(): return _full_risk(control_evidence=None) == "CONTROL_NOT_CREDITED"
 @row("DT05-R7")
 def _(): return _full_risk(evidence_assumptions=None) == "INCOMPLETE"
 
