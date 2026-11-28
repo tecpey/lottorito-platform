@@ -1,8 +1,8 @@
 # G09-A23 M3 — مدل Lease و نسل Claim در Worker
 
 **شناسه سند:** LOT-AFFILIATE-G09-A23-M3  
-**نسخه:** ۰.۱.۸  
-**وضعیت:** پیش‌نویس مدل — اعتبارسنجی TLC در انتظار؛ بازبینی مستقل و Candidate refinement انجام نشده است  
+**نسخه:** ۰.۱.۹  
+**وضعیت:** پیش‌نویس مدل — مدل اصلاح‌شده در انتظار اعتبارسنجی TLC روی Head دقیق؛ بازبینی مستقل و Candidate refinement انجام نشده است  
 **سند مادر:** [راهبرد مدل رسمی و آزمون A23](affiliate-g09-a23-formal-protocol-model-test-strategy.md)  
 **پیشنهاد هنجاری:** [ADR-001 — پروتکل Claim، Lease و Fencing برای WorkItem](adr-001-workitem-claim-lease-fencing.md)  
 **ردیابی:** [ردیابی ۴۷ آزمون A7](affiliate-g09-a7-47-case-traceability.md)، A4-DUR-05، A8-DUR-05a/b/c و A11-WRK-01
@@ -19,7 +19,7 @@ M3 یک WorkItem پایدار و دو Process مربوط به Worker را جدا
 
 ۲. **Claim Generation برای هر WorkItem تغییرناپذیر است.** هر Claim اولیه یا Reclaim موفق دقیقاً یک واحد آن را افزایش می‌دهد. Heartbeat/Renewal، پردازش، تکمیل، Retry و Park نباید Generation را افزایش دهند. دامنه ۰ تا ۲ فقط Bound اکتشاف مدل است، نه نمایش Production یا سیاست Exhaustion.
 
-۳. **Claim Token یک نماد انتزاعی و Opaque وابسته به Generation است.** TLC فقط Binding و Mismatch را مدل می‌کند، نه Entropy رمزنگاری، محرمانگی، انتقال Token یا سرقت Credential. Token به‌تنهایی Bearer Credential محسوب نمی‌شود.
+۳. **Claim Token یک نماد Opaque از دامنه نمادین متناهی و مستقل است؛ مقدار آن از Claim Generation مشتق نمی‌شود و با آن هم‌ارزی عددی ندارد.** TLC فقط Binding و Mismatch را مدل می‌کند، نه Entropy رمزنگاری، محرمانگی، انتقال Token یا سرقت Credential. Token به‌تنهایی Bearer Credential محسوب نمی‌شود.
 
 ۴. **زمان Persistence از زمان محلی Worker جداست.** هر Worker یک Clock Offset غیرقطعی در دامنه {-1، ۰، +1} نسبت به زمان Persistence دارد. این کار مشاهده ساعت کند/تند را در یک دامنه محدود بررسی می‌کند، بدون آن‌که Bound کمی برای Drift ادعا شود. درخواست همچنین Snapshot اعتبار Lease پیش از Lock را ثبت می‌کند؛ در Baseline هیچ‌یک از این مشاهدات محلی مرجع تصمیم نیستند. یک Context اسکالر برای درخواست، حداکثر یک درخواست Worker در حالت Pending برای این WorkItem را نمایش می‌دهد؛ یک Transition اتمیک جداگانه برای Competing Reclaim نشان می‌دهد Claimant دیگر چگونه می‌تواند در زمان انتظار درخواست قدیمی برنده شود. این روش Interleaving بحرانی را حفظ می‌کند، بدون آن‌که Queue نامحدود درخواست‌ها مدل شود.
 
@@ -68,14 +68,14 @@ Mutation محافظت‌شده Worker فقط در نقطه Serialization/Lineari
 |---|---|
 | TypeOK | تمام متغیرهای انتزاعی در دامنه‌های متناهی تعریف‌شده باقی بمانند |
 | RequestLockCoherence | وضعیت Idle/Waiting/Locked درخواست، Worker درخواست‌دهنده و Lock Owner با یکدیگر سازگار بمانند |
-| SingleClaimOwner | WorkItemهای فعال CLAIMED/PROCESSING، Principal جاری و Token متصل به Generation را حفظ کنند؛ Stateهای READY/COMPLETED/FAILED/QUARANTINED فاقد Owner، Token یا Lease فعال باشند |
+| SingleClaimOwner | WorkItemهای فعال CLAIMED/PROCESSING، Principal جاری و Token Opaque فعال را حفظ کنند؛ Stateهای READY/COMPLETED/FAILED/QUARANTINED فاقد Owner، Token یا Lease فعال باشند |
 | HeartbeatDoesNotAdvanceGeneration | Heartbeat/Renewal هرگز Claim Generation را افزایش ندهد |
 | EveryAcceptedMutationWasAuthorized | هر Mutation پذیرفته‌شده با Owner، Generation، Token، Lifecycle، Expected State، Tenant، Installation، زمان پس از Lock و Lease منقضی‌نشده تطبیق داشته باشد |
 | GuardFailureHasZeroMutation | Guard ناموفق شمارنده Mutation محافظت‌شده را تغییر ندهد |
 | LeaseNeverRenewedAfterExpiry | پس از زمان انقضا هیچ Heartbeat پذیرفته نشود |
 | GenerationHighWaterNeverRegresses | Generation جاری با High-water Mark انتزاعی پایدار برابر باشد |
-| ClaimAdvancesExactlyOnce | هر رویداد Claim موفق دقیقاً یک واحد افزایش داشته باشد |
-| NewClaimHasCurrentOwnerAndToken | WorkItem در حالت Claimed/Processing دارای Principal و Token وابسته به Generation جاری باشد |
+| ClaimAdvancesExactlyOnce | هر رویداد Claim موفق دقیقاً یک واحد افزایش داشته باشد |\n| ClaimEventWellFormed | هر رویداد Claim/Reclaim، گام معتبر Generation، Principal، تغییر Token، بازه Lease، State قبلی و Binding مربوط به Tenant/Installation را ثبت کند |\n| ClaimTokenNeverReused | در مدل متناهی، Generationهای متفاوت Token صادرشده را دوباره استفاده نکنند |\n| ClaimTokenIsLatest | Token پایدار فعال با Token ثبت‌شده برای آخرین Generation Claim تطبیق داشته باشد |
+| NewClaimHasCurrentOwnerAndToken | WorkItem در حالت Claimed/Processing دارای Principal و Token Opaque فعال باشد |
 
 Oracle تاریخچه، زمان شروع درخواست، زمان گرفتن Lock و زمان Persistence در لحظه Guard را ثبت می‌کند. ترتیب الزامی چنین است: شروع درخواست ≤ گرفتن Lock ≤ مشاهده Guard. تصمیم معتبر انقضای Lease در آخرین نقطه گرفته می‌شود.
 
@@ -87,8 +87,8 @@ Runner در هر Config مربوط به TLC عمداً یک نقص مستقل ت
 |---|---|---|
 | prelock_time | استفاده از مشاهده پیش از Lock پس از انتظار نامحدود | EveryAcceptedMutationWasAuthorized |
 | worker_clock | استفاده از Clock کند/تند Worker به‌عنوان مرجع اختیار | EveryAcceptedMutationWasAuthorized |
-| stale_generation | حذف هر دو کنترل Generation و Token | EveryAcceptedMutationWasAuthorized |
-| wrong_token | پذیرش Claim Token نامنطبق | EveryAcceptedMutationWasAuthorized |
+| stale_generation | فقط کنترل Generation را حذف می‌کند؛ درخواست دارای Generation قدیمی و Token جاری است | EveryAcceptedMutationWasAuthorized |
+| wrong_token | فقط کنترل Token را حذف می‌کند؛ درخواست دارای Generation جاری و Token Opaque نامعتبر است | EveryAcceptedMutationWasAuthorized |
 | wrong_tenant | حذف Binding تغییرناپذیر Tenant | EveryAcceptedMutationWasAuthorized |
 | wrong_installation | حذف Binding تغییرناپذیر Installation | EveryAcceptedMutationWasAuthorized |
 | stale_lifecycle | حذف Guard مربوط به Lifecycle Version | EveryAcceptedMutationWasAuthorized |
@@ -149,3 +149,15 @@ Context درخواست Pending به‌صورت State اسکالر مدل شده�
 
 
 **یادداشت بازبینی نسخه ۰.۱.۸ — انضباط Scope:** Transition مدیریتی `OperatorQuarantine` که خارج از History ثبت می‌شد از M3 حذف شد. مسیر Park آغازشده توسط Worker همچنان راه مدل‌شده برای رسیدن به QUARANTINED است و تحت Guard/History مربوط به Mutation محافظت‌شده قرار دارد. Policy مربوط به Quarantine مدیریتی باید در مدل مرتبط با Operator/Recovery بررسی شود و نباید بی‌صدا Oracle مربوط به Mutationهای Worker در M3 را دور بزند.
+
+
+**یادداشت بازبینی خصمانه و اصلاح نسخه ۰.۱.۹ — شواهد Head دقیق**
+
+- اجرای قبلی با Run #87 و شناسه 46179279712 روی Head مربوط به PR با SHA کامل 97ce124972c3ae5f010bda2857ed1517b9d96650، هنگام اجرای Baseline و در اثر محدودیت ۲۰ دقیقه‌ای Job با وضعیت **CANCELLED** متوقف شد. از آن Run هیچ تکمیل Baseline، تعداد State، عمق، نتیجه Mutant یا Counterexample اثبات نمی‌شود.
+- فایل JAR نسخه Pin‌شده TLA+ Tools v1.7.4 / TLC 2.19 بررسی SHA-256 را با موفقیت گذراند: 936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88. مقدار SHA-256 مدل قبلی 838ac00aba8b5f299bff30b9a76bffc4dc58c993c3d5d2f685bdab49982beb6a بود.
+- Run لغوشده Artifact با شناسه 15277697910، Digest برابر sha256:0b49bb2efbc9f66cad02c9ee50850d3523ad0a38cc806780a26751cd94d7c0db و حجم ۸۱۷٬۷۱۱٬۵۸۵ بایت (۱٬۷۹۵ فایل) حفظ کرد. پوشه‌های Metadata مربوط به TLC به‌دلیل قرارگرفتن در مسیر خروجی Upload در Artifact قرار گرفتند؛ این نقص بسته‌بندی شواهد است و به‌تنهایی علت زمان اجرای TLC را اثبات نمی‌کند.
+- بازبینی خصمانه Source نشان داد مدل قبلی Claim Token و Generation را از نظر عددی برابر می‌گرفت و Mutant مربوط به stale-generation هر دو کنترل Generation و Token را حذف می‌کرد. اصلاح جدید Tokenها را در دامنه نمادین Opaque و مستقل قرار می‌دهد؛ Mutant مربوط به Generation فقط درخواست دارای Generation قدیمی و Token جاری را می‌سازد و Mutant مربوط به Token فقط درخواست دارای Generation جاری و Token نامعتبر را.
+- تاریخچه Claim/Reclaim اکنون Generation و Token قبلی/جدید، Worker/Principal، زمان Persistence، انقضای قبلی/جدید Lease، Lifecycle Version، State قبلی، Tenant، Installation و نوع Claim/Reclaim را ثبت می‌کند. Invariantهای جدید، صحت ساختار رویداد، عدم استفاده مجدد از Token و تطبیق Token فعال با آخرین رویداد Claim را بررسی می‌کنند.
+- مسیرهای Protected Transition و Competing Authorized Transition اکنون از Predicateهای Guard مشترک استفاده می‌کنند تا احتمال اختلاف معنایی بین دو مسیر مجوزدهی کاهش یابد.
+- Runner، Metadata حجیم TLC را خارج از مسیر Artifact نگه می‌دارد. Timeout مربوط به Workflow به ۴۵ دقیقه افزایش یافته تا امکان تشخیص تکمیل یا عدم تکمیل مدل فراهم شود؛ این تغییر به‌معنای اثبات Tractability یا تکمیل TLC نیست.
+- مدل اصلاح‌شده و هر ۱۲ Configuration مربوط به TLC در انتظار اجرای تازه روی Head دقیق هستند. تا زمان تکمیل Baseline و تولید Counterexample اختصاصی مورد انتظار برای هر Mutant، وضعیت M3 همچنان **NOT ACCEPTED** است. شروع M4، تأیید Runtime/Candidate، Assurance مستقل، Merge یا Deploy از این تغییرات نتیجه نمی‌شود.
