@@ -1,8 +1,8 @@
 # G09-A23-M1 — Unknown Commit Arbitration and Concurrent Retry Model
 
 **Document ID:** LOT-AFFILIATE-G09-A23-M1-001  
-**Version:** 0.1.0  
-**Status:** Initial proposed model; TLC execution and independent review pending CI  
+**Version:** 0.1.1  
+**Status:** Bounded model checked by TLC; independent review and candidate refinement remain open  
 **Model:** `formal/G09M1UnknownCommitArbitration.tla`  
 **Configurations:** two baselines and three negative controls in `formal/G09M1*.cfg`  
 **Normative basis:** ADR-002, A22 and A23; M0
@@ -85,7 +85,37 @@ M1 makes no Liveness claim and sets no time bound for resolving UNKNOWN. `retry_
 
 Two separate baselines cover equal and differing fingerprints. Negative controls must demonstrate oracle sensitivity; if an expected violation is not detected, M1 is not acceptable.
 
-## 8. Limitations and next step
+## 8. Reproducible execution evidence
+
+**GitHub Actions run:** `46171267569` — [G09 M1 Unknown Commit Arbitration](https://github.com/tecpey/lottorito-platform/actions/runs/46171267569)  
+**PR head:** `b9fd70090a158b09131aa4f848e194fe7cefe273`  
+**Synthetic merge commit executed:** `0ceabe3` (merge of PR head into base `f032065f47fe85de2aabf8d47565a57af6af3ae9`)  
+**Artifact:** [g09-a23-m1-tlc-46171267569-1](https://github.com/tecpey/lottorito-platform/actions/runs/46171267569/artifacts/15273009002)  
+**Artifact ZIP SHA-256:** `b48aa95a3b6145082eb7f637dac3950d8e9656270a7ecea0c166f9c806dd2737`
+
+Execution environment: TLA+ Tools v1.7.4, TLC 2.19 revision `5a47802`, JAR SHA-256 `936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88`, Eclipse Temurin Java `17.0.21.1+2`, Ubuntu 24.04.5. TLC ran with BFS, one worker, seed=1, fp=0 and 1 GiB heap. GitHub Actions used Checkout v7.0.1 and Upload Artifact v7.0.2, both pinned to immutable commit SHAs; persisted checkout credentials were disabled.
+
+| Case | TLC result | Generated / distinct states | Depth | Oracle |
+|---|---|---:|---:|---|
+| Baseline — same fingerprint | No violation | 25 / 19 | 8 | PASS |
+| Baseline — different fingerprint | No violation | 25 / 19 | 8 | PASS |
+| Unsafe retry after absent read | `NoRetryCommitWhileOriginalInflight` violated | 18 / 14 | 6 | Detected |
+| Unsafe retry then original commit | `ReceiptCardinality` violated | 25 / 19 | 7 | Detected |
+| Premature conflict | `ConflictSoundness` violated | 14 / 12 | 5 | Detected |
+
+File SHA-256 values from `sha256-manifest.txt`:
+- TLA module: `298a817d6fe324d0b0c913c5be5532a2f443d7d0905d52164d1e35c5a7fad397`
+- Same-fingerprint baseline: `55f3ae8c53a52a80093ead4e4c92ab215eeb239152b120c93c90f7ff92fcf759`
+- Different-fingerprint baseline: `483768f621c08d7820282d62a08734843b205f5f0cd14de0036e36abf05dea0e`
+- Unsafe-retry mutant: `9d283981fcc2fadd31aa94b23c37a20a4223c7a1ec1bb5a7b900599073238cef`
+- Double-commit mutant: `8c142ad04ad4b5d27a206528ddd89d6da6c54b0b9419012bbf8fcbea8233f31c`
+- Premature-conflict mutant: `b983511dfb7f1b22113714cb513499f12cfd49ee40a1052a0edd7e036f28eb37`
+
+The artifact contains two baseline logs, three actual counterexamples and the hash manifest. TLC performed parsing and semantic processing; no separate type-system tool was run.
+
+**Interpretation boundary:** the run is associated with the PR head above, but the runner executed on the synthetic merge commit; this establishes the bounded model check on the PR/base composition, not candidate/runtime correctness.
+
+## 9. Limitations and next step
 
 - M1 is not a model of a specific database or a proof of real lock/unique-index behavior; those require candidate refinement and implementation testing.
 - The model abstracts a definitive abort as a state; proving which real adapter responses may safely be classified as definitive abort remains open.
@@ -93,4 +123,4 @@ Two separate baselines cover equal and differing fingerprints. Negative controls
 - M2 must cover authority epochs, promotion and stale writers.
 - Jepsen/history checking and real database tests have not run.
 
-**Evidence status:** the model and configurations are authored; no PASS or counterexample is claimed until CI completes and its logs are reviewed. This document authorizes no candidate, runtime, partner, financial operation, production, merge or deployment.
+**Evidence status:** both baselines completed without violations and all three negative controls produced their expected counterexamples. This evidence is bounded to the model; independent review and candidate refinement have not occurred. This document authorizes no candidate, runtime, partner, financial operation, production, merge or deployment.
