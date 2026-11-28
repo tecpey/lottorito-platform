@@ -149,3 +149,8 @@ Validator ساختاری در [scripts/check_docs.py](../../scripts/check_docs.p
 - [استاندارد ارزیابی Provider، بررسی موشکافانه و RFI](partners/provider-evaluation-standard.md) — LOT-PROVIDER-EVAL-001 نسخه ۰.۲.۰؛ معنای شواهد و امتیازدهی آن تابع استاندارد مادر LOT-EVAL-001 است.
 - [ADRهای فناوری، استقرار و قابلیت اطمینان](architecture/technology-deployment-adrs.md) — LOT-TECH-ADR-001 نسخه ۰.۲.۰؛ وزن‌های فناوری پیشنهادی و تابع Rubric استاندارد مادر.
 - [مدل تهدید امنیتی Lottorito](security/threat-model.md) — LOT-SEC-TM-001 نسخه ۰.۲.۰؛ ارزیابی ریسک باقیمانده با ارجاع به لنگرهای احتمال/اثر استاندارد مادر.
+
+
+## مدل مرجع تصمیم‌گیری LOT-EVAL
+
+- [LOT-EVAL-RDM-001 — مدل مرجع تصمیم‌گیری و آزمون‌گر خصمانه](governance/enterprise-evaluation-reference-decision-model-001.md) — Harness ایزوله مبتنی بر کتابخانه استاندارد Python برای AVT-01 تا AVT-21 و MUT-01 تا MUT-10؛ صرفاً Synthetic/غیرProduction؛ بازبینی مستقل و تعیین تکلیف مالک در انتظار.
