@@ -30,6 +30,9 @@ MaxTime == 2
 ProtectedOps == {"heartbeat", "start_processing", "complete", "retry", "park"}
 WorkerPermutations == Permutations(Workers)
 
+(* Each accepted mutation carries mutationCount + 1 as a bounded event
+   identity, so equal-valued events remain distinct in the cumulative history. *)
+
 VARIABLES
     workState,
     claimGeneration,
