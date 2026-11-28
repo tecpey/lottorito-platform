@@ -71,7 +71,7 @@ LOT-EVAL-001 v0.3.0 Sections 17 and 17.10 map the original A18 findings and foll
 - 17.10.6 → REV-07 and REV-09.
 - 17.10.7 → REV-08 and REV-11, plus cross-document acceptance consistency.
 
-These are draft document remediations. They are not independently validated and do not prove that every ambiguity has been eliminated.
+The original v0.2.0 mapping is historical traceability only. The v0.3.0 follow-up mapping is: REV-01/05/12/14 → §§8.3 and 17.10.1; REV-02/06 → §§5.1, 5.2 and 17.10.2; REV-03 → §§4 and 17.10.3; REV-04/13 → §§17.1 and 17.10.4; REV-07/09 → §17.10.6 and the role language in A18/owner-review; REV-08 → §18; REV-10 → §§9 and 17.10.5; REV-11 → formula equivalence test in §17.10.7. These are document-level corrections, not operational verification or independent assurance.
 
 ## 5. Residual limitations
 
