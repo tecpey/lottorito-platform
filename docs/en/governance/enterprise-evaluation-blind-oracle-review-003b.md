@@ -39,10 +39,12 @@ The following Git blob SHAs identify the exact source files used to assemble thi
 | Parent standard FA | `docs/fa/governance/enterprise-evaluation-standard.md` | `0bc75b12c02022d3a302f122b11ac79d0bb00aa8` |
 | AVT matrix EN | `docs/en/governance/enterprise-evaluation-adversarial-test-matrix-001.md` | `319b4e713d1be54207bdbfadd19b3eb32ce773a7` |
 | AVT matrix FA | `docs/fa/governance/enterprise-evaluation-adversarial-test-matrix-001.md` | `52ba728e37f667429b0ac552f9683ad6491df239` |
-| RDM-003A EN — **withhold from reviewer** | `docs/en/governance/enterprise-evaluation-decision-rule-catalogue-001.md` | `cea86efa9c8553c4ec0e82bc4f8ca18070a60ce6` |
-| RDM-003A FA — **withhold from reviewer** | `docs/fa/governance/enterprise-evaluation-decision-rule-catalogue-001.md` | `a4246150a05ed885627d2f94b54ea06921e2c948` |
 
-**Freeze rule:** if any source blob differs, stop. Create a new packet version and re-baseline; do not silently substitute a later file. The RDM-003A files are listed only for audit completeness and must not be disclosed before the independent oracle is frozen.
+**Freeze rule:** if any source blob differs, stop. Create a new packet version and re-baseline; do not silently substitute a later file. The RDM-003A catalogue and all author-derived outputs are excluded from the reviewer bundle and must not be disclosed before the independent oracle is frozen.
+
+
+
+**Blindness limitation:** this is a controlled-disclosure protocol, not a technical access-control boundary. The repository is public, so a reviewer with unrestricted repository access could independently browse excluded artifacts. The coordinator must therefore deliver a curated/offline reviewer bundle, obtain a prior-access declaration, and avoid directing the reviewer to the full repository during the blind pass. If prior exposure cannot be ruled out, record the exercise as an independent challenge (not blind oracle derivation) and disclose that limitation.
 
 ## 3. Reviewer competence and independence declaration
 
