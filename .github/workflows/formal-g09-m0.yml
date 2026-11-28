@@ -30,7 +30,6 @@ jobs:
       - name: Verify Java runtime
         run: |
           java -version
-          java -cp /dev/null -version
 
       - name: Download and verify pinned TLA+ tools
         shell: bash
