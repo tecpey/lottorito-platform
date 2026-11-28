@@ -1,6 +1,6 @@
 # دفتر ثبت تصمیم‌های Lottorito
 
-**شناسه سند:** LOT-ADR-REG-001 | **نسخه:** ۲.۵.۷ | **وضعیت:** دفتر ثبت نگهداری‌شده؛ هر رکورد اعتبار و اختیار مستقل خود را دارد
+**شناسه سند:** LOT-ADR-REG-001 | **نسخه:** ۲.۵.۸ | **وضعیت:** دفتر ثبت نگهداری‌شده؛ هر رکورد اعتبار و اختیار مستقل خود را دارد
 
 ## روش خواندن
 این دفتر مانع تبدیل گفتگو، مثال یا پیشنهاد به قانون محصول می‌شود. صرف درج یک مورد به‌معنای تصویب آن نیست؛ ستون وضعیت و مرجع اختیار تعیین‌کننده است. هر تغییر باید شواهد مرتبط داشته باشد.
@@ -150,3 +150,6 @@
 
 | LDR-085 | ثبت اجرای نهایی M0 روی Head دقیق PR #76 `a6831c4` | TLC محدود و Artifact با Hash | Run `46172262016` روی synthetic merge `fe42d58c84388ba3f2bc3b4b503e5eb220f1d52b`؛ Baseline: ۸۷ تولیدشده/۵۲ متمایز، عمق ۷؛ سه Mutant مورد انتظار کشف شدند. Artifact `15274186676`، SHA-256 `25ae83ad40b5f53515afa71054b0e7bf7c9a40067ae658b8a153a28be9e3b480`. | فقط مدل محدود M0؛ Candidate/Runtime/Production یا مجوز Merge/Deploy را تأیید نمی‌کند. |
 | LDR-086 | ثبت اجرای نهایی M1 روی Head دقیق PR #76 `a6831c4` | TLC محدود و Artifact با Hash | Run `46172262017` روی همان synthetic merge؛ دو Baseline: هرکدام ۲۵ تولیدشده/۱۹ متمایز، عمق ۸؛ سه Mutant مورد انتظار کشف شدند. Artifact `15273828706`، SHA-256 `97a5d879f4ddfba8ddb133c25232ce3ec34985c4d1609bd9c7c990eaadc29fd7`. | فقط مدل محدود M1؛ DB/Jepsen/History/Liveness و Candidate refinement باز هستند. هیچ مجوز عملیاتی صادر نمی‌شود. |
+
+| LDR-087 | ثبت اجرای M0 روی Head آزموده‌شده PR #76 `fca277f` | TLC محدود و Artifact با Hash | Run `46172700581` روی synthetic merge `547989755f863440eb35bb42afee936c811b66dd`؛ Baseline: ۸۷ تولیدشده/۵۲ متمایز، عمق ۷؛ سه Mutant مورد انتظار کشف شدند. Artifact `15274721323`، SHA-256 `81f1e74a40622b1695952b663f0ccf1538411681e96efd2ed42f3a0bac94b7c2`. | فقط مدل محدود M0؛ Candidate/Runtime/Production یا مجوز Merge/Deploy را تأیید نمی‌کند. |
+| LDR-088 | ثبت اجرای M1 روی Head آزموده‌شده PR #76 `fca277f` | TLC محدود و Artifact با Hash | Run `46172700577` روی همان synthetic merge؛ دو Baseline: هرکدام ۲۵ تولیدشده/۱۹ متمایز، عمق ۸؛ سه Mutant مورد انتظار کشف شدند. Artifact `15274271466`، SHA-256 `52c8340c8a3d73b7597957589ddba619029b79e0728ec8ac6796881cdb64e751`. | فقط مدل محدود M1؛ DB/Jepsen/History/Liveness و Candidate refinement باز هستند. هیچ مجوز عملیاتی صادر نمی‌شود. |
