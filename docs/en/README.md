@@ -141,4 +141,6 @@ Read repository-root [AGENTS.md](../../AGENTS.md). Use a working branch and pull
 - [Enterprise Product, Technology and Supplier Evaluation Standard](governance/enterprise-evaluation-standard.md) — LOT-EVAL-001; proposed parent standard for decision framing, risk tiers, evidence, non-compensable gates, fair scoring, total cost, controlled pilots, approvals, monitoring and exit. It governs and points to specialist provider/technology/domain profiles; it selects no candidate.
 
 
-- [LOT-EVAL-A18-001 — Author-led Adversarial Review & Remediation Record](governance/enterprise-evaluation-adversarial-review-a18.md) — records 12 author-led findings against LOT-EVAL-001 v0.1.0 and maps the draft v0.2.0 hardening addendum; independent review remains pending.
+- [LOT-EVAL-A18-001 — Author-led Adversarial Review & Remediation Record](governance/enterprise-evaluation-adversarial-review-a18.md) — records the original 12 A18 findings plus follow-up REV-01…REV-14, maps the proposed v0.3.0 corrections, and distinguishes owner-led review from independent assurance.
+
+- [LOT-EVAL-OWNER-REVIEW-001 — Owner-led Review & Disposition Register](governance/enterprise-evaluation-owner-review-001.md) — records REV-01…REV-14, owner disposition states, the delegated technical-implementation instruction and the rule that implementation does not equal risk acceptance.
