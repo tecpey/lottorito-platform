@@ -1,6 +1,6 @@
 # Verified Project Status and Continuation Point
 
-**Document ID:** LOT-OPS-001 | **Version:** 2.0.1 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-28
+**Document ID:** LOT-OPS-001 | **Version:** 2.0.2 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-28
 
 ## Verified repository state
 - Repository: tecpey/lottorito-platform; default branch main; public visibility by owner decision.
@@ -279,3 +279,5 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 - G09-A23-M0 was checked with TLC v1.7.4 in Run #11 (`46170075939`) on head `2ec0350e476e6ec3b90ce241bfedbe53a50799af`: baseline had 52 distinct states and no violation; mutants detected PairAtomicity, AtMostOneReceipt and AcceptedAckSoundness violations. Logs, artifact and model/config SHA-256 hashes are recorded in the companion note. This result is bounded to the model; no independent review or candidate/runtime validation has occurred.
 
 - M0 confirmation run on current PR head `c9d2e2b7e3d80bf53a64e928df647bcd1cb20ebc` passed in Run `46170218651`; the PR event runner executed on synthetic merge commit `9a9aa076de9700717e4d41d14766d8414fdd2b5b`. Baseline: 52 distinct states, no violation; all three negative controls produced their expected counterexamples. Artifact ID `15273631651`, SHA-256 `0ae142aac63ca8bc9e9cdd1e802b98bdd8abf8e829045e3d99879ba92bd60d4d`. Evidence is limited to bounded M0; independent review/refinement and M1–M7 remain outstanding.
+
+- M0 and M1 were rechecked in CI on PR head `b9fd70090a158b09131aa4f848e194fe7cefe273` using synthetic merge commit `0ceabe3`. M0 Run `46171267528`: baseline had 52 distinct states and all three mutants produced expected violations; artifact `15273950539` / SHA-256 `d2f1eb916a2c6f2316acf6932aa03ab5caab5a846eac53091cbb452a3a5315b5`. M1 Run `46171267569`: both baselines had 19 distinct and 25 generated states, depth 8; three mutants detected `NoRetryCommitWhileOriginalInflight`, `ReceiptCardinality` and `ConflictSoundness`; artifact `15273009002` / SHA-256 `b48aa95a3b6145082eb7f637dac3950d8e9656270a7ecea0c166f9c806dd2737`. Evidence is limited to formal models; no candidate/runtime, independent review, Jepsen/history checker or simulation has occurred. M2–M7 are not yet authored.
