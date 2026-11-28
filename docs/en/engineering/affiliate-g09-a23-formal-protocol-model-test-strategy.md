@@ -1,7 +1,7 @@
 # G09-A23 — Formal Protocol Model & Adversarial Test Strategy
 
 **Document ID:** LOT-AFFILIATE-G09-A23-001  
-**Version:** 0.1.6 | **Status:** PROPOSED; M0 TLC-CHECKED WITHIN FINITE BOUNDS; RUNTIME AND M1–M7 NOT EXECUTED/AUTHORED  
+**Version:** 0.1.7 | **Status:** PROPOSED; M0 AND M1 TLC-CHECKED WITHIN FINITE BOUNDS; RUNTIME NOT EXECUTED; M2–M7 NOT AUTHORED  
 **Date:** 2026-11-28  
 **Review basis:** G09-A21, G09-A22, G09-A20, G09-A7, ADR-001 and ADR-002  
 **Authority:** Advisory design; no owner decision, candidate, gate or execution permission is approved.
@@ -309,3 +309,6 @@ These sources support methods and failure classes; they do not prove Lottorito c
 **Version 0.1.6 review note:** M0 was rerun in GitHub Actions Run `46170218651`, associated with PR head `c9d2e2b7e3d80bf53a64e928df647bcd1cb20ebc`. The `pull_request` runner executed on synthetic merge commit `9a9aa076de9700717e4d41d14766d8414fdd2b5b`. TLC 2.19 / Tools v1.7.4, Temurin Java 17.0.21.1; baseline: 87 generated, 52 distinct, zero queued, depth 7, no violation. The three mutants violated `PairAtomicity`, `AtMostOneReceipt` and `AcceptedAckSoundness`, respectively. Artifact ID `15273631651`, ZIP SHA-256 `0ae142aac63ca8bc9e9cdd1e802b98bdd8abf8e829045e3d99879ba92bd60d4d`. This bounded model has not received independent review and covers no candidate/runtime. M1–M7, the history checker and simulation remain unstarted.
 
 **Conclusion:** A23 upgrades modeling and testing from a list of scenarios to a traceable engineering method; it does not claim real execution or system acceptance.
+
+
+**Version 0.1.7 review note:** M0 and M1 were run independently on PR head `b9fd70090a158b09131aa4f848e194fe7cefe273` and synthetic merge commit `0ceabe3`. M0 Run `46171267528`: 52 distinct baseline states; all three mutants produced expected counterexamples; artifact ID `15273950539`, SHA-256 `d2f1eb916a2c6f2316acf6932aa03ab5caab5a846eac53091cbb452a3a5315b5`. M1 Run `46171267569`: both baselines (same/different fingerprint) had 19 distinct and 25 generated states, depth 8; the three mutants violated `NoRetryCommitWhileOriginalInflight`, `ReceiptCardinality` and `ConflictSoundness`, respectively; artifact ID `15273009002`, SHA-256 `b48aa95a3b6145082eb7f637dac3950d8e9656270a7ecea0c166f9c806dd2737`. Both workflows used Checkout v7.0.1 and Upload Artifact v7.0.2 pinned to immutable SHAs; persisted credentials were disabled. This evidence is limited to the bounded models; independent review, candidate refinement, Jepsen/history checking and simulation have not occurred. M2–M7 are not authored.
