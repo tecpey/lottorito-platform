@@ -1,7 +1,7 @@
 # G09-A23-M1 — Unknown Commit Arbitration and Concurrent Retry Model
 
 **Document ID:** LOT-AFFILIATE-G09-A23-M1-001  
-**Version:** 0.1.3  
+**Version:** 0.1.4  
 **Status:** Bounded model checked by TLC; independent review and candidate refinement remain open  
 **Model:** `formal/G09M1UnknownCommitArbitration.tla`  
 **Configurations:** two baselines and three negative controls in `formal/G09M1*.cfg`  
@@ -88,10 +88,10 @@ Two separate baselines cover equal and differing fingerprints. Negative controls
 ## 8. Reproducible execution evidence
 
 **GitHub Actions run:** `46171267569` — [G09 M1 Unknown Commit Arbitration](https://github.com/tecpey/lottorito-platform/actions/runs/46171267569)  
-**PR head:** `19f8e995596bd4fca96b3bea0a211ddb916b1725`  
+**PR head:** `21f7da014af5c3b106f13663ed41a332a62eda18`  
 **Synthetic merge commit executed:** `0ceabe3` (merge of PR head into base `f032065f47fe85de2aabf8d47565a57af6af3ae9`)  
-**Artifact:** [g09-a23-m1-tlc-46171747725-1](https://github.com/tecpey/lottorito-platform/actions/runs/46171482180/artifacts/15274170741)  
-**Artifact ZIP SHA-256:** `1dd501ff70955f77ceb4ab9225a55285504ce6d0de905fc205f1fd67544f368e`
+**Artifact:** [g09-a23-m1-tlc-46171925718-1](https://github.com/tecpey/lottorito-platform/actions/runs/46171482180/artifacts/15274021323)  
+**Artifact ZIP SHA-256:** `6eb2c7618dc154f989cf775ae651b3bae4e0db2b65fcd481a8a2212924ea31e0`
 
 Execution environment: TLA+ Tools v1.7.4, TLC 2.19 revision `5a47802`, JAR SHA-256 `936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88`, Eclipse Temurin Java `17.0.21.1+2`, Ubuntu 24.04.5. TLC ran with BFS, one worker, seed=1, fp=0 and 1 GiB heap. GitHub Actions used Checkout v7.0.1 and Upload Artifact v7.0.2, both pinned to immutable commit SHAs; persisted checkout credentials were disabled.
 
