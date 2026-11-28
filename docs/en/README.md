@@ -150,3 +150,8 @@ Read repository-root [AGENTS.md](../../AGENTS.md). Use a working branch and pull
 - [Provider Evaluation, Due Diligence and RFI Standard](partners/provider-evaluation-standard.md) — LOT-PROVIDER-EVAL-001 v0.2.0; evidence and scoring semantics inherit the LOT-EVAL-001 parent standard.
 - [Technology, Deployment and Reliability ADRs](architecture/technology-deployment-adrs.md) — LOT-TECH-ADR-001 v0.2.0; technology weights remain proposed and inherit the parent rubric.
 - [Lottorito Security Threat Model](security/threat-model.md) — LOT-SEC-TM-001 v0.2.0; residual-risk assessment references the parent likelihood/impact anchors.
+
+
+## LOT-EVAL reference decision model
+
+- [LOT-EVAL-RDM-001 — Reference Decision Model & Adversarial Harness](governance/enterprise-evaluation-reference-decision-model-001.md) — isolated Python standard-library harness for AVT-01…AVT-21 and MUT-01…MUT-10; synthetic/non-production only; independent review and owner disposition pending.
