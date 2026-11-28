@@ -346,11 +346,10 @@ GuardOK(w) ==
     /\ (Mutation = "stale_state" \/ requestExpectedState[w] = workState)
     /\ workState \in {"claimed", "processing"}
     /\ (Mutation = "stale_generation" \/ requestGeneration[w] = claimGeneration)
-    /\ (Mutation = "stale_generation" \/ requestToken[w] = claimToken)
-    /\ (Mutation = "wrong_token" \/ requestToken[w] = claimToken)
+    /\ (Mutation \in {"stale_generation", "wrong_token"} \/ requestToken[w] = claimToken)
     /\ (Mutation = "stale_lifecycle" \/ requestLifecycle[w] = lifecycleVersion)
     /\ (Mutation = "wrong_tenant" \/ requestTenant[w] = TenantID)
-    /\ requestInstallation[w] = InstallationID
+    /\ (Mutation = "wrong_installation" \/ requestInstallation[w] = InstallationID)
     /\ IF Mutation = "prelock_time"
           THEN requestPreLockValid[w]
        ELSE IF Mutation = "worker_clock"
