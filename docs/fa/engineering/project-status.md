@@ -276,4 +276,4 @@
 - OD-01..OD-12، C-01..C-16 و G1..G9 همچنان OPEN/NOT APPROVED؛ ADR-002 همچنان PROPOSED؛ R0 BLOCKED، R1 تحقیق، R2 شروع‌نشده و R3 غیرمجاز است.
 - هیچ Candidate، Runtime/Harness اجرایی، اتصال Partner، عملیات مالی، Production، Merge یا Deploy مجاز نشده است.
 
-- G09-A23-M0 با TLC v1.7.4 در Run #6 (`46169921103`) روی Head `975bfe23062de06d8358f0fa9475d8b7e3ebde54` بررسی شد: Baseline برابر ۵۲ State متمایز و بدون نقض؛ Mutantها نقض‌های PairAtomicity، AtMostOneReceipt و AcceptedAckSoundness را کشف کردند. لاگ، Artifact و SHA-256 مدل/Configها در مستند همراه ثبت شده‌اند. این نتیجه محدود به مدل/Bounds است؛ بازبینی مستقل و Candidate/Runtime انجام نشده است.
+- G09-A23-M0 با TLC v1.7.4 در Run #11 (`46170075939`) روی Head `2ec0350e476e6ec3b90ce241bfedbe53a50799af` بررسی شد: Baseline برابر ۵۲ State متمایز و بدون نقض؛ Mutantها نقض‌های PairAtomicity، AtMostOneReceipt و AcceptedAckSoundness را کشف کردند. لاگ، Artifact و SHA-256 مدل/Configها در مستند همراه ثبت شده‌اند. این نتیجه محدود به مدل/Bounds است؛ بازبینی مستقل و Candidate/Runtime انجام نشده است.
