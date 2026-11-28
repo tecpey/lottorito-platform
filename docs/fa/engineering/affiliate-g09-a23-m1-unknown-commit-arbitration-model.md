@@ -1,7 +1,7 @@
 # G09-A23-M1 — مدل داوری Commit نامعلوم و Retry هم‌زمان
 
 **شناسه سند:** LOT-AFFILIATE-G09-A23-M1-001  
-**نسخه:** ۰.۱.۷  
+**نسخه:** ۰.۱.۸  
 **وضعیت:** مدل محدود با TLC اجرا شده؛ بازبینی مستقل و Refinement به Candidate همچنان باز  
 **مدل:** `formal/G09M1UnknownCommitArbitration.tla`  
 **پیکربندی‌ها:** دو Baseline و سه Negative Control در `formal/G09M1*.cfg`  
@@ -73,7 +73,9 @@ M1 Tenant، Installation، Source Epoch، چند Identity، Lease/Worker، Outbo
 | `NoRetryCommitWhileOriginalInflight` | Retry در زمان In-flight بودن تلاش اصلی Commit نشود |
 | `NoTerminalRetryResolutionWhileOriginalInflight` | تا وقتی تلاش اصلی In-flight است، Retry به Accepted/Duplicate/Conflict قطعی نرسد |
 
-M1 ادعای Liveness یا زمان محدود برای Resolve کردن UNKNOWN ندارد. `retry_wait` می‌تواند تا دریافت نتیجه قطعی مرجع Commit باقی بماند.
+M1 ادعای Liveness یا زمان محدود برای Resolve کردن UNKNOWN ندارد.
+
+**نکته بازبینی مستقل Oracle:** `NoRetryCommitWhileOriginalInflight` اکنون مستقیماً از حالت مدل تعریف می‌شود: `~(originalStatus = "inflight" /\ retryStatus = "committed")`. متغیر کمکی تاریخی که فقط توسط مسیر Mutant فعال می‌شد حذف شد؛ بنابراین Oracle دیگر به Instrumentation همان Mutant متکی نیست و خود رابطه ناامن در State بررسی می‌شود. `retry_wait` می‌تواند تا دریافت نتیجه قطعی مرجع Commit باقی بماند.
 
 ## ۷. Negative Controlها
 
@@ -87,11 +89,11 @@ M1 ادعای Liveness یا زمان محدود برای Resolve کردن UNKNOW
 
 ## ۸. آخرین شواهد اجرای قابل‌بازتولید
 
-**آخرین PR head:** `fca277f4cae18735f9ce45f3e5b9b0a8c9909f8d`
-**Synthetic merge commit اجراشده:** `547989755f863440eb35bb42afee936c811b66dd` (Base: `f032065f47fe85de2aabf8d47565a57af6af3ae9`)
-**GitHub Actions Run:** [46172700577 — G09 M1 Unknown Commit Arbitration](https://github.com/tecpey/lottorito-platform/actions/runs/46172700577) — PASS
-**Artifact:** [g09-a23-m1-tlc-46172700577-1](https://github.com/tecpey/lottorito-platform/actions/runs/46172700577/artifacts/15274271466)
-**Artifact ZIP SHA-256:** `52c8340c8a3d73b7597957589ddba619029b79e0728ec8ac6796881cdb64e751`
+**آخرین PR head:** `d20bdedcbd885a7de4945c0195ba7b738c5588df`
+**Synthetic merge commit اجراشده:** `6381c7ce70922edf1a865c73fb792c366d7dd11` (Base: `f032065f47fe85de2aabf8d47565a57af6af3ae9`)
+**GitHub Actions Run:** [46172983952 — G09 M1 Unknown Commit Arbitration](https://github.com/tecpey/lottorito-platform/actions/runs/46172983952) — PASS
+**Artifact:** [g09-a23-m1-tlc-46172983952-1](https://github.com/tecpey/lottorito-platform/actions/runs/46172983952/artifacts/15274741061)
+**Artifact ZIP SHA-256:** `5fdf36c4378b09deccd8db776cf4ebd48eb8aed020e5ca8b56c9948dac75621f`
 
 Toolchain: TLA+ Tools v1.7.4 / TLC 2.19؛ JAR SHA-256 `936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88`؛ Eclipse Temurin 17.0.21.1؛ Ubuntu 24.04؛ BFS، یک Worker، Seed=1، fp=0، Heap برابر 1 GiB. Checkout و Upload Artifact با SHA ثابت و `persist-credentials: false`.
 
