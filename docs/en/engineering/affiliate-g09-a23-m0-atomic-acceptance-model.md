@@ -1,7 +1,7 @@
 # G09-A23-M0 — Formal Atomic Acceptance Model
 
 **Document ID:** LOT-AFFILIATE-G09-A23-M0-001  
-**Version:** 0.1.1  
+**Version:** 0.1.2  
 **Status:** TLC-executed bounded model; independent review and candidate refinement not performed  
 **Model:** `formal/G09M0AtomicAcceptance.tla`  
 **Baseline configuration:** `formal/G09M0AtomicAcceptance.cfg`  
@@ -148,11 +148,11 @@ In particular, M0 does not assume that observing no record proves the original t
 
 ## 8. Reproducible execution evidence
 
-**PR-associated run:** GitHub Actions Run `46170218651` — [G09 M0 Formal Model](https://github.com/tecpey/lottorito-platform/actions/runs/46170218651)  
-**PR head:** `c9d2e2b7e3d80bf53a64e928df647bcd1cb20ebc`  
-**Synthetic merge commit checked by the pull_request runner:** `9a9aa076de9700717e4d41d14766d8414fdd2b5b`  
-**Artifact:** [g09-a23-m0-tlc-46170218651-1](https://github.com/tecpey/lottorito-platform/actions/runs/46170218651/artifacts/15273631651)  
-**Artifact ZIP SHA-256:** `0ae142aac63ca8bc9e9cdd1e802b98bdd8abf8e829045e3d99879ba92bd60d4d`
+**PR-associated run:** GitHub Actions Run `46171267528` — [G09 M0 Formal Model](https://github.com/tecpey/lottorito-platform/actions/runs/46171267528)  
+**PR head:** `b9fd70090a158b09131aa4f848e194fe7cefe273`  
+**Synthetic merge commit checked by the pull_request runner:** `0ceabe3` (merge of the head above into base `f032065f47fe85de2aabf8d47565a57af6af3ae9`)  
+**Artifact:** [g09-a23-m0-tlc-46171267528-1](https://github.com/tecpey/lottorito-platform/actions/runs/46171267528/artifacts/15273950539)  
+**Artifact ZIP SHA-256:** `d2f1eb916a2c6f2316acf6932aa03ab5caab5a846eac53091cbb452a3a5315b5`
 
 Toolchain and environment:
 - TLA+ Tools release: `v1.7.4`
@@ -179,7 +179,7 @@ Model/configuration hashes retained in the artifact's `sha256-manifest.txt`:
 
 TLC parsed and semantically processed the module and checked the invariants; no separate type-system tool was run. All three mutants produced actual, reproducible counterexamples. The artifact contains four TLC logs and the hash manifest.
 
-**Interpretation boundary:** the GitHub run is associated with the PR head above, but the `pull_request` runner executed on the synthetic merge commit listed above. This is an integration check of the PR/base combination, not a claim that the branch tip alone was directly executed.
+**Interpretation boundary:** the GitHub run is associated with the PR head above, but the `pull_request` runner executed on the synthetic merge commit listed above. This is an integration check of the PR/base combination, not a claim that the branch tip alone was directly executed. Checkout v7.0.1 and Upload Artifact v7.0.2 are pinned to immutable SHAs, and persisted checkout credentials are disabled.
 
 Independent model review and candidate refinement have not yet been performed;
 - no candidate or runtime has been evaluated;
