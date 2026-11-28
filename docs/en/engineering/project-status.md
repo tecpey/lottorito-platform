@@ -240,3 +240,11 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 - A16 adds ten author-led cross-cutting challenge points, twelve deterministic schedule families, source-freeze/change-control requirements, reviewer independence/competence declaration, independent-oracle/evidence requirements and a signed reviewer disposition template.
 - Research references include AWS Builders' Library/Well-Architected retry and idempotency guidance, PostgreSQL WAL/synchronous replication/failover documentation, fencing-token analysis, Jepsen history-checking methodology, RFC 8785 and RFC 7493. These inform review; no technology is selected.
 - A16 is not independent sign-off. A11-F01..F08 remain OPEN; ADR-002 PROPOSED; A7/A8 extensions NOT RUN/BLOCKED; all A4 gates NOT APPROVED. No candidate/runtime/harness proof, partner integration, financial operation, merge or deployment authorized. CI must be checked on the post-A16 exact head.
+
+
+## G09-A17 — independent-review reconciliation (2026-11-28)
+- PR #76 was moved from Draft to Ready for review; it remains OPEN and unmerged. GitHub reported `mergeable=true` at the latest inspection. This is a platform mergeability observation only.
+- Review #6095766449 by `xrayman6zfm-ux` is `APPROVED`, submitted at `2026-11-28T04:19:55Z`, and references exact commit `b547d3976c97e6068ace6747dbf72f3a6fb9828f`. Its body is empty; no inline review threads were observed. The review is valid platform-level approval evidence.
+- A12 substantive-review requirements (independence/competence/conflict declaration, artifact inventory, reconstructed protocol, adversarial analysis and individual A11 dispositions) are not evidenced in the available GitHub review artifacts. This is an evidence limitation, not a claim that no off-platform analysis occurred.
+- Added bilingual LOT-AFFILIATE-G09-A17-001 and LDR-062. A17 records the approval without inferring technical closure. A11-F01..F08 remain OPEN; OD-01..OD-12 remain OPEN; ADR-002 remains PROPOSED; all A4 gates remain NOT APPROVED.
+- No runtime/persistence proof, candidate selection, partner integration, financial operation, merge or deployment is authorized. The A17 follow-up branch is based on the exact approved PR #76 head; any A17 changes require their own exact-head CI and review.

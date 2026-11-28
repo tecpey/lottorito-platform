@@ -130,3 +130,6 @@ Validator ساختاری در [scripts/check_docs.py](../../scripts/check_docs.p
 - [G09-A15 افیلیت — آمادگی اثبات Persistence و ماتریس تصمیم‌های مالک ADR-002](engineering/affiliate-g09-a15-persistence-proof-readiness.md) — تعهدات اثبات مستقل از Candidate، ۱۲ تصمیم مالک، ۱۲ Schedule قطعی، قرارداد Evidence مستقل و Gateهای مرحله‌ای؛ بدون انتخاب Candidate و بدون اجرای اثبات Runtime.
 
 - [G09-A16 افیلیت — بازبینی خصمانه معماری ADR-002 و پرونده بازبین مستقل](engineering/affiliate-g09-a16-adversarial-architecture-review.md) — فرابازبینی نویسنده با ده چالش میان‌برشی، دوازده خانواده Schedule قطعی، قرارداد Oracle مستقل و پروتکل تحویل به بازبین؛ نه تأیید مستقل است و نه Proof مربوط به Runtime.
+
+
+- [G09-A17 افیلیت — تطبیق بازبینی مستقل و بستن شکاف شواهد](engineering/affiliate-g09-a17-review-reconciliation.md) — رویداد APPROVED در GitHub را به SHA دقیق بررسی‌شده متصل می‌کند، تأیید پلتفرم را از شواهد بازبینی محتوایی A12 جدا می‌سازد و یافته‌های A11/تصمیم‌های مالک را تا دریافت Disposition تکمیلی باز نگه می‌دارد.
