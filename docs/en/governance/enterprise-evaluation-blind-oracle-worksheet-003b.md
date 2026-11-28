@@ -1,6 +1,6 @@
 # LOT-EVAL-RDM-003B — Independent Oracle Worksheet (Blind)
 
-**Document ID:** LOT-EVAL-RDM-003B-WKS-EN | **Version:** 0.1.0  
+**Document ID:** LOT-EVAL-RDM-003B-WKS-001 | **Version:** 0.1.0  
 **Status:** BLANK TEMPLATE — `PENDING_EXTERNAL_REVIEW`  
 **Frozen packet:** LOT-EVAL-RDM-003B-EN v0.1.0  
 **Frozen source commit:** `4443ef5336935310f034419d72967dec3d86a21a`
