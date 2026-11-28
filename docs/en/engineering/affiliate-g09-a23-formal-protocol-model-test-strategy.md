@@ -1,7 +1,7 @@
 # G09-A23 — Formal Protocol Model & Adversarial Test Strategy
 
 **Document ID:** LOT-AFFILIATE-G09-A23-001  
-**Version:** 0.1.4 | **Status:** PROPOSED; M0 AUTHORED, TLC AND RUNTIME NOT EXECUTED  
+**Version:** 0.1.5 | **Status:** PROPOSED; M0 TLC-CHECKED WITHIN FINITE BOUNDS; RUNTIME AND M1–M7 NOT EXECUTED/AUTHORED  
 **Date:** 2026-11-28  
 **Review basis:** G09-A21, G09-A22, G09-A20, G09-A7, ADR-001 and ADR-002  
 **Authority:** Advisory design; no owner decision, candidate, gate or execution permission is approved.
@@ -188,7 +188,7 @@ Explore cardinalities 0, 1 and 2 and alternate transition orderings. Symmetry re
 
 ### 7.3 Required model-checker output
 
-For every future run record: tool/runtime version, model/config hashes, constants/bounds, assumptions, invariants/temporal properties, state/transition counts, time/resources, completion/termination status, complete counterexample, trace and reproduction procedure. State-space exhaustion applies only to that model and those bounds. An incomplete run, resource limit or unchecked property is INCONCLUSIVE.
+For every run record: tool/runtime version, model/config hashes, constants/bounds, assumptions, invariants/temporal properties, state/transition counts, time/resources, completion/termination status, complete counterexample, trace and reproduction procedure. M0 has been checked with TLC v1.7.4: its baseline exhausted all 52 distinct states without invariant violations, and all three negative controls detected their predicted violations. Evidence and hashes are recorded in the companion M0 document. This result is limited to that model and its bounds. State-space exhaustion applies only to that model and those bounds. An incomplete run, resource limit or unchecked property is INCONCLUSIVE.
 
 TLC is an explicit-state model checker for a subset of TLA+ and finite models; results are therefore bounded by the model, bounds and properties actually checked. [R1]
 
@@ -294,7 +294,7 @@ These sources support methods and failure classes; they do not prove Lottorito c
 
 
 - A23: proposed model contract and test strategy; **NOT EXECUTED**.
-- M0 TLA+ module and four configurations are authored; TLC and syntax/type checking have not run. M1–M7 are not yet authored.
+- M0 was checked with TLC v1.7.4: 52 distinct baseline states; expected counterexamples for partial commit, duplicate pair and early acknowledgement. Independent review and candidate refinement have not been performed; M1–M7 are not yet authored.
 - Jepsen/history checker/simulation: not executed.
 - A20-01..A20-28: DESIGNED / NOT RUN.
 - A21-F03/F04/F05/F11/F12: receive a design-level method/model response; remain OPEN pending model completion, review and evidence.
@@ -304,6 +304,8 @@ These sources support methods and failure classes; they do not prove Lottorito c
 - R0 BLOCKED; R1 research; R2 not started; R3 not authorized; A4 not approved.
 - No candidate, runtime, executable harness, partner, financial operation, production, merge or deployment is authorized.
 
-**Version 0.1.4 review note:** the first TLA+ module for M0, one baseline configuration and three negative-control configurations were authored; a bilingual M0 model note was added. This is authorship only: TLC, parser/type checking, state-space exploration and counterexample review have not run. M1–M7, the history checker and simulation remain unstarted.
+**Version 0.1.4 review note:** the first TLA+ module for M0, one baseline configuration and three negative-control configurations were authored; a bilingual M0 model note was added.
+
+**Version 0.1.5 review note:** TLC v1.7.4 / TLC 2.19 with Java 17.0.21.1 ran on head `975bfe23062de06d8358f0fa9475d8b7e3ebde54`. Baseline: 87 generated states, 52 distinct, zero queued, depth 7, no invariant violation. The three mutants violated `PairAtomicity`, `AtMostOneReceipt` and `AcceptedAckSoundness`, respectively. File SHA-256 values, logs and artifact are recorded in the M0 document. This bounded model has not received independent review and covers no candidate/runtime. M1–M7, the history checker and simulation remain unstarted.
 
 **Conclusion:** A23 upgrades modeling and testing from a list of scenarios to a traceable engineering method; it does not claim real execution or system acceptance.
