@@ -2,8 +2,8 @@
 set -euo pipefail
 ROOT="$(git rev-parse --show-toplevel)"
 cd "$ROOT"
-: "\${TLA2TOOLS_JAR:?TLA2TOOLS_JAR must point to the pinned tla2tools.jar}"
-OUT_DIR="\${TLC_OUT_DIR:-$ROOT/build/formal/g09-m1}"
+: "${TLA2TOOLS_JAR:?TLA2TOOLS_JAR must point to the pinned tla2tools.jar}"
+OUT_DIR="${TLC_OUT_DIR:-$ROOT/build/formal/g09-m1}"
 EXPECTED_SHA256="936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88"
 mkdir -p "$OUT_DIR"
 actual_sha256="$(sha256sum "$TLA2TOOLS_JAR" | awk '{print $1}')"
