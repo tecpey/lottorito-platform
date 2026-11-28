@@ -145,6 +145,8 @@ Read repository-root [AGENTS.md](../../AGENTS.md). Use a working branch and pull
 
 - [LOT-EVAL-OWNER-REVIEW-001 — Owner-led Review & Disposition Register](governance/enterprise-evaluation-owner-review-001.md) — records REV-01…REV-14, owner disposition states, the delegated technical-implementation instruction and the rule that implementation does not equal risk acceptance.
 
+- [LOT-EVAL-AVT-001 — Adversarial Acceptance Test Matrix](governance/enterprise-evaluation-adversarial-test-matrix-001.md) — 21 designed adversarial vectors for REV-01/03/04/12/14; test execution, owner disposition and independent assurance remain pending.
+
 - [Provider Evaluation, Due Diligence and RFI Standard](partners/provider-evaluation-standard.md) — LOT-PROVIDER-EVAL-001 v0.2.0; evidence and scoring semantics inherit the LOT-EVAL-001 parent standard.
 - [Technology, Deployment and Reliability ADRs](architecture/technology-deployment-adrs.md) — LOT-TECH-ADR-001 v0.2.0; technology weights remain proposed and inherit the parent rubric.
 - [Lottorito Security Threat Model](security/threat-model.md) — LOT-SEC-TM-001 v0.2.0; residual-risk assessment references the parent likelihood/impact anchors.
