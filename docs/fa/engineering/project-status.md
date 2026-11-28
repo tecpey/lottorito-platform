@@ -1,6 +1,6 @@
 # وضعیت واقعی پروژه و نقطه ادامه کار
 
-**شناسه:** LOT-OPS-001 | **نسخه:** ۲.۰.۱۴ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۸
+**شناسه:** LOT-OPS-001 | **نسخه:** ۲.۰.۱۵ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۸
 
 ## وضعیت تأییدشده مخزن
 - مخزن tecpey/lottorito-platform؛ شاخه پیش‌فرض main؛ سطح دسترسی Public طبق تصمیم مالک.
@@ -315,3 +315,8 @@
 - قرارداد مدل دوزبانه M3: [EN](../../en/engineering/affiliate-g09-a23-m3-worker-lease-model.md) / [FA](affiliate-g09-a23-m3-worker-lease-model.md). سورس مدل: formal/G09M3WorkerLeaseGeneration.tla؛ Runner: scripts/formal/run_g09_m3.sh؛ Workflow: .github/workflows/formal-g09-m3.yml.
 - یازده Oracle مربوط به Mutantها، Pre-lock time، Clock Skew Worker، Generation/Token قدیمی، Token اشتباه، Binding Tenant/Installation، Lifecycle/State قدیمی، Heartbeat پس از انقضا، تغییر Generation هنگام Heartbeat و Mutation پس از شکست Guard را هدف می‌گیرند.
 - اعتبارسنجی در انتظار است؛ هنوز هیچ State count، موفقیت Negative Control، Candidate refinement یا اثبات Runtime ادعا نمی‌شود. فرض‌ها و اختلاف حل‌نشده Reclaim در PROCESSING در سند M3 ثبت شده‌اند.
+
+
+### Refinement مربوط به State-space در M3
+- ماژول M3 اکنون یک Context اسکالر برای درخواست Pending به‌همراه Invariant صریح RequestLockCoherence دارد. دو Process مربوط به Worker در State محلی Claim Generation/Token/Clock همچنان متمایز هستند؛ CompetingReclaim برنده‌شدن Generation جدید هنگام انتظار درخواست قدیمی را مدل می‌کند.
+- Baseline و یازده Negative Control همچنان در انتظار اجرای موفق TLC روی Head دقیق هستند. Parse/Config Failureهای قبلی و تلاش‌های طولانی‌مدت، شواهد Verification محسوب نمی‌شوند.
