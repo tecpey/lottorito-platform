@@ -317,3 +317,14 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 - The catalogue is an author-led design artifact. It does not change the parent standard or executable model. Independent blind oracle derivation and bilingual semantic review remain pending.
 - Research basis: ISO/IEC/IEEE 29119-4:2021; ISTQB CTFL v4.0.1; NASA SWE-114 and SWE-072; NIST SP 800-160 Vol.1 Rev.1.
 - LOT-EVAL-001 remains PROPOSED; REV-01…REV-14 remain PENDING. No procurement, integration, production, financial activity, merge or deployment is authorized.
+
+
+## LOT-EVAL-RDM-003B — blind independent oracle package (2026-11-28)
+
+- Added bilingual reviewer packet and blank worksheet under `docs/{en,fa}/governance/`; indexed in both documentation READMEs and recorded as LDR-070.
+- Frozen source snapshot: commit `4443ef5336935310f034419d72967dec3d86a21a`; packet records exact blob SHAs for parent standard v0.3.0 and AVT matrix v0.2.0. RDM-003A blob hashes are recorded for audit but explicitly withheld from the reviewer.
+- Review population: 18 atomic rule IDs + 21 AVT input-only cases + 35 decision-table rows = 74 entries. The packet withholds author-derived rule descriptions, decision-table outputs, ambiguity dispositions, model source, model outputs and mutation results.
+- Status is `PENDING_EXTERNAL_REVIEW`: no second reviewer is identified, no blind review has been performed, and no independent oracle has been returned or frozen. A qualified reviewer must complete, attest and hash the worksheet before any reconciliation.
+- RDM-001 remains unchanged. No model changes until the independent worksheet is frozen, discrepancies are classified and any required owner/policy decisions are recorded. This is not independent assurance, adoption of LOT-EVAL-001, or acceptance of REV-01…REV-14.
+- Research basis: ISO/IEC/IEEE 29119-1:2022 test-oracle definition; NASA SWE-141 and NASA IV&V independence guidance. These references inform process design; they do not certify this review.
+- LOT-EVAL-001 remains PROPOSED; REV-01…REV-14 remain PENDING. No candidate selection, procurement, integration, production data, financial activity, merge or deployment is authorized.
