@@ -83,6 +83,15 @@ def evidence_decision(*, sufficient: bool, demonstrated: str = "meets",
     return ("SCORED", anchors[demonstrated])
 
 
+def weighted_score(ratings: dict[str, int], weights: dict[str, int]) -> float:
+    if not weights or set(ratings) != set(weights) or sum(weights.values()) <= 0:
+        raise ValueError("candidate criteria must match the same non-empty effective rubric")
+    if any(v not in range(0, 6) for v in ratings.values()):
+        raise ValueError("capability ratings must be integer anchors 0..5")
+    return round(100 * sum(ratings[k] * weights[k] for k in weights)
+                 / (5 * sum(weights.values())), 2)
+
+
 def na_decision(*, approved_before_scores: bool, gate_excluded: bool = False,
                 ns_present: bool = False, ns_material: bool = False,
                 provisional_complete: bool = False,
@@ -225,7 +234,10 @@ def _():
     result = na_decision(approved_before_scores=True)
     weights = {"C1": 40, "C2": 30, "C3": 30}
     effective = {k: v for k, v in weights.items() if k != "C3"}
-    return result == "AGGREGATION_PERMITTED" and sum(weights.values()) == 100 and sum(effective.values()) == 70
+    alpha = weighted_score({"C1": 5, "C2": 2}, effective)
+    beta = weighted_score({"C1": 3, "C2": 4}, effective)
+    return (result == "AGGREGATION_PERMITTED" and sum(weights.values()) == 100
+            and sum(effective.values()) == 70 and alpha == 74.29 and beta == 68.57)
 @row("DT04-R4")
 def _(): return na_decision(approved_before_scores=True, ns_present=True, ns_material=True) == "BLOCK_DEFINITIVE"
 @row("DT04-R5")
@@ -261,8 +273,10 @@ def metamorphic_tests() -> dict[str, bool]:
     tier_unknown = tier_decision(triggers={"T1"}, scope_complete=False)
     # Candidate-independent, uniform N/A arithmetic: same effective denominator.
     w = {"A": 40, "B": 30, "C": 30}
-    effective_1 = sum(v for k, v in w.items() if k != "C")
-    effective_2 = sum(v for k, v in w.items() if k != "C")
+    effective = {k: v for k, v in w.items() if k != "C"}
+    alpha_alone = weighted_score({"A": 5, "B": 2}, effective)
+    alpha_with_beta = weighted_score({"A": 5, "B": 2}, effective)
+    beta_with_alpha = weighted_score({"A": 3, "B": 4}, effective)
     # A missing required risk field cannot improve completeness.
     complete = _full_risk()
     incomplete = _full_risk(acceptance_authority=None)
@@ -273,7 +287,9 @@ def metamorphic_tests() -> dict[str, bool]:
     return {
         "MT-01-tier-monotonicity": tier_base == "T1" and tier_plus == "T2",
         "MT-02-unknown-scope-no-definitive-lower-tier": tier_unknown == "UNRESOLVED",
-        "MT-03-uniform-na-denominator": effective_1 == effective_2 == 70,
+        "MT-03-uniform-na-denominator-and-candidate-invariance": (
+            sum(effective.values()) == 70 and alpha_alone == alpha_with_beta == 74.29
+            and beta_with_alpha == 68.57),
         "MT-04-missing-risk-field-non-improving": complete == "COMPLETE_FOR_REVIEW" and incomplete == "INCOMPLETE",
         "MT-05-partial-evidence-no-parent-score": partial == ("PARTIAL", None),
         "MT-06-experiment-does-not-grant-production": later == "BLOCK",
