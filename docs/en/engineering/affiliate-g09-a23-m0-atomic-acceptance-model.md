@@ -80,7 +80,7 @@ Three mutant configurations deliberately enable an unsafe transition to test whe
 | `G09M0MutantDuplicatePair.cfg` | Create a second pair for the same identity | AtMostOneReceipt / AtMostOneWorkItem |
 | `G09M0MutantEarlyAck.cfg` | Emit success acknowledgement before commit | AcceptedAckSoundness |
 
-The following results were observed in Run #6 on exact head `975bfe23062de06d8358f0fa9475d8b7e3ebde54`:
+The following results were observed in Run #11 on exact head `2ec0350e476e6ec3b90ce241bfedbe53a50799af`:
 
 | Configuration | Actual TLC result | Recorded exploration |
 |---|---|---|
@@ -116,7 +116,7 @@ bash scripts/formal/run_g09_m0.sh
 
 The runner records Java version, JAR hash, SHA-256 hashes for the model/configurations, complete output for each run and metadata for each state store. It uses one worker, a fixed seed and an isolated metadata directory per configuration.
 
-**Executed evidence:** [GitHub Actions — G09 M0 Formal Model Run #6](https://github.com/tecpey/lottorito-platform/actions/runs/46169921103). Job result: SUCCESS. Toolchain: Eclipse Temurin OpenJDK 17.0.21.1; TLA+ Tools v1.7.4 / TLC 2.19; JAR SHA-256 matches the pin above. Artifact: `g09-a23-m0-tlc-46169921103-1`; digest: `sha256:d39180206a5051dad3904decef6b839c7bb855e5c457536ce0d7d1813cceac65`.
+**Executed evidence:** [GitHub Actions — G09 M0 Formal Model Run #11](https://github.com/tecpey/lottorito-platform/actions/runs/46170075939). Job result: SUCCESS. Toolchain: Eclipse Temurin OpenJDK 17.0.21.1; TLA+ Tools v1.7.4 / TLC 2.19; JAR SHA-256 matches the pin above. Artifact: `g09-a23-m0-tlc-46170075939-1`; digest: `sha256:c92d28c736ef367934a8823709ed9df11f81d9d131c4ce64b5df0420527e9e3b`.
 
 SHA-256 hashes of the executed module and configurations:
 
