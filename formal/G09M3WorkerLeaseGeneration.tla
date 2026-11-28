@@ -117,16 +117,20 @@ ClaimEligible ==
     \/ workState = "ready"
     \/ (workState \in {"claimed", "processing"} /\ persistenceTime >= leaseExpiry)
 
-NextClaimToken ==
-    CASE Cardinality(claimEvents) = 0 -> "claim-token-alpha"
-      [] Cardinality(claimEvents) = 1 -> "claim-token-beta"
-      [] Cardinality(claimEvents) = 2 -> "claim-token-gamma"
+UsedClaimTokens ==
+    {e[6] : e \in claimEvents}
 
-ClaimEventRecord(w, kind) ==
+FreshTokenValues ==
+    TokenValues \ UsedClaimTokens
+
+NextEventSequence ==
+    Cardinality(acceptedHistory) + Cardinality(claimEvents) + 1
+
+ClaimEventRecord(w, kind, token) ==
     <<claimGeneration, claimGeneration + 1, w, PrincipalOf(w),
-      claimToken, NextClaimToken, persistenceTime, leaseExpiry,
+      claimToken, token, persistenceTime, leaseExpiry,
       persistenceTime + LeaseDuration, lifecycleVersion, workState,
-      TenantID, InstallationID, kind>>
+      TenantID, InstallationID, kind, NextEventSequence>>
 
 StartRequest(w, op) ==
     /\ w \in Workers
@@ -222,8 +226,9 @@ ReleaseSerializationPoint(w) ==
 (* The competing claimant can win the serialization point while the old
    request is still waiting. This atomic action models lock acquisition,
    reclaim commit and lock release as one linearized transition. *)
-CompetingReclaim(w) ==
+CompetingReclaim(w, token) ==
     /\ w \in Workers
+    /\ token \in FreshTokenValues
     /\ requestState = "waiting"
     /\ requestWorker \in Workers \ {w}
     /\ lockOwner = NoOwner
@@ -234,14 +239,14 @@ CompetingReclaim(w) ==
     /\ claimGeneration' = claimGeneration + 1
     /\ generationHighWater' = claimGeneration + 1
     /\ claimOwner' = PrincipalOf(w)
-    /\ claimToken' = NextClaimToken
+    /\ claimToken' = token
     /\ leaseExpiry' = persistenceTime + LeaseDuration
     /\ workState' = "claimed"
     /\ workerGeneration' = [workerGeneration EXCEPT ![w] = claimGeneration + 1]
-    /\ workerToken' = [workerToken EXCEPT ![w] = NextClaimToken]
+    /\ workerToken' = [workerToken EXCEPT ![w] = token]
     /\ workerLifecycle' = [workerLifecycle EXCEPT ![w] = lifecycleVersion]
     /\ mutationCount' = mutationCount + 1
-    /\ claimEvents' = claimEvents \cup {ClaimEventRecord(w, "reclaim")}
+    /\ claimEvents' = claimEvents \cup {ClaimEventRecord(w, "reclaim", token)}
     /\ lastGuardFailed' = FALSE
     /\ UNCHANGED <<lifecycleVersion, persistenceTime, workerClock, requestState,
        requestWorker, requestOp, requestGeneration, requestToken, requestLifecycle,
@@ -249,8 +254,9 @@ CompetingReclaim(w) ==
        requestPreLockValid, lockAcquireTime, lockOwner, blockerAvailable,
        lastFailureMutationCount, acceptedHistory>>
 
-ApplyClaim(w) ==
+ApplyClaim(w, token) ==
     /\ w \in Workers
+    /\ token \in FreshTokenValues
     /\ lockOwner = w
     /\ requestState = "locked"
     /\ requestWorker = w
@@ -263,15 +269,15 @@ ApplyClaim(w) ==
     /\ claimGeneration' = claimGeneration + 1
     /\ generationHighWater' = claimGeneration + 1
     /\ claimOwner' = PrincipalOf(w)
-    /\ claimToken' = NextClaimToken
+    /\ claimToken' = token
     /\ leaseExpiry' = persistenceTime + LeaseDuration
     /\ workState' = "claimed"
     /\ workerGeneration' = [workerGeneration EXCEPT ![w] = claimGeneration + 1]
-    /\ workerToken' = [workerToken EXCEPT ![w] = NextClaimToken]
+    /\ workerToken' = [workerToken EXCEPT ![w] = token]
     /\ workerLifecycle' = [workerLifecycle EXCEPT ![w] = lifecycleVersion]
     /\ mutationCount' = mutationCount + 1
     /\ claimEvents' = claimEvents \cup
-         {ClaimEventRecord(w, IF workState = "ready" THEN "claim" ELSE "reclaim")}
+         {ClaimEventRecord(w, IF workState = "ready" THEN "claim" ELSE "reclaim", token)}
     /\ requestState' = "idle"
     /\ requestWorker' = NoOwner
     /\ requestOp' = "none"
@@ -341,7 +347,8 @@ CompetingStartProcessingRecord(w) ==
     <<w, claimOwner, claimGeneration, claimToken, persistenceTime, leaseExpiry,
       lifecycleVersion, workerGeneration[w], workerToken[w], workerLifecycle[w],
       workState, workState, TenantID, InstallationID, persistenceTime,
-      persistenceTime, "start_processing", claimGeneration, mutationCount + 1>>
+      persistenceTime, "start_processing", claimGeneration, mutationCount + 1,
+      NextEventSequence>>
 
 (* An independently authorized current claimant wins the serialization point
    while an older request waits. This atomic acquire/guard/mutate/release action
@@ -405,7 +412,8 @@ ProtectedMutationRecord(w) ==
       requestExpectedState, workState, requestTenant, requestInstallation,
       lockAcquireTime, requestStartTime, requestOp,
       IF Mutation = "heartbeat_generation" /\ requestOp = "heartbeat"
-      THEN claimGeneration + 1 ELSE claimGeneration, mutationCount + 1>>
+      THEN claimGeneration + 1 ELSE claimGeneration, mutationCount + 1,
+      NextEventSequence>>
 
 ApplyProtectedTransition(w) ==
     /\ w \in Workers
@@ -473,9 +481,9 @@ Next ==
     \/ \E w \in Workers : \E op \in Ops \ {"none"} : StartRequest(w, op)
     \/ \E w \in Workers : AcquireSerializationPoint(w)
     \/ \E w \in Workers : ReleaseSerializationPoint(w)
-    \/ \E w \in Workers : ApplyClaim(w)
+    \/ \E w \in Workers : \E token \in FreshTokenValues : ApplyClaim(w, token)
     \/ \E w \in Workers : RejectClaim(w)
-    \/ \E w \in Workers : CompetingReclaim(w)
+    \/ \E w \in Workers : \E token \in FreshTokenValues : CompetingReclaim(w, token)
     \/ \E w \in Workers : ApplyProtectedTransition(w)
     \/ \E w \in Workers : RejectProtectedTransition(w)
     \/ AcquireSerializationBlocker
@@ -523,13 +531,13 @@ TypeOK ==
         (0..1) \X (0..MaxGeneration) \X ({NoToken} \cup TokenValues) \X
         (0..1) \X WorkStates \X WorkStates \X {"tenant-A", "tenant-B"} \X
         {"installation-A", "installation-B"} \X (0..MaxTime) \X
-        (0..MaxTime) \X ProtectedOps \X (0..MaxGeneration) \X (1..10))
+        (0..MaxTime) \X ProtectedOps \X (0..MaxGeneration) \X (1..10) \X (1..12))
     /\ claimEvents \subseteq
        ((0..MaxGeneration) \X (1..MaxGeneration) \X Workers \X
         {"worker-service"} \X ({NoToken} \cup TokenValues) \X TokenValues \X
         (0..MaxTime) \X (0..(MaxTime + LeaseDuration)) \X
         (1..(MaxTime + LeaseDuration)) \X (0..1) \X WorkStates \X
-        {"tenant-A"} \X {"installation-A"} \X {"claim", "reclaim"})
+        {"tenant-A"} \X {"installation-A"} \X {"claim", "reclaim"} \X (1..12))
 
 RequestLockCoherence ==
     /\ (requestState = "idle" => requestWorker = NoOwner /\ requestOp = "none")
@@ -567,6 +575,18 @@ ClaimTokenNeverReused ==
 
 ClaimEventCountMatchesGeneration ==
     Cardinality(claimEvents) = claimGeneration
+
+LifecycleEventSequences ==
+    {e[15] : e \in claimEvents} \cup {e[20] : e \in acceptedHistory}
+
+LifecycleEventSequenceUnique ==
+    /\ \A c1, c2 \in claimEvents : c1 # c2 => c1[15] # c2[15]
+    /\ \A a1, a2 \in acceptedHistory : a1 # a2 => a1[20] # a2[20]
+    /\ \A c \in claimEvents, a \in acceptedHistory : c[15] # a[20]
+
+LifecycleEventSequenceComplete ==
+    LifecycleEventSequences =
+        1..(Cardinality(claimEvents) + Cardinality(acceptedHistory))
 
 ClaimTokenIsLatest ==
     /\ (workState = "ready" /\ claimGeneration = 0 => claimToken = NoToken)
