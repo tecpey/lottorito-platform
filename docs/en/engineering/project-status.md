@@ -364,3 +364,14 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 - Corrected the model with a closed-world ten-category minimum gate registry derived from parent §7. DT02-R6 now omits one required category from the actual recorded set; the evaluator must return `BLOCK_INCOMPLETE_REGISTER`. Unknown categories are rejected.
 - Exact-head Documentation Governance run #1221 (ID `46129804594`) succeeded on `f674bc5979df472a7334088f2937b89290bc50f4`: bilingual validator, RDM-001 and RDM-004 all passed; RDM-004 passed 36/36 rows, 6/6 metamorphic checks and 4/4 targeted mutations.
 - This is a bounded synthetic check. The ten-category register does not decide real applicability, legal sufficiency or control-owner approval. All prior non-authorization and unresolved-policy boundaries remain unchanged.
+
+
+### RDM-004 v0.2.0 — adversarial semantic hardening and exact-head verification
+
+- Corrected DT-03 precedence: requested-scope mismatch → Partial atomic coverage → insufficient full-scope evidence → capability rating.
+- Corrected DT-04 precedence: failed mandatory gates now block provisional non-selection output as well as definitive aggregate/selection.
+- Corrected DT-05 risk completeness: separate inherent and residual likelihood-impact pairs; explicit impact-dimension anchors; evidence/assumptions; control evidence when controls are claimed; Boolean and non-integer risk anchors rejected.
+- Added four metamorphic checks; RDM-004 now requires 36 row checks, 10 metamorphic checks and 4 targeted mutation checks.
+- Exact-head Documentation Governance run #1225 (ID `46161484120`) succeeded on code SHA `79751ad277968346fcd0044d74951af2a2c3301c`; bilingual docs, RDM-001 and RDM-004 steps succeeded.
+- Earlier runs #1223 and #1224 failed in the RDM-004 step during the correction cycle; #1225 passed after the DT05-R6 stale fixture argument was corrected. These failures were caught before acceptance and remain in the audit trail.
+- Scope remains synthetic and author-led. No independent assurance, owner adoption, legal validation or production readiness is claimed. RDM-U01…U05 and RDM-R13/R14/R17/R18 remain open; all non-authorization boundaries continue.
