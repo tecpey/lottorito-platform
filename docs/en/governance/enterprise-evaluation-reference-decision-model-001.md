@@ -30,7 +30,7 @@ The reference model is derived from §§4, 8.3 and 17.10.1–17.10.7, plus the 2
 - **Tier:** the highest applicable trigger governs; unresolved plausible higher-tier exposure is conservatively surfaced. A synthetic test is not automatically T3. If the fixture supplies no defensible baseline tier or trigger, the model returns `UNRESOLVED` rather than guessing T0/T1.
 - **Risk:** scenario, horizon, raw likelihood/impact pair and impact dimensions remain separate. No L×I product is emitted as expected loss or a calibrated risk value.
 - **Controls:** a control is not credited as effective without operating evidence.
-- **N/A and scoring:** N/A must be pre-approved; mandatory gates cannot be removed; original/effective weights and denominator remain visible; candidates use the same criterion set. The arithmetic fixture is the matrix's 40/30/30 example (Alpha 74.29; Beta 68.57).
+- **N/A and scoring:** N/A must be pre-approved; a criterion mapped to a mandatory gate cannot be excluded through scoring N/A; mandatory gates cannot be removed; original/effective weights and denominator remain visible; candidates use the same criterion set. AVT-15 checks both a gate explicitly marked N/A and a scoring exclusion that attempts to remove a gate marked PASS. The arithmetic fixture is the matrix's 40/30/30 example (Alpha 74.29; Beta 68.57).
 - **Compound criteria:** unsupported atoms remain NS; partial coverage cannot pass the parent; conclusions cannot exceed the evidenced version/scope.
 
 The model does not choose risk appetite, decide legal status, approve authority, determine materiality, select a candidate or authorize the next lifecycle permission.
