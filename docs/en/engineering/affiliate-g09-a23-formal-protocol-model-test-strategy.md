@@ -306,6 +306,6 @@ These sources support methods and failure classes; they do not prove Lottorito c
 
 **Version 0.1.4 review note:** the first TLA+ module for M0, one baseline configuration and three negative-control configurations were authored; a bilingual M0 model note was added.
 
-**Version 0.1.5 review note:** TLC v1.7.4 / TLC 2.19 with Java 17.0.21.1 ran on head `975bfe23062de06d8358f0fa9475d8b7e3ebde54`. Baseline: 87 generated states, 52 distinct, zero queued, depth 7, no invariant violation. The three mutants violated `PairAtomicity`, `AtMostOneReceipt` and `AcceptedAckSoundness`, respectively. File SHA-256 values, logs and artifact are recorded in the M0 document. This bounded model has not received independent review and covers no candidate/runtime. M1–M7, the history checker and simulation remain unstarted.
+**Version 0.1.5 review note:** TLC v1.7.4 / TLC 2.19 with Java 17.0.21.1 ran on head `2ec0350e476e6ec3b90ce241bfedbe53a50799af`. Baseline: 87 generated states, 52 distinct, zero queued, depth 7, no invariant violation. The three mutants violated `PairAtomicity`, `AtMostOneReceipt` and `AcceptedAckSoundness`, respectively. File SHA-256 values, logs and artifact are recorded in the M0 document. This bounded model has not received independent review and covers no candidate/runtime. M1–M7, the history checker and simulation remain unstarted.
 
 **Conclusion:** A23 upgrades modeling and testing from a list of scenarios to a traceable engineering method; it does not claim real execution or system acceptance.
