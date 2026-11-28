@@ -167,7 +167,8 @@ Manifest فعلی تمام ۱۱ Schema Root را فهرست می‌کند:
 - دقیقاً یکی از دو نمایش Schema پارامتر یعنی `schema` یا Schema مربوط به یک Media Type در `content` را الزامی می‌کنند؛
 - مجموعه کامل شناسه پارامترهای مؤثر را با Manifest، شامل Operation، مسیر، محل و نام، تطبیق می‌دهند؛
 - مقدار Required، منشأ Reference و نوع نمایش Schema هر پارامتر را با Manifest تطبیق می‌دهند؛
-- Schema واقعی قرارداد را با دسترسی به Namespace مربوط به Componentهای همان سند کامپایل و Fixtureهای مثبت و منفی مرزی را اجرا می‌کنند.
+- Schema واقعی قرارداد را با دسترسی به Namespace مربوط به Componentهای همان سند کامپایل و Fixtureهای مثبت و منفی مرزی را اجرا می‌کنند؛
+- خود Collector را با Probeهای مصنوعی می‌آزمایند تا به ارث‌رسیدن پارامترهای Path Item، رفتار Override سطح Operation بر اساس `(name, in)`، اعمال Schema مربوط به `content` تک‌رسانه‌ای و رد Fail-Closed حالت چندرسانه‌ای پشتیبانی‌نشده اثبات شود.
 
 **موجودی فعلی پارامترها:** شش پارامتر مؤثر و ۲۵ Fixture مثبت/منفی:
 
@@ -176,17 +177,17 @@ Manifest فعلی تمام ۱۱ Schema Root را فهرست می‌کند:
 - `Idempotency-Key`: مرز طول ۳/۲۵۵ در برابر ۲/۲۵۶ کاراکتر؛
 - `referralLinkId`، `attributionId` و `integrationId`: غیرخالی بودن و مرز طول ۱۲۸/۱۲۹ کاراکتر.
 
-یازده Schema Root و ۵۳ Fixture مربوط به Schemaهای Payload قبلی بدون تغییر باقی مانده‌اند و جداگانه گزارش می‌شوند؛ موجودی جدید پارامترها به‌اشتباه به‌عنوان Schema Rootهای Payload شمرده نمی‌شود. خروجی Validator شامل **۱۱۷ Assertion، یازده Schema Root، ۵۳ Fixture مربوط به Payload Schema، شش پارامتر مؤثر و ۲۵ Fixture پارامتری** است.
+یازده Schema Root و ۵۳ Fixture مربوط به Schemaهای Payload قبلی بدون تغییر باقی مانده‌اند و جداگانه گزارش می‌شوند؛ موجودی جدید پارامترها به‌اشتباه به‌عنوان Schema Rootهای Payload شمرده نمی‌شود. خروجی Validator شامل **۱۲۱ Assertion، یازده Schema Root، ۵۳ Fixture مربوط به Payload Schema، شش پارامتر مؤثر و ۲۵ Fixture پارامتری** است.
 
 ### شواهد CI روی Head دقیق
 
-Head منبع بررسی‌شده: `16143c822578e1b4d8d7b38e4283ab4ac0f466a9`.
+Head منبع بررسی‌شده: `adf8a65bcf66dc891bfba01c6099acc17ea85453`.
 
-- Documentation Governance، اجرای PR شماره ۱۲۶۷ (`46164546372`): **SUCCESS**.
-- Affiliate Contract Validation، اجرای PR شماره ۲۵۳ (`46164546461`): **SUCCESS**.
-- Affiliate Contract Validation، اجرای Push شماره ۲۵۲ (`46164543052`): **SUCCESS**.
+- Documentation Governance، اجرای PR شماره ۱۲۷۱ (`46164717590`): **SUCCESS**.
+- Affiliate Contract Validation، اجرای PR شماره ۲۶۲ (`46164717611`): **SUCCESS**.
+- Affiliate Contract Validation، اجرای Push شماره ۲۶۱ (`46164713536`): **SUCCESS**.
 - Job قرارداد، نصب سخت‌گیرانه مبتنی بر Lockfile، اعتبارسنجی هر دو سند OpenAPI با Redocly، اعتبارسنجی AsyncAPI CLI و اجرای Validator مبتنی بر Node/Ajv را با موفقیت تکمیل کرد.
-- خروجی Validator صریحاً ۱۱۷ Assertion و موجودی مستقل پارامترها را گزارش کرد.
+- خروجی Validator صریحاً ۱۲۱ Assertion و موجودی مستقل پارامترها را گزارش کرد.
 
 هشدارهای غیرمسدودکننده قبلی بدون تغییرند: Redocly نبود Metadata مربوط به `info.license` را گزارش می‌کند؛ AsyncAPI CLI نسخه ۳.۱.۰ را جدیدتر از قرارداد ۳.۰.۰ اعلام می‌کند که عمداً حفظ شده است. هیچ‌یک از این هشدارها مجوز استنباط License یا مهاجرت تأییدنشده Dialect نیست.
 
