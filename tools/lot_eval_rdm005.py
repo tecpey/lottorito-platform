@@ -14,13 +14,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 RULE_TRACE = {
-    "RDM-R01": {"clauses": ["§4", "§17.10.3"], "avt": ["AVT-06", "AVT-09"], "dt": ["DT01-R5", "DT01-R6"], "status": "PARTIAL_EXECUTABLE", "gap": "Decision-unit completeness schema and real-world scope evidence remain unresolved."},
+    "RDM-R01": {"clauses": ["§2.1", "§4"], "avt": ["AVT-06", "AVT-09"], "dt": ["DT01-R5", "DT01-R6"], "status": "PARTIAL_EXECUTABLE", "gap": "Decision-unit completeness schema and real-world scope evidence remain unresolved."},
     "RDM-R02": {"clauses": ["§4", "§17.10.3"], "avt": ["AVT-07", "AVT-08", "AVT-09"], "dt": ["DT01-R1", "DT01-R2", "DT01-R3", "DT01-R4", "DT01-R5", "DT01-R6"], "status": "PARTIAL_EXECUTABLE", "gap": "Tier triggers are classified synthetic inputs; legal status and complete decision-unit semantics are not inferred."},
     "RDM-R03": {"clauses": ["§4", "§17.10.3"], "avt": ["AVT-06"], "dt": ["DT01-R4", "DT01-R5", "DT01-R6"], "status": "PARTIAL_EXECUTABLE", "gap": "Containment and experiment permissions are synthetic fixtures; no operational permission is tested."},
     "RDM-R04": {"clauses": ["§7"], "avt": [], "dt": ["DT02-R1", "DT02-R2", "DT02-R3", "DT02-R6"], "status": "PARTIAL_EXECUTABLE", "gap": "The minimum gate registry is closed-world, but real applicability, evidence and control-owner approval are not authenticated."},
-    "RDM-R05": {"clauses": ["§7", "§8.3", "§17.10.1"], "avt": ["AVT-15"], "dt": ["DT02-R4", "DT02-R5", "DT02-R7"], "status": "PARTIAL_EXECUTABLE", "gap": "Conditional experiment versus genuine N/A remains RDM-U02; approvals are synthetic."},
+    "RDM-R05": {"clauses": ["§7"], "avt": ["AVT-15"], "dt": ["DT02-R4", "DT02-R5", "DT02-R7"], "status": "PARTIAL_EXECUTABLE", "gap": "Conditional experiment versus genuine N/A remains RDM-U02; approvals are synthetic."},
     "RDM-R06": {"clauses": ["§8.3", "§17.10.1"], "avt": ["AVT-01", "AVT-02", "AVT-05"], "dt": ["DT03-R1", "DT03-R9"], "status": "PARTIAL_EXECUTABLE", "gap": "Evidence provenance, authority, freshness and scope are represented by synthetic flags."},
-    "RDM-R07": {"clauses": ["§8.3"], "avt": ["AVT-03", "AVT-04"], "dt": ["DT03-R2", "DT03-R3", "DT03-R4", "DT03-R5", "DT03-R6", "DT03-R7"], "status": "PARTIAL_EXECUTABLE", "gap": "Generic anchors do not replace criterion-specific pre-approved measurable thresholds."},
+    "RDM-R07": {"clauses": ["§8.3"], "avt": ["AVT-02", "AVT-03", "AVT-04"], "dt": ["DT03-R2", "DT03-R3", "DT03-R4", "DT03-R5", "DT03-R6", "DT03-R7"], "status": "PARTIAL_EXECUTABLE", "gap": "Generic anchors do not replace criterion-specific pre-approved measurable thresholds."},
     "RDM-R08": {"clauses": ["§8.3", "§17.10.1"], "avt": ["AVT-18", "AVT-19", "AVT-20", "AVT-21"], "dt": ["DT03-R8", "DT03-R9"], "status": "PARTIAL_EXECUTABLE", "gap": "The harness does not establish real evidence atomization or semantic dependencies in arbitrary compound criteria."},
     "RDM-R09": {"clauses": ["§8.3", "§17.10.1"], "avt": ["AVT-14"], "dt": ["DT04-R1", "DT04-R2"], "status": "PARTIAL_EXECUTABLE", "gap": "Prior approval, authority and scope-change legitimacy are synthetic inputs."},
     "RDM-R10": {"clauses": ["§8.3"], "avt": ["AVT-16", "AVT-17"], "dt": ["DT04-R3", "DT04-R7"], "status": "PARTIAL_EXECUTABLE", "gap": "Arithmetic and candidate invariance are bounded fixtures; rubric approval and candidate completeness are not independently verified."},
@@ -40,14 +40,14 @@ AVT_RULES = {
     "AVT-03": ["RDM-R07"],
     "AVT-04": ["RDM-R07"],
     "AVT-05": ["RDM-R06"],
-    "AVT-06": ["RDM-R03"],
+    "AVT-06": ["RDM-R01", "RDM-R03"],
     "AVT-07": ["RDM-R02"],
     "AVT-08": ["RDM-R02"],
     "AVT-09": ["RDM-R01", "RDM-R02"],
     "AVT-10": ["RDM-R15"],
     "AVT-11": ["RDM-R16"],
     "AVT-12": ["RDM-R16"],
-    "AVT-13": ["RDM-R15", "RDM-R16"],
+    "AVT-13": ["RDM-R15"],
     "AVT-14": ["RDM-R09"],
     "AVT-15": ["RDM-R05"],
     "AVT-16": ["RDM-R10"],
@@ -129,6 +129,24 @@ def read(rel: str) -> str:
 def ids(text: str, pattern: str) -> set[str]:
     return set(re.findall(pattern, text))
 
+
+def heading_exists(text: str, section_number: str) -> bool:
+    # Avoid f-string brace interpolation changing the regex quantifier.
+    pattern = r"^\\s*#{2,3}\\s+" + re.escape(section_number) + r"(?:\\s|\\.|$)"
+    return bool(re.search(pattern, text, re.M))
+
+
+def source_clauses_by_rule(catalogue_text: str) -> dict[str, set[str]]:
+    result: dict[str, set[str]] = {}
+    for line in catalogue_text.splitlines():
+        if not line.startswith("| RDM-R"):
+            continue
+        cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
+        if len(cells) >= 3:
+            result[cells[0]] = set(re.findall(r"§\\s*([0-9]+(?:\\.[0-9]+)*)", cells[2]))
+    return result
+
+
 CHECK_RESULTS: list[bool] = []
 
 def check(condition: bool, label: str, failures: list[str]) -> None:
@@ -158,13 +176,13 @@ def run() -> dict:
     expected_mt = set(MT_RULES)
     expected_targeted = set(TARGETED_MUTATION_RULES)
 
-    actual_rules = ids(catalogue, r"RDM-R\d{2}")
-    actual_avt_matrix = ids(matrix, r"AVT-\d{2}")
-    actual_avt_code = ids(rdm001, r"AVT-\d{2}")
-    actual_mut_matrix = ids(matrix, r"MUT-\d{2}")
-    actual_mut_code = ids(rdm001, r"MUT-\d{2}")
-    actual_dt_catalogue = ids(catalogue, r"DT0[1-5]-R\d{1,2}")
-    actual_dt_code = ids(rdm004, r"DT0[1-5]-R\d{1,2}")
+    actual_rules = ids(catalogue, r"\bRDM-R\d{2}\b")
+    actual_avt_matrix = ids(matrix, r"\bAVT-\d{2}\b")
+    actual_avt_code = ids(rdm001, r"\bAVT-\d{2}\b")
+    actual_mut_matrix = ids(matrix, r"\bMUT-\d{2}\b")
+    actual_mut_code = ids(rdm001, r"\bMUT-\d{2}\b")
+    actual_dt_catalogue = ids(catalogue, r"\bDT0[1-5]-R\d{1,2}\b")
+    actual_dt_code = ids(rdm004, r"\bDT0[1-5]-R\d{1,2}\b")
     actual_guards = ids(rdm001, r"GUARD-\d{2}-[a-z-]+")
     actual_mt = ids(rdm004, r"MT-\d{2}-[a-z-]+")
     actual_targeted = ids(rdm004, r"MUT-[A-Z-]+-killed")
@@ -180,15 +198,37 @@ def run() -> dict:
     check(actual_mt == expected_mt, f"RDM-004 metamorphic population mismatch: missing={sorted(expected_mt-actual_mt)} extra={sorted(actual_mt-expected_mt)}", failures)
     check(actual_targeted == expected_targeted, f"RDM-004 targeted mutation population mismatch: missing={sorted(expected_targeted-actual_targeted)} extra={sorted(actual_targeted-expected_targeted)}", failures)
 
+    # Source declarations must agree with the source column in the normative
+    # catalogue; checking only that a heading exists would miss wrong links.
+    catalogue_sources = source_clauses_by_rule(catalogue)
+    check(set(catalogue_sources) == expected_rules,
+          "catalogue source-clause register population mismatch", failures)
+
+    # Parser regression guards for heading levels, nested sections, Persian
+    # numerals and token boundaries (AVT-001 must not become AVT-00).
+    check(heading_exists("## 4. Heading", "4"),
+          "heading parser: level-2 section failed", failures)
+    check(heading_exists("### 17.10.3 Heading", "17.10.3"),
+          "heading parser: nested section failed", failures)
+    fa_digits = str.maketrans("۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩", "01234567890123456789")
+    fa_section = "۱۷.۱۰.۳".translate(fa_digits)
+    check(heading_exists("### ۱۷.۱۰.۳ عنوان", fa_section),
+          "heading parser: Persian numeral section failed", failures)
+    check(ids("LOT-EVAL-AVT-001 AVT-01", r"\\bAVT-\\d{2}\\b") == {"AVT-01"},
+          "identifier parser: AVT-001 prefix false positive", failures)
+
     # Every rule must have a real parent clause and an explicit coverage state.
     for rule, spec in RULE_TRACE.items():
+        check(set(spec["clauses"]) == catalogue_sources.get(rule, set()),
+              f"{rule}: declared parent clauses differ from catalogue source column",
+              failures)
         check(bool(spec["clauses"]), f"{rule}: no parent clause", failures)
         check(spec["status"] in {"PARTIAL_EXECUTABLE", "PARTIAL_UNRESOLVED", "HUMAN_REVIEW_REQUIRED", "STATIC_TRACEABILITY_GUARD_ONLY"}, f"{rule}: invalid coverage status", failures)
         check(bool(spec["gap"].strip()), f"{rule}: coverage limitation missing", failures)
         for clause in spec["clauses"]:
             number = clause.replace("§", "")
-            pattern = rf"^\s*#{2,3}\s+{re.escape(number)}(?:\s|\.|$)"
-            check(bool(re.search(pattern, standard, re.M)), f"{rule}: source clause {clause} not found in parent standard", failures)
+            check(heading_exists(standard, number),
+                  f"{rule}: source clause {clause} not found in parent standard", failures)
         check(set(spec["avt"]).issubset(expected_avt), f"{rule}: unknown AVT link", failures)
         check(set(spec["dt"]).issubset(expected_dt), f"{rule}: unknown DT link", failures)
         if spec["status"] == "HUMAN_REVIEW_REQUIRED":
@@ -231,7 +271,7 @@ def run() -> dict:
     check(ids(fa_matrix, r"MUT-\d{2}") == expected_mut, "FA mutation population differs from EN", failures)
     for section in ["4", "7", "8.3", "5.1", "5.2", "17.10.1", "17.10.2", "17.10.3", "17.10.4", "17.10.6"]:
         number = re.escape(section)
-        check(bool(re.search(rf"^\s*#{2,3}\s+{number}(?:\s|\.|$)", fa_standard, re.M)), f"FA parent section {section} missing", failures)
+        check(heading_exists(fa_standard, section), f"FA parent section {section} missing", failures)
 
     # Rule coverage is reported honestly; the static audit does not promote it.
     human_only = sorted(r for r, s in RULE_TRACE.items() if s["status"] == "HUMAN_REVIEW_REQUIRED")
