@@ -153,8 +153,8 @@ Do not start with one enormous model. Build staged models with shared interfaces
 1. **M0 — Atomic Acceptance:** two callers, one identity, one Receipt and one WorkItem; crash before/during/after commit.
 2. **M1 — UNKNOWN Arbitration:** original transaction in-flight, lost response, negative read, concurrent retry and late commit/abort.
 3. **M2 — Authority Epoch:** two writers, two epochs, partition, promotion, old-primary return and restored epoch.
-4. **M3 — Worker Lease:** two workers, two generations, expiry/reclaim, lock wait and stale-worker resume.
-5. **M4 — Outbox/Consumer:** duplicate publication, delay, reorder, broker outage, consumer crash and destination deduplication.
+4. **M3 — Worker Lease:** two workers, two generations, expiry/reclaim, lock wait, pre/post-lock timestamp, clock skew, lease expiry before reclaim and stale-worker resume.
+5. **M4 — Outbox/Consumer/Receiver:** duplicate publication, delay, reorder, broker outage, consumer crash, in-flight external request, receiver acceptance after source lease expiry, lost response, retry, destination idempotency/fencing and receiver dedup-retention expiry.
 6. **M5 — Restore/Lifecycle:** PITR, tombstone, retention, credential/key/schema rotation, recovery incarnation and failback.
 7. **M6 — Tenant/Principal:** at least two tenants and two principals with different permissions; payload spoofing and low-privilege repair.
 8. **M7 — Liveness/Resources:** hot tenant, burst, retry, quota, backpressure, fairness and degraded mode.
