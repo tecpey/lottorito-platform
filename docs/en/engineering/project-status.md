@@ -275,3 +275,12 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 - Owner-led review, specialist challenge and independent assurance are distinct. No independent assurance is claimed or recorded. LOT-EVAL-001 remains PROPOSED and unapproved.
 - English/Persian standard, A18, owner-review register and decision records have been synchronized. Documentation Governance must be checked on the final exact head; no CI success is claimed for the new commits.
 - No candidate, supplier, technology, jurisdiction, procurement, contract, production data, partner integration, financial activity, merge or deployment is authorized.
+
+
+## Cross-document LOT-EVAL alignment — 2026-11-28
+
+- Provider profile LOT-PROVIDER-EVAL-001 advanced to proposed v0.2.0: evidence authority and independence are separate; its provider-specific weights remain proposals; its capability ratings, NS, Partial, N/A, confidence and hard-gate semantics inherit LOT-EVAL-001 v0.3.0.
+- Technology ADR LOT-TECH-ADR-001 advanced to proposed v0.2.0: its local 1–5-only wording is replaced by the parent 0–5/NS/N/A evidence model; suggested technology weights remain unapproved.
+- Security threat model LOT-SEC-TM-001 advanced to proposed v0.2.0: residual High/Critical risk labels now require a documented scenario, horizon, raw likelihood/impact pair, impact dimensions, uncertainty, control evidence and named acceptance authority, with a reference to the parent risk anchors.
+- The gaming-provider strategy continues to rely on LOT-PROVIDER-EVAL-001 as its common supplier-evaluation process; no gaming provider or market is selected.
+- These are document-level consistency corrections only. No provider weights, technology, security control, residual risk, supplier, jurisdiction, procurement, production, financial activity, merge or deployment is approved.
