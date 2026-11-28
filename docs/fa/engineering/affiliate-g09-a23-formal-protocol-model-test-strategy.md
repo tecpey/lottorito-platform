@@ -1,7 +1,7 @@
 # G09-A23 — مدل رسمی پروتکل و راهبرد آزمون خصمانه
 
 **شناسه سند:** LOT-AFFILIATE-G09-A23-001  
-**نسخه:** ۰.۱.۲۱ | **وضعیت:** پیشنهادی؛ M0 تا M2 با TLC در Bounds محدود بررسی شده‌اند؛ مدل M3 تألیف شده و اعتبارسنجی TLC در انتظار است؛ Runtime اجرا نشده و M4–M7 تألیف نشده‌اند  
+**نسخه:** ۰.۱.۲۲ | **وضعیت:** پیشنهادی؛ M0 تا M2 با TLC در Bounds محدود بررسی شده‌اند؛ مدل M3 تألیف شده و اعتبارسنجی TLC در انتظار است؛ Runtime اجرا نشده و M4–M7 تألیف نشده‌اند  
 **تاریخ:** ۲۰۲۶-۱۱-۲۸  
 **مبنای بازبینی:** G09-A21، G09-A22، G09-A20، G09-A7، ADR-001 و ADR-002  
 **مرجعیت:** طراحی مشورتی؛ هیچ تصمیم مالک، Candidate، Gate یا مجوز اجرایی تصویب نمی‌شود.
@@ -167,7 +167,7 @@ Fairness قوی/ضعیف، Scheduler، نرخ ورود، ظرفیت، Retry Budg
 1. **M0 — Atomic Acceptance:** دو Caller، یک Identity، یک Receipt و یک WorkItem؛ Crash قبل/بعد نقطه Commit. ماژول و Configهای پایه/Mutant در `formal/G09M0AtomicAcceptance.tla` و فایل‌های همراه تألیف شده و TLC v1.7.4 در Run #11 با ۵۲ State متمایز Baseline و سه Counterexample منطبق با Mutantها اجرا شده است؛ این نتیجه فقط به Bounds M0 تعلق دارد.
 2. **M1 — UNKNOWN Arbitration:** Transaction اولیه In-flight، گم‌شدن پاسخ، Negative Read، Retry هم‌زمان و Commit/Abort دیرهنگام.
 3. **M2 — Authority Epoch:** دو Writer، دو Epoch، Partition، Promotion، بازگشت Primary قدیمی و Restore Epoch. ماژول TLA+ مستقل از Candidate، یک Baseline و شش Negative Control (شامل Rollback مستقل Fence در Sink) در Bounds متناهی روی Head دقیق 96fc7a4830af452f214921ac9af68d7ae4265f33 با TLC بررسی شده‌اند. [مدل و شواهد M2](affiliate-g09-a23-m2-authority-epoch-model.md).
-4. **M3 — Worker Lease:** دو Process مربوط به Worker با یک Service Principal احراز‌شده مشترک؛ Claim/Reclaim، تمدید Lease، Heartbeat/Completion/Retry/Park، State/Token/LifecycleVersion mismatch، شکست Guard با صفر Mutation، انتظار Lock، Timestamp قبل/بعد Lock و پیشروی مستقل Clock محلی Worker. ماژول TLA+ مستقل از Candidate و ده Config برای Mutantهای هدفمند Oracle تألیف شده‌اند؛ اعتبارسنجی TLC در انتظار است. [قرارداد مدل M3](affiliate-g09-a23-m3-worker-lease-model.md).
+4. **M3 — Worker Lease:** دو Process مربوط به Worker با یک Service Principal احراز‌شده مشترک؛ Claim/Reclaim، تمدید Lease، Heartbeat/Completion/Retry/Park، State/Token/LifecycleVersion mismatch، شکست Guard با صفر Mutation، انتظار Lock، Timestamp قبل/بعد Lock و پیشروی مستقل Clock محلی Worker. ماژول TLA+ مستقل از Candidate و یازده Config برای Mutantهای هدفمند Oracle تألیف شده‌اند؛ اعتبارسنجی TLC در انتظار است. مدل، PROCESSING منقضی‌شده را قابل Reclaim می‌داند و این موضوع را به‌عنوان شکاف State Machine در برابر عبارت فعلی READY/CLAIMED در ADR-001 صریحاً برای تطبیق مالک/بازبین ثبت می‌کند. [قرارداد مدل M3](affiliate-g09-a23-m3-worker-lease-model.md).
 5. **M4 — Outbox/Consumer/Receiver:** انتشار تکراری، Delay، Reorder، Broker outage، Consumer crash، درخواست خارجی in-flight، پذیرش Receiver پس از انقضای Lease مبدأ، پاسخ گم‌شده، Retry، Idempotency/Fencing مقصد و انقضای Retention Dedup Receiver.
 6. **M5 — Restore/Lifecycle:** PITR/Backup قدیمی، Tombstone و مرز انقضا، افق Replay متناهی/نامتناهی، پیام دیررس Queue، Credential/Key/Schema Rotation، Recovery Incarnation، Failback، Clean-room Quarantine و Gate بازگشایی.
 7. **M6 — Tenant/Principal:** حداقل دو Tenant و دو Principal با سطح دسترسی متفاوت؛ جعل Payload و Repair کم‌اختیار.
@@ -329,3 +329,6 @@ Mutantهای حداقلی اجباری: حذف Unique Constraint؛ Ack قبل ا
 
 
 **یادداشت بازبینی نسخه ۰.۱.۲۱ — پیش‌نویس مدل M3:** اکنون ماژول TLA+ مستقل از Candidate، یک Config برای Baseline محدود، ده Config برای Mutantهای هدفمند Oracle، Runner با TLC ثابت‌شده و Workflow اختصاصی Actions برای M3 تألیف شده‌اند. در مدل، W0 و W1 عمداً یک Principal احراز‌شده مشترک دارند تا حصارگذاری Generation/Token مستقل از هویت Process آزمایش شود. زمان Persistence، پیشروی Clock محلی Worker، مشاهده پیش از Lock، گرفتن نقطه Serialization و Guard پس از Lock از یکدیگر تفکیک شده‌اند. قرارداد دوزبانه M3، Abstraction و موارد خارج از Scope را ثبت می‌کند. اعتبارسنجی TLC در انتظار است و هنوز هیچ نتیجه‌ای برای M3 ادعا نمی‌شود. ADR-001 همچنان PROPOSED است و A4-GATE-03/04 همچنان اجرای Candidate/Runtime را مسدود می‌کنند.
+
+
+**یادداشت بازبینی نسخه ۰.۱.۲۲ — چالش پروتکل M3:** مدل M3 اکنون Binding تغییرناپذیر Installation را با Mutant جداگانه می‌آزماید و PROCESSING دارای Lease منقضی را نیز در Eligibility مربوط به Reclaim وارد می‌کند. این رفتار به‌عنوان Policy تصویب‌شده تلقی نمی‌شود: ADR-001 بخش ۵ فعلاً READY و CLAIMED منقضی‌شده را نام می‌برد، درحالی‌که State انتزاعی WorkItem در A23 شامل PROCESSING نیز هست. مدل رفتار پیشنهادی و این اختلاف را آشکار ثبت می‌کند؛ مالک و بازبین مستقل باید پیش از تصویب ADR-001 آن را حل کنند. Baseline نیز تا زمان تکمیل TLC روی Head دقیق و تطبیق تمام Mutantها با Oracle پذیرفته‌شده محسوب نمی‌شود.
