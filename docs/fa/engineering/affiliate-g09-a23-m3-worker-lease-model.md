@@ -1,7 +1,7 @@
 # G09-A23 M3 — مدل Lease و نسل Claim در Worker
 
 **شناسه سند:** LOT-AFFILIATE-G09-A23-M3  
-**نسخه:** ۰.۱.۴  
+**نسخه:** ۰.۱.۵  
 **وضعیت:** پیش‌نویس مدل — اعتبارسنجی TLC در انتظار؛ بازبینی مستقل و Candidate refinement انجام نشده است  
 **سند مادر:** [راهبرد مدل رسمی و آزمون A23](affiliate-g09-a23-formal-protocol-model-test-strategy.md)  
 **پیشنهاد هنجاری:** [ADR-001 — پروتکل Claim، Lease و Fencing برای WorkItem](adr-001-workitem-claim-lease-fencing.md)  
@@ -21,7 +21,7 @@ M3 یک WorkItem پایدار و دو Process مربوط به Worker را جدا
 
 ۳. **Claim Token یک نماد انتزاعی و Opaque وابسته به Generation است.** TLC فقط Binding و Mismatch را مدل می‌کند، نه Entropy رمزنگاری، محرمانگی، انتقال Token یا سرقت Credential. Token به‌تنهایی Bearer Credential محسوب نمی‌شود.
 
-۴. **زمان Persistence از زمان محلی Worker جداست.** هر Worker یک Clock Offset غیرقطعی در دامنه {-1، ۰، +1} نسبت به زمان Persistence دارد. این کار مشاهده ساعت کند/تند را در یک دامنه محدود بررسی می‌کند، بدون آن‌که Bound کمی برای Drift ادعا شود. درخواست همچنین Snapshot اعتبار Lease پیش از Lock را ثبت می‌کند؛ در Baseline هیچ‌یک از این مشاهدات محلی مرجع تصمیم نیستند. در هر لحظه حداکثر یک درخواست Worker برای این WorkItem در حالت Pending است؛ یک Transition اتمیک جداگانه برای Competing Reclaim نشان می‌دهد Claimant دیگر چگونه می‌تواند در زمان انتظار درخواست قدیمی برنده شود. این روش Interleaving بحرانی را حفظ می‌کند، بدون آن‌که Queue نامحدود درخواست‌ها مدل شود.
+۴. **زمان Persistence از زمان محلی Worker جداست.** هر Worker یک Clock Offset غیرقطعی در دامنه {-1، ۰، +1} نسبت به زمان Persistence دارد. این کار مشاهده ساعت کند/تند را در یک دامنه محدود بررسی می‌کند، بدون آن‌که Bound کمی برای Drift ادعا شود. درخواست همچنین Snapshot اعتبار Lease پیش از Lock را ثبت می‌کند؛ در Baseline هیچ‌یک از این مشاهدات محلی مرجع تصمیم نیستند. یک Context اسکالر برای درخواست، حداکثر یک درخواست Worker در حالت Pending برای این WorkItem را نمایش می‌دهد؛ یک Transition اتمیک جداگانه برای Competing Reclaim نشان می‌دهد Claimant دیگر چگونه می‌تواند در زمان انتظار درخواست قدیمی برنده شود. این روش Interleaving بحرانی را حفظ می‌کند، بدون آن‌که Queue نامحدود درخواست‌ها مدل شود.
 
 ۵. **نقطه Serialization و Guard دو مرحله مجزا هستند.** درخواست فقط از Claim واجد شرایط یا State از نوع claimed/processing پذیرفته می‌شود و سپس State/Generation/Token/Lifecycle مورد انتظار و مشاهده پیش از Lock را ثبت می‌کند؛ سپس منتظر می‌ماند، نقطه Serialization را می‌گیرد و Guard را در برابر وضعیت پایدار و زمان Persistence فعلی ارزیابی می‌کند. زمان می‌تواند هنگام انتظار یا حتی در زمان نگه‌داشتن نقطه Serialization جلو برود. Guard و Mutation محافظت‌شده یک گام اتمیک و نقطه Linearization هستند.
 
@@ -67,6 +67,7 @@ Mutation محافظت‌شده Worker فقط در نقطه Serialization/Lineari
 | Invariant | Assertion |
 |---|---|
 | TypeOK | تمام متغیرهای انتزاعی در دامنه‌های متناهی تعریف‌شده باقی بمانند |
+| RequestLockCoherence | وضعیت Idle/Waiting/Locked درخواست، Worker درخواست‌دهنده و Lock Owner با یکدیگر سازگار بمانند |
 | SingleClaimOwner | مالکیت و State چرخه عمر WorkItem سازگار بمانند |
 | HeartbeatDoesNotAdvanceGeneration | Heartbeat/Renewal هرگز Claim Generation را افزایش ندهد |
 | EveryAcceptedMutationWasAuthorized | هر Mutation پذیرفته‌شده با Owner، Generation، Token، Lifecycle، Expected State، Tenant، Installation، زمان پس از Lock و Lease منقضی‌نشده تطبیق داشته باشد |
@@ -136,3 +137,6 @@ Runner ثابت‌شده در scripts/formal/run_g09_m3.sh و Workflow در .git
 
 
 دامنه محدود Clock Offset به ۱- تا ۱+ کاهش یافت تا جست‌وجوی Explicit-state قابل‌کنترل بماند و در عین حال Counterexample مربوط به Clock کند و تند حفظ شود. این صرفاً Bound مربوط به Abstraction است؛ رفتار Clock در Production انتخاب یا اثبات نشده است.
+
+
+Context درخواست Pending به‌صورت State اسکالر مدل شده، نه Mapهای جداگانه برای هر Worker. دو Process همچنان در Mapهای محلی Generation/Token/Clock از هم متمایزند؛ Abstraction تک‌درخواستی با Action صریح Competing Reclaim همراه شده تا رقابت درخواست قدیمی با Claim جدید همچنان در مدل حضور داشته باشد.
