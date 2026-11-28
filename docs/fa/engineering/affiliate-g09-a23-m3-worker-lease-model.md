@@ -1,7 +1,7 @@
 # G09-A23 M3 — مدل Lease و نسل Claim در Worker
 
 **شناسه سند:** LOT-AFFILIATE-G09-A23-M3  
-**نسخه:** ۰.۱.۹  
+**نسخه:** ۰.۱.۱۰  
 **وضعیت:** پیش‌نویس مدل — مدل اصلاح‌شده در انتظار اعتبارسنجی TLC روی Head دقیق؛ بازبینی مستقل و Candidate refinement انجام نشده است  
 **سند مادر:** [راهبرد مدل رسمی و آزمون A23](affiliate-g09-a23-formal-protocol-model-test-strategy.md)  
 **پیشنهاد هنجاری:** [ADR-001 — پروتکل Claim، Lease و Fencing برای WorkItem](adr-001-workitem-claim-lease-fencing.md)  
@@ -19,7 +19,7 @@ M3 یک WorkItem پایدار و دو Process مربوط به Worker را جدا
 
 ۲. **Claim Generation برای هر WorkItem تغییرناپذیر است.** هر Claim اولیه یا Reclaim موفق دقیقاً یک واحد آن را افزایش می‌دهد. Heartbeat/Renewal، پردازش، تکمیل، Retry و Park نباید Generation را افزایش دهند. دامنه ۰ تا ۲ فقط Bound اکتشاف مدل است، نه نمایش Production یا سیاست Exhaustion.
 
-۳. **Claim Token یک نماد Opaque از دامنه نمادین متناهی و مستقل است؛ مقدار آن از Claim Generation مشتق نمی‌شود و با آن هم‌ارزی عددی ندارد.** TLC فقط Binding و Mismatch را مدل می‌کند، نه Entropy رمزنگاری، محرمانگی، انتقال Token یا سرقت Credential. Token به‌تنهایی Bearer Credential محسوب نمی‌شود.
+۳. **Claim Token به‌صورت غیرقطعی از اعضای استفاده‌نشده یک دامنه متناهی و مستقل انتخاب می‌شود.** `FreshTokenValues` تمام Tokenهای ثبت‌شده در تاریخچه Claim را کنار می‌گذارد و Transition به‌طور صریح روی یک Token تازه کمیت‌گذاری می‌کند. بنابراین مدل هیچ تابع تخصیصی از Generation یا تعداد رویدادهای Claim به مقدار Token ندارد. این انتخاب نمادین متناهی، مدل Entropy، غیرقابل‌پیش‌بینی‌بودن، محرمانگی یا ظرفیت Token در Production نیست. TLC فقط Binding و Mismatch را مدل می‌کند، نه Entropy رمزنگاری، محرمانگی، انتقال Token یا سرقت Credential. Token به‌تنهایی Bearer Credential محسوب نمی‌شود.
 
 ۴. **زمان Persistence از زمان محلی Worker جداست.** هر Worker یک Clock Offset غیرقطعی در دامنه {-1، ۰، +1} نسبت به زمان Persistence دارد. این کار مشاهده ساعت کند/تند را در یک دامنه محدود بررسی می‌کند، بدون آن‌که Bound کمی برای Drift ادعا شود. درخواست همچنین Snapshot اعتبار Lease پیش از Lock را ثبت می‌کند؛ در Baseline هیچ‌یک از این مشاهدات محلی مرجع تصمیم نیستند. یک Context اسکالر برای درخواست، حداکثر یک درخواست Worker در حالت Pending برای این WorkItem را نمایش می‌دهد؛ یک Transition اتمیک جداگانه برای Competing Reclaim نشان می‌دهد Claimant دیگر چگونه می‌تواند در زمان انتظار درخواست قدیمی برنده شود. این روش Interleaving بحرانی را حفظ می‌کند، بدون آن‌که Queue نامحدود درخواست‌ها مدل شود.
 
@@ -78,9 +78,11 @@ Mutation محافظت‌شده Worker فقط در نقطه Serialization/Lineari
 | ClaimEventWellFormed | هر رویداد Claim/Reclaim، گام معتبر Generation، Principal، تغییر Token، بازه Lease، State قبلی و Binding مربوط به Tenant/Installation را ثبت کند |
 | ClaimTokenNeverReused | در مدل متناهی، Generationهای متفاوت Token صادرشده را دوباره استفاده نکنند |
 | ClaimTokenIsLatest | Token پایدار فعال با Token ثبت‌شده برای آخرین Generation Claim تطبیق داشته باشد |
+| LifecycleEventSequenceUnique | هیچ دو Record از Claim/Reclaim یا Mutation پذیرفته‌شده Sequence یکسان نداشته باشند |
+| LifecycleEventSequenceComplete | Sequenceهای ترکیبی رویدادها بازه پیوسته ۱ تا N را تشکیل دهند و ترتیب بین دو مجموعه قابل بازسازی باشد |
 | NewClaimHasCurrentOwnerAndToken | WorkItem در حالت Claimed/Processing دارای Principal و Token Opaque فعال باشد |
 
-Oracle تاریخچه، زمان شروع درخواست، زمان گرفتن Lock و زمان Persistence در لحظه Guard را ثبت می‌کند. ترتیب الزامی چنین است: شروع درخواست ≤ گرفتن Lock ≤ مشاهده Guard. تصمیم معتبر انقضای Lease در آخرین نقطه گرفته می‌شود.
+Oracle تجمعی تاریخچه، تمام Protected Mutationهای پذیرفته‌شده، Mutationهای رقیب مجاز و رویدادهای موفق Claim/Reclaim را ثبت می‌کند. هر Record دارای `eventSequence` مشترک است که به‌عنوان شماره بعدی در کل دو مجموعه تاریخچه محاسبه می‌شود. مجموعه‌ها برای ذخیره‌سازی حفظ می‌شوند، اما کلید Sequence مشترک امکان بازسازی یک ترتیب کلی بین انواع رویدادهای چرخه عمر را فراهم می‌کند. Oracle همچنین زمان شروع درخواست، زمان گرفتن Lock و زمان Persistence در لحظه Guard را ثبت می‌کند. ترتیب الزامی چنین است: شروع درخواست ≤ گرفتن Lock ≤ مشاهده Guard. تصمیم معتبر انقضای Lease در آخرین نقطه گرفته می‌شود.
 
 ## ۶. Negative Controlها
 
@@ -91,7 +93,7 @@ Runner در هر Config مربوط به TLC عمداً یک نقص مستقل ت
 | prelock_time | استفاده از مشاهده پیش از Lock پس از انتظار نامحدود | EveryAcceptedMutationWasAuthorized |
 | worker_clock | استفاده از Clock کند/تند Worker به‌عنوان مرجع اختیار | EveryAcceptedMutationWasAuthorized |
 | stale_generation | فقط کنترل Generation را حذف می‌کند؛ درخواست دارای Generation قدیمی و Token جاری است | EveryAcceptedMutationWasAuthorized |
-| wrong_token | فقط کنترل Token را حذف می‌کند؛ درخواست دارای Generation جاری و Token Opaque نامعتبر است | EveryAcceptedMutationWasAuthorized |
+| wrong_token | فقط کنترل Token را حذف می‌کند؛ درخواست دارای Generation جاری و Tokenی از دامنه تعریف‌شده است که با Token فعال تطبیق ندارد | EveryAcceptedMutationWasAuthorized |
 | wrong_tenant | حذف Binding تغییرناپذیر Tenant | EveryAcceptedMutationWasAuthorized |
 | wrong_installation | حذف Binding تغییرناپذیر Installation | EveryAcceptedMutationWasAuthorized |
 | stale_lifecycle | حذف Guard مربوط به Lifecycle Version | EveryAcceptedMutationWasAuthorized |
@@ -164,3 +166,15 @@ Context درخواست Pending به‌صورت State اسکالر مدل شده�
 - مسیرهای Protected Transition و Competing Authorized Transition اکنون از Predicateهای Guard مشترک استفاده می‌کنند تا احتمال اختلاف معنایی بین دو مسیر مجوزدهی کاهش یابد.
 - Runner، Metadata حجیم TLC را خارج از مسیر Artifact نگه می‌دارد. Timeout مربوط به Workflow به ۴۵ دقیقه افزایش یافته تا امکان تشخیص تکمیل یا عدم تکمیل مدل فراهم شود؛ این تغییر به‌معنای اثبات Tractability یا تکمیل TLC نیست.
 - مدل اصلاح‌شده و هر ۱۲ Configuration مربوط به TLC در انتظار اجرای تازه روی Head دقیق هستند. تا زمان تکمیل Baseline و تولید Counterexample اختصاصی مورد انتظار برای هر Mutant، وضعیت M3 همچنان **NOT ACCEPTED** است. شروع M4، تأیید Runtime/Candidate، Assurance مستقل، Merge یا Deploy از این تغییرات نتیجه نمی‌شود.
+
+
+**اصلاح نسخه ۰.۱.۱۰ — انتخاب مستقل Token و ترتیب یکپارچه چرخه عمر**
+
+- `NextClaimToken` حذف شد. Claim و Reclaim اکنون Token را به‌عنوان پارامتر صریح و غیرقطعی از `FreshTokenValues` دریافت می‌کنند؛ مقدار Token از Generation یا تعداد رویدادهای Claim محاسبه نمی‌شود.
+- دامنه متناهی شامل سه مقدار نمادین برای حداکثر دو Claim موفق در این مدل محدود است. این صرفاً Abstraction اکتشافی است و ادعایی درباره تصادفی‌بودن رمزنگاری، Entropy، ظرفیت Token در Production یا مقاومت در برابر پیش‌بینی ندارد.
+- رویدادهای Claim/Reclaim و Mutationهای محافظت‌شده پذیرفته‌شده اکنون شماره ترتیبی بعدی مشترک چرخه عمر را ثبت می‌کنند. ساختار ذخیره‌سازی History همچنان Set باقی می‌ماند، اما Sequence بین هر دو نوع Record مشترک است.
+- `LifecycleEventSequenceUnique` و `LifecycleEventSequenceComplete` یکتایی و پوشش پیوسته Sequenceها را در History ترکیبی بررسی می‌کنند. ترتیب کلی رویدادها در سطح مدل قابل بازسازی است، بدون تبدیل Collectionهای تاریخچه به Sequence.
+- اعتبارسنجی TLC روی Head دقیق در انتظار است. تا تکمیل Baseline و بررسی مستقل Trace تمام Negative Controlها، وضعیت مدل **NOT ACCEPTED** باقی می‌ماند.
+
+
+**توضیح اصطلاح‌شناسی:** Negative Control با نام `wrong_token` مقداری غیرمنطبق انتخاب می‌کند که همچنان عضو دامنه متناهی `TokenValues` تعریف‌شده است؛ این مقدار خارج از دامنه یا Token بدساخت نیست.

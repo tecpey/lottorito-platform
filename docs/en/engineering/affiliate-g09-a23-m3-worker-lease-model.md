@@ -1,7 +1,7 @@
 # G09-A23 M3 — Worker Lease & Claim Generation Model
 
 **Document ID:** LOT-AFFILIATE-G09-A23-M3  
-**Version:** 0.1.9  
+**Version:** 0.1.10  
 **Status:** MODEL DRAFT — corrected model awaiting exact-head TLC validation; independent review and candidate refinement not performed  
 **Parent:** [A23 formal protocol model/test strategy](affiliate-g09-a23-formal-protocol-model-test-strategy.md)  
 **Normative proposal:** [ADR-001 — WorkItem Claim, Lease and Fencing](adr-001-workitem-claim-lease-fencing.md)  
@@ -17,7 +17,7 @@ The durable WorkItem state is authoritative. Queue delivery is only a wake-up hi
 
 1. **Worker process identity is distinct from authenticated principal identity.** W0 and W1 intentionally share the same abstract authenticated principal (worker-service). This prevents a false proof in which stale work is rejected only because the process identity differs. Generation and token must independently fence an older process that resumes under the same service principal.
 2. **Claim generation is per immutable WorkItem.** A successful initial claim or reclaim advances it exactly once. Heartbeat/renewal, processing, completion, retry and park do not advance it. The finite model uses generations 0..2 only as exploration bounds, not as a production representation or exhaustion policy.
-3. **The claim token is an opaque symbol from a distinct finite token domain; its value is not derived from or numerically equated to claim generation.** TLC models binding and mismatch, not cryptographic entropy, secrecy, token transport or credential theft. A token is not treated as a bearer credential by itself.
+3. **The claim token is selected nondeterministically from the unused members of a distinct finite token domain.** `FreshTokenValues` excludes every token already present in claim history; each successful Claim/Reclaim transition explicitly quantifies over a fresh token. No allocator function maps generation or claim-event count to a token value. This finite symbolic choice does not model production entropy, unpredictability, secrecy or token capacity. TLC models binding and mismatch, not cryptographic entropy, secrecy, token transport or credential theft. A token is not treated as a bearer credential by itself.
 4. **Persistence time is distinct from worker-local time.** Each worker has a nondeterministically changeable clock offset in {-1, 0, +1} relative to persistence time. This explores bounded slow/fast clock observations without claiming a quantitative drift bound. The request also captures a pre-lock validity snapshot; neither local observation is authoritative in the baseline. A single scalar request context represents at most one pending worker request for this WorkItem at a time; a separate atomic competing-reclaim transition represents another claimant winning while the old request waits. This preserves the critical interleaving without modeling an unbounded request queue.
 5. **The serialization point and guard are separate model steps.** A request captures its expected state/generation/token/lifecycle and pre-lock observation, waits, acquires the serialization point, then evaluates the guard against current durable state and persistence time. Time may advance while waiting or while the serialization point is held. The guard and protected mutation are one atomic linearization step.
 6. **A lease expiry is not a state transition.** It makes a CLAIMED item eligible for reclaim. The model also treats PROCESSING as a lease-bearing state that becomes reclaimable after expiry. This is a deliberate refinement beyond ADR-001's current wording (which names READY and expired CLAIMED); the owner and independent reviewers must reconcile this state-machine gap before ADR approval. Before a new generation is committed, an old worker must still be rejected if its lease is expired at the post-serialization guard. If an old worker validly linearizes before expiry while holding the serialization point, its mutation is ordered before any later reclaim.
@@ -72,9 +72,11 @@ The failed guard changes zero protected rows. A worker-local clock check, pre-lo
 | ClaimEventWellFormed | Every claim/reclaim event records a valid generation step, principal, token change, lease interval, prior state and tenant/installation binding |
 | ClaimTokenNeverReused | Distinct claim generations do not reuse an issued token in the bounded model |
 | ClaimTokenIsLatest | The active durable token is the token recorded for the current claim generation |
+| LifecycleEventSequenceUnique | No Claim/Reclaim or accepted-mutation records share a lifecycle event sequence |
+| LifecycleEventSequenceComplete | Combined event sequences cover the contiguous range 1..N, making cross-set lifecycle order reconstructable |
 | NewClaimHasCurrentOwnerAndToken | A claimed/processing WorkItem has the current principal and active opaque token |
 
-The cumulative history oracle retains every accepted protected mutation and every modeled competing authorized mutation (within the finite mutation budget). It records request-start time, lock-acquisition time and the persistence-time observation at the guard. The required ordering is request start ≤ lock acquisition ≤ guard observation. The authoritative expiry decision is made at the last point.
+The cumulative history oracle retains every accepted protected mutation, every modeled competing authorized mutation and every successful Claim/Reclaim event (within the finite mutation budget). Each record carries a shared `eventSequence`, calculated as the next ordinal across both history sets. The sets remain convenient storage abstractions, while their shared sequence key reconstructs one total order across lifecycle event classes. It records request-start time, lock-acquisition time and the persistence-time observation at the guard. The required ordering is request start ≤ lock acquisition ≤ guard observation. The authoritative expiry decision is made at the last point.
 
 ## 6. Negative controls
 
@@ -85,7 +87,7 @@ The runner deliberately injects one defect per TLC configuration:
 | prelock_time | Uses pre-lock observation after an arbitrary lock wait | EveryAcceptedMutationWasAuthorized |
 | worker_clock | Uses a lagging/leading worker clock as authority | EveryAcceptedMutationWasAuthorized |
 | stale_generation | Omits only generation binding; the request carries a stale generation with the current token | EveryAcceptedMutationWasAuthorized |
-| wrong_token | Omits only token binding; the request carries the current generation with an invalid opaque token | EveryAcceptedMutationWasAuthorized |
+| wrong_token | Omits only token binding; the request carries the current generation with a non-matching token selected from the declared token domain | EveryAcceptedMutationWasAuthorized |
 | wrong_tenant | Omits immutable tenant binding | EveryAcceptedMutationWasAuthorized |
 | wrong_installation | Omits immutable installation binding | EveryAcceptedMutationWasAuthorized |
 | stale_lifecycle | Omits lifecycle-version guard | EveryAcceptedMutationWasAuthorized |
@@ -158,3 +160,15 @@ The pending request context is represented as scalar state rather than per-worke
 - The protected-transition and competing-authorized-transition paths now share the same primitive guard predicates, reducing semantic drift between the two authorization paths.
 - The runner keeps TLC fingerprint metadata outside the uploaded evidence directory. The workflow timeout was increased to 45 minutes as a bounded diagnostic allowance; this is not a claim that the model is tractable or that TLC completed.
 - The corrected model and all 12 TLC configurations are awaiting a fresh exact-head workflow run. Until that run completes with baseline exhaustion and the expected individual mutant counterexamples, M3 remains **NOT ACCEPTED**. No M4 start, runtime/candidate approval, independent assurance, merge or deployment is implied.
+
+
+**Version 0.1.10 correction — independent token choice and unified lifecycle order**
+
+- `NextClaimToken` was removed. Claim and Reclaim now quantify over an explicit fresh token constrained by `FreshTokenValues`; the token value is not computed from generation or claim-event cardinality.
+- The finite domain contains three symbolic values for at most two successful claims in this bounded model. This is an exploration abstraction only; it makes no claim about cryptographic randomness, entropy, production token capacity or resistance to prediction.
+- Claim/Reclaim events and accepted protected mutations now carry the same next lifecycle event ordinal. The histories remain Sets, but the sequence field is shared across both record types.
+- `LifecycleEventSequenceUnique` and `LifecycleEventSequenceComplete` check uniqueness and contiguous coverage across the combined history. This provides a reconstructable model-level total order without converting the history collections to Sequences.
+- Exact-head TLC validation is pending; the model remains **NOT ACCEPTED** until baseline exhaustion and individually inspected negative-control traces are available.
+
+
+**Terminology clarification:** The `wrong_token` negative control uses a non-matching value that is still a member of the declared finite `TokenValues` domain. It is not an out-of-domain or malformed token.
