@@ -288,3 +288,13 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 - A18 now maps REV-01…REV-14 to the v0.3.0 corrective sections. The next gate is the owner's finding-by-finding review plus specialist challenge where needed; independent assurance remains a distinct, risk/claim-dependent activity, not a synonym for owner review.
 - The owner-review register now has a separate document-implementation-status column for REV-01…REV-14. It records applied document changes separately from owner disposition; substantive acceptance tests and all owner dispositions remain pending. REV-11 is recorded as non-substantive with its equivalence example retained.
 - These are document-level consistency corrections only. No provider weights, technology, security control, residual risk, supplier, jurisdiction, procurement, production, financial activity, merge or deployment is approved.
+
+
+## LOT-EVAL-RDM-001 — deterministic reference model (2026-11-28)
+
+- Added an isolated, standard-library-only Python reference harness at `tools/lot_eval_rdm.py`; it is not imported by product code and uses embedded synthetic fixtures only.
+- Local execution on Python 3.13.5: `python tools/lot_eval_rdm.py` — 21/21 AVT vectors PASS; 10/10 specification mutants killed; 210 mutant/vector evaluations; zero surviving mutants. This is author-led specification-level fault injection, not third-party mutation score or independent assurance.
+- The harness maps the frozen LOT-EVAL-001 v0.3.0 / LOT-EVAL-AVT-001 v0.2.0 baseline at commit `e7aed0892a0de212fc3fd7603a6976eee503a76f`. Exact-head CI for the new PR head remains pending.
+- Interpretation stop: non-material NS aggregate treatment is not fully specified by §8.3; absent a separately recorded provisional authority, the model returns UNRESOLVED rather than inventing a rule. Authority/materiality are synthetic inputs, not validated approvals.
+- Coverage is limited to AVT-01…AVT-21. Confidence, TCO, formal assurance, legal eligibility and actual owner dispositions are not automated. No independent reviewer has reconstructed the oracles.
+- LOT-EVAL-001 remains PROPOSED; REV-01…REV-14 remain PENDING. No candidate, procurement, provider integration, production data, financial activity, merge or deployment is authorized.
