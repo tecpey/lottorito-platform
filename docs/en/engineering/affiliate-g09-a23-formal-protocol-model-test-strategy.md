@@ -1,7 +1,7 @@
 # G09-A23 — Formal Protocol Model & Adversarial Test Strategy
 
 **Document ID:** LOT-AFFILIATE-G09-A23-001  
-**Version:** 0.1.20 | **Status:** PROPOSED; M0–M2 TLC-CHECKED WITHIN FINITE BOUNDS; RUNTIME NOT EXECUTED; M3–M7 NOT AUTHORED  
+**Version:** 0.1.21 | **Status:** PROPOSED; M0–M2 TLC-CHECKED WITHIN FINITE BOUNDS; M3 MODEL DRAFTED / TLC VALIDATION PENDING; RUNTIME NOT EXECUTED; M4–M7 NOT AUTHORED  
 **Date:** 2026-11-28  
 **Review basis:** G09-A21, G09-A22, G09-A20, G09-A7, ADR-001 and ADR-002  
 **Authority:** Advisory design; no owner decision, candidate, gate or execution permission is approved.
@@ -167,7 +167,7 @@ Do not start with one enormous model. Build staged models with shared interfaces
 1. **M0 — Atomic Acceptance:** two callers, one identity, one Receipt and one WorkItem; crash before/during/after commit.
 2. **M1 — UNKNOWN Arbitration:** original transaction in-flight, lost response, negative read, concurrent retry and late commit/abort.
 3. **M2 — Authority Epoch:** two writers, two epochs, partition, promotion, old-primary return and restored epoch. Candidate-neutral TLA+ module, one baseline and six negative controls (including independent sink-fence rollback) are TLC-checked within finite bounds on exact head 96fc7a4830af452f214921ac9af68d7ae4265f33. See [M2 model and evidence](affiliate-g09-a23-m2-authority-epoch-model.md).
-4. **M3 — Worker Lease:** two workers/generations, claim and reclaim, lease renewal, heartbeat/completion/retry/park, state/token/lifecycle-version mismatch, zero-mutation guard failure, lock wait, pre/post-lock timestamp, clock skew, lease expiry before reclaim and stale-worker resume.
+4. **M3 — Worker Lease:** two worker processes sharing one authenticated service principal; claim/reclaim, lease renewal, heartbeat/completion/retry/park, state/token/lifecycle-version mismatch, zero-mutation guard failure, lock wait, pre/post-lock timestamp and independent worker-clock progression. Candidate-neutral module and ten negative-control configs are drafted; TLC validation is pending. See [M3 model contract](affiliate-g09-a23-m3-worker-lease-model.md).
 5. **M4 — Outbox/Consumer/Receiver:** duplicate publication, delay, reorder, broker outage, consumer crash, in-flight external request, receiver acceptance after source lease expiry, lost response, retry, destination idempotency/fencing and receiver dedup-retention expiry.
 6. **M5 — Restore/Lifecycle:** old PITR/backup, tombstone and expiry boundary, finite/unbounded replay horizon, late queue message, credential/key/schema rotation, recovery incarnation, failback, clean-room quarantine and reopening gates.
 7. **M6 — Tenant/Principal:** at least two tenants and two principals with different permissions; payload spoofing and low-privilege repair.
@@ -326,3 +326,6 @@ Documentation consistency note: after removing the helper flag from executable M
 
 
 **Version 0.1.20 review note — exact-head revalidation:** M2's final six-control module was re-executed on PR head 66fa19c72418dd5376c179514d57970f5d29fe5f in Run [46175559007](https://github.com/tecpey/lottorito-platform/actions/runs/46175559007), SUCCESS. The baseline again exhausted 136 distinct states (515 generated), depth 12; all six negative controls detected their expected invariant violations. Artifact 15275815204; SHA-256 5c58aa70dce2bdcf93568ef9644f0cc1478da10f9b02f706d89f7a18ff85cbc3. On the same exact head, M0 Run 46175558972, M1 Run 46175558925, Documentation Governance Run 46175559048 and Affiliate Contract Validation Run 46175554261 also passed. The model source hash is unchanged from the canonical M2 evidence in the companion document. These checks are bounded formal-model and document/contract checks only; they do not establish candidate/runtime correctness. Subsequent commits in this branch synchronize this evidence into the bilingual companion and project-status documents; exact-head CI must be rechecked for those documentation commits.
+
+
+**Version 0.1.21 review note — M3 model draft:** M3 now has a candidate-neutral TLA+ module, a bounded baseline config, ten oracle-targeted mutant configs, a pinned TLC runner and a dedicated Actions workflow. The model intentionally gives W0 and W1 the same authenticated principal so generation/token fencing is tested independently of process identity. It separates persistence time, worker-local clock progress, pre-lock observation, serialization acquisition and the post-lock guard. The bilingual M3 contract records the abstraction and exclusions. TLC validation is pending; no M3 result is claimed. ADR-001 remains PROPOSED and A4-GATE-03/04 still block candidate/runtime execution.
