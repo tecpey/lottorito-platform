@@ -1,6 +1,6 @@
 # دفتر ثبت تصمیم‌های Lottorito
 
-**شناسه سند:** LOT-ADR-REG-001 | **نسخه:** ۲.۵.۵ | **وضعیت:** دفتر ثبت نگهداری‌شده؛ هر رکورد اعتبار و اختیار مستقل خود را دارد
+**شناسه سند:** LOT-ADR-REG-001 | **نسخه:** ۲.۵.۶ | **وضعیت:** دفتر ثبت نگهداری‌شده؛ هر رکورد اعتبار و اختیار مستقل خود را دارد
 
 ## روش خواندن
 این دفتر مانع تبدیل گفتگو، مثال یا پیشنهاد به قانون محصول می‌شود. صرف درج یک مورد به‌معنای تصویب آن نیست؛ ستون وضعیت و مرجع اختیار تعیین‌کننده است. هر تغییر باید شواهد مرتبط داشته باشد.
@@ -144,3 +144,6 @@
 
 | LDR-081 | تأیید نهایی M0 روی Head دقیق `21f7da0` | TLC و Artifact قابل‌بازتولید | Run `46171925729`، synthetic merge `d0f9c729626feed6d691dd9d02d3263744e3f05d`؛ Baseline: ۵۲ State متمایز بدون نقض؛ سه Mutant مورد انتظار. Artifact `15273603593`، SHA-256 `81acf846cc19a2ec27391075254b1d5917410a19b76edff9a7e734b3ba81a14f`. | فقط M0 محدود؛ هیچ صلاحیت Candidate/Runtime/Production یا مجوز Merge/Deploy نیست. |
 | LDR-082 | تأیید نهایی M1 با ReceiptShape تقویت‌شده روی Head دقیق `21f7da0` | TLC و Oracle Sensitivity | Run `46171925718`، همان synthetic merge؛ دو Baseline: هرکدام ۱۹ State متمایز، ۲۵ تولیدشده، عمق ۸؛ سه Mutant، نقض‌های `NoRetryCommitWhileOriginalInflight`، `ReceiptCardinality` و `ConflictSoundness`. Artifact `15274021323`، SHA-256 `6eb2c7618dc154f989cf775ae651b3bae4e0db2b65fcd481a8a2212924ea31e0`. | فقط M1 محدود؛ DB/Jepsen/History/Liveness و Candidate refinement باز هستند. هیچ مجوز عملیاتی صادر نمی‌شود. |
+
+| LDR-083 | تثبیت M0 روی PR head `0feb174` | TLC و Artifact نهایی | Run `46172096434`، synthetic merge `62a1470a557ed22251315f9b1d8572b2792101a7`؛ Baseline: ۵۲ State متمایز بدون نقض؛ سه Mutant مورد انتظار. Artifact `15274440322`، SHA-256 `5ca154ba0f89fc986fd99917b70b2b592420bad0568857bf36052343cdd51e1d`. | مدل محدود M0؛ هیچ صلاحیت Candidate/Runtime/Production یا مجوز Merge/Deploy نیست. |
+| LDR-084 | تثبیت M1 تقویت‌شده روی PR head `0feb174` | TLC و حساسیت Oracle نهایی | Run `46172096370`، همان synthetic merge؛ دو Baseline: هرکدام ۱۹ State متمایز، ۲۵ تولیدشده، عمق ۸؛ سه Mutant نقض‌های `NoRetryCommitWhileOriginalInflight`، `ReceiptCardinality` و `ConflictSoundness` را آشکار کردند. Artifact `15273862792`، SHA-256 `3a7f263ff1d23b4d09a60cf996f54b17f81aa7c4aff2a0c0a46dcc7fb2422e11`. | مدل محدود M1؛ DB/Jepsen/History/Liveness و Candidate refinement باز هستند. هیچ مجوز عملیاتی صادر نمی‌شود. |
