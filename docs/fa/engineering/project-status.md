@@ -1,6 +1,6 @@
 # وضعیت واقعی پروژه و نقطه ادامه کار
 
-**شناسه:** LOT-OPS-001 | **نسخه:** ۲.۰.۱۱ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۸
+**شناسه:** LOT-OPS-001 | **نسخه:** ۲.۰.۱۲ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۸
 
 ## وضعیت تأییدشده مخزن
 - مخزن tecpey/lottorito-platform؛ شاخه پیش‌فرض main؛ سطح دسترسی Public طبق تصمیم مالک.
@@ -288,3 +288,13 @@
 
 
 - Snapshot ثبت‌شده PR #76 که چهار Workflow روی آن PASS شدند: Head `f88769965b5a259444e84a99373e7bd80b95f1ea`؛ synthetic merge `a86a80bf03a8bd309fa6927343d7b1a42a53da71`؛ Base `f032065f47fe85de2aabf8d47565a57af6af3ae9`. M0 Run `46173159826` PASS: ۸۷ تولیدشده/۵۲ متمایز، عمق ۷؛ Artifact `15273919206` / `4c69f418349f57a866ca1f89ed34a7cb88c4d27fde4831a0d4c91884ec0497fc`. M1 Run `46173159827` PASS: دو Baseline هرکدام ۲۵ تولیدشده/۱۹ متمایز، عمق ۸؛ Oracle State-based و سه Mutant مورد انتظار کشف شدند؛ Artifact `15274292069` / `db8c119daa1ce3998e3314f701955c4f2311046437589070360d8f52119483b8`. Documentation Governance `46173159838` و Affiliate Contract Validation `46173159862` هر دو PASS. TLC روی synthetic merge اجرا شد؛ شواهد محدود به مدل‌هاست. Candidate/Runtime/DB integration/Jepsen/Simulation/A20 اجرا نشده‌اند؛ M2–M7 تألیف نشده‌اند. PR باز و Unmerged؛ بدون Merge/Deploy.
+
+## آخرین وضعیت مدل‌های رسمی G09-A23 — ۲۰۲۶-۱۱-۲۸
+- نسخه A23 اکنون در هر دو زبان ۰.۱.۱۹ است. برای M0، M1 و M2 شواهد TLC محدود وجود دارد؛ این فقط راستی‌آزمایی مدل رسمی است، نه اثبات Runtime یا Candidate.
+- پس از بازبینی خصمانه، M2 گسترش یافت تا High-water Mark مربوط به Authority Root و High-water Mark مربوط به Fence در Mutation Sink مستقل باشند. Negative Control ششم، Rollback شدن Metadata خود Fence در Sink هنگام Restore را کشف می‌کند.
+- Head دقیق اعتبارسنجی مدل‌ها: 96fc7a4830af452f214921ac9af68d7ae4265f33؛ Base: f032065f47fe85de2aabf8d47565a57af6af3ae9؛ Synthetic merge اجراشده در Actions: 547cd6f.
+- M2 Run [46175422477](https://github.com/tecpey/lottorito-platform/actions/runs/46175422477): SUCCESS. Baseline تعداد ۱۳۶ State متمایز (۵۱۵ تولیدشده)، عمق ۱۲ را کامل کرد. شش Negative Control، Counterexampleهای مورد انتظار را تولید کردند: Early promotion؛ Partition-only promotion؛ Write از Writer قدیمی؛ Rollback Authority Root؛ Rollback Fence در Sink؛ Forged current-epoch token. Artifact ID برابر 15275536520؛ SHA-256 برابر f289ee443e87d314d2df7d97f4908361b8aba4a9d99a9b0c1cc9d50fc133c410.
+- M0 Run [46175422429](https://github.com/tecpey/lottorito-platform/actions/runs/46175422429)، M1 Run [46175422489](https://github.com/tecpey/lottorito-platform/actions/runs/46175422489) و Documentation Governance Run [46175422442](https://github.com/tecpey/lottorito-platform/actions/runs/46175422442) نیز روی همان Head دقیق موفق شدند. این Runها فقط مدل‌های محدود مربوط و کنترل ساختاری مستندات را اعتبارسنجی می‌کنند.
+- نخستین تلاش اجرای M2 با خطای Parse مربوط به Function Constructor در TLA+ متوقف شد؛ خطا اصلاح و سپس Baseline و Negative Controlها دوباره اجرا شدند. اجرای موفق پنج‌کنترلی اولیه با Run شش‌کنترلی بالا جایگزین شده است. خطای Parse اولیه را نباید به‌عنوان نقض مدل تعبیر کرد.
+- M3 تا M7 تألیف نشده‌اند. بازبینی مستقل، Candidate refinement، Jepsen/History Checker، Simulation قطعی، اثبات DB/Runtime، اجرای A20 و تصمیم‌های مالک همچنان باز هستند. یافته‌های A21 و تمام Gateهای A4 باز/تصویب‌نشده‌اند. ADR-002 همچنان PROPOSED است. هیچ Runtime، انتخاب Candidate، اتصال Partner، عملیات مالی، Production، Merge یا Deploy مجاز نیست.
+- PR شماره ۷۶ همچنان Open/Unmerged است؛ Commitهای مستنداتی پس از Head اعتبارسنجی، اسناد M2/A23/فهرست‌ها و Project Status دوزبانه را همگام می‌کنند. پیش از هر ادعای بعدی، Head زنده PR و CI روی Head دقیق بررسی شود.
