@@ -260,6 +260,21 @@ AdvanceWorkerClock(w) ==
        lockOwner, blockerAvailable, mutationCount, lastGuardFailed,
        lastFailureMutationCount, acceptedHistory, claimEvents>>
 
+AuthorizedStartProcessing ==
+    /\ lockOwner = NoOwner
+    /\ workState = "claimed"
+    /\ persistenceTime < leaseExpiry
+    /\ workState' = "processing"
+    /\ mutationCount' = mutationCount + 1
+    /\ lastGuardFailed' = FALSE
+    /\ UNCHANGED <<claimGeneration, generationHighWater, claimOwner, claimToken,
+       leaseExpiry, lifecycleVersion, persistenceTime, workerClock, workerGeneration,
+       workerToken, workerLifecycle, requestState, requestOp, requestGeneration,
+       requestToken, requestLifecycle, requestExpectedState, requestTenant,
+       requestInstallation, requestStartTime, requestPreLockValid, lockAcquireTime,
+       lockOwner, blockerAvailable, lastFailureMutationCount, acceptedHistory,
+       claimEvents>>
+
 AdvanceLifecycleVersion ==
     /\ lifecycleVersion < 1
     /\ lifecycleVersion' = lifecycleVersion + 1
@@ -288,9 +303,9 @@ OperatorQuarantine ==
        lastFailureMutationCount, acceptedHistory, claimEvents>>
 
 GuardOK(w) ==
-    /\ (Mutation = "stale_state" \/ claimOwner = PrincipalOf(w))
+    /\ claimOwner = PrincipalOf(w)
     /\ (Mutation = "stale_state" \/ requestExpectedState[w] = workState)
-    /\ (Mutation = "stale_state" \/ workState \in {"claimed", "processing"})
+    /\ workState \in {"claimed", "processing"}
     /\ (Mutation = "stale_generation" \/ requestGeneration[w] = claimGeneration)
     /\ (Mutation = "stale_generation" \/ requestToken[w] = claimToken)
     /\ (Mutation = "wrong_token" \/ requestToken[w] = claimToken)
@@ -386,6 +401,7 @@ Next ==
     \/ AdvancePersistenceTime
     \/ \E w \in Workers : AdvanceWorkerClock(w)
     \/ AdvanceLifecycleVersion
+    \/ AuthorizedStartProcessing
     \/ OperatorQuarantine
 
 Spec == Init /\ [][Next]_vars
