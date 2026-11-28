@@ -344,6 +344,15 @@ CompetingStartProcessingRecord(w) ==
 (* An independently authorized current claimant wins the serialization point
    while an older request waits. This atomic acquire/guard/mutate/release action
    records the competing mutation in the same authorization history oracle. *)
+OwnerGuard(w) == claimOwner = PrincipalOf(w)
+ExpectedStateGuard(expectedState) == expectedState = workState
+GenerationGuard(generation) == generation = claimGeneration
+TokenGuard(token) == token = claimToken
+LifecycleGuard(version) == version = lifecycleVersion
+TenantGuard(tenant) == tenant = TenantID
+InstallationGuard(installation) == installation = InstallationID
+LeaseGuard(observedTime) == observedTime < leaseExpiry
+
 CompetingAuthorizedStartProcessing(w) ==
     /\ w \in Workers
     /\ requestState = "waiting"
@@ -371,15 +380,6 @@ CompetingAuthorizedStartProcessing(w) ==
        requestTenant, requestInstallation, requestStartTime, requestPreLockValid,
        lockAcquireTime, lockOwner, blockerAvailable, lastFailureMutationCount,
        claimEvents>>
-
-OwnerGuard(w) == claimOwner = PrincipalOf(w)
-ExpectedStateGuard(expectedState) == expectedState = workState
-GenerationGuard(generation) == generation = claimGeneration
-TokenGuard(token) == token = claimToken
-LifecycleGuard(version) == version = lifecycleVersion
-TenantGuard(tenant) == tenant = TenantID
-InstallationGuard(installation) == installation = InstallationID
-LeaseGuard(observedTime) == observedTime < leaseExpiry
 
 GuardOK(w) ==
     /\ OwnerGuard(w)
