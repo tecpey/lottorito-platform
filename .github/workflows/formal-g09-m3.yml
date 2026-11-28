@@ -14,6 +14,10 @@ on:
       - '.github/workflows/formal-g09-m3.yml'
   workflow_dispatch:
 
+concurrency:
+  group: g09-m3-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
