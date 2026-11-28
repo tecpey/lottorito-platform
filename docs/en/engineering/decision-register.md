@@ -1,6 +1,6 @@
 # Lottorito Decision Register
 
-**Document ID:** LOT-ADR-REG-001 | **Version:** 2.5.11 | **Status:** Maintained register; entries retain their individual authority state
+**Document ID:** LOT-ADR-REG-001 | **Version:** 2.5.12 | **Status:** Maintained register; entries retain their individual authority state
 
 ## How to read this register
 This register prevents agents from turning discussion, examples or proposals into product rules. A record is not approved merely because it is listed here. The state and authority column govern. Evidence must be linked for every change.
@@ -160,3 +160,5 @@ Prioritize jurisdiction/operating model and initial Lottery product boundary; pr
 | LDR-092 | Confirm final M1 snapshot with state-based oracle on head `f887699` | TLC, oracle correction and hash-identified artifact | Run `46173159827` on the same synthetic merge; both baselines 25 generated / 19 distinct states, depth 8; all three expected mutants. Artifact `15274292069`, SHA-256 `db8c119daa1ce3998e3314f701955c4f2311046437589070360d8f52119483b8`. | Bounded M1 only; DB/Jepsen/history/Liveness and candidate refinement remain open. No operational authority granted. |
 
 | LDR-093 | Remove stale documentation reference to deleted M1 helper flag | Bilingual model/document alignment | Persian and English M1 variable lists now match the TLA+ module; `retryCommittedWhileOriginalInflight` is no longer documented as a model variable. The state-based invariant remains documented. | Documentation-only correction; TLC results and proof scope are unchanged. |
+
+| LDR-094 | Clarify M1 review assurance level | Distinguish adversarial self-review from independent assurance | The A23 wording was corrected from “independent review” to “adversarial second-pass review”; no separate human independent reviewer was available and this remains a limitation. | Documentation clarification; no additional assurance level is claimed. |
