@@ -328,3 +328,13 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 - RDM-001 remains unchanged. No model changes until the independent worksheet is frozen, discrepancies are classified and any required owner/policy decisions are recorded. This is not independent assurance, adoption of LOT-EVAL-001, or acceptance of REV-01…REV-14.
 - Research basis: ISO/IEC/IEEE 29119-1:2022 test-oracle definition; NASA SWE-141 and NASA IV&V independence guidance. These references inform process design; they do not certify this review.
 - LOT-EVAL-001 remains PROPOSED; REV-01…REV-14 remain PENDING. No candidate selection, procurement, integration, production data, financial activity, merge or deployment is authorized.
+
+
+## RDM-003B — author-led second-pass review correction (2026-11-28)
+
+- The owner directed that the authoring AI perform direct adversarial reviews because no second person is available. The method is now explicitly an author-led second-pass review, not blind review or formal independent assurance.
+- Bilingual report: `docs/{en,fa}/governance/enterprise-evaluation-author-led-second-pass-review-003b.md`; findings AR-01…AR-15.
+- The former blind-review packet and blank worksheet are superseded historical artifacts. The 35 decision-table rows were not supplied as input-only condition combinations, so the claimed blind derivation was not executable.
+- RDM-001 was corrected for: explicit highest-plausible-tier input (not hard-coded T3); separate evidence state and capability rating; distinct AVT-17 ranking-sensitivity behavior; explicit late N/A state; and six model guard checks.
+- AVT-09, AVT-06, AVT-14 and AVT-17 matrix semantics and DT-04 non-overlap are being reconciled bilingually. Exact-head CI is required before any pass claim.
+- Historical CI results from the pre-correction harness do not apply to the corrected source. No independent assurance, owner acceptance, procurement, production, financial activity, merge or deployment is implied.
