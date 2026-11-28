@@ -226,3 +226,10 @@
 - خط مبنای بررسی: Head مربوط به PR شماره ۷۶ برابر با `736390f86ab425a8c273dcf254cc5974e9eb55ae`؛ Affiliate Contract Validation شماره ۲۳۵ و Documentation Governance شماره ۱۰۶۲ هر دو روی همان Head دقیق SUCCESS شدند. این نتایج به Commitهای مستنداتی بعدی A15 منتقل نمی‌شوند و رفتار Persistence/Runtime را اثبات نمی‌کنند.
 - بسته A12 همچنان روش بازبینی مستقل است؛ در رکورد PR بررسی‌شده، Review مستقل ثبت‌شده‌ای در GitHub وجود نداشت. A15 بازبینی مستقل نیست. A11-F01 تا F08 باز؛ ADR-002 در وضعیت PROPOSED؛ تمام Gateهای A4 تصویب‌نشده؛ S01 تا S12 در وضعیت NOT RUN هستند.
 - Allowlist مختص Installation در Runtime مربوط به A13-F02 و تصمیم/Proof مالک و Candidate مربوط به A13-F05 باز هستند. هیچ Persistence/Queue/Vendor انتخاب نشده؛ هیچ Runtime/Harness اجرا، شریک متصل، عملیات مالی، Merge یا Deploy مجاز نیست. CI روی Head نهایی پس از Commitهای مستنداتی A15 باید بررسی شود.
+
+
+### تأیید CI روی Head دقیق G09-A15 — ۲۰۲۶-۱۱-۲۸
+- روی Head دقیق `5543d7ab24ec263fd0d71c40c157309a72d925c2`، هر دو Workflow موفق شدند: Documentation Governance شماره ۱۰۶۷ (Run: `46104632406`) و Affiliate Contract Validation شماره ۲۴۲ (Run: `46104632398`).
+- Documentation Governance ساختار دوزبانه و Linkهای محلی را اعتبارسنجی کرد. Affiliate Contract Validation نصب Toolchain قفل‌شده، اعتبارسنجی OpenAPI، اعتبارسنجی AsyncAPI و Fixtureهای Payload را کامل کرد.
+- مقایسه دستی مجموعه شناسه‌ها، تطابق موجودی نسخه‌های فارسی/انگلیسی را برای PO-01 تا PO-07، OD-01 تا OD-12، S01 تا S12 و A11-F01 تا F08 تأیید کرد. این فقط تطابق ساختاری شناسه‌هاست و جای ممیزی معنایی ترجمه را نمی‌گیرد.
+- این نتایج فقط به Head دقیق بالا مربوط‌اند. هر Commit بعدی نیازمند بررسی مجدد CI روی Head دقیق خودش است. هیچ Proof مربوط به Runtime/Persistence اجرا نشده؛ A11-F01 تا F08 باز، ADR-002 در وضعیت PROPOSED، S01 تا S12 در وضعیت NOT RUN و تمام Gateهای A4 تصویب‌نشده‌اند.
