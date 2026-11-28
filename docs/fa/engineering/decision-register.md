@@ -1,6 +1,6 @@
 # دفتر ثبت تصمیم‌های Lottorito
 
-**شناسه سند:** LOT-ADR-REG-001 | **نسخه:** ۲.۵.۴ | **وضعیت:** دفتر ثبت نگهداری‌شده؛ هر رکورد اعتبار و اختیار مستقل خود را دارد
+**شناسه سند:** LOT-ADR-REG-001 | **نسخه:** ۲.۵.۵ | **وضعیت:** دفتر ثبت نگهداری‌شده؛ هر رکورد اعتبار و اختیار مستقل خود را دارد
 
 ## روش خواندن
 این دفتر مانع تبدیل گفتگو، مثال یا پیشنهاد به قانون محصول می‌شود. صرف درج یک مورد به‌معنای تصویب آن نیست؛ ستون وضعیت و مرجع اختیار تعیین‌کننده است. هر تغییر باید شواهد مرتبط داشته باشد.
@@ -141,3 +141,6 @@
 
 | LDR-079 | تثبیت M0 در Head دقیق نهایی PR #76 | شواهد TLC تکرارپذیر | Run `46171747722` روی PR head `19f8e995596bd4fca96b3bea0a211ddb916b1725` و synthetic merge `c50c70bcfb8e1ece85ab155b5c36d547099bac3e`؛ Baseline: ۵۲ State متمایز بدون نقض؛ سه Mutant مورد انتظار. Artifact `15273842484`، SHA-256 `7f346cde1cb5f48b9ae042b5cb23266a53561cccfc4960acd479e8ddf90cc832`. | فقط M0 محدود؛ هیچ Candidate/Runtime/Production/Merge/Deploy را تأیید نمی‌کند. |
 | LDR-080 | تثبیت M1 و ReceiptShape تقویت‌شده در Head دقیق نهایی PR #76 | شواهد TLC و حساسیت Oracle | Run `46171747725` روی همان Head/merge؛ دو Baseline: هرکدام ۱۹ State متمایز، ۲۵ تولیدشده، عمق ۸، بدون نقض؛ سه Mutant، نقض‌های `NoRetryCommitWhileOriginalInflight`، `ReceiptCardinality` و `ConflictSoundness` را آشکار کردند. Artifact `15274170741`، SHA-256 `1dd501ff70955f77ceb4ab9225a55285504ce6d0de905fc205f1fd67544f368e`. ReceiptShape به تطبیق دقیق Owner/Fingerprint تقویت شد. | فقط M1 محدود؛ DB/Jepsen/History/Liveness و Candidate refinement باز هستند. هیچ مجوز عملیاتی صادر نمی‌شود. |
+
+| LDR-081 | تأیید نهایی M0 روی Head دقیق `21f7da0` | TLC و Artifact قابل‌بازتولید | Run `46171925729`، synthetic merge `d0f9c729626feed6d691dd9d02d3263744e3f05d`؛ Baseline: ۵۲ State متمایز بدون نقض؛ سه Mutant مورد انتظار. Artifact `15273603593`، SHA-256 `81acf846cc19a2ec27391075254b1d5917410a19b76edff9a7e734b3ba81a14f`. | فقط M0 محدود؛ هیچ صلاحیت Candidate/Runtime/Production یا مجوز Merge/Deploy نیست. |
+| LDR-082 | تأیید نهایی M1 با ReceiptShape تقویت‌شده روی Head دقیق `21f7da0` | TLC و Oracle Sensitivity | Run `46171925718`، همان synthetic merge؛ دو Baseline: هرکدام ۱۹ State متمایز، ۲۵ تولیدشده، عمق ۸؛ سه Mutant، نقض‌های `NoRetryCommitWhileOriginalInflight`، `ReceiptCardinality` و `ConflictSoundness`. Artifact `15274021323`، SHA-256 `6eb2c7618dc154f989cf775ae651b3bae4e0db2b65fcd481a8a2212924ea31e0`. | فقط M1 محدود؛ DB/Jepsen/History/Liveness و Candidate refinement باز هستند. هیچ مجوز عملیاتی صادر نمی‌شود. |
