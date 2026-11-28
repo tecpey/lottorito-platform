@@ -1,7 +1,7 @@
 # G09-A23-M0 — مدل رسمی پذیرش اتمیک
 
 **شناسه:** LOT-AFFILIATE-G09-A23-M0-001  
-**نسخه:** ۰.۱.۶  
+**نسخه:** ۰.۱.۷  
 **وضعیت:** مدل محدود اجراشده با TLC؛ بازبینی مستقل و Refinement به Candidate انجام نشده است  
 **مدل:** `formal/G09M0AtomicAcceptance.tla`  
 **پیکربندی مبنا:** `formal/G09M0AtomicAcceptance.cfg`  
@@ -146,44 +146,23 @@ M0 موارد زیر را اثبات نمی‌کند و عمداً به مدل�
 
 به‌ویژه، M0 فرض نمی‌کند مشاهده نبود رکورد، خاتمه Transaction اولیه را ثابت می‌کند. این Race موضوع اصلی M1 است. همچنین M0 مدل Tenant-isolation یا جلوگیری از افشای وجود Identity در Tenant دیگر نیست.
 
-## ۸. شواهد اجرای بازتولیدپذیر
+## ۸. آخرین شواهد اجرای قابل‌بازتولید
 
-**Run مبنای PR:** GitHub Actions Run `46172096434` — [G09 M0 Formal Model](https://github.com/tecpey/lottorito-platform/actions/runs/46171482274)  
-**PR head:** `0feb174268beb68ed3e557e6012edf5b325158cf`  
-**Synthetic merge commit بررسی‌شده توسط pull_request runner:** `62a1470a557ed22251315f9b1d8572b2792101a7` (ادغام Head فوق با Base `f032065f47fe85de2aabf8d47565a57af6af3ae9`)  
-**Artifact:** [g09-a23-m0-tlc-46172096434-1](https://github.com/tecpey/lottorito-platform/actions/runs/46171482274/artifacts/15274440322)  
-**Artifact ZIP SHA-256:** `5ca154ba0f89fc986fd99917b70b2b592420bad0568857bf36052343cdd51e1d`
+**آخرین PR head:** `a6831c4be9bb904efe0ccf7809e5179db26661a1`
+**Synthetic merge commit اجراشده:** `fe42d58c84388ba3f2bc3b4b503e5eb220f1d52b` (Base: `f032065f47fe85de2aabf8d47565a57af6af3ae9`)
+**GitHub Actions Run:** [46172262016 — G09 M0 Formal Model](https://github.com/tecpey/lottorito-platform/actions/runs/46172262016) — PASS
+**Artifact:** [g09-a23-m0-tlc-46172262016-1](https://github.com/tecpey/lottorito-platform/actions/runs/46172262016/artifacts/15274186676)
+**Artifact ZIP SHA-256:** `25ae83ad40b5f53515afa71054b0e7bf7c9a40067ae658b8a153a28be9e3b480`
 
-محیط و ابزار:
-- TLA+ Tools release: `v1.7.4`
-- TLC: `2.19`, revision `5a47802`, dated 2024-08-08
-- TLA+ Tools JAR SHA-256: `936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88`
-- Java: Eclipse Temurin `17.0.21.1+2`
-- Runner: Ubuntu `24.04.5`, GitHub-hosted `ubuntu-24.04`
-- TLC options: breadth-first search, one worker, seed 1, fp 0, 1 GiB heap.
+Toolchain: TLA+ Tools v1.7.4 / TLC 2.19 (revision `5a47802`); JAR SHA-256 `936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88`; Eclipse Temurin 17.0.21.1؛ Ubuntu 24.04؛ BFS، یک Worker، Seed=1، fp=0، Heap برابر 1 GiB. Checkout v7.0.1 و Upload Artifact v7.0.2 با SHA ثابت؛ `persist-credentials: false`.
 
-نتایج:
-| Case | نتیجه TLC | Stateهای تولیدشده / متمایز | عمق | نتیجه Oracle |
-|---|---|---:|---:|---|
-| Baseline | بدون نقض | 87 / 52 | 7 | مورد انتظار |
-| Partial commit mutant | نقض `PairAtomicity` | 7 / 7 | 3 | کشف شد |
-| Duplicate pair mutant | نقض `AtMostOneReceipt` | 34 / 24 | 5 | کشف شد |
-| Early acknowledgement mutant | نقض `AcceptedAckSoundness` | 7 / 7 | 3 | کشف شد |
+| Case | نتیجه TLC | Generated / Distinct | Depth |
+|---|---|---:|---:|
+| Baseline | بدون نقض؛ فضای محدود کامل شد | 87 / 52 | 7 |
+| Partial-commit mutant | `PairAtomicity` نقض شد | 7 / 7 | 3 |
+| Duplicate-pair mutant | `AtMostOneReceipt` نقض شد | 34 / 24 | 5 |
+| Early-ack mutant | `AcceptedAckSoundness` نقض شد | 7 / 7 | 3 |
 
-Hashهای فایل‌های مدل و Config که در Artifact `sha256-manifest.txt` ذخیره شده‌اند:
-- TLA module: `4740bc9d76c10ec76bf0bca00b5f829963b99365fef0a600a0886a2fe9cf2e6f`
-- Baseline config: `ad63aa16b0604b4c82d5f6c5e3435ccb5e6cd51a3fca994e303a3cd263132f7e`
-- Partial-commit config: `3fab9ce1b8d3b1b1bcdad8690d28db2e9254171cc5b962526df7ba82fefc7767`
-- Duplicate-pair config: `7e24f26489c8e02c7798a298101d73efd71e49ca61ea383d5885aded91224f3a`
-- Early-ack config: `975ecfbf8e14541311ada32e812413a918c6f8d759bfa3c9024258e7b5e39938`
+Documentation Governance Run [46172262013](https://github.com/tecpey/lottorito-platform/actions/runs/46172262013) و Affiliate Contract Validation Run [46172262015](https://github.com/tecpey/lottorito-platform/actions/runs/46172262015) نیز روی همین Head موفق شدند.
 
-TLC parser و semantic processing ماژول را انجام داد و Invariantها را بررسی کرد؛ Type-system مستقل جداگانه اجرا نشده است. هر سه Mutant Counterexample واقعی و قابل‌بازتولید تولید کردند. Artifact شامل چهار لاگ TLC و Manifest هش‌هاست.
-
-**مرز تفسیر:** GitHub Run به PR head فوق منتسب است، اما رویداد pull_request در Runner روی synthetic merge commit بالا اجرا شده است؛ این یک Integration Check روی ترکیب PR و base است، نه ادعای اجرای مستقیم روی branch tip به‌تنهایی. Checkout v7.0.1 و Upload Artifact v7.0.2 به SHAهای immutable Pin شده‌اند و Persisted Credentials در Checkout غیرفعال است.
-
-بازبینی مستقل مدل و بررسی Refinement هنوز انجام نشده است؛
-- هیچ Candidate یا Runtime ارزیابی نشده است؛
-- ADR-002 همچنان PROPOSED و A11-F01..F08 باز می‌مانند؛
-- A20-01..A20-28 همچنان NOT RUN هستند.
-
-**نتیجه:** M0 در Bounds محدود خود با TLC بررسی شده و سه Mutation عمدی را با Oracleهای پیش‌بینی‌شده کشف کرده است. این نتیجه یک شاهد معتبر برای همان مدل محدود است، نه اثبات کلی پروتکل و نه Qualification پیاده‌سازی. بازبینی مستقل و Refinement به Candidate همچنان الزامی است.
+**مرز تفسیر:** این نتیجه فقط به مدل، Configها، Constants، Bounds و Toolchain ثبت‌شده مربوط است. رفتار پیاده‌سازی، انتخاب/تأیید DB، Candidate refinement، تست تراکنش واقعی، Jepsen، Simulation، A20 یا Production را ثابت نمی‌کند. Run روی Synthetic merge انجام شده، نه روی Runtime/Candidate.
