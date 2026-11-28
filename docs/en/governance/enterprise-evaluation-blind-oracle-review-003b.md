@@ -210,7 +210,7 @@ The separate worksheet template is maintained alongside this packet. Do not fill
 
 The blind oracle is considered **returned but not automatically accepted** only when:
 - reviewer identity, competence, independence limitations and conflicts are recorded;
-- all 18 rule IDs, 21 AVT cases and 33 decision-table rows have dispositions or explicitly justified exclusions;
+- all 18 rule IDs, 21 AVT cases and 35 decision-table rows have dispositions or explicitly justified exclusions;
 - each deterministic outcome is source-cited;
 - unresolved cases remain unresolved rather than being forced into a binary result;
 - bilingual source discrepancies are recorded;
