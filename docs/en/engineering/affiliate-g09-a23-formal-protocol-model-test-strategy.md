@@ -1,7 +1,7 @@
 # G09-A23 — Formal Protocol Model & Adversarial Test Strategy
 
 **Document ID:** LOT-AFFILIATE-G09-A23-001  
-**Version:** 0.1.23 | **Status:** PROPOSED; M0–M2 TLC-CHECKED WITHIN FINITE BOUNDS; M3 MODEL DRAFTED / TLC VALIDATION PENDING; RUNTIME NOT EXECUTED; M4–M7 NOT AUTHORED  
+**Version:** 0.1.24 | **Status:** PROPOSED; M0–M2 TLC-CHECKED WITHIN FINITE BOUNDS; M3 MODEL DRAFTED / TLC VALIDATION PENDING; RUNTIME NOT EXECUTED; M4–M7 NOT AUTHORED  
 **Date:** 2026-11-28  
 **Review basis:** G09-A21, G09-A22, G09-A20, G09-A7, ADR-001 and ADR-002  
 **Authority:** Advisory design; no owner decision, candidate, gate or execution permission is approved.
@@ -335,3 +335,6 @@ Documentation consistency note: after removing the helper flag from executable M
 
 
 **Version 0.1.23 review note — M3 bounded clock abstraction:** M3 now models worker clock offsets in the finite domain -1..+1 relative to persistence time, while preserving a separately captured pre-lock observation. This reduces explicit-state cardinality without treating the bound as a real clock-drift guarantee. The baseline guard continues to use persistence-authoritative time after serialization. TLC validation remains pending on the newest model revision.
+
+
+**Version 0.1.24 review note — M3 state-space control:** The M3 abstraction now permits at most one pending worker request per WorkItem and represents a competing reclaim as a separate atomic serialized action. A bounded mutation budget of ten successful abstract mutations prevents unbounded repeated heartbeats from expanding the state graph. These are explicit finite-model bounds, not runtime policies. The A7 candidate schedule still must test actual concurrent claim/reclaim and lock behavior after the required gates.
