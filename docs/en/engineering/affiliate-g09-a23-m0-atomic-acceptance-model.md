@@ -82,18 +82,32 @@ Three mutant configurations deliberately enable an unsafe transition to test whe
 
 These are **design expectations**, not executed results. Until TLC is run, no actual counterexample or oracle-sensitivity result is recorded.
 
-## 6. Future reproducible execution
+## 6. Toolchain pin and reproducible execution
 
-Using a pinned and recorded `tla2tools.jar`, from the repository root:
+The model's baseline toolchain is pinned to stable **TLA+ Tools v1.7.4 (TLC 2.19)**; Java 11 or newer is required. Version 1.8.0, published as a pre-release/rolling build at this review, is not adopted into the baseline. Expected JAR hash:
+
+`SHA-256: 936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88`
+
+Download and verify the tool:
 
 ```bash
-java -cp tla2tools.jar tlc2.TLC -config formal/G09M0AtomicAcceptance.cfg formal/G09M0AtomicAcceptance.tla
-java -cp tla2tools.jar tlc2.TLC -config formal/G09M0MutantPartialCommit.cfg formal/G09M0AtomicAcceptance.tla
-java -cp tla2tools.jar tlc2.TLC -config formal/G09M0MutantDuplicatePair.cfg formal/G09M0AtomicAcceptance.tla
-java -cp tla2tools.jar tlc2.TLC -config formal/G09M0MutantEarlyAck.cfg formal/G09M0AtomicAcceptance.tla
+curl --fail --location --silent --show-error \
+  https://github.com/tlaplus/tlaplus/releases/download/v1.7.4/tla2tools.jar \
+  --output /tmp/tla2tools.jar
+echo "936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88  /tmp/tla2tools.jar" | sha256sum --check -
 ```
 
-For every run, retain tool version and hash, model/config hashes, complete TLC output, state/transition counts, elapsed time/resources, completion status and counterexamples. The baseline must complete without invariant violations; each mutant must violate its predicted invariant. If a mutant is not detected, review the oracle or mutation; do not call it PASS.
+Run all four configurations from the repository root:
+
+```bash
+TLA2TOOLS_JAR=/tmp/tla2tools.jar \
+TLC_OUT_DIR=/tmp/g09-m0-results \
+bash scripts/formal/run_g09_m0.sh
+```
+
+The runner records the Java version, JAR hash, complete output for each run and metadata for each state store. It uses one worker, a fixed seed and an isolated metadata directory per configuration. The baseline must complete with TLC's success output; each mutant must violate its predicted invariant. An unexpected exit code, different message, parser error or missing expected counterexample fails the gate.
+
+For every run, retain model/config hashes, complete TLC output, state/transition counts, elapsed time/resources, completion status and counterexamples. If a mutant is not detected, review the oracle or mutation; do not call it PASS.
 
 ## 7. Limitations and next models
 
