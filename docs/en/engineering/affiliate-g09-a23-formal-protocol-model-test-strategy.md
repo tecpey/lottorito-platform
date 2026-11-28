@@ -1,7 +1,7 @@
 # G09-A23 — Formal Protocol Model & Adversarial Test Strategy
 
 **Document ID:** LOT-AFFILIATE-G09-A23-001  
-**Version:** 0.1.22 | **Status:** PROPOSED; M0–M2 TLC-CHECKED WITHIN FINITE BOUNDS; M3 MODEL DRAFTED / TLC VALIDATION PENDING; RUNTIME NOT EXECUTED; M4–M7 NOT AUTHORED  
+**Version:** 0.1.23 | **Status:** PROPOSED; M0–M2 TLC-CHECKED WITHIN FINITE BOUNDS; M3 MODEL DRAFTED / TLC VALIDATION PENDING; RUNTIME NOT EXECUTED; M4–M7 NOT AUTHORED  
 **Date:** 2026-11-28  
 **Review basis:** G09-A21, G09-A22, G09-A20, G09-A7, ADR-001 and ADR-002  
 **Authority:** Advisory design; no owner decision, candidate, gate or execution permission is approved.
@@ -332,3 +332,6 @@ Documentation consistency note: after removing the helper flag from executable M
 
 
 **Version 0.1.22 review note — M3 protocol challenge:** The M3 model now tests immutable installation binding as a separate mutant and includes PROCESSING in expired-lease reclaim eligibility. This is not silently treated as an approved policy: ADR-001 §5 currently names READY and expired CLAIMED, while A23's abstract WorkItem state includes PROCESSING. The model records the proposed behavior and the discrepancy; owner/independent review must resolve it before ADR-001 approval. The baseline has not yet been accepted as valid until exact-head TLC completes and every mutant matches its oracle.
+
+
+**Version 0.1.23 review note — M3 bounded clock abstraction:** M3 now models worker clock offsets in the finite domain -1..+1 relative to persistence time, while preserving a separately captured pre-lock observation. This reduces explicit-state cardinality without treating the bound as a real clock-drift guarantee. The baseline guard continues to use persistence-authoritative time after serialization. TLC validation remains pending on the newest model revision.
