@@ -45,7 +45,7 @@ The model does not choose risk appetite, decide legal status, approve authority,
 | AVT-14…AVT-17 | Prior N/A approval, mandatory gates, denominator and uniform scoring |
 | AVT-18…AVT-21 | Atomic subcriteria, conjunction and scope conservation |
 
-The harness executes each baseline vector once, then runs all 21 oracles against each of the ten deliberate mutants: 210 mutant/vector evaluations. A mutant is killed only when at least one mapped oracle fails against the mutated behavior. AVT-14 now supplies two visible synthetic candidate score sets before the post-score N/A attempt, so the prior-approval guard is tested after comparative results are available.
+The harness executes each of its 21 registered checks once, then runs all registered checks against each of the ten deliberate mutants: 210 mutant/check evaluations. LOT-EVAL-RDM-002 later found that several checks implement only subsets of their matrix vectors; this count must not be read as full matrix-property coverage. A mutant is killed only when at least one mapped oracle fails against the mutated behavior. AVT-14 now supplies two visible synthetic candidate score sets before the post-score N/A attempt, so the prior-approval guard is tested after comparative results are available.
 
 ## 5. Local execution record
 
@@ -59,14 +59,14 @@ Local environment: Python 3.13.5. The exact source file was syntax-compiled with
 
 | Measure | Result |
 |---|---:|
-| AVT vectors executed | 21 |
-| AVT PASS / FAIL | 21 / 0 |
+| Registered harness checks executed | 21 |
+| Registered check PASS / FAIL | 21 / 0 |
 | Specification mutants generated / executed | 10 / 10 |
 | Mutants killed / survived | 10 / 0 |
 | Mutant/vector evaluations | 210 |
 | Equivalent / unreachable / unresolved mutants | 0 / 0 / 0 |
 
-This is a specification-level fault-injection result from this reference harness, not a conventional third-party mutation-testing score or evidence of overall test-suite adequacy. All expected oracles were authored in the same workstream; no independent reviewer has independently reconstructed them. Independent challenge remains outstanding.
+This is a specification-level fault-injection result from this reference harness, not a conventional third-party mutation-testing score or evidence of overall test-suite adequacy. LOT-EVAL-RDM-002 identified gaps between several registered checks and the full matrix properties they nominally map to; therefore the result is 21 registered checks passing, not full verification of all 21 matrix vectors. All expected oracles were authored in the same workstream; no independent reviewer has independently reconstructed them. Independent challenge remains outstanding.
 
 Exact-head GitHub Actions run #1133 (run ID `46118746808`) on commit `863fe0eb8f27e93e68dcd0f6275aaef377cf3c32` succeeded: the structural documentation check validated 62 bilingual Markdown pairs and 160 local links, and the reference-model execution step passed. This is CI evidence for the exact implementation head, not independent assurance.
 
@@ -83,3 +83,6 @@ Exact-head GitHub Actions run #1133 (run ID `46118746808`) on commit `863fe0eb8f
 ## 7. Safety boundary
 
 Synthetic/non-production only. No candidate/provider/technology/jurisdiction is selected. No procurement, partner connection, production data, financial activity, customer funds, market activation, merge or deployment is authorized. The harness must remain isolated from product runtime unless a separately approved future decision explicitly changes its scope.
+
+
+**Subsequent audit qualification (LOT-EVAL-RDM-002):** the reported 0 equivalent / unreachable / unresolved mutants were hard-coded by the initial runner and were not derived through analysis. They are not evidence that these categories are empty. Treat all three categories as NOT ASSESSED until a defined classification is performed.
