@@ -1,6 +1,6 @@
 # Verified Project Status and Continuation Point
 
-**Document ID:** LOT-OPS-001 | **Version:** 2.0.13 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-28
+**Document ID:** LOT-OPS-001 | **Version:** 2.0.14 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-28
 
 ## Verified repository state
 - Repository: tecpey/lottorito-platform; default branch main; public visibility by owner decision.
@@ -296,7 +296,10 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 - M2 Run [46175422477](https://github.com/tecpey/lottorito-platform/actions/runs/46175422477): SUCCESS. Baseline exhausted 136 distinct states (515 generated), depth 12. Six negative controls produced expected counterexamples: early promotion; partition-only promotion; stale old-writer write; authority-root rollback; sink-fence rollback; forged current-epoch token. Artifact 15275536520; SHA-256 f289ee443e87d314d2df7d97f4908361b8aba4a9d99a9b0c1cc9d50fc133c410.
 - M0 Run [46175422429](https://github.com/tecpey/lottorito-platform/actions/runs/46175422429), M1 Run [46175422489](https://github.com/tecpey/lottorito-platform/actions/runs/46175422489) and Documentation Governance Run [46175422442](https://github.com/tecpey/lottorito-platform/actions/runs/46175422442) also completed successfully on the same exact head. These runs validate the corresponding bounded models and structural documentation checks only.
 - M2's first implementation attempt had a TLA+ function-constructor parse error; it was corrected, then baseline and negative controls were rerun. The first five-control successful run is superseded by the six-control run above. Do not cite the initial parse failure as a model violation.
-- M3–M7 are not authored. Independent review, candidate refinement, Jepsen/history checking, deterministic simulation, database/runtime proof, A20 execution and owner decisions remain open. A21 findings and all A4 gates remain open/not approved. ADR-002 remains PROPOSED. No runtime, candidate selection, partner integration, financial operation, production, merge or deployment is authorized.
+- M3 now has a candidate-neutral TLA+ model, one baseline config, eleven negative-control configs, a pinned runner and a dedicated Actions workflow. Its finite abstraction separates process identity from a shared authenticated principal, persistence time from bounded worker-clock skew, pre-lock observation from post-lock guard, and claim generation/token from owner identity. Exact-head TLC validation is pending; no M3 PASS is claimed.
+- M3 deliberately treats expired PROCESSING as reclaimable. ADR-001 currently names READY and expired CLAIMED only; this discrepancy is explicitly open for owner/independent-review reconciliation before ADR-001 approval. M3 also bounds one pending request and ten successful abstract mutations; these are finite-model bounds, not runtime policy. A7/A8 still need explicit candidate-level process-restart and real lock/concurrency schedules.
+- Early M3 TLC attempts exposed model/configuration issues (invalid symmetry domain, negative-clock module import and a missing competing state transition); those runs are failed/inconclusive attempts, not model counterexamples. The current run must complete on the exact latest head before any M3 verification claim.
+- M4–M7 are not authored. Independent review, candidate refinement, Jepsen/history checking, deterministic simulation, database/runtime proof, A20 execution and owner decisions remain open. A21 findings and all A4 gates remain open/not approved. ADR-002 remains PROPOSED. No runtime, candidate selection, partner integration, financial operation, production, merge or deployment is authorized.
 - PR #76 remains open/unmerged; latest documentation-only commits after the validation head update the bilingual M2/A23/index/project-status records. Always inspect live PR head and exact-head CI before further claims.
 
 
@@ -306,3 +309,9 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 - M0/M1 and Affiliate Contract Validation passed on the same exact head. Documentation Governance passed structural bilingual/link validation only; it does not certify semantic parity.
 - Later commits in this branch update only bilingual evidence/status/index documentation; the M2 module, configs, runner and workflow remain unchanged. Current live PR head and its exact-head CI must still be checked before the next handoff.
 - All evidence is finite-model/document/contract validation only. Independent review, candidate refinement, runtime/database proof, Jepsen/history checking, deterministic simulation, A20 execution and A4 gate approvals remain outstanding. PR #76 remains open/unmerged; no merge/deploy is authorized.
+
+
+## G09-A23 M3 — current work in progress
+- Bilingual M3 model contract: [EN](affiliate-g09-a23-m3-worker-lease-model.md) / [FA](../fa/engineering/affiliate-g09-a23-m3-worker-lease-model.md). Model source: formal/G09M3WorkerLeaseGeneration.tla; runner: scripts/formal/run_g09_m3.sh; workflow: .github/workflows/formal-g09-m3.yml.
+- Eleven mutant oracles target pre-lock time, worker-clock skew, stale generation/token, wrong token, tenant/installation binding, stale lifecycle/state, expired heartbeat, heartbeat generation changes and mutation after guard failure.
+- Validation is pending; no baseline state count, negative-control success, candidate refinement or runtime proof is asserted yet. See the M3 document for explicit assumptions and unresolved PROCESSING reclaim discrepancy.
