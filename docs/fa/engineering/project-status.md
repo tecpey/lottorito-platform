@@ -267,7 +267,7 @@
 
 ### G09-A23 — مدل رسمی و راهبرد آزمون خصمانه (۲۰۲۶-۱۱-۲۸)
 
-- LOT-AFFILIATE-G09-A23-001 در هر دو زبان اضافه شد؛ دامنه آن مدل انتزاعی State Machine، ۱۳ خاصیت Safety، خواص Liveness مشروط، خانواده مدل‌های M0–M7، Bounds اولیه، روش Model Checking، History Checker، Fault Injection، Schedule Generation و Mutation Testing است.
+- LOT-AFFILIATE-G09-A23-001 در هر دو زبان اضافه شد؛ دامنه آن مدل انتزاعی State Machine، ۱۴ خاصیت Safety، خواص Liveness مشروط، خانواده مدل‌های M0–M7، Bounds اولیه، روش Model Checking، History Checker، Fault Injection، Schedule Generation و Mutation Testing است.
 - این سند طراحی/تحقیق است؛ TLA+ Model هنوز تألیف/اجرا/بازبینی نشده، TLC اجرا نشده، Jepsen/Simulation اجرا نشده و A20-01..A20-28 همچنان NOT RUN هستند.
 - A21-F03/F04/F05/F11/F12 فقط پاسخ طراحی/روش‌شناختی دریافت کرده‌اند و تا مدل و شواهد معتبر باز می‌مانند. A21-F01/F06/F08/F13 برای A24 باز هستند.
 - OD-01..OD-12، C-01..C-16 و G1..G9 همچنان OPEN/NOT APPROVED؛ ADR-002 همچنان PROPOSED؛ R0 BLOCKED، R1 تحقیق، R2 شروع‌نشده و R3 غیرمجاز است.
