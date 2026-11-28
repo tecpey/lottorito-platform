@@ -1,6 +1,6 @@
 # LOT-EVAL-RDM-003B — Author-led adversarial second-pass review
 
-**Document ID:** LOT-EVAL-RDM-003B-AR-001-EN  
+**Document ID:** LOT-EVAL-RDM-003B-AR-001  
 **Version:** 0.1.0  
 **Review date:** 2026-11-28  
 **Status:** REVIEW COMPLETED — findings require correction and regression evidence  
