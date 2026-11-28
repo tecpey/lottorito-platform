@@ -29,7 +29,7 @@ A candidate feature or vendor statement cannot override law, owner-approved cons
 
 Unresolved owner decisions are represented as OPEN_OWNER_INPUT; absent evidence as MISSING_EVIDENCE; unsupported claims as UNVERIFIED; violated assertions as FAIL; ambiguous/incomplete outcomes as INCONCLUSIVE. These states MUST NOT be collapsed into PASS.
 
-## 3. Requirement-to-proof traceability
+## 3. Requirement-to-proof traceability — A21-F07
 
 Every mandatory requirement and critical assertion MUST have a trace record containing:
 
@@ -230,7 +230,7 @@ Restore before/after committed event; partial backup/WAL gap; old backup after t
 
 **Exit evidence:** approved lifecycle horizon/strategy; clean-room restore procedure; reconciliation oracles; isolation proof; domain-level restore report. Numeric retention/RPO/RTO remain OPEN pending owner evidence.
 
-## 8. Oracle, evidence and result contract — A21-F06/F08 interface
+## 8. Oracle, evidence and result contract — A21-F06/A21-F08 interface
 
 A22 does not claim oracle independence; A24 assesses trust boundaries. Every test record MUST identify assertion/property; oracle implementation/version and exact query/algorithm; source data/consistency; shared dependencies with system under test; credentials/admin/clock/failure domains; raw evidence path/hash/timestamp source/custody; completeness checks and known blind spots.
 
@@ -304,8 +304,8 @@ A finalized record MUST be immutable or preserve append-only correction history.
 | F04 External effects | §6 | Destination contracts and full-boundary tests | OPEN |
 | F05 Retention/restore | §7 | Approved horizon, lifecycle and clean-room restore evidence | OPEN |
 | F06 Oracle trust | §8 + A24 | Trust-boundary matrix, negative controls, corroboration | OPEN |
-| F07 Traceability | §3 | Complete bidirectional matrix and orphan check | OPEN |
-| F08 Result contract | §8, §10 | Schema, deterministic classification and complete records | OPEN |
+| A21-F07 Traceability | §3 | Complete bidirectional matrix and orphan check | OPEN |
+| A21-F08 Result contract | §8, §10 | Schema, deterministic classification and complete records | OPEN |
 | F09 Financial boundary | §9 | Isolation proof and scoped authorization | OPEN |
 | F10 Recovery controls | §7.2–7.3 | Restore integrity/domain reconciliation evidence | OPEN |
 
