@@ -1,7 +1,7 @@
 # G09-A23 M3 — Worker Lease & Claim Generation Model
 
 **Document ID:** LOT-AFFILIATE-G09-A23-M3  
-**Version:** 0.1.0  
+**Version:** 0.1.1  
 **Status:** MODEL DRAFT — TLC validation pending; independent review and candidate refinement not performed  
 **Parent:** [A23 formal protocol model/test strategy](affiliate-g09-a23-formal-protocol-model-test-strategy.md)  
 **Normative proposal:** [ADR-001 — WorkItem Claim, Lease and Fencing](adr-001-workitem-claim-lease-fencing.md)  
@@ -20,7 +20,7 @@ The durable WorkItem state is authoritative. Queue delivery is only a wake-up hi
 3. **The claim token is an opaque generation-bound symbol.** TLC models binding and mismatch, not cryptographic entropy, secrecy, token transport or credential theft. A token is not treated as a bearer credential by itself.
 4. **Persistence time is distinct from worker-local time.** Worker clocks advance independently of persistence time, allowing slow/fast observation schedules. The worker-local observation and pre-lock validity snapshot are never authoritative in the baseline.
 5. **The serialization point and guard are separate model steps.** A request captures its expected state/generation/token/lifecycle and pre-lock observation, waits, acquires the serialization point, then evaluates the guard against current durable state and persistence time. Time may advance while waiting or while the serialization point is held. The guard and protected mutation are one atomic linearization step.
-6. **A lease expiry is not a state transition.** It makes a CLAIMED item eligible for reclaim. Before a new generation is committed, an old worker must still be rejected if its lease is expired at the post-serialization guard. If an old worker validly linearizes before expiry while holding the serialization point, its mutation is ordered before any later reclaim.
+6. **A lease expiry is not a state transition.** It makes a CLAIMED item eligible for reclaim. The model also treats PROCESSING as a lease-bearing state that becomes reclaimable after expiry. This is a deliberate refinement beyond ADR-001's current wording (which names READY and expired CLAIMED); the owner and independent reviewers must reconcile this state-machine gap before ADR approval. Before a new generation is committed, an old worker must still be rejected if its lease is expired at the post-serialization guard. If an old worker validly linearizes before expiry while holding the serialization point, its mutation is ordered before any later reclaim.
 7. **A competing authorized state transition** is represented to test stale expected-state guards. Installation lifecycle version changes are represented as an input; the model does not decide the unresolved owner policy for already accepted receipts.
 
 ## 3. Abstract state and transitions
@@ -83,6 +83,7 @@ The runner deliberately injects one defect per TLC configuration:
 | stale_generation | Omits both generation and token binding checks | EveryAcceptedMutationWasAuthorized |
 | wrong_token | Accepts a mismatched claim token | EveryAcceptedMutationWasAuthorized |
 | wrong_tenant | Omits immutable tenant binding | EveryAcceptedMutationWasAuthorized |
+| wrong_installation | Omits immutable installation binding | EveryAcceptedMutationWasAuthorized |
 | stale_lifecycle | Omits lifecycle-version guard | EveryAcceptedMutationWasAuthorized |
 | stale_state | Omits expected-state guard | EveryAcceptedMutationWasAuthorized |
 | expired_heartbeat | Allows renewal after expiry | EveryAcceptedMutationWasAuthorized |
@@ -116,3 +117,13 @@ A runner is successful only when the baseline completes without an invariant vio
 The pinned runner is scripts/formal/run_g09_m3.sh; the workflow is .github/workflows/formal-g09-m3.yml. It pins TLA+ Tools v1.7.4 / TLC 2.19 by SHA-256 and preserves per-case logs and metadata as a GitHub Actions artifact. Exact model/config hashes, bounds, state counts, completion status, trace and artifact digest must be added here only after a successful exact-head run.
 
 **Validation status:** pending TLC execution on the exact PR head. No runtime or candidate has been tested or approved.
+
+
+## 10. Research references
+
+- Martin Kleppmann, [How to do distributed locking](https://martin.kleppmann.com/2016/02/08/how-to-do-distributed-locking.html) (2016): stale processes and delayed requests can outlive a lease; the protected resource must actively reject stale fencing tokens.
+- Marc Brooker / AWS Builders' Library, [Leader election in distributed systems](https://aws.amazon.com/builders-library/leader-election-in-distributed-systems/) (2019): lease/heartbeat behavior, pauses, clock-duration assumptions, and the risks of leader election; prefer idempotency/optimistic concurrency when a leader is unnecessary.
+- PostgreSQL, [Date/Time Functions and Operators](https://www.postgresql.org/docs/current/functions-datetime.html): transaction-start timestamps differ from actual wall-clock sampling; cited as a semantic example, not a database choice.
+- PostgreSQL, [Explicit Locking](https://www.postgresql.org/docs/current/explicit-locking.html): row-lock serialization and lock-wait behavior; cited as a candidate-evaluation reference only.
+
+These references motivate the model's adversarial schedules. They do not prove any Lottorito implementation or select a provider.
