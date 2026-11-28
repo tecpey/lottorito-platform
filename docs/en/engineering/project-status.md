@@ -307,3 +307,13 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 - Correct interpretation: 21 registered checks passed; this is not proof that all 21 matrix vectors and their sub-properties were fully verified. Earlier “equivalent/unreachable/unresolved = 0” output is not evidential because the harness does not classify those categories.
 - Recommended next stage: RDM-003 — reconstruct normative decision rules, obtain a blind independent oracle pack, then correct the model using decision tables, event/state-machine tests, metamorphic and property-based invariants, and truthful mutation accounting.
 - This is author-led review, not independent assurance. LOT-EVAL-001 remains PROPOSED; REV-01…REV-14 remain PENDING. No production, procurement, partner integration, financial activity, merge or deployment is authorized.
+
+
+## LOT-EVAL-RDM-003A — normative rule decomposition (2026-11-28)
+
+- Added bilingual `enterprise-evaluation-decision-rule-catalogue-001.md` with 18 atomic rules, five decision tables, five ambiguity issues and a rule-to-test traceability baseline.
+- Explicitly classifies each rule as NORMATIVE, DERIVED-GUARD or UNRESOLVED. No unresolved interpretation is silently encoded as a deterministic result.
+- Key unresolved issues: non-material NS/provisional aggregate authority and materiality; conditional experiment gate versus N/A; minimum decision-unit completeness; calibration of qualitative likelihood; criterion-specific thresholds for 1–5 anchors.
+- The catalogue is an author-led design artifact. It does not change the parent standard or executable model. Independent blind oracle derivation and bilingual semantic review remain pending.
+- Research basis: ISO/IEC/IEEE 29119-4:2021; ISTQB CTFL v4.0.1; NASA SWE-114 and SWE-072; NIST SP 800-160 Vol.1 Rev.1.
+- LOT-EVAL-001 remains PROPOSED; REV-01…REV-14 remain PENDING. No procurement, integration, production, financial activity, merge or deployment is authorized.
