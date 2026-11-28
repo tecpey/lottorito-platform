@@ -140,3 +140,8 @@ Read repository-root [AGENTS.md](../../AGENTS.md). Use a working branch and pull
 ## Affiliate G09-A20 — evidence acquisition and adversarial qualification
 
 - [Affiliate G09-A20 — Constraint Evidence Acquisition & Adversarial Qualification Design](engineering/affiliate-g09-a20-constraint-evidence-adversarial-qualification.md) — evidence register for C-01..C-16, full data-flow inventory, candidate-neutral invariants/oracles, 28 adversarial test designs, execution safety gates and reproducibility manifest; all cases NOT RUN, no candidate qualified, no runtime authorization.
+
+
+## Affiliate G09-A21 — adversarial assurance review
+
+- [Affiliate G09-A21 — Adversarial Assurance Review of G09-A20](engineering/affiliate-g09-a21-adversarial-assurance-review.md) — internal self-review, not independent assurance; records 13 open findings (P0:1, P1:9, P2:3), traceability gaps and controlled A22–A24 remediation sequence. A20 remains research/test-design only; no runtime authorization.
