@@ -1,6 +1,6 @@
 # Verified Project Status and Continuation Point
 
-**Document ID:** LOT-OPS-001 | **Version:** 2.0.11 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-28
+**Document ID:** LOT-OPS-001 | **Version:** 2.0.12 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-28
 
 ## Verified repository state
 - Repository: tecpey/lottorito-platform; default branch main; public visibility by owner decision.
@@ -288,3 +288,13 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 
 
 - Recorded PR #76 snapshot with all four workflows passing: head `f88769965b5a259444e84a99373e7bd80b95f1ea`; synthetic merge `a86a80bf03a8bd309fa6927343d7b1a42a53da71`; base `f032065f47fe85de2aabf8d47565a57af6af3ae9`. M0 Run `46173159826` PASS: 87 generated / 52 distinct states, depth 7; artifact `15273919206` / `4c69f418349f57a866ca1f89ed34a7cb88c4d27fde4831a0d4c91884ec0497fc`. M1 Run `46173159827` PASS: both baselines 25 generated / 19 distinct states, depth 8; state-based oracle; all three expected mutants detected; artifact `15274292069` / `db8c119daa1ce3998e3314f701955c4f2311046437589070360d8f52119483b8`. Documentation Governance `46173159838` and Affiliate Contract Validation `46173159862` both PASS. TLC executed on the synthetic merge; evidence is bounded to the models. Candidate/runtime/DB integration/Jepsen/simulation/A20 have not run; M2–M7 are not authored. PR remains open/unmerged; no merge/deploy.
+
+## G09-A23 latest formal-model status — 2026-11-28
+- A23 is now v0.1.19 in both languages. M0, M1 and M2 have bounded TLC evidence; this is formal-model verification only, not runtime/candidate proof.
+- M2 was expanded after adversarial review to keep authority-root high-water and mutation-sink fence high-water separate. A sixth negative control now detects rollback of the sink's own fence metadata during restore.
+- Exact model-validation head: 96fc7a4830af452f214921ac9af68d7ae4265f33; base: f032065f47fe85de2aabf8d47565a57af6af3ae9; synthetic merge executed by Actions: 547cd6f.
+- M2 Run [46175422477](https://github.com/tecpey/lottorito-platform/actions/runs/46175422477): SUCCESS. Baseline exhausted 136 distinct states (515 generated), depth 12. Six negative controls produced expected counterexamples: early promotion; partition-only promotion; stale old-writer write; authority-root rollback; sink-fence rollback; forged current-epoch token. Artifact 15275536520; SHA-256 f289ee443e87d314d2df7d97f4908361b8aba4a9d99a9b0c1cc9d50fc133c410.
+- M0 Run [46175422429](https://github.com/tecpey/lottorito-platform/actions/runs/46175422429), M1 Run [46175422489](https://github.com/tecpey/lottorito-platform/actions/runs/46175422489) and Documentation Governance Run [46175422442](https://github.com/tecpey/lottorito-platform/actions/runs/46175422442) also completed successfully on the same exact head. These runs validate the corresponding bounded models and structural documentation checks only.
+- M2's first implementation attempt had a TLA+ function-constructor parse error; it was corrected, then baseline and negative controls were rerun. The first five-control successful run is superseded by the six-control run above. Do not cite the initial parse failure as a model violation.
+- M3–M7 are not authored. Independent review, candidate refinement, Jepsen/history checking, deterministic simulation, database/runtime proof, A20 execution and owner decisions remain open. A21 findings and all A4 gates remain open/not approved. ADR-002 remains PROPOSED. No runtime, candidate selection, partner integration, financial operation, production, merge or deployment is authorized.
+- PR #76 remains open/unmerged; latest documentation-only commits after the validation head update the bilingual M2/A23/index/project-status records. Always inspect live PR head and exact-head CI before further claims.
