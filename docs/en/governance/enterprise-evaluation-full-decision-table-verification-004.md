@@ -113,3 +113,10 @@ LOT-EVAL-001 remains PROPOSED. REV-01…REV-14 owner dispositions remain PENDING
 ## 9. Change history
 
 - 0.1.0 (2026-11-28): first executable row-level verification for 36 decision-table rows, six metamorphic checks and four targeted specification mutations; bounded exact-head CI run #1214 succeeded on `18af39533ce3a01091d0e60f3ed3df9c071699e9`. Any later source change requires a new exact-head run.
+
+
+### Subsequent exact-head verification after gate-registry hardening
+
+The DT-02 implementation was strengthened with a closed-world ten-category minimum mandatory-gate registry derived from parent §7. DT02-R6 now removes one required category from the recorded set and verifies that the evaluator detects the omission, rather than accepting a caller-supplied omission flag.
+
+Documentation Governance run #1221 (ID `46129804594`) succeeded on exact PR head `f674bc5979df472a7334088f2937b89290bc50f4`. Bilingual documentation validation, RDM-001 and RDM-004 all passed. The RDM-004 runner passed all 36 row checks, six metamorphic checks and four targeted mutation checks after this hardening.
