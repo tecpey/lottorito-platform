@@ -30,9 +30,6 @@ MaxTime == 2
 ProtectedOps == {"heartbeat", "start_processing", "complete", "retry", "park"}
 WorkerPermutations == Permutations(Workers)
 
-(* Each accepted mutation carries mutationCount + 1 as a bounded event
-   identity, so equal-valued events remain distinct in the cumulative history. *)
-
 VARIABLES
     workState,
     claimGeneration,
@@ -354,8 +351,94 @@ CompetingAuthorizedStartProcessing(w) ==
        lockAcquireTime, lockOwner, blockerAvailable, lastFailureMutationCount,
        claimEvents>>
 
-(* Administrative quarantine is intentionally excluded here; worker Park is
-   guarded and recorded above. Operator/recovery quarantine is a separate model. *)
+GuardOK(w) ==
+    /\ claimOwner = PrincipalOf(w)
+    /\ (Mutation = "stale_state" \/ requestExpectedState = workState)
+    /\ workState \in {"claimed", "processing"}
+    /\ (Mutation = "stale_generation" \/ requestGeneration = claimGeneration)
+    /\ (Mutation \in {"stale_generation", "wrong_token"} \/ requestToken = claimToken)
+    /\ (Mutation = "stale_lifecycle" \/ requestLifecycle = lifecycleVersion)
+    /\ (Mutation = "wrong_tenant" \/ requestTenant = TenantID)
+    /\ (Mutation = "wrong_installation" \/ requestInstallation = InstallationID)
+    /\ IF Mutation = "prelock_time"
+          THEN requestPreLockValid
+       ELSE IF Mutation = "worker_clock"
+          THEN persistenceTime + workerClock[w] < leaseExpiry
+       ELSE IF Mutation = "expired_heartbeat" /\ requestOp = "heartbeat"
+          THEN TRUE
+       ELSE persistenceTime < leaseExpiry
+
+ProtectedMutationRecord(w) ==
+    <<w, claimOwner, claimGeneration, claimToken, persistenceTime, leaseExpiry,
+      lifecycleVersion, requestGeneration, requestToken, requestLifecycle,
+      requestExpectedState, workState, requestTenant, requestInstallation,
+      lockAcquireTime, requestStartTime, requestOp,
+      IF Mutation = "heartbeat_generation" /\ requestOp = "heartbeat"
+      THEN claimGeneration + 1 ELSE claimGeneration, mutationCount + 1>>
+
+ApplyProtectedTransition(w) ==
+    /\ w \in Workers
+    /\ lockOwner = w
+    /\ requestState = "locked"
+    /\ requestWorker = w
+    /\ requestOp \in ProtectedOps
+    /\ GuardOK(w)
+    /\ mutationCount < 10
+    /\ workState' =
+         IF requestOp = "start_processing" THEN "processing"
+         ELSE IF requestOp = "complete" THEN "completed"
+         ELSE IF requestOp = "retry" THEN "ready"
+         ELSE IF requestOp = "park" THEN "quarantined"
+         ELSE workState
+    /\ claimOwner' =
+         IF requestOp \in {"retry", "park", "complete"} THEN NoOwner ELSE claimOwner
+    /\ claimToken' =
+         IF requestOp \in {"retry", "park", "complete"} THEN 0 ELSE
+         IF Mutation = "heartbeat_generation" /\ requestOp = "heartbeat"
+         THEN claimToken + 1 ELSE claimToken
+    /\ leaseExpiry' =
+         IF requestOp = "heartbeat" THEN persistenceTime + LeaseDuration
+         ELSE IF requestOp \in {"retry", "park", "complete"} THEN 0 ELSE leaseExpiry
+    /\ claimGeneration' =
+         IF Mutation = "heartbeat_generation" /\ requestOp = "heartbeat"
+         THEN claimGeneration + 1 ELSE claimGeneration
+    /\ generationHighWater' = generationHighWater
+    /\ mutationCount' = mutationCount + 1
+    /\ acceptedHistory' = acceptedHistory \cup {ProtectedMutationRecord(w)}
+    /\ workerGeneration' = workerGeneration
+    /\ workerToken' = workerToken
+    /\ workerLifecycle' = workerLifecycle
+    /\ requestState' = "idle"
+    /\ requestWorker' = NoOwner
+    /\ requestOp' = "none"
+    /\ lockOwner' = NoOwner
+    /\ lastGuardFailed' = FALSE
+    /\ UNCHANGED <<lifecycleVersion, persistenceTime, workerClock,
+       requestGeneration, requestToken, requestLifecycle, requestExpectedState,
+       requestTenant, requestInstallation, requestStartTime, requestPreLockValid,
+       lockAcquireTime, blockerAvailable, lastFailureMutationCount, claimEvents>>
+
+RejectProtectedTransition(w) ==
+    /\ w \in Workers
+    /\ lockOwner = w
+    /\ requestState = "locked"
+    /\ requestWorker = w
+    /\ requestOp \in ProtectedOps
+    /\ ~GuardOK(w)
+    /\ requestState' = "idle"
+    /\ requestWorker' = NoOwner
+    /\ requestOp' = "none"
+    /\ lockOwner' = NoOwner
+    /\ mutationCount' =
+         IF Mutation = "guard_mutates" THEN mutationCount + 1 ELSE mutationCount
+    /\ lastGuardFailed' = TRUE
+    /\ lastFailureMutationCount' = mutationCount
+    /\ UNCHANGED <<workState, claimGeneration, generationHighWater, claimOwner,
+       claimToken, leaseExpiry, lifecycleVersion, persistenceTime, workerClock,
+       workerGeneration, workerToken, workerLifecycle, requestGeneration,
+       requestToken, requestLifecycle, requestExpectedState, requestTenant,
+       requestInstallation, requestStartTime, requestPreLockValid, lockAcquireTime,
+       blockerAvailable, acceptedHistory, claimEvents>>
 
 Next ==
     \/ \E w \in Workers : \E op \in Ops \ {"none"} : StartRequest(w, op)
