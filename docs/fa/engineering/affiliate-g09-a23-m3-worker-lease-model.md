@@ -93,7 +93,7 @@ Runner در هر Config مربوط به TLC عمداً یک نقص مستقل ت
 | prelock_time | استفاده از مشاهده پیش از Lock پس از انتظار نامحدود | EveryAcceptedMutationWasAuthorized |
 | worker_clock | استفاده از Clock کند/تند Worker به‌عنوان مرجع اختیار | EveryAcceptedMutationWasAuthorized |
 | stale_generation | فقط کنترل Generation را حذف می‌کند؛ درخواست دارای Generation قدیمی و Token جاری است | EveryAcceptedMutationWasAuthorized |
-| wrong_token | فقط کنترل Token را حذف می‌کند؛ درخواست دارای Generation جاری و Token Opaque نامعتبر است | EveryAcceptedMutationWasAuthorized |
+| wrong_token | فقط کنترل Token را حذف می‌کند؛ درخواست دارای Generation جاری و Tokenی از دامنه تعریف‌شده است که با Token فعال تطبیق ندارد | EveryAcceptedMutationWasAuthorized |
 | wrong_tenant | حذف Binding تغییرناپذیر Tenant | EveryAcceptedMutationWasAuthorized |
 | wrong_installation | حذف Binding تغییرناپذیر Installation | EveryAcceptedMutationWasAuthorized |
 | stale_lifecycle | حذف Guard مربوط به Lifecycle Version | EveryAcceptedMutationWasAuthorized |
@@ -175,3 +175,6 @@ Context درخواست Pending به‌صورت State اسکالر مدل شده�
 - رویدادهای Claim/Reclaim و Mutationهای محافظت‌شده پذیرفته‌شده اکنون شماره ترتیبی بعدی مشترک چرخه عمر را ثبت می‌کنند. ساختار ذخیره‌سازی History همچنان Set باقی می‌ماند، اما Sequence بین هر دو نوع Record مشترک است.
 - `LifecycleEventSequenceUnique` و `LifecycleEventSequenceComplete` یکتایی و پوشش پیوسته Sequenceها را در History ترکیبی بررسی می‌کنند. ترتیب کلی رویدادها در سطح مدل قابل بازسازی است، بدون تبدیل Collectionهای تاریخچه به Sequence.
 - اعتبارسنجی TLC روی Head دقیق در انتظار است. تا تکمیل Baseline و بررسی مستقل Trace تمام Negative Controlها، وضعیت مدل **NOT ACCEPTED** باقی می‌ماند.
+
+
+**توضیح اصطلاح‌شناسی:** Negative Control با نام `wrong_token` مقداری غیرمنطبق انتخاب می‌کند که همچنان عضو دامنه متناهی `TokenValues` تعریف‌شده است؛ این مقدار خارج از دامنه یا Token بدساخت نیست.

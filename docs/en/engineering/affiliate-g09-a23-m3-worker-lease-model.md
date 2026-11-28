@@ -87,7 +87,7 @@ The runner deliberately injects one defect per TLC configuration:
 | prelock_time | Uses pre-lock observation after an arbitrary lock wait | EveryAcceptedMutationWasAuthorized |
 | worker_clock | Uses a lagging/leading worker clock as authority | EveryAcceptedMutationWasAuthorized |
 | stale_generation | Omits only generation binding; the request carries a stale generation with the current token | EveryAcceptedMutationWasAuthorized |
-| wrong_token | Omits only token binding; the request carries the current generation with an invalid opaque token | EveryAcceptedMutationWasAuthorized |
+| wrong_token | Omits only token binding; the request carries the current generation with a non-matching token selected from the declared token domain | EveryAcceptedMutationWasAuthorized |
 | wrong_tenant | Omits immutable tenant binding | EveryAcceptedMutationWasAuthorized |
 | wrong_installation | Omits immutable installation binding | EveryAcceptedMutationWasAuthorized |
 | stale_lifecycle | Omits lifecycle-version guard | EveryAcceptedMutationWasAuthorized |
@@ -169,3 +169,6 @@ The pending request context is represented as scalar state rather than per-worke
 - Claim/Reclaim events and accepted protected mutations now carry the same next lifecycle event ordinal. The histories remain Sets, but the sequence field is shared across both record types.
 - `LifecycleEventSequenceUnique` and `LifecycleEventSequenceComplete` check uniqueness and contiguous coverage across the combined history. This provides a reconstructable model-level total order without converting the history collections to Sequences.
 - Exact-head TLC validation is pending; the model remains **NOT ACCEPTED** until baseline exhaustion and individually inspected negative-control traces are available.
+
+
+**Terminology clarification:** The `wrong_token` negative control uses a non-matching value that is still a member of the declared finite `TokenValues` domain. It is not an out-of-domain or malformed token.
