@@ -421,7 +421,7 @@ ApplyProtectedTransition(w) ==
          THEN claimGeneration + 1 ELSE claimGeneration
     /\ generationHighWater' = generationHighWater
     /\ mutationCount' = mutationCount + 1
-    /\ acceptedHistory' = {ProtectedMutationRecord(w)}
+    /\ acceptedHistory' = acceptedHistory \cup {ProtectedMutationRecord(w)}
     /\ workerGeneration' = workerGeneration
     /\ workerToken' = workerToken
     /\ workerLifecycle' = workerLifecycle
