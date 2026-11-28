@@ -9,6 +9,7 @@ on:
     paths:
       - "docs/**"
       - "scripts/check_docs.py"
+      - "tools/lot_eval_rdm.py"
       - ".github/workflows/docs-governance.yml"
   workflow_dispatch:
 
@@ -33,3 +34,5 @@ jobs:
           python-version: "3.12"
       - name: Validate bilingual documentation
         run: python scripts/check_docs.py
+      - name: Execute LOT-EVAL reference model and adversarial mutation harness
+        run: python tools/lot_eval_rdm.py
