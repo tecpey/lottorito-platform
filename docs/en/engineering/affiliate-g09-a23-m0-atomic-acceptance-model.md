@@ -1,7 +1,7 @@
 # G09-A23-M0 — Formal Atomic Acceptance Model
 
 **Document ID:** LOT-AFFILIATE-G09-A23-M0-001  
-**Version:** 0.1.0  
+**Version:** 0.1.1  
 **Status:** TLC-executed bounded model; independent review and candidate refinement not performed  
 **Model:** `formal/G09M0AtomicAcceptance.tla`  
 **Baseline configuration:** `formal/G09M0AtomicAcceptance.cfg`  
@@ -146,13 +146,42 @@ M0 does not prove the following and deliberately defers them:
 
 In particular, M0 does not assume that observing no record proves the original transaction has terminated. That race is the central subject of M1. M0 also does not model tenant isolation or disclosure of another tenant's identity.
 
-## 8. Evidence status
+## 8. Reproducible execution evidence
 
-- TLA+ module and configurations are recorded;
-- TLC ran: the baseline completed with 52 distinct states and all three negative controls produced their expected counterexamples;
-- parser/syntax and invariant checking occurred in the TLC run; no separate type-system tool was run;
-- mutant counterexamples are retained in the run log;
-- independent model review and candidate refinement have not yet been performed;
+**PR-associated run:** GitHub Actions Run `46170218651` — [G09 M0 Formal Model](https://github.com/tecpey/lottorito-platform/actions/runs/46170218651)  
+**PR head:** `c9d2e2b7e3d80bf53a64e928df647bcd1cb20ebc`  
+**Synthetic merge commit checked by the pull_request runner:** `9a9aa076de9700717e4d41d14766d8414fdd2b5b`  
+**Artifact:** [g09-a23-m0-tlc-46170218651-1](https://github.com/tecpey/lottorito-platform/actions/runs/46170218651/artifacts/15273631651)  
+**Artifact ZIP SHA-256:** `0ae142aac63ca8bc9e9cdd1e802b98bdd8abf8e829045e3d99879ba92bd60d4d`
+
+Toolchain and environment:
+- TLA+ Tools release: `v1.7.4`
+- TLC: `2.19`, revision `5a47802`, dated 2024-08-08
+- TLA+ Tools JAR SHA-256: `936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88`
+- Java: Eclipse Temurin `17.0.21.1+2`
+- Runner: Ubuntu `24.04.5`, GitHub-hosted `ubuntu-24.04`
+- TLC options: breadth-first search, one worker, seed 1, fp 0, 1 GiB heap.
+
+Results:
+| Case | TLC result | Generated / distinct states | Depth | Oracle result |
+|---|---|---:|---:|---|
+| Baseline | No violation | 87 / 52 | 7 | As expected |
+| Partial-commit mutant | `PairAtomicity` violated | 7 / 7 | 3 | Detected |
+| Duplicate-pair mutant | `AtMostOneReceipt` violated | 34 / 24 | 5 | Detected |
+| Early-ack mutant | `AcceptedAckSoundness` violated | 7 / 7 | 3 | Detected |
+
+Model/configuration hashes retained in the artifact's `sha256-manifest.txt`:
+- TLA module: `4740bc9d76c10ec76bf0bca00b5f829963b99365fef0a600a0886a2fe9cf2e6f`
+- Baseline config: `ad63aa16b0604b4c82d5f6c5e3435ccb5e6cd51a3fca994e303a3cd263132f7e`
+- Partial-commit config: `3fab9ce1b8d3b1b1bcdad8690d28db2e9254171cc5b962526df7ba82fefc7767`
+- Duplicate-pair config: `7e24f26489c8e02c7798a298101d73efd71e49ca61ea383d5885aded91224f3a`
+- Early-ack config: `975ecfbf8e14541311ada32e812413a918c6f8d759bfa3c9024258e7b5e39938`
+
+TLC parsed and semantically processed the module and checked the invariants; no separate type-system tool was run. All three mutants produced actual, reproducible counterexamples. The artifact contains four TLC logs and the hash manifest.
+
+**Interpretation boundary:** the GitHub run is associated with the PR head above, but the `pull_request` runner executed on the synthetic merge commit listed above. This is an integration check of the PR/base combination, not a claim that the branch tip alone was directly executed.
+
+Independent model review and candidate refinement have not yet been performed;
 - no candidate or runtime has been evaluated;
 - ADR-002 remains PROPOSED and A11-F01..F08 remain open;
 - A20-01..A20-28 remain NOT RUN.
