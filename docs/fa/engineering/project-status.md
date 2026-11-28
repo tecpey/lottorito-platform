@@ -1,6 +1,6 @@
 # وضعیت واقعی پروژه و نقطه ادامه کار
 
-**شناسه:** LOT-OPS-001 | **نسخه:** ۲.۰.۱۵ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۸
+**شناسه:** LOT-OPS-001 | **نسخه:** ۲.۰.۱۶ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۸
 
 ## وضعیت تأییدشده مخزن
 - مخزن tecpey/lottorito-platform؛ شاخه پیش‌فرض main؛ سطح دسترسی Public طبق تصمیم مالک.
@@ -320,3 +320,9 @@
 ### Refinement مربوط به State-space در M3
 - ماژول M3 اکنون یک Context اسکالر برای درخواست Pending به‌همراه Invariant صریح RequestLockCoherence دارد. دو Process مربوط به Worker در State محلی Claim Generation/Token/Clock همچنان متمایز هستند؛ CompetingReclaim برنده‌شدن Generation جدید هنگام انتظار درخواست قدیمی را مدل می‌کند.
 - Baseline و یازده Negative Control همچنان در انتظار اجرای موفق TLC روی Head دقیق هستند. Parse/Config Failureهای قبلی و تلاش‌های طولانی‌مدت، شواهد Verification محسوب نمی‌شوند.
+
+
+### بازبینی خصمانه مدل M3 — اعتبارسنجی در انتظار
+- در بازبینی مشخص شد Action قبلی `AuthorizedStartProcessing` وضعیت WorkItem را خارج از History مربوط به Mutationهای پذیرفته‌شده تغییر می‌داد. این Action با Transition رقیب CLAIMED→PROCESSING جایگزین شد که به Claimant جاری و مجاز نیاز دارد و در همان Oracle تجمعی ثبت می‌شود.
+- Mutationهای محافظت‌شده اکنون در History تجمعی نگهداری می‌شوند و رویداد قبلی را جایگزین نمی‌کنند. Completion، Owner/Token/Lease فعال را پاک می‌کند و Generation را حفظ می‌کند؛ Invariant مربوط به SingleClaimOwner نیز نبود Lease فعال در Stateهای READY و Terminal را بررسی می‌کند.
+- این تغییر اصلاح صحت مدل است، نه تصویب Policy در Runtime. Baseline و Counterexample هر یازده Mutant روی Head دقیق همچنان در انتظار TLC هستند. M3 در وضعیت Draft باقی می‌ماند.
