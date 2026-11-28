@@ -131,3 +131,5 @@ Validator ساختاری در [scripts/check_docs.py](../../scripts/check_docs.p
 
 - [G09-A16 افیلیت — بازبینی خصمانه معماری ADR-002 و پرونده بازبین مستقل](engineering/affiliate-g09-a16-adversarial-architecture-review.md) — فرابازبینی نویسنده با ده چالش میان‌برشی، دوازده خانواده Schedule قطعی، قرارداد Oracle مستقل و پروتکل تحویل به بازبین؛ نه تأیید مستقل است و نه Proof مربوط به Runtime.
 - [G09-A17 افیلیت — پرونده تحقیق و پیشنهاد تصمیم‌های مالک ADR-002](engineering/affiliate-g09-a17-adr002-owner-decision-research.md) — تحلیل مبتنی بر شواهد OD-01 تا OD-12، پیشنهادهای مشروط، گزینه‌های ردشده، شواهد اثبات، وابستگی تصمیم‌ها و Hard Gateهای Candidate؛ بدون اتخاذ تصمیم مالک یا انتخاب فناوری.
+
+- [G09-A18 افیلیت — ارزیابی معماری Candidateهای Persistence و Authority](engineering/affiliate-g09-a18-persistence-authority-candidate-evaluation.md) — مقایسه پژوهشی PostgreSQL HA مهندسی‌شده، Managed PostgreSQL HA، Distributed SQL، Spanner مشروط و تفکیک Authority/Outbox؛ تعریف Hard Gateهای G1 تا G7 و برنامه شواهد R1؛ بدون انتخاب Candidate یا مجوز Runtime.
