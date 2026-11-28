@@ -10,6 +10,12 @@ import json
 from typing import Callable
 
 TIERS = ("T0", "T1", "T2", "T3")
+REQUIRED_GATE_IDS = frozenset({
+    "legal_authority", "security_trust", "privacy_data_rights",
+    "integrity_correctness", "financial_safety", "operational_resilience",
+    "license_supply_chain", "contract_exit", "product_safety_user_impact",
+    "evidence_sufficiency",
+})
 EXPECTED_ROWS = tuple(
     [f"DT01-R{i}" for i in range(1, 7)]
     + [f"DT02-R{i}" for i in range(1, 8)]
@@ -37,6 +43,19 @@ def tier_decision(*, triggers: set[str], scope_complete: bool,
             return min(triggers, key=TIERS.index)
         return max(triggers, key=TIERS.index)
     return "T0" if t0_conditions_evidenced else "UNRESOLVED"
+
+
+def gate_register_decision(*, recorded_gate_ids: set[str],
+                           mutant: str | None = None) -> str:
+    if not isinstance(recorded_gate_ids, set):
+        return "INVALID"
+    unknown = recorded_gate_ids - REQUIRED_GATE_IDS
+    if unknown:
+        return "INVALID"
+    missing = REQUIRED_GATE_IDS - recorded_gate_ids
+    if missing and mutant != "MUT-OMIT-GATE-PASS":
+        return "BLOCK_INCOMPLETE_REGISTER"
+    return "COMPLETE_REGISTER"
 
 
 def gate_decision(*, applicability: str, result: str,
@@ -209,7 +228,9 @@ def _():
     later = gate_decision(applicability="REQUIRED", result="UNKNOWN")
     return current == "CONDITIONAL_EXPERIMENT_ONLY" and later == "BLOCK"
 @row("DT02-R6")
-def _(): return gate_decision(applicability="REQUIRED", result="MISSING", omitted_from_register=True) == "BLOCK_INCOMPLETE_REGISTER"
+def _():
+    recorded = set(REQUIRED_GATE_IDS) - {"financial_safety"}
+    return gate_register_decision(recorded_gate_ids=recorded) == "BLOCK_INCOMPLETE_REGISTER"
 @row("DT02-R7")
 def _(): return gate_decision(applicability="REQUIRED", result="N/A") == "BLOCK"
 
@@ -316,8 +337,8 @@ def targeted_mutation_tests() -> dict[str, bool]:
         "MUT-TIER-LOWEST-killed": tier_decision(
             triggers={"T1", "T3"}, scope_complete=True,
             mutant="MUT-TIER-LOWEST") != "T3",
-        "MUT-OMIT-GATE-PASS-killed": gate_decision(
-            applicability="REQUIRED", result="MISSING", omitted_from_register=True,
+        "MUT-OMIT-GATE-PASS-killed": gate_register_decision(
+            recorded_gate_ids=set(REQUIRED_GATE_IDS) - {"financial_safety"},
             mutant="MUT-OMIT-GATE-PASS") != "BLOCK_INCOMPLETE_REGISTER",
         "MUT-EVIDENCE-ZERO-killed": evidence_decision(
             sufficient=False, mutant="MUT-EVIDENCE-ZERO") != ("NS", None),
@@ -349,6 +370,7 @@ def execute() -> dict:
         "limitations": [
             "Row-level fixtures test the catalogue's declared outcomes; they do not authenticate real evidence, approvals, delegated authority or control operation.",
             "DT04-R5 remains UNRESOLVED by design; no definitive non-material-NS policy is inferred.",
+            "DT02 uses a closed-world ten-category minimum gate registry derived from parent §7; applicability and approval evidence remain synthetic inputs.",
             "DT02-R4/R5 use synthetic control-owner approval and enforceable-restriction flags; real authorization is outside this harness.",
             "DT01 tier triggers are supplied as classified inputs; this harness does not decide legal status or infer a real decision unit.",
             "The 36 rows are table-row checks, not 36 independent end-to-end tests or proof of standard adequacy.",
