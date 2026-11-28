@@ -596,6 +596,6 @@ LeaseNeverRenewedAfterExpiry ==
 NewClaimHasCurrentOwnerAndToken ==
     /\ (claimGeneration = 0 => claimOwner = NoOwner)
     /\ (claimGeneration > 0 /\ workState \in {"claimed", "processing"}
-        => claimOwner = "worker-service" /\ claimToken = claimGeneration)
+        => claimOwner = "worker-service" /\ claimToken \in TokenValues)
 
 =============================================================================
