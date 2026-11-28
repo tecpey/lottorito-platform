@@ -263,3 +263,12 @@
 - هیچ تصمیم مالک یا مقدار Candidate اختراع نشده است. OD-01 تا OD-12 و C-01 تا C-16 باز؛ G1 تا G9 تست‌نشده/قبول‌نشده. تمام یافته‌های A21 تا ارائه Evidence واقعی و بازبینی مجاز باز می‌مانند؛ متن A22 آن‌ها را نمی‌بندد.
 - A20-01 تا A20-28 همچنان DESIGNED / NOT RUN؛ ADR-002 پیشنهادی؛ A11-F01 تا F08 باز؛ A12 انجام‌نشده/غیرقابل ارزیابی؛ R0 مسدود؛ R1 صرفاً تحقیق؛ R2 شروع‌نشده؛ R3 غیرمجاز؛ A4 تصویب‌نشده.
 - هیچ Runtime/Harness، انتخاب Candidate، اتصال Partner، عملیات مالی، دسترسی Production، Merge یا Deploy مجاز نیست. A23 مدل رسمی/راهبرد آزمون و A24 بسته Evidence/Assurance دوزبانه مراحل بعدی هستند.
+
+
+### G09-A23 — مدل رسمی و راهبرد آزمون خصمانه (۲۰۲۶-۱۱-۲۸)
+
+- LOT-AFFILIATE-G09-A23-001 در هر دو زبان اضافه شد؛ دامنه آن مدل انتزاعی State Machine، ۱۳ خاصیت Safety، خواص Liveness مشروط، خانواده مدل‌های M0–M7، Bounds اولیه، روش Model Checking، History Checker، Fault Injection، Schedule Generation و Mutation Testing است.
+- این سند طراحی/تحقیق است؛ TLA+ Model هنوز تألیف/اجرا/بازبینی نشده، TLC اجرا نشده، Jepsen/Simulation اجرا نشده و A20-01..A20-28 همچنان NOT RUN هستند.
+- A21-F03/F04/F05/F11/F12 فقط پاسخ طراحی/روش‌شناختی دریافت کرده‌اند و تا مدل و شواهد معتبر باز می‌مانند. A21-F01/F06/F08/F13 برای A24 باز هستند.
+- OD-01..OD-12، C-01..C-16 و G1..G9 همچنان OPEN/NOT APPROVED؛ ADR-002 همچنان PROPOSED؛ R0 BLOCKED، R1 تحقیق، R2 شروع‌نشده و R3 غیرمجاز است.
+- هیچ Candidate، Runtime/Harness اجرایی، اتصال Partner، عملیات مالی، Production، Merge یا Deploy مجاز نشده است.
