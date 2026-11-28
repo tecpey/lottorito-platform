@@ -1,7 +1,7 @@
 # G09-A23 — Formal Protocol Model & Adversarial Test Strategy
 
 **Document ID:** LOT-AFFILIATE-G09-A23-001  
-**Version:** 0.1.2 | **Status:** PROPOSED, MODEL/TEST DESIGN ONLY — NO MODEL CHECKER OR RUNTIME EXECUTION  
+**Version:** 0.1.3 | **Status:** PROPOSED, MODEL/TEST DESIGN ONLY — NO MODEL CHECKER OR RUNTIME EXECUTION  
 **Date:** 2026-11-28  
 **Review basis:** G09-A21, G09-A22, G09-A20, G09-A7, ADR-001 and ADR-002  
 **Authority:** Advisory design; no owner decision, candidate, gate or execution permission is approved.
@@ -53,7 +53,11 @@ Commission formulas, NGR, ledger posting, wallet, payment, payout, prize, player
 | receipt | durable acceptance receipt |
 | workItem | durable accepted work record |
 | callerOutcome | last outcome actually observed by the caller |
-| claimGeneration | monotonically increasing claim generation per WorkItem |
+| claimGeneration | monotonically increasing claim generation per WorkItem; never decremented, wrapped, reset or reused |
+| claimOwner | authenticated principal owning the current claim |
+| claimToken | secret/unpredictable token bound to the current owner and generation |
+| lifecycleVersion | lifecycle version used to guard protected transitions |
+| leaseExpiry | persistence-authoritative expiry time for the current claim |
 | leaseState | lease state; expiry alone does not authorize mutation |
 | leaseClockModel | authoritative time/skew model and how time is sampled relative to the serialization point |
 | leaseObservation | lease-validity observation after acquiring the serialization point, not a stale pre-lock timestamp |
@@ -91,11 +95,12 @@ The formal model must define at least the following transitions with preconditio
 | ConflictingIngress | same identity, different fingerprint; conflict/quarantine, never overwrite |
 | TransferAuthority | new epoch activates only through authoritative protocol and enforceable fencing |
 | RejectStaleWriter | old-epoch writer is rejected at the mutation point |
-| ClaimWork | claim and new generation are durable and serialized by the authority |
-| ExpireAndReclaim | old lease becomes eligible for reclaim; new claim is issued only by a serialized transition; old generation remains invalid after reclaim wins |
+| ClaimWork | resolve WorkItem and tenant/installation binding from trusted persistence; after serialization, claim only READY or CLAIMED with expired lease under approved policy; increment generation exactly once and commit owner/token/expiry/state in one transaction; never report ownership before commit |
+| ExpireAndReclaim | CLAIMED with expired lease under approved policy; serialized reclaim increments generation exactly once and atomically changes owner/token/expiry/state; reject the old generation after commit |
 | LinearizeLeaseTransition | after acquiring the serialization point, the guard evaluates lease validity there; if expired, mutation is rejected; only a transition with a valid lease and complete guard may linearize |
 | ResumeStaleWorker | source-side protected mutation is rejected if the lease is expired at the guard point or owner/generation/token/authority no longer matches. This rejection does not cancel an external request already dispatched; the destination outcome must be checked under the receiver contract |
-| CommitWorkTransition | only valid owner/generation/authority at mutation time |
+| RenewLease | CLAIMED; owner/token/generation/authority/state/lifecycle version match and lease is still valid at the post-serialization guard; extend expiry only, never increment generation or resurrect an expired lease |
+| CommitWorkTransition | guard WorkItem/tenant/installation binding, expected state, authenticated principal, owner, generation, token, lease validity at the linearization point, authority and lifecycle version; a failed guard changes zero protected rows |
 | PublishOutbox | only from durable outbox; delivery may duplicate or reorder |
 | ConsumeMessage | consumer rereads/claims authoritative work; broker message alone is not authority |
 | Restore | data and metadata are restored without silently rolling back authority/identity |
@@ -127,7 +132,7 @@ Each property must have a stable ID, related state/transitions, independent orac
 | S-04 Ack Soundness | ACCEPTED is returned only after durable commit is proven under the approved policy |
 | S-05 Unknown Preservation | UNKNOWN is neither ACCEPTED nor REJECTED until valid reconciliation |
 | S-06 Authority Fencing | an old-epoch actor cannot mutate protected state after authority transfer |
-| S-07 Worker Fencing | an old generation cannot commit source-persistence-owned protected state; an external effect can only be rejected/deduplicated when receiver-side fencing/idempotency is proven, otherwise it is governed by S-14 and remains UNKNOWN/residual risk |
+| S-07 Worker Fencing | every protected mutation checks identity/tenant/installation binding, expected state, principal, owner, generation, token, lease validity at the linearization point, authority and lifecycle version; stale generations are rejected and a failed guard changes zero protected rows. External effects are protected only by proven receiver-side controls, otherwise S-14/UNKNOWN/residual risk applies |
 | S-08 Restore Monotonicity | restore/PITR cannot silently resurrect or roll back epoch, consumed identity or revocation; a restored environment remains quarantined until reconciliation and approved recovery gates complete, with ingress/workers/egress disabled |
 | S-09 Tenant Isolation | no cross-tenant read/write/disclosure through identity, payload, retry or repair |
 | S-10 Outbox Boundary | broker messages are not acceptance authority; publisher/consumer and the internal consumer receipt follow the consumer-side deduplication contract; duplicate broker delivery alone must not create duplicate mutation in the consumer's authoritative store. External receiver guarantees are separate under S-14 |
@@ -162,7 +167,7 @@ Do not start with one enormous model. Build staged models with shared interfaces
 1. **M0 — Atomic Acceptance:** two callers, one identity, one Receipt and one WorkItem; crash before/during/after commit.
 2. **M1 — UNKNOWN Arbitration:** original transaction in-flight, lost response, negative read, concurrent retry and late commit/abort.
 3. **M2 — Authority Epoch:** two writers, two epochs, partition, promotion, old-primary return and restored epoch.
-4. **M3 — Worker Lease:** two workers, two generations, expiry/reclaim, lock wait, pre/post-lock timestamp, clock skew, lease expiry before reclaim and stale-worker resume.
+4. **M3 — Worker Lease:** two workers/generations, claim and reclaim, lease renewal, heartbeat/completion/retry/park, state/token/lifecycle-version mismatch, zero-mutation guard failure, lock wait, pre/post-lock timestamp, clock skew, lease expiry before reclaim and stale-worker resume.
 5. **M4 — Outbox/Consumer/Receiver:** duplicate publication, delay, reorder, broker outage, consumer crash, in-flight external request, receiver acceptance after source lease expiry, lost response, retry, destination idempotency/fencing and receiver dedup-retention expiry.
 6. **M5 — Restore/Lifecycle:** old PITR/backup, tombstone and expiry boundary, finite/unbounded replay horizon, late queue message, credential/key/schema rotation, recovery incarnation, failback, clean-room quarantine and reopening gates.
 7. **M6 — Tenant/Principal:** at least two tenants and two principals with different permissions; payload spoofing and low-privilege repair.
@@ -231,7 +236,7 @@ Generation method:
 5. Turn every discovered bug into a permanent regression with fixed seed/trace.
 6. Mutation-test oracle/checker correctness using known mutants.
 
-Minimum mutants: remove unique constraint; acknowledge before commit; accept a negative read from a stale replica; omit epoch check at mutation; accept an old worker generation; accept a mutation after lease expiry but before reclaim; reset epoch after restore; expire a tombstone before the replay/backup horizon ends; enable ingress/workers/egress before restore gates complete; retry with a new identity; accept a stale external request without a receiver contract; retry an external effect with a new idempotency key; ignore receiver-side dedup-retention expiry; execute side effects inside a retried transaction; remove consumer deduplication; and convert UNKNOWN to REJECTED/ACCEPTED without evidence. If the checker misses its corresponding mutant, checker sensitivity is INCONCLUSIVE.
+Minimum mutants: remove unique constraint; acknowledge before commit; accept a negative read from a stale replica; omit epoch check at mutation; accept an old worker generation; accept a mutation after lease expiry but before reclaim; renew an expired lease or increment generation during heartbeat; commit with wrong token/state/lifecycle version; mutate a row after guard failure; reset epoch after restore; expire a tombstone before the replay/backup horizon ends; enable ingress/workers/egress before restore gates complete; retry with a new identity; accept a stale external request without a receiver contract; retry an external effect with a new idempotency key; ignore receiver-side dedup-retention expiry; execute side effects inside a retried transaction; remove consumer deduplication; and convert UNKNOWN to REJECTED/ACCEPTED without evidence. If the checker misses its corresponding mutant, checker sensitivity is INCONCLUSIVE.
 
 Seed count, repetitions, soak duration, combinatorial coverage and thresholds must be derived from approved workload/risk; no example value is a default.
 
@@ -285,7 +290,7 @@ These sources support methods and failure classes; they do not prove Lottorito c
 
 ## 14. Final disposition
 
-**Version 0.1.2 review note:** cross-review against ADR-001 and A22 made three boundaries explicit: an expired lease rejects a mutation at the post-serialization guard even before reclaim; source-side fencing does not cancel an external request already in flight; and a restored environment remains quarantined until identity high-water mark, tombstone, queue/outbox, credential/key, schema and tenant reconciliation plus reopening gates are complete. Restore/Reopen/Replay/ExpireTombstone transitions, lifecycle variables, S-08 and M5 were refined. A21-F04/F05/F10/F11 remain OPEN; these changes do not replace model checking, evidence or independent assurance.
+**Version 0.1.3 review note:** cross-review against ADR-001 and A22 made three boundaries explicit: an expired lease rejects a mutation at the post-serialization guard even before reclaim; source-side fencing does not cancel an external request already in flight; and a restored environment remains quarantined until identity high-water mark, tombstone, queue/outbox, credential/key, schema and tenant reconciliation plus reopening gates are complete. Restore/Reopen/Replay/ExpireTombstone transitions, lifecycle variables, S-08 and M5 were refined. The ADR-001 cross-check also added Claim/Generation/Owner/Token/LeaseExpiry/LifecycleVersion and the full guard for heartbeat/completion/retry/park; RenewLease does not increment generation or resurrect an expired lease. A21-F04/F05/F10/F11 remain OPEN; all refinements still require model checking, evidence and authorized review.
 
 
 - A23: proposed model contract and test strategy; **NOT EXECUTED**.
