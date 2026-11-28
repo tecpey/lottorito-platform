@@ -1,7 +1,7 @@
 # G09-A23 — Formal Protocol Model & Adversarial Test Strategy
 
 **Document ID:** LOT-AFFILIATE-G09-A23-001  
-**Version:** 0.1.25 | **Status:** PROPOSED; M0–M2 TLC-CHECKED WITHIN FINITE BOUNDS; M3 MODEL DRAFTED / TLC VALIDATION PENDING; RUNTIME NOT EXECUTED; M4–M7 NOT AUTHORED  
+**Version:** 0.1.26 | **Status:** PROPOSED; M0–M2 TLC-CHECKED WITHIN FINITE BOUNDS; M3 MODEL DRAFTED / TLC VALIDATION PENDING; RUNTIME NOT EXECUTED; M4–M7 NOT AUTHORED  
 **Date:** 2026-11-28  
 **Review basis:** G09-A21, G09-A22, G09-A20, G09-A7, ADR-001 and ADR-002  
 **Authority:** Advisory design; no owner decision, candidate, gate or execution permission is approved.
@@ -341,3 +341,6 @@ Documentation consistency note: after removing the helper flag from executable M
 
 
 **Version 0.1.25 review note — M3 finite time bound:** M3's persistence-time exploration domain is now 0..2: initial claim at time 0, expiry and reclaim at time 2. This keeps the key expiry/reclaim race while excluding expiry of the second generation from this model. Claim requests are admitted only from READY or expired lease-bearing states; protected requests start only from CLAIMED/PROCESSING. The finite bounds and request-admission abstraction are recorded in the bilingual M3 contract. TLC remains pending.
+
+
+**Version 0.1.26 review note — M3 scalar request abstraction:** The M3 model now represents the single pending request as scalar state rather than per-worker request maps, with an explicit RequestLockCoherence invariant. W0/W1 remain distinct worker processes for local claim-generation/token/clock state and share the same authenticated principal. The CompetingReclaim transition preserves the stale-request/new-generation interleaving. This is a state-space optimization with no intended protocol-policy change; exact-head TLC validation is pending.
