@@ -1,7 +1,7 @@
 # G09-A23-M1 — Unknown Commit Arbitration and Concurrent Retry Model
 
 **Document ID:** LOT-AFFILIATE-G09-A23-M1-001  
-**Version:** 0.1.5  
+**Version:** 0.1.6  
 **Status:** Bounded model checked by TLC; independent review and candidate refinement remain open  
 **Model:** `formal/G09M1UnknownCommitArbitration.tla`  
 **Configurations:** two baselines and three negative controls in `formal/G09M1*.cfg`  
@@ -85,35 +85,27 @@ M1 makes no Liveness claim and sets no time bound for resolving UNKNOWN. `retry_
 
 Two separate baselines cover equal and differing fingerprints. Negative controls must demonstrate oracle sensitivity; if an expected violation is not detected, M1 is not acceptable.
 
-## 8. Reproducible execution evidence
+## 8. Latest reproducible execution evidence
 
-**GitHub Actions run:** `46171267569` — [G09 M1 Unknown Commit Arbitration](https://github.com/tecpey/lottorito-platform/actions/runs/46171267569)  
-**PR head:** `0feb174268beb68ed3e557e6012edf5b325158cf`  
-**Synthetic merge commit executed:** `0ceabe3` (merge of PR head into base `f032065f47fe85de2aabf8d47565a57af6af3ae9`)  
-**Artifact:** [g09-a23-m1-tlc-46172096370-1](https://github.com/tecpey/lottorito-platform/actions/runs/46171482180/artifacts/15273862792)  
-**Artifact ZIP SHA-256:** `3a7f263ff1d23b4d09a60cf996f54b17f81aa7c4aff2a0c0a46dcc7fb2422e11`
+**Latest PR head:** `a6831c4be9bb904efe0ccf7809e5179db26661a1`
+**Synthetic merge commit executed:** `fe42d58c84388ba3f2bc3b4b503e5eb220f1d52b` (base: `f032065f47fe85de2aabf8d47565a57af6af3ae9`)
+**GitHub Actions Run:** [46172262017 — G09 M1 Unknown Commit Arbitration](https://github.com/tecpey/lottorito-platform/actions/runs/46172262017) — PASS
+**Artifact:** [g09-a23-m1-tlc-46172262017-1](https://github.com/tecpey/lottorito-platform/actions/runs/46172262017/artifacts/15273828706)
+**Artifact ZIP SHA-256:** `97a5d879f4ddfba8ddb133c25232ce3ec34985c4d1609bd9c7c990eaadc29fd7`
 
-Execution environment: TLA+ Tools v1.7.4, TLC 2.19 revision `5a47802`, JAR SHA-256 `936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88`, Eclipse Temurin Java `17.0.21.1+2`, Ubuntu 24.04.5. TLC ran with BFS, one worker, seed=1, fp=0 and 1 GiB heap. GitHub Actions used Checkout v7.0.1 and Upload Artifact v7.0.2, both pinned to immutable commit SHAs; persisted checkout credentials were disabled.
+Toolchain: TLA+ Tools v1.7.4 / TLC 2.19; JAR SHA-256 `936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88`; Eclipse Temurin 17.0.21.1; Ubuntu 24.04; BFS, one worker, seed=1, fp=0, 1 GiB heap. Checkout and Upload Artifact are pinned by immutable SHAs; `persist-credentials: false`.
 
-| Case | TLC result | Generated / distinct states | Depth | Oracle |
-|---|---|---:|---:|---|
-| Baseline — same fingerprint | No violation | 25 / 19 | 8 | PASS |
-| Baseline — different fingerprint | No violation | 25 / 19 | 8 | PASS |
-| Unsafe retry after absent read | `NoRetryCommitWhileOriginalInflight` violated | 18 / 14 | 6 | Detected |
-| Unsafe retry then original commit | `ReceiptCardinality` violated | 25 / 19 | 7 | Detected |
-| Premature conflict | `ConflictSoundness` violated | 14 / 12 | 5 | Detected |
+| Case | TLC result | Generated / distinct | Depth |
+|---|---|---:|---:|
+| Baseline — same fingerprint | No violation | 25 / 19 | 8 |
+| Baseline — different fingerprint | No violation | 25 / 19 | 8 |
+| Unsafe retry while original is in flight | `NoRetryCommitWhileOriginalInflight` violated | 18 / 14 | 6 |
+| Double commit | `ReceiptCardinality` violated | 25 / 19 | 7 |
+| Premature conflict | `ConflictSoundness` violated | 14 / 12 | 5 |
 
-File SHA-256 values from `sha256-manifest.txt`:
-- TLA module: `3d907df7188727827ad1044a044ac2c1e923a83b56718f2a173885457a193dfb`
-- Same-fingerprint baseline: `55f3ae8c53a52a80093ead4e4c92ab215eeb239152b120c93c90f7ff92fcf759`
-- Different-fingerprint baseline: `483768f621c08d7820282d62a08734843b205f5f0cd14de0036e36abf05dea0e`
-- Unsafe-retry mutant: `9d283981fcc2fadd31aa94b23c37a20a4223c7a1ec1bb5a7b900599073238cef`
-- Double-commit mutant: `8c142ad04ad4b5d27a206528ddd89d6da6c54b0b9419012bbf8fcbea8233f31c`
-- Premature-conflict mutant: `b983511dfb7f1b22113714cb513499f12cfd49ee40a1052a0edd7e036f28eb37`
+Documentation Governance Run [46172262013](https://github.com/tecpey/lottorito-platform/actions/runs/46172262013) and Affiliate Contract Validation Run [46172262015](https://github.com/tecpey/lottorito-platform/actions/runs/46172262015) also passed on the same head.
 
-The artifact contains two baseline logs, three actual counterexamples and the hash manifest. TLC performed parsing and semantic processing; no separate type-system tool was run.
-
-**Interpretation boundary:** the run is associated with the PR head above, but the runner executed on the synthetic merge commit; this establishes the bounded model check on the PR/base composition, not candidate/runtime correctness.
+**Interpretation boundary:** This evidence checks only bounded M1 and its assumptions. Real database behavior, the adapter's definition of definitive abort, candidate refinement, Jepsen/history checking, simulation and runtime behavior remain unproven. The run executed on the synthetic merge.
 
 ## 9. Limitations and next step
 
