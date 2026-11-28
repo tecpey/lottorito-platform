@@ -1,7 +1,7 @@
 # G09-A23 M3 — Worker Lease & Claim Generation Model
 
 **Document ID:** LOT-AFFILIATE-G09-A23-M3  
-**Version:** 0.1.4  
+**Version:** 0.1.5  
 **Status:** MODEL DRAFT — TLC validation pending; independent review and candidate refinement not performed  
 **Parent:** [A23 formal protocol model/test strategy](affiliate-g09-a23-formal-protocol-model-test-strategy.md)  
 **Normative proposal:** [ADR-001 — WorkItem Claim, Lease and Fencing](adr-001-workitem-claim-lease-fencing.md)  
@@ -18,7 +18,7 @@ The durable WorkItem state is authoritative. Queue delivery is only a wake-up hi
 1. **Worker process identity is distinct from authenticated principal identity.** W0 and W1 intentionally share the same abstract authenticated principal (worker-service). This prevents a false proof in which stale work is rejected only because the process identity differs. Generation and token must independently fence an older process that resumes under the same service principal.
 2. **Claim generation is per immutable WorkItem.** A successful initial claim or reclaim advances it exactly once. Heartbeat/renewal, processing, completion, retry and park do not advance it. The finite model uses generations 0..2 only as exploration bounds, not as a production representation or exhaustion policy.
 3. **The claim token is an opaque generation-bound symbol.** TLC models binding and mismatch, not cryptographic entropy, secrecy, token transport or credential theft. A token is not treated as a bearer credential by itself.
-4. **Persistence time is distinct from worker-local time.** Each worker has a nondeterministically changeable clock offset in {-1, 0, +1} relative to persistence time. This explores bounded slow/fast clock observations without claiming a quantitative drift bound. The request also captures a pre-lock validity snapshot; neither local observation is authoritative in the baseline. At most one worker request is pending for this WorkItem at a time; a separate atomic competing-reclaim transition represents another claimant winning while the old request waits. This preserves the critical interleaving without modeling an unbounded request queue.
+4. **Persistence time is distinct from worker-local time.** Each worker has a nondeterministically changeable clock offset in {-1, 0, +1} relative to persistence time. This explores bounded slow/fast clock observations without claiming a quantitative drift bound. The request also captures a pre-lock validity snapshot; neither local observation is authoritative in the baseline. A single scalar request context represents at most one pending worker request for this WorkItem at a time; a separate atomic competing-reclaim transition represents another claimant winning while the old request waits. This preserves the critical interleaving without modeling an unbounded request queue.
 5. **The serialization point and guard are separate model steps.** A request captures its expected state/generation/token/lifecycle and pre-lock observation, waits, acquires the serialization point, then evaluates the guard against current durable state and persistence time. Time may advance while waiting or while the serialization point is held. The guard and protected mutation are one atomic linearization step.
 6. **A lease expiry is not a state transition.** It makes a CLAIMED item eligible for reclaim. The model also treats PROCESSING as a lease-bearing state that becomes reclaimable after expiry. This is a deliberate refinement beyond ADR-001's current wording (which names READY and expired CLAIMED); the owner and independent reviewers must reconcile this state-machine gap before ADR approval. Before a new generation is committed, an old worker must still be rejected if its lease is expired at the post-serialization guard. If an old worker validly linearizes before expiry while holding the serialization point, its mutation is ordered before any later reclaim.
 7. **A competing authorized state transition** is represented to test stale expected-state guards. Installation lifecycle version changes are represented as an input; the model does not decide the unresolved owner policy for already accepted receipts.
@@ -61,6 +61,7 @@ The failed guard changes zero protected rows. A worker-local clock check, pre-lo
 | Invariant | Assertion |
 |---|---|
 | TypeOK | All abstract variables remain within declared finite domains |
+| RequestLockCoherence | Idle/waiting/locked request state, request worker and lock owner remain coherent |
 | SingleClaimOwner | WorkItem ownership and lifecycle state remain coherent |
 | HeartbeatDoesNotAdvanceGeneration | Heartbeat/renewal never advances claim generation |
 | EveryAcceptedMutationWasAuthorized | Every accepted history entry matches owner, generation, token, lifecycle, expected state, tenant, installation, post-lock time and unexpired lease |
@@ -130,3 +131,6 @@ These references motivate the model's adversarial schedules. They do not prove a
 
 
 The finite clock-offset domain was tightened to -1..+1 to keep the explicit-state search tractable while retaining both slow and fast worker-clock counterexamples. This is an abstraction bound only; production clock behavior remains unselected and unproven.
+
+
+The pending request context is represented as scalar state rather than per-worker request maps. The two worker processes remain distinct in their local generation/token/clock maps; the one-request abstraction is paired with the explicit competing-reclaim action so the stale-request-versus-new-claim race remains represented.
