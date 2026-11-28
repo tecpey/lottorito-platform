@@ -246,3 +246,12 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 - Added bilingual LOT-AFFILIATE-G09-A20-001 to PR #76. It defines evidence acquisition for C-01..C-16, system-wide data-flow/location inventory, candidate-neutral invariants and independent oracles, 28 adversarial test designs, execution safety gates and a reproducibility manifest.
 - All A20 cases are DESIGNED / NOT RUN. No owner evidence is acquired or accepted; no candidate is selected/qualified; G1..G9 remain NOT TESTED; ADR-002 remains PROPOSED; OD-01..OD-12 and A11 findings remain OPEN; A12 independent review remains NOT PERFORMED / NOT ASSESSABLE.
 - R0 remains BLOCKED; R1 research-only; R2 NOT STARTED; R3 NOT AUTHORIZED; all A4 gates NOT APPROVED. No runtime/harness execution, partner integration, financial operation, merge or deployment is authorized. Exact-head CI must be checked after all sequential documentation updates.
+
+
+## G09-A21 — adversarial assurance review of A20 (2026-11-28)
+- Added bilingual LOT-AFFILIATE-G09-A21-001 to PR #76 and registered LDR-066 in both decision registers; both README indexes updated.
+- A21 is an internal adversarial self-review in the same project-assistance context that authored A20. It is explicitly NOT independent assurance; A12 remains NOT PERFORMED / NOT ASSESSABLE.
+- Recorded 13 open findings: P0=1 (assurance independence); P1=9 (identity/deduplication, UNKNOWN-commit protocol, external side-effect idempotency/fencing, retention/replay/restore bounds, oracle trust boundaries, traceability, executable result contract, financial boundary, recovery controls); P2=3 (liveness/fairness, systematic model/property-based test generation, bilingual semantic parity).
+- A20 is not yet an executable qualification specification. A20-01..A20-28 remain DESIGNED / NOT RUN. No finding is closed and no A20 remediation is silently applied.
+- Proposed controlled sequence: A22 specification remediation; A23 formal model and test strategy; A24 evidence and bilingual assurance package. Owner decisions remain owner decisions.
+- C-01..C-16 OPEN; G1..G9 NOT TESTED; ADR-002 PROPOSED; OD-01..OD-12 OPEN; A11-F01..F08 OPEN; A12 NOT PERFORMED; R0 BLOCKED; R1 research-only; R2 NOT STARTED; R3 NOT AUTHORIZED; A4 NOT APPROVED. No runtime/harness, provider selection, partner integration, financial operation, merge or deployment authorized. Exact-head CI to be checked after sequential updates.
