@@ -134,3 +134,8 @@ Validator ساختاری در [scripts/check_docs.py](../../scripts/check_docs.p
 
 - [G09-A18 افیلیت — ارزیابی معماری Candidateهای Persistence و Authority](engineering/affiliate-g09-a18-persistence-authority-candidate-evaluation.md) — مقایسه پژوهشی PostgreSQL HA مهندسی‌شده، Managed PostgreSQL HA، Distributed SQL، Spanner مشروط و تفکیک Authority/Outbox؛ تعریف Hard Gateهای G1 تا G7 و برنامه شواهد R1؛ بدون انتخاب Candidate یا مجوز Runtime.
 - [G09-A19 افیلیت — ماتریس محدودیت‌های استقرار و احراز صلاحیت Candidateها](engineering/affiliate-g09-a19-deployment-constraints-candidate-qualification.md) — احراز صلاحیت مبتنی بر محدودیت: ورودی‌های مالک C-01 تا C-16، Inventory کامل Data-flow/Location، Hard Gateهای G1 تا G9، اهداف بازیابی مبتنی بر BIA و اندازه‌گیری بازتولیدپذیر؛ بدون انتخاب Provider، Region یا Database.
+
+
+## G09-A20 افیلیت — اخذ شواهد و احراز صلاحیت خصمانه
+
+- [G09-A20 — نظام اخذ شواهد و طراحی احراز صلاحیت خصمانه](engineering/affiliate-g09-a20-constraint-evidence-adversarial-qualification.md) — ماتریس Evidence برای C-01 تا C-16، Inventory کامل Data-flow، ناورداها و Oracleهای مستقل، ۲۸ طراحی آزمون خصمانه، Gateهای ایمنی اجرا و Manifest بازتولیدپذیری؛ همه Caseها NOT RUN، بدون احراز صلاحیت Candidate یا مجوز Runtime.
