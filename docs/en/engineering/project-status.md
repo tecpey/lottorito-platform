@@ -1,6 +1,6 @@
 # Verified Project Status and Continuation Point
 
-**Document ID:** LOT-OPS-001 | **Version:** 2.0.7 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-28
+**Document ID:** LOT-OPS-001 | **Version:** 2.0.8 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-28
 
 ## Verified repository state
 - Repository: tecpey/lottorito-platform; default branch main; public visibility by owner decision.
@@ -287,4 +287,4 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 
 
 
-- Latest exact PR #76 head: `a6831c4be9bb904efe0ccf7809e5179db26661a1`; synthetic merge executed: `fe42d58c84388ba3f2bc3b4b503e5eb220f1d52b`; base: `f032065f47fe85de2aabf8d47565a57af6af3ae9`. M0 Run `46172262016` PASS; 87 generated / 52 distinct states, depth 7; artifact `15274186676` / `25ae83ad40b5f53515afa71054b0e7bf7c9a40067ae658b8a153a28be9e3b480`. M1 Run `46172262017` PASS; both baselines 25 generated / 19 distinct states, depth 8; artifact `15273828706` / `97a5d879f4ddfba8ddb133c25232ce3ec34985c4d1609bd9c7c990eaadc29fd7`. Documentation Governance `46172262013` and Affiliate Contract Validation `46172262015` both PASS. Both TLC runs executed on the synthetic merge; evidence is bounded to the models. Candidate/runtime/DB integration/Jepsen/simulation/A20 have not run; M2–M7 are not authored. PR remains open/unmerged; no merge/deploy.
+- PR #76 head used for TLC evidence: `fca277f4cae18735f9ce45f3e5b9b0a8c9909f8d`; synthetic merge executed: `547989755f863440eb35bb42afee936c811b66dd`; base: `f032065f47fe85de2aabf8d47565a57af6af3ae9`. M0 Run `46172700581` PASS; 87 generated / 52 distinct states, depth 7; artifact `15274721323` / `81f1e74a40622b1695952b663f0ccf1538411681e96efd2ed42f3a0bac94b7c2`. M1 Run `46172700577` PASS; both baselines 25 generated / 19 distinct states, depth 8; artifact `15274271466` / `52c8340c8a3d73b7597957589ddba619029b79e0728ec8ac6796881cdb64e751`. Documentation Governance `46172700574` PASS; Affiliate Contract Validation `46172700592` was In Progress when recorded, so no PASS is claimed. Both TLC runs executed on the synthetic merge; evidence is bounded to the models. Candidate/runtime/DB integration/Jepsen/simulation/A20 have not run; M2–M7 are not authored. PR remains open/unmerged; no merge/deploy.
