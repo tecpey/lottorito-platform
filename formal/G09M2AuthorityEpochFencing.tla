@@ -330,7 +330,7 @@ NewWriterActivationRequiresFence ==
 
 RestoreQuarantine ==
     restoreMode =>
-      /\ phase = "quarantined" \/ phase = "fenced"
+      /\ phase \in {"quarantined", "fenced"}
       /\ Cardinality({w \in Writers : writerActive[w]}) = 0
 
 EveryWriteWasFencedAndAuthorized ==
