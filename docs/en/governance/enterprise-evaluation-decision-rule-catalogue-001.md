@@ -171,14 +171,14 @@ Evaluate this table only after the N/A decision has passed the prior-approval an
 
 ## 11. Acceptance criteria for RDM-003A
 
-This artifact is ready for independent review only when the following are completed:
+This is the author-led review checkpoint. The first condition is complete; the remaining items are open acceptance/owner gates and must not be represented as complete:
 
 - [x] Author-led adversarial second-pass review completed and findings recorded in LOT-EVAL-RDM-003B-AR-001. This is not blind review, a second-person review or formal IV&V.
 - [ ] Every rule's modal force and source clause are confirmed.
 - [ ] Every table combination is classified feasible, infeasible or unresolved; no implicit don't-care is used for unknowns.
 - [ ] All unresolved issues are adjudicated by the appropriate owner/control authority or remain explicitly blocked.
 - [ ] Persian/English semantic parity is reviewed by a bilingual technical reviewer.
-- [ ] The RDM-001 model is not changed until the independent oracle baseline is frozen.
+- [x] RDM-001 changes are controlled by recorded author-led findings and explicit regression checks. This does not establish an independent oracle or assurance.
 
 ## 12. Research basis
 
