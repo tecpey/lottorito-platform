@@ -61,6 +61,8 @@
 - برنامه باید قطع اتصال حین Commit را UNKNOWN بداند و با Identity پایدار Reconcile کند؛ نه اینکه کورکورانه Replay کند.
 - Restore موفق دیتابیس همچنان ممکن است ناامن باشد اگر Epochهای Authority خارجی، Tombstoneهای Idempotency، Revocation اعتبارنامه یا وضعیت Outbox ناسازگار Restore شوند.
 
+**نکته حیاتی پیکربندی PostgreSQL:** مقدار `synchronous_commit=on` به‌تنهایی به معنی تأیید Commit توسط Standby راه‌دور نیست. اگر `synchronous_standby_names` خالی باشد، Commit فقط منتظر Flush محلی WAL می‌ماند. با تعریف Standby هم‌زمان، مقدار `on` منتظر Flush پایدار WAL در Standby است؛ `remote_write` فقط منتظر Write در سیستم‌عامل Standby می‌ماند؛ و `remote_apply` علاوه بر Durability منتظر Replay/Apply نیز می‌ماند. این حالت‌ها از نظر Latency و Visibility متفاوت‌اند. مقدار دقیق و Quorum مربوط به Standby هم‌زمان باید برای Role تراکنشی منتخب Pin و Verify شود. عبارت کلی «Sync Replication فعال است» Evidence کافی نیست. [R12][R13]
+
 **شرایط رد Candidate**
 - Promotion بدون اثبات Fencing برای Writeهای Primary قدیمی ممکن باشد؛
 - RPO انتخاب‌شده اجازه از دست رفتن Receipt تأییدشده توسط API را بدهد؛
