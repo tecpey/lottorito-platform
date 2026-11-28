@@ -107,7 +107,7 @@ Runner فقط وقتی موفق است که Baseline بدون نقض Invariant �
 - یک نقطه Serialization و یک External Blocker برای مدل‌سازی Contention/انتظار Lock.
 - فقط یک Tenant و یک Installation مدل شده‌اند؛ بررسی چندمستاجری فراتر از تشخیص Binding نامنطبق در M6 است.
 - Entropy Token، اصالت رمزنگاری، پیاده‌سازی IAM، Semantics مربوط به Lock/Isolation/Time در Database، Kill/STONITH، رفتار Queue، اثرات خارجی و پروتکل Restore Incarnation انتزاع یا خارج از Scope هستند.
-- مدل Liveness، Throughput، مناسب‌بودن مدت Lease، Policy مربوط به Retry/Backoff یا ظرفیت Production را اثبات نمی‌کند.
+- Restart شدن Process در این مدل متناهی Transition مستقلی ندارد؛ داده محلی قدیمی Claim به‌صورت Abstraction مربوط به Worker بازگشته حفظ می‌شود. Schedule صریح Restart/Reload همچنان در زنجیره آزمون Candidate در A7/A8 الزامی است. مدل Liveness، Throughput، مناسب‌بودن مدت Lease، Policy مربوط به Retry/Backoff یا ظرفیت Production را اثبات نمی‌کند.
 
 ## ۸. موارد خارج از Scope و وابستگی‌ها
 
