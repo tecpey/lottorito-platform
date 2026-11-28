@@ -1,5 +1,8 @@
 # G09-A19 — Deployment Constraints & Candidate Qualification Matrix
 
+**Document ID:** LOT-AFFILIATE-G09-A19-001  
+**Version:** 1.0.0
+
 **Dossier:** `LOT-AFFILIATE-G09-A19-001`  
 **Date:** 2026-11-28  
 **Status:** RESEARCH / CONSTRAINT DISCOVERY — NO DEPLOYMENT OR TECHNOLOGY DECISION  
