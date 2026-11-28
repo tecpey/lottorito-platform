@@ -1,8 +1,8 @@
 # G09-A23-M1 — مدل داوری Commit نامعلوم و Retry هم‌زمان
 
 **شناسه سند:** LOT-AFFILIATE-G09-A23-M1-001  
-**نسخه:** ۰.۱.۰  
-**وضعیت:** مدل اولیه پیشنهادی؛ اجرای TLC و بازبینی مستقل در انتظار CI  
+**نسخه:** ۰.۱.۱  
+**وضعیت:** مدل محدود با TLC اجرا شده؛ بازبینی مستقل و Refinement به Candidate همچنان باز  
 **مدل:** `formal/G09M1UnknownCommitArbitration.tla`  
 **پیکربندی‌ها:** دو Baseline و سه Negative Control در `formal/G09M1*.cfg`  
 **مبنای هنجاری:** ADR-002، A22 و A23؛ M0
@@ -85,7 +85,37 @@ M1 ادعای Liveness یا زمان محدود برای Resolve کردن UNKNOW
 
 دو Baseline جداگانه همان Fingerprint و Fingerprint متفاوت را بررسی می‌کنند. Negative Controlها باید Oracle را حساس نشان دهند؛ اگر نقض مورد انتظار کشف نشود، M1 قابل‌قبول نیست.
 
-## ۸. محدودیت‌ها و گام بعدی
+## ۸. شواهد اجرای بازتولیدپذیر
+
+**GitHub Actions Run:** `46171267569` — [G09 M1 Unknown Commit Arbitration](https://github.com/tecpey/lottorito-platform/actions/runs/46171267569)  
+**PR head:** `b9fd70090a158b09131aa4f848e194fe7cefe273`  
+**Synthetic merge commit اجراشده:** `0ceabe3` (merge of PR head into base `f032065f47fe85de2aabf8d47565a57af6af3ae9`)  
+**Artifact:** [g09-a23-m1-tlc-46171267569-1](https://github.com/tecpey/lottorito-platform/actions/runs/46171267569/artifacts/15273009002)  
+**Artifact ZIP SHA-256:** `b48aa95a3b6145082eb7f637dac3950d8e9656270a7ecea0c166f9c806dd2737`
+
+محیط اجرا: TLA+ Tools v1.7.4، TLC 2.19 revision `5a47802`، JAR SHA-256 `936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88`، Eclipse Temurin Java `17.0.21.1+2`، Ubuntu 24.04.5. TLC با BFS، یک Worker، Seed=1، fp=0 و Heap=1GiB اجرا شد. GitHub Actions با Checkout v7.0.1 و Upload Artifact v7.0.2، هر دو Pinشده به Commit SHA تغییرناپذیر، اجرا شد؛ Persisted Checkout Credentials غیرفعال بود.
+
+| Case | TLC result | Generated / distinct states | Depth | Oracle |
+|---|---|---:|---:|---|
+| Baseline — same fingerprint | No violation | 25 / 19 | 8 | PASS |
+| Baseline — different fingerprint | No violation | 25 / 19 | 8 | PASS |
+| Unsafe retry after absent read | `NoRetryCommitWhileOriginalInflight` violated | 18 / 14 | 6 | Detected |
+| Unsafe retry then original commit | `ReceiptCardinality` violated | 25 / 19 | 7 | Detected |
+| Premature conflict | `ConflictSoundness` violated | 14 / 12 | 5 | Detected |
+
+SHA-256 فایل‌ها از `sha256-manifest.txt`:
+- TLA module: `298a817d6fe324d0b0c913c5be5532a2f443d7d0905d52164d1e35c5a7fad397`
+- Same-fingerprint baseline: `55f3ae8c53a52a80093ead4e4c92ab215eeb239152b120c93c90f7ff92fcf759`
+- Different-fingerprint baseline: `483768f621c08d7820282d62a08734843b205f5f0cd14de0036e36abf05dea0e`
+- Unsafe-retry mutant: `9d283981fcc2fadd31aa94b23c37a20a4223c7a1ec1bb5a7b900599073238cef`
+- Double-commit mutant: `8c142ad04ad4b5d27a206528ddd89d6da6c54b0b9419012bbf8fcbea8233f31c`
+- Premature-conflict mutant: `b983511dfb7f1b22113714cb513499f12cfd49ee40a1052a0edd7e036f28eb37`
+
+Artifact شامل دو Baseline log، سه Counterexample واقعی و Manifest هش‌هاست. Parser و semantic processing در TLC انجام شده‌اند؛ Type-system مستقل اجرا نشده است.
+
+**مرز تفسیر:** Run به PR head فوق منتسب است، اما Runner روی synthetic merge commit اجرا شده؛ این نتیجه صحت مدل محدود در ترکیب PR و Base را نشان می‌دهد، نه صحت Candidate/Runtime.
+
+## ۹. محدودیت‌ها و گام بعدی
 
 - M1 هنوز مدل Database خاص یا تضمین Lock/Unique Index واقعی نیست؛ این‌ها در Refinement و آزمون Candidate بررسی می‌شوند.
 - مدل، «مرجع قطعی Abort» را به‌صورت یک State انتزاع می‌کند؛ اثبات اینکه Adapter واقعی چه پاسخ‌هایی را می‌تواند به‌عنوان Abort قطعی طبقه‌بندی کند، هنوز باز است.
@@ -93,4 +123,4 @@ M1 ادعای Liveness یا زمان محدود برای Resolve کردن UNKNOW
 - M2 باید Authority Epoch، Promotion و Writer قدیمی را پوشش دهد.
 - Jepsen/History Checker و تست DB واقعی هنوز اجرا نشده‌اند.
 
-**وضعیت شواهد:** مدل و Configها تألیف شده‌اند؛ تا پایان CI و بررسی لاگ‌ها هیچ PASS یا Counterexample ادعا نمی‌شود. هیچ Candidate، Runtime، Partner، عملیات مالی، Production، Merge یا Deploy از این سند مجاز نمی‌شود.
+**وضعیت شواهد:** دو Baseline بدون نقض خاتمه یافتند و سه Negative Control Counterexampleهای مورد انتظار را تولید کردند. این شواهد به Bounds مدل محدود است؛ بازبینی مستقل و Refinement به Candidate انجام نشده‌اند. هیچ Candidate، Runtime، Partner، عملیات مالی، Production، Merge یا Deploy از این سند مجاز نمی‌شود.
