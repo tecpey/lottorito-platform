@@ -3,16 +3,18 @@
 **Document ID:** LOT-EVAL-RDM-003B-001  
 **Version:** 0.1.0  
 **Date:** 2026-11-28  
-**Status:** REVIEW PACKAGE PREPARED — `PENDING_EXTERNAL_REVIEW`  
+**Status:** SUPERSEDED — blind external-review protocol not used; see author-led second-pass review report  
 **Parent:** LOT-EVAL-001 v0.3.0  
 **Related:** LOT-EVAL-AVT-001 v0.2.0; LOT-EVAL-RDM-003A v0.1.0; LOT-EVAL-RDM-001; LOT-EVAL-RDM-002  
 **Review mode:** Blind, independent expected-outcome derivation; no implementation inspection
 
-## 1. Purpose and strict boundary
+## 1. Historical purpose and supersession
 
-This packet enables a competent second reviewer to derive expected decisions independently from the frozen parent-standard clauses and synthetic case inputs, before seeing the author’s derived decision tables, expected outputs, executable model, harness results or mutation outcomes.
+This packet was originally drafted for a blind external reviewer. The project owner has since directed that the authoring AI conduct the adversarial reviews directly because no second person is available.
 
-This packet is not itself an independent review. No second reviewer has been identified or confirmed by this document. Until a qualified reviewer completes and returns the separate worksheet, status remains **PENDING_EXTERNAL_REVIEW**.
+The blind protocol is therefore **not being executed**. The authoring AI has prior access to RDM-003A, RDM-001, their expected outputs and prior findings; it cannot truthfully claim a blind oracle derivation, second-person independence or formal IV&V. This packet is retained as historical design evidence only and must not be used as an active external-review gate.
+
+The active review record is [LOT-EVAL-RDM-003B Author-led adversarial second-pass review](enterprise-evaluation-author-led-second-pass-review-003b.md). It records the actual findings, limitations and correction sequence. The 35 decision-table rows were also found not to have their condition inputs in this packet/worksheet; this gap is recorded as AR-02.
 
 The reviewer must not receive or inspect, before freezing their oracle:
 - LOT-EVAL-RDM-003A rule descriptions, decision-table outputs, ambiguity dispositions or rule-to-test conclusions;
