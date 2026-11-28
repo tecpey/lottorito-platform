@@ -1,6 +1,6 @@
 # وضعیت واقعی پروژه و نقطه ادامه کار
 
-**شناسه:** LOT-OPS-001 | **نسخه:** ۲.۰.۱۰ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۸
+**شناسه:** LOT-OPS-001 | **نسخه:** ۲.۰.۱۱ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۸
 
 ## وضعیت تأییدشده مخزن
 - مخزن tecpey/lottorito-platform؛ شاخه پیش‌فرض main؛ سطح دسترسی Public طبق تصمیم مالک.
@@ -287,4 +287,4 @@
 
 
 
-- آخرین Snapshot کامل PR #76 که چهار Workflow روی آن PASS شدند: Head `f88769965b5a259444e84a99373e7bd80b95f1ea`؛ synthetic merge `a86a80bf03a8bd309fa6927343d7b1a42a53da71`؛ Base `f032065f47fe85de2aabf8d47565a57af6af3ae9`. M0 Run `46173159826` PASS: ۸۷ تولیدشده/۵۲ متمایز، عمق ۷؛ Artifact `15273919206` / `4c69f418349f57a866ca1f89ed34a7cb88c4d27fde4831a0d4c91884ec0497fc`. M1 Run `46173159827` PASS: دو Baseline هرکدام ۲۵ تولیدشده/۱۹ متمایز، عمق ۸؛ Oracle State-based و سه Mutant مورد انتظار کشف شدند؛ Artifact `15274292069` / `db8c119daa1ce3998e3314f701955c4f2311046437589070360d8f52119483b8`. Documentation Governance `46173159838` و Affiliate Contract Validation `46173159862` هر دو PASS. TLC روی synthetic merge اجرا شد؛ شواهد محدود به مدل‌هاست. Candidate/Runtime/DB integration/Jepsen/Simulation/A20 اجرا نشده‌اند؛ M2–M7 تألیف نشده‌اند. PR باز و Unmerged؛ بدون Merge/Deploy.
+- Snapshot ثبت‌شده PR #76 که چهار Workflow روی آن PASS شدند: Head `f88769965b5a259444e84a99373e7bd80b95f1ea`؛ synthetic merge `a86a80bf03a8bd309fa6927343d7b1a42a53da71`؛ Base `f032065f47fe85de2aabf8d47565a57af6af3ae9`. M0 Run `46173159826` PASS: ۸۷ تولیدشده/۵۲ متمایز، عمق ۷؛ Artifact `15273919206` / `4c69f418349f57a866ca1f89ed34a7cb88c4d27fde4831a0d4c91884ec0497fc`. M1 Run `46173159827` PASS: دو Baseline هرکدام ۲۵ تولیدشده/۱۹ متمایز، عمق ۸؛ Oracle State-based و سه Mutant مورد انتظار کشف شدند؛ Artifact `15274292069` / `db8c119daa1ce3998e3314f701955c4f2311046437589070360d8f52119483b8`. Documentation Governance `46173159838` و Affiliate Contract Validation `46173159862` هر دو PASS. TLC روی synthetic merge اجرا شد؛ شواهد محدود به مدل‌هاست. Candidate/Runtime/DB integration/Jepsen/Simulation/A20 اجرا نشده‌اند؛ M2–M7 تألیف نشده‌اند. PR باز و Unmerged؛ بدون Merge/Deploy.
