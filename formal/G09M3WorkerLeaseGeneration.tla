@@ -136,7 +136,7 @@ StartRequest(w, op) ==
          IF Mutation = "wrong_installation" /\ op \in ProtectedOps
          THEN "installation-B" ELSE InstallationID
     /\ requestStartTime' = persistenceTime
-    /\ requestPreLockValid' = persistenceTime + workerClock[w] < leaseExpiry
+    /\ requestPreLockValid' = (persistenceTime + workerClock[w] < leaseExpiry)
     /\ lastGuardFailed' = FALSE
     /\ UNCHANGED <<workState, claimGeneration, generationHighWater, claimOwner,
        claimToken, leaseExpiry, lifecycleVersion, persistenceTime, workerClock,
