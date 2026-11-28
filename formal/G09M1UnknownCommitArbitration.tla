@@ -28,13 +28,12 @@ VARIABLES
     receiptCount,
     receiptOwner,
     receiptFingerprints,
-    retryObservedAbsent,
-    retryCommittedWhileOriginalInflight
+    retryObservedAbsent
 
 vars ==
     << originalStatus, retryStatus, originalOutcome, retryOutcome,
        receiptCount, receiptOwner, receiptFingerprints,
-       retryObservedAbsent, retryCommittedWhileOriginalInflight >>
+       retryObservedAbsent >>
 
 Init ==
     /\ originalStatus = "not_started"
@@ -45,23 +44,20 @@ Init ==
     /\ receiptOwner = "none"
     /\ receiptFingerprints = {}
     /\ retryObservedAbsent = FALSE
-    /\ retryCommittedWhileOriginalInflight = FALSE
 
 StartOriginal ==
     /\ originalStatus = "not_started"
     /\ originalStatus' = "inflight"
     /\ originalOutcome' = "pending"
     /\ UNCHANGED <<retryStatus, retryOutcome, receiptCount, receiptOwner,
-                   receiptFingerprints, retryObservedAbsent,
-                   retryCommittedWhileOriginalInflight>>
+                   receiptFingerprints, retryObservedAbsent>>
 
 TimeoutOriginal ==
     /\ originalStatus = "inflight"
     /\ originalOutcome = "pending"
     /\ originalOutcome' = "unknown"
     /\ UNCHANGED <<originalStatus, retryStatus, retryOutcome, receiptCount,
-                   receiptOwner, receiptFingerprints, retryObservedAbsent,
-                   retryCommittedWhileOriginalInflight>>
+                   receiptOwner, receiptFingerprints, retryObservedAbsent>>
 
 StartRetry ==
     /\ originalStatus \in {"inflight", "committed"}
@@ -70,8 +66,7 @@ StartRetry ==
     /\ retryStatus' = "inflight"
     /\ retryOutcome' = "pending"
     /\ UNCHANGED <<originalStatus, originalOutcome, receiptCount, receiptOwner,
-                   receiptFingerprints, retryObservedAbsent,
-                   retryCommittedWhileOriginalInflight>>
+                   receiptFingerprints, retryObservedAbsent>>
 
 ObserveAbsent ==
     /\ retryStatus = "inflight"
@@ -79,8 +74,7 @@ ObserveAbsent ==
     /\ retryObservedAbsent' = TRUE
     /\ retryOutcome' = "retry_wait"
     /\ UNCHANGED <<originalStatus, retryStatus, originalOutcome, receiptCount,
-                   receiptOwner, receiptFingerprints,
-                   retryCommittedWhileOriginalInflight>>
+                   receiptOwner, receiptFingerprints>>
 
 CommitOriginal ==
     /\ originalStatus = "inflight"
@@ -92,7 +86,7 @@ CommitOriginal ==
     /\ receiptFingerprints' = receiptFingerprints \cup {OriginalFP}
     /\ originalStatus' = "committed"
     /\ UNCHANGED <<retryStatus, originalOutcome, retryOutcome,
-                   retryObservedAbsent, retryCommittedWhileOriginalInflight>>
+                   retryObservedAbsent>>
 
 AbortOriginal ==
     /\ originalStatus = "inflight"
@@ -100,24 +94,21 @@ AbortOriginal ==
     /\ originalStatus' = "aborted"
     /\ originalOutcome' = "aborted_confirmed"
     /\ UNCHANGED <<retryStatus, retryOutcome, receiptCount, receiptOwner,
-                   receiptFingerprints, retryObservedAbsent,
-                   retryCommittedWhileOriginalInflight>>
+                   receiptFingerprints, retryObservedAbsent>>
 
 AckOriginal ==
     /\ originalStatus = "committed"
     /\ originalOutcome = "pending"
     /\ originalOutcome' = "accepted"
     /\ UNCHANGED <<originalStatus, retryStatus, retryOutcome, receiptCount,
-                   receiptOwner, receiptFingerprints, retryObservedAbsent,
-                   retryCommittedWhileOriginalInflight>>
+                   receiptOwner, receiptFingerprints, retryObservedAbsent>>
 
 LoseOriginalAck ==
     /\ originalStatus = "committed"
     /\ originalOutcome = "pending"
     /\ originalOutcome' = "unknown"
     /\ UNCHANGED <<originalStatus, retryStatus, retryOutcome, receiptCount,
-                   receiptOwner, receiptFingerprints, retryObservedAbsent,
-                   retryCommittedWhileOriginalInflight>>
+                   receiptOwner, receiptFingerprints, retryObservedAbsent>>
 
 ObserveCommitted ==
     /\ retryStatus = "inflight"
@@ -130,8 +121,7 @@ ObserveCommitted ==
           ELSE /\ retryStatus' = "conflict"
                /\ retryOutcome' = "conflict"
     /\ UNCHANGED <<originalStatus, originalOutcome, receiptCount, receiptOwner,
-                   receiptFingerprints, retryObservedAbsent,
-                   retryCommittedWhileOriginalInflight>>
+                   receiptFingerprints, retryObservedAbsent>>
 
 CommitRetryAfterConfirmedAbort ==
     /\ retryStatus = "inflight"
@@ -143,16 +133,14 @@ CommitRetryAfterConfirmedAbort ==
     /\ receiptFingerprints' = {RetryFP}
     /\ retryStatus' = "committed"
     /\ retryOutcome' = "pending"
-    /\ UNCHANGED <<originalStatus, originalOutcome, retryObservedAbsent,
-                   retryCommittedWhileOriginalInflight>>
+    /\ UNCHANGED <<originalStatus, originalOutcome, retryObservedAbsent>>
 
 AckRetry ==
     /\ retryStatus = "committed"
     /\ retryOutcome = "pending"
     /\ retryOutcome' = "accepted"
     /\ UNCHANGED <<originalStatus, retryStatus, originalOutcome, receiptCount,
-                   receiptOwner, receiptFingerprints, retryObservedAbsent,
-                   retryCommittedWhileOriginalInflight>>
+                   receiptOwner, receiptFingerprints, retryObservedAbsent>>
 
 (*
 Negative control: a negative read is incorrectly treated as proof that the
@@ -170,7 +158,6 @@ UnsafeRetryCommitOnAbsent ==
     /\ receiptFingerprints' = {RetryFP}
     /\ retryStatus' = "committed"
     /\ retryOutcome' = "pending"
-    /\ retryCommittedWhileOriginalInflight' = TRUE
     /\ UNCHANGED <<originalStatus, originalOutcome, retryObservedAbsent>>
 
 (*
@@ -186,8 +173,7 @@ PrematureConflict ==
     /\ retryStatus' = "conflict"
     /\ retryOutcome' = "conflict"
     /\ UNCHANGED <<originalStatus, originalOutcome, receiptCount, receiptOwner,
-                   receiptFingerprints, retryObservedAbsent,
-                   retryCommittedWhileOriginalInflight>>
+                   receiptFingerprints, retryObservedAbsent>>
 
 Next ==
     \/ StartOriginal
@@ -216,7 +202,6 @@ TypeOK ==
     /\ receiptOwner \in {"none", "original", "retry", "both"}
     /\ receiptFingerprints \subseteq {OriginalFP, RetryFP}
     /\ retryObservedAbsent \in BOOLEAN
-    /\ retryCommittedWhileOriginalInflight \in BOOLEAN
 
 ReceiptShape ==
     /\ (receiptCount = 0
@@ -263,7 +248,7 @@ ConflictSoundness ==
        /\ RetryFP \notin receiptFingerprints
 
 NoRetryCommitWhileOriginalInflight ==
-    retryCommittedWhileOriginalInflight = FALSE
+    ~(originalStatus = "inflight" /\ retryStatus = "committed")
 
 NoTerminalRetryResolutionWhileOriginalInflight ==
     originalStatus = "inflight"
