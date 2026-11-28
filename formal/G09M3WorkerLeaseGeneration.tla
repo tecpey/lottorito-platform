@@ -361,7 +361,6 @@ CompetingAuthorizedStartProcessing(w) ==
     /\ workState = "claimed"
     /\ OwnerGuard(w)
     /\ ExpectedStateGuard("claimed")
-    /\ workState = "claimed"
     /\ GenerationGuard(workerGeneration[w])
     /\ TokenGuard(workerToken[w])
     /\ LifecycleGuard(workerLifecycle[w])
