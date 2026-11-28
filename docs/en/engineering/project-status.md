@@ -257,3 +257,11 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 - It deliberately preserves LOT-PROVIDER-EVAL-001 and LOT-TECH-ADR-001 as specialist documents. It does not silently replace or approve either document, set binding score weights, select a candidate, approve legal/jurisdictional scope, or authorize procurement, implementation, production data, partner integration, financial activity or launch.
 - Reference research includes ISO 31000:2018, ISO/IEC 25010:2023, NIST SP 800-161 Rev.1 Update 1, NIST SP 1326 (2026), NIST SP 1305, OWASP SAMM and FinOps Framework. References inform evaluation design; they do not certify Lottorito or any candidate.
 - First application is proposed as a bounded, non-production retrospective evaluation, to be selected by the accountable owner after review. The standard remains PROPOSED pending owner and specialist review.
+
+
+## LOT-EVAL-001 adversarial hardening — 2026-11-28
+
+- Author-led adversarial review report LOT-EVAL-A18-001 added in English and Persian. It records 12 findings: 1 Critical, 10 High and 1 Medium. The report explicitly does not claim independent assurance.
+- LOT-EVAL-001 advanced in draft from v0.1.0 to v0.2.0 with a bilingual normative Section 17 covering risk tier vs risk rating, inherent/residual risk, multidimensional evidence provenance, evidence sufficiency vs capability score, NS vs zero, normalized scoring, inter-rater controls, lifecycle TCO, supplier due diligence, DATA/MODEL evaluation, ISO/IEC 25010 quality scenarios, pilot protocol, approval separation and specialist-document precedence.
+- The review reconciled the proposed scorecards in LOT-PROVIDER-EVAL-001 and LOT-TECH-ADR-001: their weights remain proposals until explicitly adopted for a named decision unit and reconciled with the parent rubric.
+- A18 is author-led; independent review, owner risk-appetite decisions, specialist approval and exact-head CI remain pending. LOT-EVAL-001 remains PROPOSED. No candidate, provider, technology, jurisdiction, procurement, production data, partner integration, financial activity, merge or deployment is authorized.
