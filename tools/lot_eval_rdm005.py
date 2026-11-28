@@ -23,7 +23,7 @@ RULE_TRACE = {
     "RDM-R07": {"clauses": ["§8.3"], "avt": ["AVT-03", "AVT-04"], "dt": ["DT03-R2", "DT03-R3", "DT03-R4", "DT03-R5", "DT03-R6", "DT03-R7"], "status": "PARTIAL_EXECUTABLE", "gap": "Generic anchors do not replace criterion-specific pre-approved measurable thresholds."},
     "RDM-R08": {"clauses": ["§8.3", "§17.10.1"], "avt": ["AVT-18", "AVT-19", "AVT-20", "AVT-21"], "dt": ["DT03-R8", "DT03-R9"], "status": "PARTIAL_EXECUTABLE", "gap": "The harness does not establish real evidence atomization or semantic dependencies in arbitrary compound criteria."},
     "RDM-R09": {"clauses": ["§8.3", "§17.10.1"], "avt": ["AVT-14"], "dt": ["DT04-R1", "DT04-R2"], "status": "PARTIAL_EXECUTABLE", "gap": "Prior approval, authority and scope-change legitimacy are synthetic inputs."},
-    "RDM-R10": {"clauses": ["§8.3"], "avt": ["AVT-16", "AVT-17"], "dt": ["DT04-R3"], "status": "PARTIAL_EXECUTABLE", "gap": "Arithmetic and candidate invariance are bounded fixtures; rubric approval and candidate completeness are not independently verified."},
+    "RDM-R10": {"clauses": ["§8.3"], "avt": ["AVT-16", "AVT-17"], "dt": ["DT04-R3", "DT04-R7"], "status": "PARTIAL_EXECUTABLE", "gap": "Arithmetic and candidate invariance are bounded fixtures; rubric approval and candidate completeness are not independently verified."},
     "RDM-R11": {"clauses": ["§8.3", "§17.10.1"], "avt": ["AVT-01"], "dt": ["DT04-R4", "DT04-R5"], "status": "PARTIAL_UNRESOLVED", "gap": "Materiality criteria and definitive treatment of non-material NS remain RDM-U01."},
     "RDM-R12": {"clauses": ["§8.3", "§17.10.1"], "avt": ["AVT-01"], "dt": ["DT04-R6"], "status": "PARTIAL_UNRESOLVED", "gap": "Delegation, expiry, disclosure schema and permitted downstream use remain unresolved; authority is a synthetic fixture."},
     "RDM-R13": {"clauses": ["§5.1", "§17.10.2"], "avt": [], "dt": [], "status": "HUMAN_REVIEW_REQUIRED", "gap": "No direct executable test for source authority, independence, directness, provenance, freshness, reproducibility or conflicts."},
@@ -41,8 +41,8 @@ AVT_RULES = {
     "AVT-04": ["RDM-R07"],
     "AVT-05": ["RDM-R06"],
     "AVT-06": ["RDM-R03"],
-    "AVT-07": ["RDM-R02", "RDM-R04"],
-    "AVT-08": ["RDM-R02", "RDM-R04"],
+    "AVT-07": ["RDM-R02"],
+    "AVT-08": ["RDM-R02"],
     "AVT-09": ["RDM-R01", "RDM-R02"],
     "AVT-10": ["RDM-R15"],
     "AVT-11": ["RDM-R16"],
@@ -106,7 +106,7 @@ DT_RULES = {
     "DT01-R6": ["RDM-R01", "RDM-R02", "RDM-R03"],
     "DT02-R1": ["RDM-R04"], "DT02-R2": ["RDM-R04"],
     "DT02-R3": ["RDM-R04"], "DT02-R4": ["RDM-R05"],
-    "DT02-R5": ["RDM-R05"], "DT02-R6": ["RDM-R04", "RDM-R05"],
+    "DT02-R5": ["RDM-R05"], "DT02-R6": ["RDM-R04"],
     "DT02-R7": ["RDM-R05"],
     "DT03-R1": ["RDM-R06"], "DT03-R2": ["RDM-R07"],
     "DT03-R3": ["RDM-R07"], "DT03-R4": ["RDM-R07"],
@@ -148,7 +148,7 @@ def run() -> dict:
     rdm004 = read("tools/lot_eval_rdm004.py")
     fa_catalogue = read("docs/fa/governance/enterprise-evaluation-decision-rule-catalogue-001.md")
     fa_matrix = read("docs/fa/governance/enterprise-evaluation-adversarial-test-matrix-001.md")
-    fa_standard = read("docs/fa/governance/enterprise-evaluation-standard.md")
+    fa_standard = read("docs/fa/governance/enterprise-evaluation-standard.md").translate(str.maketrans("۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩", "01234567890123456789"))
 
     expected_rules = set(RULE_TRACE)
     expected_avt = {f"AVT-{i:02d}" for i in range(1, 22)}
