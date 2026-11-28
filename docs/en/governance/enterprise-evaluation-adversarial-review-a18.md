@@ -11,7 +11,7 @@
 
 LOT-EVAL-001 v0.1.0 was a useful governance skeleton but was not sufficiently deterministic for repeated enterprise decisions without further hardening. The author-led adversarial review identified material ambiguity in risk tiering, evidence strength, score semantics, TCO assumptions, supplier due diligence, AI/model evaluation, approval separation and specialist-document precedence.
 
-A bilingual normative addendum was added to LOT-EVAL-001, producing proposed version 0.2.0. This is document-design remediation only. It is not independent assurance, legal advice, procurement approval, security certification or proof that the standard works in operation.
+The proposed standard has been revised to v0.3.0 through bilingual normative corrections. The follow-up review added REV-01…REV-14 and explicit acceptance tests. This is document-design remediation only. It is not independent assurance, legal advice, procurement approval, security certification or proof that the standard works in operation.
 
 **Disposition:** LOT-EVAL-001 remains PROPOSED. Do not call it approved, operationalized or globally compliant. Do not select a candidate or use a scorecard for binding procurement until the exact decision unit, rubric, risk appetite and approvals are explicitly adopted.
 
@@ -53,7 +53,7 @@ These frameworks inform the method; they do not certify Lottorito. Private legal
 
 ## 4. Remediation mapping
 
-LOT-EVAL-001 v0.2.0 Section 17 maps as follows:
+LOT-EVAL-001 v0.3.0 Sections 17 and 17.10 map the original A18 findings and follow-up REV findings as follows:
 - 17.1 → A18-F01.
 - 17.2 → A18-F02.
 - 17.3 → A18-F03 and A18-F04.
@@ -63,6 +63,13 @@ LOT-EVAL-001 v0.2.0 Section 17 maps as follows:
 - 17.7 → A18-F10 and A18-F11.
 - 17.8 → A18-F09 and A18-F12.
 - 17.9 → A18-F08.
+- 17.10.1 → REV-01, REV-05, REV-12 and REV-14.
+- 17.10.2 → REV-02 and REV-06.
+- 17.10.3 → REV-03.
+- 17.10.4 → REV-04 and REV-13.
+- 17.10.5 → REV-10.
+- 17.10.6 → REV-07 and REV-09.
+- 17.10.7 → REV-08 and REV-11, plus cross-document acceptance consistency.
 
 These are draft document remediations. They are not independently validated and do not prove that every ambiguity has been eliminated.
 
@@ -73,14 +80,14 @@ These are draft document remediations. They are not independently validated and 
 3. No universal weights or minimum composite score are approved.
 4. This standard gives no jurisdiction-specific legal conclusion and does not determine whether Lottorito, a tenant, operator or supplier may conduct regulated activity.
 5. It does not replace LOT-PROVIDER-EVAL-001, LOT-TECH-ADR-001, LOT-QA-001, LOT-SEC-TM-001 or domain contracts.
-6. No independent reviewer has signed off this report or v0.2.0.
+6. No independent assurance has been performed or signed off this report or v0.3.0.
 7. No candidate, supplier, technology, legal entity, jurisdiction, contract, runtime or operating model is selected or approved.
 
 ## 6. Required next review
 
-An independent reviewer must receive the exact v0.2.0 files and this register; declare competence, independence and conflicts; inspect the specialist documents; challenge every finding and remediation; add counterexamples; and issue finding-by-finding dispositions. The reviewer must distinguish document reasoning from executed tests and must not make owner decisions on risk appetite, weights, legal scope or procurement.
+The current next gate is completion of the owner-led, finding-by-finding review recorded in LOT-EVAL-OWNER-REVIEW-001. The owner has separately delegated evidence-supported document corrections to the assistant; this execution instruction does not itself dispose of findings or accept residual risk. Specialist challenge may be commissioned for matters requiring domain competence. Independent assurance is a distinct activity and is required only where the tier, claim, governance policy or owner decision calls for it; if claimed, its provider, competence, objectivity, scope, method, evidence access, limitations and report must be documented.
 
-After independent review, reconcile findings, update both languages together, run exact-head Documentation Governance and obtain explicit owner approval before declaring LOT-EVAL-001 approved. No merge or deployment is authorized by this report.
+After owner dispositions and any required specialist/independent work, reconcile findings, update both languages together, run exact-head Documentation Governance and obtain explicit owner approval before declaring LOT-EVAL-001 approved. No merge or deployment is authorized by this report.
 
 ## 6.1 Follow-up adversarial review — REV-01…REV-14
 
