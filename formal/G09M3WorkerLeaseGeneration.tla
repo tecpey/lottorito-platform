@@ -109,6 +109,7 @@ StartRequest(w, op) ==
     /\ w \in Workers
     /\ op \in Ops \ {"none"}
     /\ requestState[w] = "idle"
+    /\ \A other \in Workers \ {w} : requestState[other] = "idle"
     /\ (op = "claim" \/ workerGeneration[w] > 0)
     /\ requestState' = [requestState EXCEPT ![w] = "waiting"]
     /\ requestOp' = [requestOp EXCEPT ![w] = op]
