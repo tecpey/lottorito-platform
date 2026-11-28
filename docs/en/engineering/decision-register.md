@@ -1,6 +1,6 @@
 # Lottorito Decision Register
 
-**Document ID:** LOT-ADR-REG-001 | **Version:** 2.5.9 | **Status:** Maintained register; entries retain their individual authority state
+**Document ID:** LOT-ADR-REG-001 | **Version:** 2.5.10 | **Status:** Maintained register; entries retain their individual authority state
 
 ## How to read this register
 This register prevents agents from turning discussion, examples or proposals into product rules. A record is not approved merely because it is listed here. The state and authority column govern. Evidence must be linked for every change.
@@ -155,3 +155,6 @@ Prioritize jurisdiction/operating model and initial Lottery product boundary; pr
 
 | LDR-089 | Correct M1 unsafe-retry oracle | Oracle must check system state, not mutant-specific helper instrumentation | `NoRetryCommitWhileOriginalInflight` now checks the direct relation `~(originalStatus = "inflight" /\ retryStatus = "committed")`; the ghost flag was removed. M1 Run `46172983952` on head `d20bded` detected all three expected mutants with their intended invariants. Artifact `15274741061`, SHA-256 `5fdf36c4378b09deccd8db776cf4ebd48eb8aed020e5ca8b56c9948dac75621f`. | Bounded-model correction; candidate/runtime/database behavior and liveness remain unproven. |
 | LDR-090 | Confirm M0 execution after M1 correction | Reproducible TLC and artifact evidence | M0 Run `46172983850` on the same synthetic merge; baseline: 87 generated / 52 distinct states, depth 7; all three expected mutants. Artifact `15274098135`, SHA-256 `1a5d6a2d83eb71c7dec52355520a3159a8bbc42b58ce7ebc177eb712db0ec637`. | Bounded M0 only; no operational qualification or merge/deployment authorization. |
+
+| LDR-091 | Confirm final M0 snapshot on head `f887699` | TLC and hash-identified artifact | Run `46173159826` on synthetic merge `a86a80bf03a8bd309fa6927343d7b1a42a53da71`; baseline: 87 generated / 52 distinct states, depth 7; all three expected mutants. Artifact `15273919206`, SHA-256 `4c69f418349f57a866ca1f89ed34a7cb88c4d27fde4831a0d4c91884ec0497fc`. | Bounded M0 only; no candidate/runtime/production qualification or merge/deployment authorization. |
+| LDR-092 | Confirm final M1 snapshot with state-based oracle on head `f887699` | TLC, oracle correction and hash-identified artifact | Run `46173159827` on the same synthetic merge; both baselines 25 generated / 19 distinct states, depth 8; all three expected mutants. Artifact `15274292069`, SHA-256 `db8c119daa1ce3998e3314f701955c4f2311046437589070360d8f52119483b8`. | Bounded M1 only; DB/Jepsen/history/Liveness and candidate refinement remain open. No operational authority granted. |
