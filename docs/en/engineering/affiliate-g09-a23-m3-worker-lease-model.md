@@ -69,7 +69,7 @@ The failed guard changes zero protected rows. A worker-local clock check, pre-lo
 | LeaseNeverRenewedAfterExpiry | No accepted heartbeat occurs at or after expiry |
 | GenerationHighWaterNeverRegresses | Current generation equals the durable abstract high-water mark |
 | ClaimAdvancesExactlyOnce | Every successful claim event advances by exactly one |\n| ClaimEventWellFormed | Every claim/reclaim event records a valid generation step, principal, token change, lease interval, prior state and tenant/installation binding |\n| ClaimTokenNeverReused | Distinct claim generations do not reuse an issued token in the bounded model |\n| ClaimTokenIsLatest | The active durable token is the token recorded for the current claim generation |
-| NewClaimHasCurrentOwnerAndToken | A claimed/processing WorkItem has the current principal and generation-bound token |
+| NewClaimHasCurrentOwnerAndToken | A claimed/processing WorkItem has the current principal and active opaque token |
 
 The cumulative history oracle retains every accepted protected mutation and every modeled competing authorized mutation (within the finite mutation budget). It records request-start time, lock-acquisition time and the persistence-time observation at the guard. The required ordering is request start ≤ lock acquisition ≤ guard observation. The authoritative expiry decision is made at the last point.
 
