@@ -3,7 +3,7 @@
 **Document ID:** LOT-EVAL-RDM-001  
 **Version:** 0.1.0  
 **Date:** 2026-11-28  
-**Status:** IMPLEMENTED AND CI-VERIFIED ON A NON-PRODUCTION REVIEW BRANCH — owner disposition and independent review pending  
+**Status:** CORRECTED AFTER AUTHOR-LED SECOND-PASS REVIEW — exact-head CI pending; no independent assurance or owner disposition implied
 **Parent baseline:** LOT-EVAL-001 v0.3.0 and LOT-EVAL-AVT-001 v0.2.0  
 **Frozen parent commit:** `e7aed0892a0de212fc3fd7603a6976eee503a76f`  
 **Authority:** Deterministic reference behavior for the mapped synthetic acceptance vectors only. This is not the Lottorito product runtime, a procurement engine, a legal/security assurance, standard adoption, owner approval or production authorization.
@@ -86,3 +86,18 @@ Synthetic/non-production only. No candidate/provider/technology/jurisdiction is 
 
 
 **Subsequent audit qualification (LOT-EVAL-RDM-002):** the initial runner's equivalent / unreachable / unresolved counts were hard-coded as zero and were not derived through analysis. The runner has since been corrected to report these categories as null with classification status NOT_ASSESSED. It also validates the exact AVT-01…AVT-21 ID population and the fixed MUT-01…MUT-10 population. Semantic duplication under distinct AVT IDs remains unresolved.
+## 8. Author-led second-pass correction record (2026-11-28)
+
+The prior execution record in §§5–7 is historical and applies to the pre-correction model. The author-led second-pass review identified and corrected: (a) evidence-state/rating conflation, including loss of Partial; (b) unresolved-tier over-escalation to T3; (c) AVT-17 duplication; (d) late N/A handling that did not explicitly model visible scores; and (e) edge guards for invalid tier triggers, empty candidate populations, negative weights, empty compound criteria, inconsistent material-NS inputs and incomplete provisional-authorization fixtures.
+
+Current model semantics:
+- Evidence state is carried separately from capability rating. Partial remains Partial and receives no parent rating; unsupported atoms remain NS. Unknown/insufficient evidence is not zero.
+- Tier escalation accepts the highest specifically plausible unresolved tier. Invalid trigger values are rejected rather than silently discarded.
+- AVT-17 now recalculates every candidate before and after the same approved N/A exclusion and verifies the ranking sensitivity case; it is no longer a duplicate of AVT-16.
+- AVT-14 explicitly supplies a post-score visibility condition. A late N/A request is blocked.
+- Six model guard checks supplement, but are not counted as additional AVT vectors: invalid trigger, empty candidate population, negative weight, empty compound atom set, inconsistent material-NS flags and incomplete provisional-authorization fixture.
+- A provisional aggregate fixture is explicitly non-selection information only. Its synthetic fields are not authenticated authority, delegation or owner approval.
+
+The updated harness still has 21 registered AVT checks, 6 model-guard checks, 10 hand-authored specification mutants and 210 AVT mutant/check evaluations. The six guard checks are reported separately and are not included in the 210 count. AVT-17 remains a single registered check but its behavior is now distinct from AVT-16.
+
+**Verification state:** this source correction has been committed, but no successful exact-head CI result is claimed until the workflow run for the current head completes. Do not reuse the previous 21/21 and 10/10 result as evidence for the corrected source. The author-led second-pass review is not blind, not a second-person review and not formal IV&V.
