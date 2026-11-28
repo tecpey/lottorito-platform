@@ -312,6 +312,6 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 
 
 ## G09-A23 M3 — current work in progress
-- Bilingual M3 model contract: [EN](affiliate-g09-a23-m3-worker-lease-model.md) / [FA](../fa/engineering/affiliate-g09-a23-m3-worker-lease-model.md). Model source: formal/G09M3WorkerLeaseGeneration.tla; runner: scripts/formal/run_g09_m3.sh; workflow: .github/workflows/formal-g09-m3.yml.
+- Bilingual M3 model contract: [EN](affiliate-g09-a23-m3-worker-lease-model.md) / [FA](../../fa/engineering/affiliate-g09-a23-m3-worker-lease-model.md). Model source: formal/G09M3WorkerLeaseGeneration.tla; runner: scripts/formal/run_g09_m3.sh; workflow: .github/workflows/formal-g09-m3.yml.
 - Eleven mutant oracles target pre-lock time, worker-clock skew, stale generation/token, wrong token, tenant/installation binding, stale lifecycle/state, expired heartbeat, heartbeat generation changes and mutation after guard failure.
 - Validation is pending; no baseline state count, negative-control success, candidate refinement or runtime proof is asserted yet. See the M3 document for explicit assumptions and unresolved PROCESSING reclaim discrepancy.
