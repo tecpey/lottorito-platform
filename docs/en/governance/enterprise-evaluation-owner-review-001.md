@@ -77,12 +77,12 @@ Decision authority is not delegated to the author/reviewer by this register.
 ## 5. Implementation and verification protocol
 
 After owner dispositions are recorded:
-1. Convert ACCEPT items into approved remediation tasks. Separately delegated evidence-supported technical corrections may be prepared/applied before all dispositions are complete, but this does not close any finding or change its PENDING status; respecting any owner-defined scope.
+1. Convert ACCEPT items into approved remediation tasks, respecting any owner-defined scope. Separately delegated evidence-supported technical corrections may be prepared/applied before all dispositions are complete; this does not close any finding or change its PENDING status.
 2. For REJECT, retain the finding and rationale in the audit trail; do not silently delete it.
 3. For DEFER, record the accountable owner, due date/trigger, interim control and residual risk.
 4. For NEEDS-EVIDENCE, identify the evidence request and decision deadline/trigger.
 5. Apply accepted changes to both English and Persian documents in the same change set; maintain semantic parity, not merely matching headings.
-6. Update A18 so the review type is accurately described as Owner-led Adversarial Review, if the owner confirms that disposition. Do not describe it as independent assurance.
+6. Keep A18 accurately identified as an author-led adversarial review; this register records the separate owner-led review/disposition process. Do not conflate the two artifacts or roles, and do not describe either as independent assurance.
 7. Add tests/examples for score semantics, tier boundaries, risk matrix use, N/A, Partial evidence and TCO assumptions.
 8. Re-run Documentation Governance against the exact final head SHA and inspect the changed-file list and bilingual parity.
 9. Report documentation CI only as documentation validation. It does not establish legal compliance, independent assurance, runtime security, provider reliability or production readiness.
