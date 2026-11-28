@@ -19,37 +19,57 @@ class Result:
     state: str
     rating: int | None = None
     reason: str = ""
+    evidence_state: str | None = None
 
 
 def evidence_rating(*, present: bool, sufficient: bool, fresh: bool = True,
                     scope_match: bool = True, contradiction: bool = False,
-                    demonstrated: str = "meets", mutant: str | None = None) -> Result:
-    """Separate evidence sufficiency from capability rating; NS is not zero."""
+                    demonstrated: str = "meets", coverage: str = "complete",
+                    mutant: str | None = None) -> Result:
+    """Keep evidence state distinct from the 0..5/NS capability rating."""
+    if coverage not in {"none", "partial", "complete"}:
+        return Result("INVALID_INPUT", None, "unknown evidence coverage value", "Unknown")
+    if coverage == "partial":
+        return Result("NOT_SCORED", None, "partial coverage is retained as Partial; no parent rating", "Partial")
     adequate = present and sufficient and fresh and scope_match and not contradiction
+    evidence_state = ("Unknown" if not present else
+                      "Sufficient" if adequate else "Insufficient")
     if mutant == "MUT-01" and not adequate:
-        return Result("Sufficient", 0, "mutant converted unknown evidence to zero")
+        return Result("SCORED", 0, "mutant converted unknown evidence to zero", "Sufficient")
     if mutant == "MUT-02" and not adequate:
-        return Result("Neutral", None, "mutant neutralized/omitted NS")
-    if mutant == "MUT-03":
-        adequate = present and fresh and scope_match and not contradiction
+        return Result("NEUTRAL", None, "mutant neutralized/omitted NS", evidence_state)
+    if mutant == "MUT-03" and present and fresh and scope_match and not contradiction:
+        return Result("SCORED", 3, "mutant bypassed evidence sufficiency", "Insufficient")
     if not adequate:
-        return Result("NS", None, "evidence missing, insufficient, stale, contradictory or out of scope")
+        return Result("NOT_SCORED", None,
+                      "evidence is missing, insufficient, stale, contradictory or out of scope",
+                      evidence_state)
     if demonstrated == "absent_or_unacceptable":
-        return Result("Sufficient", 0, "sufficient evidence demonstrates unacceptable/absent capability")
+        return Result("SCORED", 0, "sufficient evidence demonstrates unacceptable/absent capability", "Sufficient")
     if demonstrated == "meets":
-        return Result("Sufficient", 3, "predefined threshold demonstrated for evidenced scope")
+        return Result("SCORED", 3, "predefined threshold demonstrated for evidenced scope", "Sufficient")
     if demonstrated == "above":
-        return Result("Sufficient", 4, "strong evidence demonstrates above-threshold capability")
-    return Result("NS", None, "partial evidence cannot support a parent criterion")
+        return Result("SCORED", 4, "strong evidence demonstrates above-threshold capability", "Sufficient")
+    return Result("NOT_SCORED", None, "capability outcome is not mapped to an approved anchor", "Insufficient")
 
 
 def aggregate(*, scores: list[int], material_ns: bool, ns_present: bool,
-              provisional_authority: str | None = None) -> Result:
-    """Apply NS publication guard; never invent a definitive treatment for ambiguity."""
+              provisional_authority: dict | None = None) -> Result:
+    """Apply NS publication guards; a synthetic authority fixture is not authenticated."""
+    if material_ns and not ns_present:
+        return Result("INVALID_INPUT", None, "material_ns cannot be true when no NS is present")
     if ns_present:
-        if provisional_authority:
-            return Result("PROVISIONAL", None,
-                          f"NS disclosed; material_ns={material_ns}; authority={provisional_authority}")
+        if provisional_authority is not None:
+            required = ("decision_id", "authorized_by", "scope", "expiry")
+            complete = (isinstance(provisional_authority, dict)
+                        and all(isinstance(provisional_authority.get(k), str)
+                                and provisional_authority[k].strip() for k in required)
+                        and provisional_authority.get("disclosure_complete") is True
+                        and provisional_authority.get("permitted_use") == "non-selection-information-only")
+            if complete:
+                return Result("PROVISIONAL_NON_DECISIONAL", None,
+                              "synthetic authorization fixture present; authority is not authenticated")
+            return Result("UNRESOLVED", None, "provisional authority fixture is incomplete or use is not restricted")
         if material_ns:
             return Result("BLOCKED", None, "material NS prevents a definitive aggregate")
         return Result("UNRESOLVED", None,
@@ -61,15 +81,19 @@ def aggregate(*, scores: list[int], material_ns: bool, ns_present: bool,
 
 
 def classify_tier(*, triggers: list[str], synthetic_isolated: bool,
-                  higher_tier_plausible_unresolved: bool = False,
-                  baseline_tier: str | None = None,
-                  mutant: str | None = None) -> str:
+                   highest_plausible_tier: str | None = None,
+                   baseline_tier: str | None = None,
+                   mutant: str | None = None) -> str:
     ranks = {"T0": 0, "T1": 1, "T2": 2, "T3": 3}
-    valid = [t for t in triggers if t in ranks]
+    if any(t not in ranks for t in triggers):
+        return "INVALID_INPUT"
+    if highest_plausible_tier is not None and highest_plausible_tier not in ranks:
+        return "INVALID_INPUT"
+    valid = list(triggers)
     if mutant == "MUT-05":
         return "T3" if synthetic_isolated else "T0"
-    if higher_tier_plausible_unresolved:
-        valid.append("T3")
+    if highest_plausible_tier is not None:
+        valid.append(highest_plausible_tier)
     if not valid:
         return baseline_tier if baseline_tier in ranks else "UNRESOLVED"
     return min(valid, key=lambda t: ranks[t]) if mutant == "MUT-04" else max(valid, key=lambda t: ranks[t])
@@ -105,6 +129,7 @@ def score_candidates(*, original_weights: dict[str, int],
                       mandatory_gates: dict[str, str],
                       candidates: dict[str, dict[str, int]],
                       mandatory_gate_criteria: set[str] | None = None,
+                      scores_visible: bool = False,
                       mutant: str | None = None) -> dict:
     if mutant == "MUT-09":
         # Deliberate mutant: bypass prior approval and allow candidate-selective N/A.
@@ -112,8 +137,15 @@ def score_candidates(*, original_weights: dict[str, int],
         if candidates:
             return {"state": "SCORED", "candidate_specific_na": True,
                     "scores": {next(iter(candidates)): 100.0}}
-    if not approved_before_scoring:
-        return {"state": "BLOCKED", "reason": "N/A not approved before scoring"}
+    if not approved_before_scoring or (excluded and scores_visible):
+        return {"state": "BLOCKED", "reason": "N/A was not approved before scoring or scores are already visible"}
+    if not candidates:
+        return {"state": "BLOCKED", "reason": "candidate population is empty"}
+    if (not isinstance(original_weights, dict)
+            or any(not isinstance(k, str) or not k.strip() for k in original_weights)
+            or any(not isinstance(v, int) or isinstance(v, bool) or v < 0
+                   for v in original_weights.values())):
+        return {"state": "BLOCKED", "reason": "weights must be non-negative integers with valid criterion keys"}
     mandatory_gate_criteria = mandatory_gate_criteria or set()
     if excluded.intersection(mandatory_gate_criteria):
         return {"state": "INELIGIBLE", "reason": "N/A cannot remove a mandatory gate criterion"}
@@ -143,14 +175,27 @@ def compound_criterion(*, required_atoms: tuple[str, ...],
                        supported_atoms: set[str],
                        evidenced_scope: str, requested_scope: str,
                        mutant: str | None = None) -> dict:
+    if (not required_atoms or any(not isinstance(a, str) or not a.strip() for a in required_atoms)
+            or len(set(required_atoms)) != len(required_atoms)
+            or not supported_atoms.issubset(set(required_atoms))):
+        raise ValueError("required atoms must be non-empty, unique and contain every supported atom")
+    scope_ok = evidenced_scope == requested_scope
     if mutant == "MUT-10":
         passed = bool(supported_atoms)
         scope_ok = True
     else:
         passed = set(required_atoms) == set(supported_atoms)
-        scope_ok = evidenced_scope == requested_scope
-    return {"atom_states": {a: ("Sufficient" if a in supported_atoms else "NS")
-                            for a in required_atoms},
+    atom_states = {
+        a: ("Sufficient" if a in supported_atoms and scope_ok else "NS")
+        for a in required_atoms
+    }
+    parent_evidence_state = (
+        "Unknown" if not scope_ok or not supported_atoms else
+        "Sufficient" if passed else "Partial"
+    )
+    return {"atom_states": atom_states,
+            "parent_evidence_state": parent_evidence_state,
+            "parent_rating": None,
             "parent_pass": passed and scope_ok,
             "scope_match": scope_ok}
 
@@ -171,41 +216,48 @@ def _(m):
     r = evidence_rating(present=False, sufficient=False, mutant=m)
     a = aggregate(scores=[4], material_ns=True, ns_present=True)
     provisional = aggregate(scores=[4], material_ns=True, ns_present=True,
-                            provisional_authority="SYNTHETIC-AUTH-01")
+        provisional_authority={"decision_id": "SYNTHETIC-DEC-01",
+            "authorized_by": "SYNTHETIC-AUTH-01", "scope": "synthetic-only",
+            "expiry": "2030-01-01", "disclosure_complete": True,
+            "permitted_use": "non-selection-information-only"})
     nonmaterial = aggregate(scores=[4], material_ns=False, ns_present=True)
-    return (r.state == "NS" and r.rating is None and a.state == "BLOCKED"
-            and provisional.state == "PROVISIONAL" and nonmaterial.state == "UNRESOLVED")
+    return (r.state == "NOT_SCORED" and r.evidence_state == "Unknown" and r.rating is None
+            and a.state == "BLOCKED" and provisional.state == "PROVISIONAL_NON_DECISIONAL"
+            and nonmaterial.state == "UNRESOLVED")
 
 
 @case("AVT-02")
 def _(m):
     r = evidence_rating(present=True, sufficient=False,
                         demonstrated="absent_or_unacceptable", mutant=m)
-    return r.state == "NS" and r.rating is None
+    return (r.state == "NOT_SCORED" and r.evidence_state == "Insufficient"
+            and r.rating is None)
 
 
 @case("AVT-03")
 def _(m):
     r = evidence_rating(present=True, sufficient=True,
                         demonstrated="absent_or_unacceptable", mutant=m)
-    return r.state == "Sufficient" and r.rating == 0
+    return r.state == "SCORED" and r.evidence_state == "Sufficient" and r.rating == 0
 
 
 @case("AVT-04")
 def _(m):
     r = evidence_rating(present=True, sufficient=True, demonstrated="meets", mutant=m)
-    return r.state == "Sufficient" and r.rating >= 3
+    return r.state == "SCORED" and r.evidence_state == "Sufficient" and r.rating >= 3
 
 
 @case("AVT-05")
 def _(m):
     r = evidence_rating(present=True, sufficient=True, fresh=False, mutant=m)
-    return r.state == "NS" and r.rating is None
+    return r.state == "NOT_SCORED" and r.evidence_state == "Insufficient" and r.rating is None
 
 
 @case("AVT-06")
 def _(m):
-    return classify_tier(triggers=["T1"], synthetic_isolated=True, mutant=m) == "T1"
+    t1 = classify_tier(triggers=["T1"], synthetic_isolated=True, mutant=m)
+    t2 = classify_tier(triggers=["T2"], synthetic_isolated=True, mutant=m)
+    return t1 == "T1" and t2 == "T2"
 
 
 @case("AVT-07")
@@ -220,8 +272,10 @@ def _(m):
 
 @case("AVT-09")
 def _(m):
-    return classify_tier(triggers=["T1"], synthetic_isolated=False,
-                         higher_tier_plausible_unresolved=True, mutant=m) == "T3"
+    t2_plausible = classify_tier(triggers=["T1"], synthetic_isolated=False,
+                                  highest_plausible_tier="T2", mutant=m)
+    invalid = classify_tier(triggers=["T1", "T9"], synthetic_isolated=False, mutant=m)
+    return t2_plausible == "T2" and invalid == "INVALID_INPUT"
 
 
 @case("AVT-10")
@@ -264,7 +318,8 @@ def _(m):
 def _(m):
     r = score_candidates(original_weights={"C1": 40, "C2": 30, "C3": 30},
                          excluded={"C3"}, approved_before_scoring=False,
-                         mandatory_gates={}, candidates={"Alpha": {"C1": 1, "C2": 1}, "Beta": {"C1": 3, "C2": 3}}, mutant=m)
+                         mandatory_gates={}, candidates={"Alpha": {"C1": 1, "C2": 1}, "Beta": {"C1": 3, "C2": 3}},
+                         scores_visible=True, mutant=m)
     return r["state"] == "BLOCKED"
 
 
@@ -294,13 +349,16 @@ def _(m):
 
 @case("AVT-17")
 def _(m):
-    r = score_candidates(original_weights={"C1": 40, "C2": 30, "C3": 30},
-                         excluded={"C3"}, approved_before_scoring=True,
-                         mandatory_gates={}, candidates={
-                             "A": {"C1": 5, "C2": 2}, "B": {"C1": 3, "C2": 4}},
-                         mutant=m)
-    return (r.get("scores", {}).get("A") == 74.29
-            and r.get("scores", {}).get("B") == 68.57)
+    before = score_candidates(original_weights={"C1": 40, "C2": 30, "C3": 30},
+        excluded=set(), approved_before_scoring=True, mandatory_gates={},
+        candidates={"A": {"C1": 5, "C2": 2, "C3": 0},
+                    "B": {"C1": 3, "C2": 4, "C3": 5}}, mutant=m)
+    after = score_candidates(original_weights={"C1": 40, "C2": 30, "C3": 30},
+        excluded={"C3"}, approved_before_scoring=True, mandatory_gates={},
+        candidates={"A": {"C1": 5, "C2": 2}, "B": {"C1": 3, "C2": 4}}, mutant=m)
+    return (before.get("scores", {}).get("A", 0) < before.get("scores", {}).get("B", 0)
+            and after.get("scores", {}).get("A", 0) > after.get("scores", {}).get("B", 0)
+            and after.get("denominator") == 70)
 
 
 @case("AVT-18")
@@ -308,7 +366,10 @@ def _(m):
     r = compound_criterion(required_atoms=("a", "b", "c", "d", "e"),
                            supported_atoms={"a", "b"}, evidenced_scope="v1/r1",
                            requested_scope="v1/r1", mutant=m)
-    return not r["parent_pass"] and r["atom_states"]["c"] == "NS"
+    partial = evidence_rating(present=True, sufficient=True, coverage="partial")
+    return (not r["parent_pass"] and r["parent_evidence_state"] == "Partial"
+            and r["atom_states"]["c"] == "NS" and partial.evidence_state == "Partial"
+            and partial.rating is None)
 
 
 @case("AVT-19")
@@ -323,7 +384,9 @@ def _(m):
 def _(m):
     r = compound_criterion(required_atoms=("a", "b"), supported_atoms={"a", "b"},
                            evidenced_scope="v1/r1", requested_scope="v2/r2", mutant=m)
-    return not r["parent_pass"] and not r["scope_match"]
+    return (not r["parent_pass"] and not r["scope_match"]
+            and r["parent_evidence_state"] == "Unknown"
+            and all(v == "NS" for v in r["atom_states"].values()))
 
 
 @case("AVT-21")
@@ -332,6 +395,34 @@ def _(m):
                            supported_atoms={"a", "b"}, evidenced_scope="v1/r1",
                            requested_scope="v1/r1", mutant=m)
     return not r["parent_pass"] and r["atom_states"]["dependency"] == "NS"
+
+
+def _empty_compound_rejected() -> bool:
+    try:
+        compound_criterion(required_atoms=(), supported_atoms=set(),
+                           evidenced_scope="v1", requested_scope="v1")
+        return False
+    except ValueError:
+        return True
+
+
+GUARD_TESTS: list[tuple[str, Callable[[], bool]]] = [
+    ("GUARD-01-invalid-tier-trigger", lambda: classify_tier(
+        triggers=["T1", "T9"], synthetic_isolated=False) == "INVALID_INPUT"),
+    ("GUARD-02-empty-candidate-population", lambda: score_candidates(
+        original_weights={"C1": 100}, excluded=set(), approved_before_scoring=True,
+        mandatory_gates={}, candidates={})["state"] == "BLOCKED"),
+    ("GUARD-03-negative-weight", lambda: score_candidates(
+        original_weights={"C1": 110, "C2": -10}, excluded=set(),
+        approved_before_scoring=True, mandatory_gates={},
+        candidates={"A": {"C1": 3, "C2": 3}})["state"] == "BLOCKED"),
+    ("GUARD-04-empty-compound-atoms", _empty_compound_rejected),
+    ("GUARD-05-inconsistent-material-ns", lambda: aggregate(
+        scores=[3], material_ns=True, ns_present=False).state == "INVALID_INPUT"),
+    ("GUARD-06-incomplete-provisional-authority", lambda: aggregate(
+        scores=[3], material_ns=True, ns_present=True,
+        provisional_authority={"authorized_by": "synthetic"}).state == "UNRESOLVED"),
+]
 
 
 def execute() -> dict:
@@ -356,9 +447,14 @@ def execute() -> dict:
         "execution_scope": "synthetic/non-production only",
         "tests": {
             "designed": len(TESTS), "executed": len(TESTS),
-            "coverage_status": "REGISTERED_CHECKS_ONLY; FULL_MATRIX_PROPERTY_COVERAGE_NOT_ESTABLISHED",
+            "coverage_status": "REGISTERED_AVT_CHECKS_ONLY; FULL_MATRIX_PROPERTY_COVERAGE_NOT_ESTABLISHED",
             "passed": sum(baseline.values()), "failed": len(TESTS) - sum(baseline.values()),
             "results": {tid: ("PASS" if ok else "FAIL") for tid, ok in baseline.items()}},
+        "model_guard_tests": {
+            "designed": len(GUARD_TESTS), "executed": len(GUARD_TESTS),
+            "passed": sum(bool(fn()) for _, fn in GUARD_TESTS),
+            "failed": sum(not bool(fn()) for _, fn in GUARD_TESTS),
+            "results": {tid: ("PASS" if fn() else "FAIL") for tid, fn in GUARD_TESTS}},
         "mutations": {
             "generated": len(MUTANTS), "executed": len(MUTANTS),
             "mutant_test_executions": len(MUTANTS) * len(TESTS),
@@ -381,4 +477,5 @@ if __name__ == "__main__":
     report = execute()
     print(json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True))
     raise SystemExit(0 if report["tests"]["failed"] == 0
+                     and report["model_guard_tests"]["failed"] == 0
                      and report["mutations"]["survived"] == 0 else 1)
