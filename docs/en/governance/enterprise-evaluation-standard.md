@@ -262,7 +262,6 @@ Use the current edition and exact scope of each source; these frameworks inform 
 
 - 0.1.0 (2026-11-28): initial enterprise-wide parent standard; proposed, pending owner and specialist review.
 
-## 17. Adversarial hardening addendum — normative clarifications
 
 This section is part of LOT-EVAL-001 and prevails over inconsistent general wording in Sections 4, 5, 8, 9 or 14. It closes methodological ambiguities found during the author-led adversarial review. It does not approve a candidate, risk appetite, procurement or production use.
 
