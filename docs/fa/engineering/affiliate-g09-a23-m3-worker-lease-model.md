@@ -1,7 +1,7 @@
 # G09-A23 M3 — مدل Lease و نسل Claim در Worker
 
 **شناسه سند:** LOT-AFFILIATE-G09-A23-M3  
-**نسخه:** ۰.۱.۳  
+**نسخه:** ۰.۱.۴  
 **وضعیت:** پیش‌نویس مدل — اعتبارسنجی TLC در انتظار؛ بازبینی مستقل و Candidate refinement انجام نشده است  
 **سند مادر:** [راهبرد مدل رسمی و آزمون A23](affiliate-g09-a23-formal-protocol-model-test-strategy.md)  
 **پیشنهاد هنجاری:** [ADR-001 — پروتکل Claim، Lease و Fencing برای WorkItem](adr-001-workitem-claim-lease-fencing.md)  
@@ -23,7 +23,7 @@ M3 یک WorkItem پایدار و دو Process مربوط به Worker را جدا
 
 ۴. **زمان Persistence از زمان محلی Worker جداست.** هر Worker یک Clock Offset غیرقطعی در دامنه {-1، ۰، +1} نسبت به زمان Persistence دارد. این کار مشاهده ساعت کند/تند را در یک دامنه محدود بررسی می‌کند، بدون آن‌که Bound کمی برای Drift ادعا شود. درخواست همچنین Snapshot اعتبار Lease پیش از Lock را ثبت می‌کند؛ در Baseline هیچ‌یک از این مشاهدات محلی مرجع تصمیم نیستند. در هر لحظه حداکثر یک درخواست Worker برای این WorkItem در حالت Pending است؛ یک Transition اتمیک جداگانه برای Competing Reclaim نشان می‌دهد Claimant دیگر چگونه می‌تواند در زمان انتظار درخواست قدیمی برنده شود. این روش Interleaving بحرانی را حفظ می‌کند، بدون آن‌که Queue نامحدود درخواست‌ها مدل شود.
 
-۵. **نقطه Serialization و Guard دو مرحله مجزا هستند.** درخواست، State/Generation/Token/Lifecycle مورد انتظار و مشاهده پیش از Lock را ثبت می‌کند؛ سپس منتظر می‌ماند، نقطه Serialization را می‌گیرد و Guard را در برابر وضعیت پایدار و زمان Persistence فعلی ارزیابی می‌کند. زمان می‌تواند هنگام انتظار یا حتی در زمان نگه‌داشتن نقطه Serialization جلو برود. Guard و Mutation محافظت‌شده یک گام اتمیک و نقطه Linearization هستند.
+۵. **نقطه Serialization و Guard دو مرحله مجزا هستند.** درخواست فقط از Claim واجد شرایط یا State از نوع claimed/processing پذیرفته می‌شود و سپس State/Generation/Token/Lifecycle مورد انتظار و مشاهده پیش از Lock را ثبت می‌کند؛ سپس منتظر می‌ماند، نقطه Serialization را می‌گیرد و Guard را در برابر وضعیت پایدار و زمان Persistence فعلی ارزیابی می‌کند. زمان می‌تواند هنگام انتظار یا حتی در زمان نگه‌داشتن نقطه Serialization جلو برود. Guard و Mutation محافظت‌شده یک گام اتمیک و نقطه Linearization هستند.
 
 ۶. **انقضای Lease به‌خودی‌خود Transition وضعیت نیست.** انقضا WorkItem با وضعیت CLAIMED را واجد شرایط Reclaim می‌کند. مدل همچنین PROCESSING را State دارای Lease در نظر می‌گیرد که پس از انقضا قابل Reclaim است. این یک Refinement آگاهانه فراتر از عبارت فعلی ADR-001 است (که READY و CLAIMED منقضی‌شده را نام می‌برد)؛ مالک و بازبینان مستقل باید این شکاف State Machine را پیش از تصویب ADR حل کنند. پیش از Commit شدن Generation جدید نیز Worker قدیمی باید در صورتی که Lease در Guard پس از Serialization منقضی شده باشد رد شود. اگر Worker قدیمی درحالی‌که Lease معتبر است و نقطه Serialization را در اختیار دارد Mutation را Linearize کند، آن Mutation قبل از Reclaim بعدی مرتب می‌شود.
 
@@ -102,7 +102,7 @@ Runner فقط وقتی موفق است که Baseline بدون نقض Invariant �
 
 - یک WorkItem تغییرناپذیر و دو Process مربوط به Worker با نام W0 و W1.
 - هر دو Process عمداً یک Service Principal احراز‌شده مشترک دارند.
-- دو Generation Claim (۰، ۱، ۲)؛ LeaseDuration = 2 و دامنه زمان Persistence از ۰ تا ۴ فقط ثابت‌های اکتشاف متناهی هستند.
+- دو Generation Claim (۰، ۱، ۲)؛ LeaseDuration = 2 و دامنه زمان Persistence از ۰ تا ۲ فقط ثابت اکتشاف متناهی است. Claim اولیه می‌تواند در زمان صفر انجام و در زمان انقضای ۲ Reclaim شود؛ انقضای بعدی Generation دوم خارج از Bound این M3 است.
 - Clock Offset محلی Worker به‌صورت غیرقطعی در دامنه ۱- تا ۱+ نسبت به زمان Persistence تغییر می‌کند؛ این یک Abstraction محدود از Skew است، نه Bound کمی Drift ساعت.
 - یک نقطه Serialization و یک External Blocker برای مدل‌سازی Contention/انتظار Lock.
 - فقط یک Tenant و یک Installation مدل شده‌اند؛ بررسی چندمستاجری فراتر از تشخیص Binding نامنطبق در M6 است.
