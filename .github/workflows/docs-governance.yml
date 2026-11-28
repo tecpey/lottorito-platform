@@ -11,6 +11,7 @@ on:
       - "scripts/check_docs.py"
       - "tools/lot_eval_rdm.py"
       - "tools/lot_eval_rdm004.py"
+      - "tools/lot_eval_rdm005.py"
       - ".github/workflows/docs-governance.yml"
   workflow_dispatch:
 
@@ -39,3 +40,5 @@ jobs:
         run: python tools/lot_eval_rdm.py
       - name: Execute LOT-EVAL-RDM-004 decision-table verification
         run: python tools/lot_eval_rdm004.py
+      - name: Execute LOT-EVAL-RDM-005 bidirectional traceability audit
+        run: python tools/lot_eval_rdm005.py
