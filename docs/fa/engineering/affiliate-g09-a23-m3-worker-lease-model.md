@@ -1,7 +1,7 @@
 # G09-A23 M3 — مدل Lease و نسل Claim در Worker
 
 **شناسه سند:** LOT-AFFILIATE-G09-A23-M3  
-**نسخه:** ۰.۱.۵  
+**نسخه:** ۰.۱.۶  
 **وضعیت:** پیش‌نویس مدل — اعتبارسنجی TLC در انتظار؛ بازبینی مستقل و Candidate refinement انجام نشده است  
 **سند مادر:** [راهبرد مدل رسمی و آزمون A23](affiliate-g09-a23-formal-protocol-model-test-strategy.md)  
 **پیشنهاد هنجاری:** [ADR-001 — پروتکل Claim، Lease و Fencing برای WorkItem](adr-001-workitem-claim-lease-fencing.md)  
@@ -27,7 +27,7 @@ M3 یک WorkItem پایدار و دو Process مربوط به Worker را جدا
 
 ۶. **انقضای Lease به‌خودی‌خود Transition وضعیت نیست.** انقضا WorkItem با وضعیت CLAIMED را واجد شرایط Reclaim می‌کند. مدل همچنین PROCESSING را State دارای Lease در نظر می‌گیرد که پس از انقضا قابل Reclaim است. این یک Refinement آگاهانه فراتر از عبارت فعلی ADR-001 است (که READY و CLAIMED منقضی‌شده را نام می‌برد)؛ مالک و بازبینان مستقل باید این شکاف State Machine را پیش از تصویب ADR حل کنند. پیش از Commit شدن Generation جدید نیز Worker قدیمی باید در صورتی که Lease در Guard پس از Serialization منقضی شده باشد رد شود. اگر Worker قدیمی درحالی‌که Lease معتبر است و نقطه Serialization را در اختیار دارد Mutation را Linearize کند، آن Mutation قبل از Reclaim بعدی مرتب می‌شود.
 
-۷. **یک Transition مجاز و رقیب State** برای آزمون Guard مربوط به Expected State مدل شده است. تغییر Lifecycle Version نیز به‌عنوان ورودی مدل می‌شود؛ اما مدل درباره Policy مالک برای Receiptهای قبلاً پذیرفته‌شده تصمیم نمی‌گیرد.
+۷. **یک Transition مجاز و رقیب `CLAIMED → PROCESSING`** به‌صورت Action اتمیک Serialization/Guard/Mutation، درحالی‌که درخواست قدیمی در انتظار است، مدل شده است. این Mutation در همان Oracle تجمعی History ثبت می‌شود تا Negative Control مربوط به State قدیمی با اتکا به تغییر State ثبت‌نشده به‌اشتباه موفق نشود. تغییر Lifecycle Version نیز به‌عنوان ورودی مدل می‌شود؛ اما مدل درباره Policy مالک برای Receiptهای قبلاً پذیرفته‌شده تصمیم نمی‌گیرد.
 
 ## ۳. State و Transitionهای انتزاعی
 
@@ -68,7 +68,7 @@ Mutation محافظت‌شده Worker فقط در نقطه Serialization/Lineari
 |---|---|
 | TypeOK | تمام متغیرهای انتزاعی در دامنه‌های متناهی تعریف‌شده باقی بمانند |
 | RequestLockCoherence | وضعیت Idle/Waiting/Locked درخواست، Worker درخواست‌دهنده و Lock Owner با یکدیگر سازگار بمانند |
-| SingleClaimOwner | مالکیت و State چرخه عمر WorkItem سازگار بمانند |
+| SingleClaimOwner | WorkItemهای فعال CLAIMED/PROCESSING، Principal جاری و Token متصل به Generation را حفظ کنند؛ Stateهای READY/COMPLETED/FAILED/QUARANTINED فاقد Owner، Token یا Lease فعال باشند |
 | HeartbeatDoesNotAdvanceGeneration | Heartbeat/Renewal هرگز Claim Generation را افزایش ندهد |
 | EveryAcceptedMutationWasAuthorized | هر Mutation پذیرفته‌شده با Owner، Generation، Token، Lifecycle، Expected State، Tenant، Installation، زمان پس از Lock و Lease منقضی‌نشده تطبیق داشته باشد |
 | GuardFailureHasZeroMutation | Guard ناموفق شمارنده Mutation محافظت‌شده را تغییر ندهد |
@@ -140,3 +140,6 @@ Runner ثابت‌شده در scripts/formal/run_g09_m3.sh و Workflow در .git
 
 
 Context درخواست Pending به‌صورت State اسکالر مدل شده، نه Mapهای جداگانه برای هر Worker. دو Process همچنان در Mapهای محلی Generation/Token/Clock از هم متمایزند؛ Abstraction تک‌درخواستی با Action صریح Competing Reclaim همراه شده تا رقابت درخواست قدیمی با Claim جدید همچنان در مدل حضور داشته باشد.
+
+
+**یادداشت بازبینی نسخه ۰.۱.۶ — کامل‌بودن Oracle مربوط به Mutation:** در بازبینی مشخص شد Transition قبلی `AuthorizedStartProcessing` وضعیت WorkItem را خارج از History مربوط به Mutationهای پذیرفته‌شده تغییر می‌داد. این Transition با یک Transition رقیبِ صریحاً مجاز جایگزین شد که Generation/Token/Lifecycle/Lease مربوط به Claimant جاری را بررسی و رویداد را به همان History اضافه می‌کند. History اکنون همه رویدادهای پذیرفته‌شده را به‌صورت تجمعی نگه می‌دارد، نه فقط آخرین رویداد را. Invariant مربوط به SingleClaimOwner نیز الزام می‌کند Stateهای Ready/Terminal هیچ Owner/Token/Lease فعالی نداشته باشند؛ Completion این فیلدها را پاک می‌کند و Generation را حفظ می‌کند. اعتبارسنجی TLC روی Head دقیق در انتظار است.
