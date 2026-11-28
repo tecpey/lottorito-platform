@@ -1,6 +1,6 @@
 # دفتر ثبت تصمیم‌های Lottorito
 
-**شناسه سند:** LOT-ADR-REG-001 | **نسخه:** ۲.۵.۹ | **وضعیت:** دفتر ثبت نگهداری‌شده؛ هر رکورد اعتبار و اختیار مستقل خود را دارد
+**شناسه سند:** LOT-ADR-REG-001 | **نسخه:** ۲.۵.۱۰ | **وضعیت:** دفتر ثبت نگهداری‌شده؛ هر رکورد اعتبار و اختیار مستقل خود را دارد
 
 ## روش خواندن
 این دفتر مانع تبدیل گفتگو، مثال یا پیشنهاد به قانون محصول می‌شود. صرف درج یک مورد به‌معنای تصویب آن نیست؛ ستون وضعیت و مرجع اختیار تعیین‌کننده است. هر تغییر باید شواهد مرتبط داشته باشد.
@@ -156,3 +156,6 @@
 
 | LDR-089 | اصلاح Oracle ناامن در M1 | Oracle باید State سیستم را بسنجد، نه Helper Flag وابسته به Mutant | `NoRetryCommitWhileOriginalInflight` به رابطه مستقیم `~(originalStatus = "inflight" /\ retryStatus = "committed")` تغییر کرد و متغیر Ghost حذف شد؛ M1 Run `46172983952` روی Head `d20bded`، سه Mutant را با Invariantهای مورد انتظار کشف کرد. Artifact `15274741061`، SHA-256 `5fdf36c4378b09deccd8db776cf4ebd48eb8aed020e5ca8b56c9948dac75621f`. | اصلاح مدل محدود؛ Candidate/Runtime/DB behavior و Liveness اثبات نشده‌اند. |
 | LDR-090 | تثبیت اجرای M0 روی Head پس از اصلاح M1 | TLC و Artifact قابل‌بازتولید | M0 Run `46172983850` روی همان synthetic merge؛ Baseline: ۸۷ تولیدشده/۵۲ متمایز، عمق ۷؛ سه Mutant مورد انتظار. Artifact `15274098135`، SHA-256 `1a5d6a2d83eb71c7dec52355520a3159a8bbc42b58ce7ebc177eb712db0ec637`. | فقط M0 محدود؛ هیچ صلاحیت عملیاتی یا مجوز Merge/Deploy ایجاد نمی‌کند. |
+
+| LDR-091 | تثبیت Snapshot نهایی M0 روی Head `f887699` | TLC و Artifact با Hash | Run `46173159826` روی synthetic merge `a86a80bf03a8bd309fa6927343d7b1a42a53da71`؛ Baseline: ۸۷ تولیدشده/۵۲ متمایز، عمق ۷؛ سه Mutant مورد انتظار. Artifact `15273919206`، SHA-256 `4c69f418349f57a866ca1f89ed34a7cb88c4d27fde4831a0d4c91884ec0497fc`. | فقط M0 محدود؛ Candidate/Runtime/Production یا مجوز Merge/Deploy نیست. |
+| LDR-092 | تثبیت Snapshot نهایی M1 با Oracle مبتنی بر State روی Head `f887699` | TLC، اصلاح Oracle و Artifact با Hash | Run `46173159827` روی همان synthetic merge؛ دو Baseline هرکدام ۲۵ تولیدشده/۱۹ متمایز، عمق ۸؛ سه Mutant مورد انتظار. Artifact `15274292069`، SHA-256 `db8c119daa1ce3998e3314f701955c4f2311046437589070360d8f52119483b8`. | فقط M1 محدود؛ DB/Jepsen/History/Liveness و Candidate refinement باز هستند. هیچ مجوز عملیاتی صادر نمی‌شود. |
