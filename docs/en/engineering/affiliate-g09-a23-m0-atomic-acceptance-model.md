@@ -1,7 +1,7 @@
 # G09-A23-M0 — Formal Atomic Acceptance Model
 
 **Document ID:** LOT-AFFILIATE-G09-A23-M0-001  
-**Version:** 0.1.6  
+**Version:** 0.1.7  
 **Status:** TLC-executed bounded model; independent review and candidate refinement not performed  
 **Model:** `formal/G09M0AtomicAcceptance.tla`  
 **Baseline configuration:** `formal/G09M0AtomicAcceptance.cfg`  
@@ -146,44 +146,23 @@ M0 does not prove the following and deliberately defers them:
 
 In particular, M0 does not assume that observing no record proves the original transaction has terminated. That race is the central subject of M1. M0 also does not model tenant isolation or disclosure of another tenant's identity.
 
-## 8. Reproducible execution evidence
+## 8. Latest reproducible execution evidence
 
-**PR-associated run:** GitHub Actions Run `46172096434` — [G09 M0 Formal Model](https://github.com/tecpey/lottorito-platform/actions/runs/46171482274)  
-**PR head:** `0feb174268beb68ed3e557e6012edf5b325158cf`  
-**Synthetic merge commit checked by the pull_request runner:** `62a1470a557ed22251315f9b1d8572b2792101a7` (merge of the head above into base `f032065f47fe85de2aabf8d47565a57af6af3ae9`)  
-**Artifact:** [g09-a23-m0-tlc-46172096434-1](https://github.com/tecpey/lottorito-platform/actions/runs/46171482274/artifacts/15274440322)  
-**Artifact ZIP SHA-256:** `5ca154ba0f89fc986fd99917b70b2b592420bad0568857bf36052343cdd51e1d`
+**Latest PR head:** `a6831c4be9bb904efe0ccf7809e5179db26661a1`
+**Synthetic merge commit executed:** `fe42d58c84388ba3f2bc3b4b503e5eb220f1d52b` (base: `f032065f47fe85de2aabf8d47565a57af6af3ae9`)
+**GitHub Actions Run:** [46172262016 — G09 M0 Formal Model](https://github.com/tecpey/lottorito-platform/actions/runs/46172262016) — PASS
+**Artifact:** [g09-a23-m0-tlc-46172262016-1](https://github.com/tecpey/lottorito-platform/actions/runs/46172262016/artifacts/15274186676)
+**Artifact ZIP SHA-256:** `25ae83ad40b5f53515afa71054b0e7bf7c9a40067ae658b8a153a28be9e3b480`
 
-Toolchain and environment:
-- TLA+ Tools release: `v1.7.4`
-- TLC: `2.19`, revision `5a47802`, dated 2024-08-08
-- TLA+ Tools JAR SHA-256: `936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88`
-- Java: Eclipse Temurin `17.0.21.1+2`
-- Runner: Ubuntu `24.04.5`, GitHub-hosted `ubuntu-24.04`
-- TLC options: breadth-first search, one worker, seed 1, fp 0, 1 GiB heap.
+Toolchain: TLA+ Tools v1.7.4 / TLC 2.19 (revision `5a47802`); JAR SHA-256 `936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88`; Eclipse Temurin 17.0.21.1; Ubuntu 24.04; BFS, one worker, seed=1, fp=0, 1 GiB heap. Checkout v7.0.1 and Upload Artifact v7.0.2 are pinned by immutable SHAs; `persist-credentials: false`.
 
-Results:
-| Case | TLC result | Generated / distinct states | Depth | Oracle result |
-|---|---|---:|---:|---|
-| Baseline | No violation | 87 / 52 | 7 | As expected |
-| Partial-commit mutant | `PairAtomicity` violated | 7 / 7 | 3 | Detected |
-| Duplicate-pair mutant | `AtMostOneReceipt` violated | 34 / 24 | 5 | Detected |
-| Early-ack mutant | `AcceptedAckSoundness` violated | 7 / 7 | 3 | Detected |
+| Case | TLC result | Generated / distinct | Depth |
+|---|---|---:|---:|
+| Baseline | No violation; bounded state space exhausted | 87 / 52 | 7 |
+| Partial-commit mutant | `PairAtomicity` violated | 7 / 7 | 3 |
+| Duplicate-pair mutant | `AtMostOneReceipt` violated | 34 / 24 | 5 |
+| Early-ack mutant | `AcceptedAckSoundness` violated | 7 / 7 | 3 |
 
-Model/configuration hashes retained in the artifact's `sha256-manifest.txt`:
-- TLA module: `4740bc9d76c10ec76bf0bca00b5f829963b99365fef0a600a0886a2fe9cf2e6f`
-- Baseline config: `ad63aa16b0604b4c82d5f6c5e3435ccb5e6cd51a3fca994e303a3cd263132f7e`
-- Partial-commit config: `3fab9ce1b8d3b1b1bcdad8690d28db2e9254171cc5b962526df7ba82fefc7767`
-- Duplicate-pair config: `7e24f26489c8e02c7798a298101d73efd71e49ca61ea383d5885aded91224f3a`
-- Early-ack config: `975ecfbf8e14541311ada32e812413a918c6f8d759bfa3c9024258e7b5e39938`
+Documentation Governance Run [46172262013](https://github.com/tecpey/lottorito-platform/actions/runs/46172262013) and Affiliate Contract Validation Run [46172262015](https://github.com/tecpey/lottorito-platform/actions/runs/46172262015) also passed on the same head.
 
-TLC parsed and semantically processed the module and checked the invariants; no separate type-system tool was run. All three mutants produced actual, reproducible counterexamples. The artifact contains four TLC logs and the hash manifest.
-
-**Interpretation boundary:** the GitHub run is associated with the PR head above, but the `pull_request` runner executed on the synthetic merge commit listed above. This is an integration check of the PR/base combination, not a claim that the branch tip alone was directly executed. Checkout v7.0.1 and Upload Artifact v7.0.2 are pinned to immutable SHAs, and persisted checkout credentials are disabled.
-
-Independent model review and candidate refinement have not yet been performed;
-- no candidate or runtime has been evaluated;
-- ADR-002 remains PROPOSED and A11-F01..F08 remain open;
-- A20-01..A20-28 remain NOT RUN.
-
-**Conclusion:** M0 was checked by TLC within its finite bounds and detected all three deliberate mutations with the predicted oracles. This is evidence for that bounded model only, not a general protocol proof or implementation qualification. Independent review and candidate refinement remain mandatory.
+**Interpretation boundary:** This result applies only to the recorded model, configurations, constants, bounds and toolchain. It does not prove implementation behavior, qualify a database, establish candidate refinement, real transaction behavior, Jepsen correctness, deterministic simulation, A20 or production readiness. The run executed on the synthetic merge, not a runtime/candidate.
