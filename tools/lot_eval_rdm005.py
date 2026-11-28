@@ -204,6 +204,14 @@ def run() -> dict:
     catalogue_sources = source_clauses_by_rule(catalogue)
     check(set(catalogue_sources) == expected_rules,
           "catalogue source-clause register population mismatch", failures)
+    fa_catalogue_ascii = fa_catalogue.translate(
+        str.maketrans("۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩", "01234567890123456789"))
+    fa_catalogue_sources = source_clauses_by_rule(fa_catalogue_ascii)
+    check(set(fa_catalogue_sources) == expected_rules,
+          "FA catalogue source-clause register population mismatch", failures)
+    for rule in expected_rules:
+        check(fa_catalogue_sources.get(rule, set()) == catalogue_sources.get(rule, set()),
+              f"{rule}: EN/FA source-clause mapping differs", failures)
 
     # Parser regression guards for heading levels, nested sections, Persian
     # numerals and token boundaries (AVT-001 must not become AVT-00).
