@@ -268,7 +268,7 @@
 ### G09-A23 — مدل رسمی و راهبرد آزمون خصمانه (۲۰۲۶-۱۱-۲۸)
 
 - LOT-AFFILIATE-G09-A23-001 در هر دو زبان اضافه شد؛ دامنه آن مدل انتزاعی State Machine، ۱۵ خاصیت Safety، خواص Liveness مشروط، خانواده مدل‌های M0–M7، Bounds اولیه، روش Model Checking، History Checker، Fault Injection، Schedule Generation و Mutation Testing است.
-- این سند طراحی/تحقیق است؛ نخستین ماژول TLA+ برای M0 به‌همراه یک Config مبنا و سه Negative Control تألیف شده و مستند دوزبانه آن ثبت شده است. TLC، Syntax/Type Check و بررسی Counterexample هنوز اجرا نشده‌اند؛ M1–M7، Jepsen/History Checker/Simulation اجرا نشده‌اند و A20-01..A20-28 همچنان NOT RUN هستند.
+- این سند طراحی/تحقیق است؛ ماژول TLA+ برای M0 و یک Config مبنا به‌همراه سه Negative Control تألیف و با TLC v1.7.4 بررسی شده است. Baseline با ۵۲ State متمایز و سه Mutation با Counterexampleهای مورد انتظار خاتمه یافته‌اند؛ بازبینی مستقل و Refinement به Candidate انجام نشده است. M1–M7، Jepsen/History Checker/Simulation اجرا نشده‌اند و A20-01..A20-28 همچنان NOT RUN هستند.
 - A21-F03/F04/F05/F11/F12 فقط پاسخ طراحی/روش‌شناختی دریافت کرده‌اند و تا مدل و شواهد معتبر باز می‌مانند. A21-F01/F06/F08/F13 برای A24 باز هستند.
 - بازبینی تطبیقی A23 v0.1.1 با ADR-001 دو اصلاح مهم اعمال کرد: انقضای Lease در Guard پس از Serialization، حتی پیش از Reclaim، Mutation را رد می‌کند؛ و Fencing محلی درخواست خارجی in-flight را لغو نمی‌کند. M3/M4، S-07/S-10/S-14/S-15 و Transitionها اصلاح شدند.
 - A23 v0.1.2 با تطبیق A22، Restore Quarantine، Gate بازگشایی، High-water Mark هویت، Replay و انقضای مشروط Tombstone را صریح مدل کرد؛ Transitionهای Restore/Reopen/Replay/ExpireTombstone، متغیرهای Lifecycle، S-08 و M5 اصلاح شدند.
@@ -276,4 +276,4 @@
 - OD-01..OD-12، C-01..C-16 و G1..G9 همچنان OPEN/NOT APPROVED؛ ADR-002 همچنان PROPOSED؛ R0 BLOCKED، R1 تحقیق، R2 شروع‌نشده و R3 غیرمجاز است.
 - هیچ Candidate، Runtime/Harness اجرایی، اتصال Partner، عملیات مالی، Production، Merge یا Deploy مجاز نشده است.
 
-- G09-A23-M0 v0.1.0 اضافه شد: `formal/G09M0AtomicAcceptance.tla`، Config مبنا و سه Config منفی برای Partial Commit، Duplicate Pair و Early Ack؛ مستند فارسی/انگلیسی مدل نیز ثبت شد. این گام فقط تألیف است؛ TLC اجرا نشده و هیچ PASS/Counterexample/State Count ادعا نمی‌شود.
+- G09-A23-M0 با TLC v1.7.4 در Run #6 (`46169921103`) روی Head `975bfe23062de06d8358f0fa9475d8b7e3ebde54` بررسی شد: Baseline برابر ۵۲ State متمایز و بدون نقض؛ Mutantها نقض‌های PairAtomicity، AtMostOneReceipt و AcceptedAckSoundness را کشف کردند. لاگ، Artifact و SHA-256 مدل/Configها در مستند همراه ثبت شده‌اند. این نتیجه محدود به مدل/Bounds است؛ بازبینی مستقل و Candidate/Runtime انجام نشده است.
