@@ -169,3 +169,8 @@ Read repository-root [AGENTS.md](../../AGENTS.md). Use a working branch and pull
 
 - [LOT-EVAL-RDM-003B — Blind Independent Oracle Review Packet](governance/enterprise-evaluation-blind-oracle-review-003b.md) — reviewer-facing blind protocol, frozen source/blob manifest, 18 atomic rule IDs, 21 input-only adversarial cases and 35 decision-table input rows; no author-derived expected outputs disclosed. Status: PENDING_EXTERNAL_REVIEW.
 - [LOT-EVAL-RDM-003B — Independent Oracle Worksheet](governance/enterprise-evaluation-blind-oracle-worksheet-003b.md) — blank reviewer declaration, per-case oracle record, 74-entry coverage register and freeze/reconciliation record. Do not expose RDM-003A or RDM-001 outputs until the independent worksheet is frozen.
+
+
+### RDM-003B review correction
+
+- [Author-led adversarial second-pass review](governance/enterprise-evaluation-author-led-second-pass-review-003b.md) — the active review record. The former blind packet and blank worksheet are superseded historical artifacts; no external reviewer or blind oracle is claimed.
