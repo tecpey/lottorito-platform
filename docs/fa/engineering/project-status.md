@@ -255,3 +255,11 @@
 - A20 هنوز مشخصات اجرایی Qualification نیست. A20-01 تا A20-28 همچنان DESIGNED / NOT RUN هستند. هیچ یافته‌ای بسته و هیچ اصلاحی در A20 پنهانی اعمال نشده است.
 - توالی پیشنهادی کنترل‌شده: A22 اصلاح مشخصات؛ A23 مدل رسمی و راهبرد آزمون؛ A24 بسته Evidence و Assurance دوزبانه. تصمیم‌های مالک همچنان متعلق به مالک‌اند.
 - C-01 تا C-16 باز؛ G1 تا G9 تست‌نشده؛ ADR-002 PROPOSED؛ OD-01 تا OD-12 باز؛ A11-F01 تا F08 باز؛ A12 انجام‌نشده؛ R0 مسدود؛ R1 صرفاً تحقیق؛ R2 شروع‌نشده؛ R3 غیرمجاز؛ A4 تصویب‌نشده. هیچ Runtime/Harness، انتخاب Provider، اتصال Partner، عملیات مالی، Merge یا Deploy مجاز نیست. CI روی Head دقیق پس از Commitهای متوالی بررسی شود.
+
+
+## G09-A22 — اصلاح مشخصات A20 (۲۰۲۶-۱۱-۲۸)
+- سند دوزبانه LOT-AFFILIATE-G09-A22-001 به PR شماره ۷۶ اضافه شد؛ LDR-067 در هر دو Decision Register ثبت و هر دو README به‌روزرسانی شدند.
+- A22 در سطح ساختار Specification به A21-F02 تا F10 پاسخ می‌دهد: Source Identity/Canonicalization و Deduplication وابسته به تصمیم؛ Atomic Acceptance و UNKNOWN Commit/Reconciliation؛ قرارداد Receiver خارجی به‌ازای هر مقصد و تضمین Delivery واقع‌بینانه؛ چرخه عمر Retention/Tombstone/Replay/Restore؛ Traceability دوطرفه Requirement-to-Proof؛ معنای PASS/FAIL/INCONCLUSIVE/NOT_RUN/BLOCKED؛ ایزولاسیون مالی صرفاً ساختگی؛ و حداقل قرارداد ماشین‌خوان Test Record.
+- هیچ تصمیم مالک یا مقدار Candidate اختراع نشده است. OD-01 تا OD-12 و C-01 تا C-16 باز؛ G1 تا G9 تست‌نشده/قبول‌نشده. تمام یافته‌های A21 تا ارائه Evidence واقعی و بازبینی مجاز باز می‌مانند؛ متن A22 آن‌ها را نمی‌بندد.
+- A20-01 تا A20-28 همچنان DESIGNED / NOT RUN؛ ADR-002 پیشنهادی؛ A11-F01 تا F08 باز؛ A12 انجام‌نشده/غیرقابل ارزیابی؛ R0 مسدود؛ R1 صرفاً تحقیق؛ R2 شروع‌نشده؛ R3 غیرمجاز؛ A4 تصویب‌نشده.
+- هیچ Runtime/Harness، انتخاب Candidate، اتصال Partner، عملیات مالی، دسترسی Production، Merge یا Deploy مجاز نیست. A23 مدل رسمی/راهبرد آزمون و A24 بسته Evidence/Assurance دوزبانه مراحل بعدی هستند.
