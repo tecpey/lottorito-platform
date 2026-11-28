@@ -1,6 +1,6 @@
 # Lottorito Decision Register
 
-**Document ID:** LOT-ADR-REG-001 | **Version:** 2.5.5 | **Status:** Maintained register; entries retain their individual authority state
+**Document ID:** LOT-ADR-REG-001 | **Version:** 2.5.6 | **Status:** Maintained register; entries retain their individual authority state
 
 ## How to read this register
 This register prevents agents from turning discussion, examples or proposals into product rules. A record is not approved merely because it is listed here. The state and authority column govern. Evidence must be linked for every change.
@@ -143,3 +143,6 @@ Prioritize jurisdiction/operating model and initial Lottery product boundary; pr
 
 | LDR-081 | Final M0 confirmation on exact head `21f7da0` | Reproducible TLC and artifact evidence | Run `46171925729`, synthetic merge `d0f9c729626feed6d691dd9d02d3263744e3f05d`; baseline: 52 distinct states, no violation; all three expected mutants. Artifact `15273603593`, SHA-256 `81acf846cc19a2ec27391075254b1d5917410a19b76edff9a7e734b3ba81a14f`. | Bounded M0 only; no candidate/runtime/production qualification or merge/deployment authorization. |
 | LDR-082 | Final M1 confirmation with strengthened ReceiptShape on exact head `21f7da0` | TLC and oracle-sensitivity evidence | Run `46171925718`, same synthetic merge; two baselines: 19 distinct, 25 generated states, depth 8 each; three mutants exposed `NoRetryCommitWhileOriginalInflight`, `ReceiptCardinality` and `ConflictSoundness`. Artifact `15274021323`, SHA-256 `6eb2c7618dc154f989cf775ae651b3bae4e0db2b65fcd481a8a2212924ea31e0`. | Bounded M1 only; DB/Jepsen/history/Liveness and candidate refinement remain open. No operational authority granted. |
+
+| LDR-083 | Confirm M0 on PR head `0feb174` | Final TLC and artifact evidence | Run `46172096434`, synthetic merge `62a1470a557ed22251315f9b1d8572b2792101a7`; baseline: 52 distinct states, no violation; all three expected mutants. Artifact `15274440322`, SHA-256 `5ca154ba0f89fc986fd99917b70b2b592420bad0568857bf36052343cdd51e1d`. | Bounded M0 model only; no candidate/runtime/production qualification or merge/deployment authorization. |
+| LDR-084 | Confirm strengthened M1 on PR head `0feb174` | Final TLC and oracle-sensitivity evidence | Run `46172096370`, same synthetic merge; two baselines: 19 distinct, 25 generated states, depth 8 each; three mutants exposed `NoRetryCommitWhileOriginalInflight`, `ReceiptCardinality` and `ConflictSoundness`. Artifact `15273862792`, SHA-256 `3a7f263ff1d23b4d09a60cf996f54b17f81aa7c4aff2a0c0a46dcc7fb2422e11`. | Bounded M1 model only; DB/Jepsen/history/Liveness and candidate refinement remain open. No operational authority granted. |
