@@ -135,3 +135,8 @@ Read repository-root [AGENTS.md](../../AGENTS.md). Use a working branch and pull
 
 - [Affiliate G09-A18 — Persistence & Authority Candidate Architecture Evaluation](engineering/affiliate-g09-a18-persistence-authority-candidate-evaluation.md) — comparative research on engineered PostgreSQL HA, managed PostgreSQL HA, Distributed SQL, conditional Spanner and authority/outbox separation; defines G1–G7 hard gates and an R1 evidence plan; no candidate selected or runtime authorized.
 - [Affiliate G09-A19 — Deployment Constraints & Candidate Qualification Matrix](engineering/affiliate-g09-a19-deployment-constraints-candidate-qualification.md) — constraint-first qualification: C-01..C-16 owner inputs, full data-flow/location inventory, G1–G9 hard gates, BIA-based recovery objectives and reproducible measurement; no provider, region or database selected.
+
+
+## Affiliate G09-A20 — evidence acquisition and adversarial qualification
+
+- [Affiliate G09-A20 — Constraint Evidence Acquisition & Adversarial Qualification Design](engineering/affiliate-g09-a20-constraint-evidence-adversarial-qualification.md) — evidence register for C-01..C-16, full data-flow inventory, candidate-neutral invariants/oracles, 28 adversarial test designs, execution safety gates and reproducibility manifest; all cases NOT RUN, no candidate qualified, no runtime authorization.
