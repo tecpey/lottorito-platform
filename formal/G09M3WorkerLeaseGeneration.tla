@@ -295,7 +295,6 @@ GuardOK(w) ==
     /\ (Mutation = "stale_generation" \/ requestToken[w] = claimToken)
     /\ (Mutation = "wrong_token" \/ requestToken[w] = claimToken)
     /\ (Mutation = "stale_lifecycle" \/ requestLifecycle[w] = lifecycleVersion)
-    /\ (Mutation = "stale_state" \/ requestExpectedState[w] = workState)
     /\ (Mutation = "wrong_tenant" \/ requestTenant[w] = TenantID)
     /\ requestInstallation[w] = InstallationID
     /\ IF Mutation = "prelock_time"
@@ -421,7 +420,7 @@ TypeOK ==
     /\ lastGuardFailed \in BOOLEAN
     /\ lastFailureMutationCount \in 0..20
     /\ acceptedHistory \subseteq
-       (Workers \X Workers \X 0..MaxGeneration \X 0..MaxGeneration \X
+       (Workers \X {"worker-service"} \X 0..MaxGeneration \X 0..MaxGeneration \X
         0..MaxTime \X 0..(MaxTime + LeaseDuration) \X 0..1 \X
         0..MaxGeneration \X 0..(MaxGeneration + 1) \X 0..1 \X
         WorkStates \X WorkStates \X {"tenant-A", "tenant-B"} \X
