@@ -1,6 +1,6 @@
 # وضعیت واقعی پروژه و نقطه ادامه کار
 
-**شناسه:** LOT-OPS-001 | **نسخه:** ۲.۰.۷ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۸
+**شناسه:** LOT-OPS-001 | **نسخه:** ۲.۰.۸ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۸
 
 ## وضعیت تأییدشده مخزن
 - مخزن tecpey/lottorito-platform؛ شاخه پیش‌فرض main؛ سطح دسترسی Public طبق تصمیم مالک.
@@ -287,4 +287,4 @@
 
 
 
-- آخرین Head دقیق PR #76: `a6831c4be9bb904efe0ccf7809e5179db26661a1`؛ synthetic merge اجراشده: `fe42d58c84388ba3f2bc3b4b503e5eb220f1d52b`؛ Base: `f032065f47fe85de2aabf8d47565a57af6af3ae9`. M0 Run `46172262016` PASS؛ ۸۷ تولیدشده/۵۲ متمایز، عمق ۷؛ Artifact `15274186676` / `25ae83ad40b5f53515afa71054b0e7bf7c9a40067ae658b8a153a28be9e3b480`. M1 Run `46172262017` PASS؛ دو Baseline هرکدام ۲۵ تولیدشده/۱۹ متمایز، عمق ۸؛ Artifact `15273828706` / `97a5d879f4ddfba8ddb133c25232ce3ec34985c4d1609bd9c7c990eaadc29fd7`. Documentation Governance `46172262013` و Affiliate Contract Validation `46172262015` هر دو PASS. هر دو TLC روی synthetic merge اجرا شدند؛ این شواهد محدود به مدل‌هاست. Candidate/Runtime/DB integration/Jepsen/Simulation/A20 اجرا نشده‌اند؛ M2–M7 تألیف نشده‌اند. PR باز و Unmerged؛ بدون Merge/Deploy.
+- Head مورد استفاده برای اجرای TLC در PR #76: `fca277f4cae18735f9ce45f3e5b9b0a8c9909f8d`؛ synthetic merge اجراشده: `547989755f863440eb35bb42afee936c811b66dd`؛ Base: `f032065f47fe85de2aabf8d47565a57af6af3ae9`. M0 Run `46172700581` PASS؛ ۸۷ تولیدشده/۵۲ متمایز، عمق ۷؛ Artifact `15274721323` / `81f1e74a40622b1695952b663f0ccf1538411681e96efd2ed42f3a0bac94b7c2`. M1 Run `46172700577` PASS؛ دو Baseline هرکدام ۲۵ تولیدشده/۱۹ متمایز، عمق ۸؛ Artifact `15274271466` / `52c8340c8a3d73b7597957589ddba619029b79e0728ec8ac6796881cdb64e751`. Documentation Governance `46172700574` PASS؛ Affiliate Contract Validation `46172700592` هنگام ثبت In Progress بود و PASS ادعا نمی‌شود. هر دو TLC روی synthetic merge اجرا شدند؛ شواهد محدود به مدل‌هاست. Candidate/Runtime/DB integration/Jepsen/Simulation/A20 اجرا نشده‌اند؛ M2–M7 تألیف نشده‌اند. PR باز و Unmerged؛ بدون Merge/Deploy.
