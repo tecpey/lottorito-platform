@@ -171,7 +171,7 @@ UnsafeRetryCommitOnAbsent ==
     /\ retryStatus' = "committed"
     /\ retryOutcome' = "pending"
     /\ retryCommittedWhileOriginalInflight' = TRUE
-    /\ UNCHANGED <<originalStatus, originalOutcome>>
+    /\ UNCHANGED <<originalStatus, originalOutcome, retryObservedAbsent>>
 
 (*
 Negative control: a differing fingerprint is rejected as a conflict before
