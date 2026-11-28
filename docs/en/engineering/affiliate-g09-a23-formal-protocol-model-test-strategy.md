@@ -1,7 +1,7 @@
 # G09-A23 — Formal Protocol Model & Adversarial Test Strategy
 
 **Document ID:** LOT-AFFILIATE-G09-A23-001  
-**Version:** 0.1.28 | **Status:** PROPOSED; M0–M2 TLC-CHECKED WITHIN FINITE BOUNDS; M3 MODEL DRAFTED / TLC VALIDATION PENDING; RUNTIME NOT EXECUTED; M4–M7 NOT AUTHORED  
+**Version:** 0.1.29 | **Status:** PROPOSED; M0–M2 TLC-CHECKED WITHIN FINITE BOUNDS; M3 MODEL DRAFTED / TLC VALIDATION PENDING; RUNTIME NOT EXECUTED; M4–M7 NOT AUTHORED  
 **Date:** 2026-11-28  
 **Review basis:** G09-A21, G09-A22, G09-A20, G09-A7, ADR-001 and ADR-002  
 **Authority:** Advisory design; no owner decision, candidate, gate or execution permission is approved.
@@ -350,3 +350,6 @@ Documentation consistency note: after removing the helper flag from executable M
 
 
 **Version 0.1.28 review note — M3 event identity:** Every accepted mutation record now includes a bounded monotonic sequence so identical-valued events remain distinct in the cumulative set history. This is a finite-model event identity, not a production identifier. Exact-head TLC validation remains required.
+
+
+**Version 0.1.29 review note — M3 scope discipline:** The administrative OperatorQuarantine transition was removed because it mutated WorkItem state outside the worker-mutation history. M3 retains the worker-authorized Park transition to QUARANTINED; administrative quarantine policy is deferred to the relevant operator/recovery model.
