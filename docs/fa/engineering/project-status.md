@@ -1,6 +1,6 @@
 # وضعیت واقعی پروژه و نقطه ادامه کار
 
-**شناسه:** LOT-OPS-001 | **نسخه:** ۲.۰.۸ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۸
+**شناسه:** LOT-OPS-001 | **نسخه:** ۲.۰.۹ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۸
 
 ## وضعیت تأییدشده مخزن
 - مخزن tecpey/lottorito-platform؛ شاخه پیش‌فرض main؛ سطح دسترسی Public طبق تصمیم مالک.
@@ -287,4 +287,4 @@
 
 
 
-- Head مورد استفاده برای اجرای TLC در PR #76: `fca277f4cae18735f9ce45f3e5b9b0a8c9909f8d`؛ synthetic merge اجراشده: `547989755f863440eb35bb42afee936c811b66dd`؛ Base: `f032065f47fe85de2aabf8d47565a57af6af3ae9`. M0 Run `46172700581` PASS؛ ۸۷ تولیدشده/۵۲ متمایز، عمق ۷؛ Artifact `15274721323` / `81f1e74a40622b1695952b663f0ccf1538411681e96efd2ed42f3a0bac94b7c2`. M1 Run `46172700577` PASS؛ دو Baseline هرکدام ۲۵ تولیدشده/۱۹ متمایز، عمق ۸؛ Artifact `15274271466` / `52c8340c8a3d73b7597957589ddba619029b79e0728ec8ac6796881cdb64e751`. Documentation Governance `46172700574` PASS؛ Affiliate Contract Validation `46172700592` هنگام ثبت In Progress بود و PASS ادعا نمی‌شود. هر دو TLC روی synthetic merge اجرا شدند؛ شواهد محدود به مدل‌هاست. Candidate/Runtime/DB integration/Jepsen/Simulation/A20 اجرا نشده‌اند؛ M2–M7 تألیف نشده‌اند. PR باز و Unmerged؛ بدون Merge/Deploy.
+- Head مورد استفاده برای اجرای TLC در PR #76: `d20bdedcbd885a7de4945c0195ba7b738c5588df`؛ synthetic merge اجراشده: `6381c7ce70922edf1a865c73fb792c366d7dd11`؛ Base: `f032065f47fe85de2aabf8d47565a57af6af3ae9`. M0 Run `46172983850` PASS؛ ۸۷ تولیدشده/۵۲ متمایز، عمق ۷؛ Artifact `15274098135` / `1a5d6a2d83eb71c7dec52355520a3159a8bbc42b58ce7ebc177eb712db0ec637`. M1 Run `46172983952` PASS؛ دو Baseline هرکدام ۲۵ تولیدشده/۱۹ متمایز، عمق ۸؛ Invariant `NoRetryCommitWhileOriginalInflight` اکنون State-based است و سه Mutant مورد انتظار کشف شدند؛ Artifact `15274741061` / `5fdf36c4378b09deccd8db776cf4ebd48eb8aed020e5ca8b56c9948dac75621f`. Documentation Governance `46172983823` PASS؛ Affiliate Contract Validation `46172983921` هنگام ثبت In Progress بود و PASS ادعا نمی‌شود. هر دو TLC روی synthetic merge اجرا شدند؛ شواهد محدود به مدل‌هاست. Candidate/Runtime/DB integration/Jepsen/Simulation/A20 اجرا نشده‌اند؛ M2–M7 تألیف نشده‌اند. PR باز و Unmerged؛ بدون Merge/Deploy.
