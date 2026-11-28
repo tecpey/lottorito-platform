@@ -145,3 +145,8 @@ Read repository-root [AGENTS.md](../../AGENTS.md). Use a working branch and pull
 ## Affiliate G09-A21 — adversarial assurance review
 
 - [Affiliate G09-A21 — Adversarial Assurance Review of G09-A20](engineering/affiliate-g09-a21-adversarial-assurance-review.md) — internal self-review, not independent assurance; records 13 open findings (P0:1, P1:9, P2:3), traceability gaps and controlled A22–A24 remediation sequence. A20 remains research/test-design only; no runtime authorization.
+
+
+## Affiliate G09-A22 — A20 specification remediation
+
+- [Affiliate G09-A22 — A20 Specification Remediation](engineering/affiliate-g09-a22-a20-specification-remediation.md) — decision-gated identity/canonicalization, UNKNOWN-commit protocol, external receiver guarantees, retention/restore lifecycle, traceability, test-result semantics and strict synthetic-only financial boundary. Research only; no runtime authorization.
