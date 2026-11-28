@@ -1,6 +1,6 @@
 # G09-A23-M0 — Formal Atomic Acceptance Model
 
-**ID:** LOT-AFFILIATE-G09-A23-M0-001  
+**Document ID:** LOT-AFFILIATE-G09-A23-M0-001  
 **Version:** 0.1.0  
 **Status:** Initial proposed model; TLC execution and independent review not performed  
 **Model:** `formal/G09M0AtomicAcceptance.tla`  
