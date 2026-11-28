@@ -318,13 +318,30 @@ AdvanceLifecycleVersion ==
        lockAcquireTime, lockOwner, blockerAvailable, mutationCount, lastGuardFailed,
        lastFailureMutationCount, acceptedHistory, claimEvents>>
 
-AuthorizedStartProcessing ==
+CompetingStartProcessingRecord(w) ==
+    <<w, claimOwner, claimGeneration, claimToken, persistenceTime, leaseExpiry,
+      lifecycleVersion, workerGeneration[w], workerToken[w], workerLifecycle[w],
+      workState, workState, TenantID, InstallationID, persistenceTime,
+      persistenceTime, "start_processing", claimGeneration>>
+
+(* An independently authorized current claimant wins the serialization point
+   while an older request waits. This atomic acquire/guard/mutate/release action
+   records the competing mutation in the same authorization history oracle. *)
+CompetingAuthorizedStartProcessing(w) ==
+    /\ w \in Workers
+    /\ requestState = "waiting"
+    /\ requestWorker \in Workers \ {w}
     /\ lockOwner = NoOwner
     /\ workState = "claimed"
+    /\ claimOwner = PrincipalOf(w)
+    /\ workerGeneration[w] = claimGeneration
+    /\ workerToken[w] = claimToken
+    /\ workerLifecycle[w] = lifecycleVersion
     /\ persistenceTime < leaseExpiry
     /\ mutationCount < 10
     /\ workState' = "processing"
     /\ mutationCount' = mutationCount + 1
+    /\ acceptedHistory' = acceptedHistory \cup {CompetingStartProcessingRecord(w)}
     /\ lastGuardFailed' = FALSE
     /\ UNCHANGED <<claimGeneration, generationHighWater, claimOwner, claimToken,
        leaseExpiry, lifecycleVersion, persistenceTime, workerClock, workerGeneration,
@@ -332,7 +349,7 @@ AuthorizedStartProcessing ==
        requestGeneration, requestToken, requestLifecycle, requestExpectedState,
        requestTenant, requestInstallation, requestStartTime, requestPreLockValid,
        lockAcquireTime, lockOwner, blockerAvailable, lastFailureMutationCount,
-       acceptedHistory, claimEvents>>
+       claimEvents>>
 
 OperatorQuarantine ==
     /\ lockOwner = NoOwner
@@ -391,14 +408,14 @@ ApplyProtectedTransition(w) ==
          ELSE IF requestOp = "park" THEN "quarantined"
          ELSE workState
     /\ claimOwner' =
-         IF requestOp \in {"retry", "park"} THEN NoOwner ELSE claimOwner
+         IF requestOp \in {"retry", "park", "complete"} THEN NoOwner ELSE claimOwner
     /\ claimToken' =
-         IF requestOp \in {"retry", "park"} THEN 0 ELSE
+         IF requestOp \in {"retry", "park", "complete"} THEN 0 ELSE
          IF Mutation = "heartbeat_generation" /\ requestOp = "heartbeat"
          THEN claimToken + 1 ELSE claimToken
     /\ leaseExpiry' =
          IF requestOp = "heartbeat" THEN persistenceTime + LeaseDuration
-         ELSE IF requestOp \in {"retry", "park"} THEN 0 ELSE leaseExpiry
+         ELSE IF requestOp \in {"retry", "park", "complete"} THEN 0 ELSE leaseExpiry
     /\ claimGeneration' =
          IF Mutation = "heartbeat_generation" /\ requestOp = "heartbeat"
          THEN claimGeneration + 1 ELSE claimGeneration
@@ -454,7 +471,7 @@ Next ==
     \/ AdvancePersistenceTime
     \/ \E w \in Workers : \E skew \in (-1)..1 : SetWorkerClockSkew(w, skew)
     \/ AdvanceLifecycleVersion
-    \/ AuthorizedStartProcessing
+    \/ \E w \in Workers : CompetingAuthorizedStartProcessing(w)
     \/ OperatorQuarantine
 
 Spec == Init /\ [][Next]_vars
@@ -504,9 +521,10 @@ RequestLockCoherence ==
     /\ (requestState = "locked" => requestWorker \in Workers /\ lockOwner = requestWorker)
 
 SingleClaimOwner ==
-    /\ (workState = "ready" => claimOwner = NoOwner)
-    /\ (workState = "quarantined" => claimOwner = NoOwner)
-    /\ (workState \in {"claimed", "processing"} => claimOwner = "worker-service")
+    /\ (workState \in {"ready", "completed", "failed", "quarantined"}
+        => claimOwner = NoOwner /\ claimToken = 0 /\ leaseExpiry = 0)
+    /\ (workState \in {"claimed", "processing"}
+        => claimOwner = "worker-service" /\ claimToken = claimGeneration)
 
 GenerationHighWaterNeverRegresses ==
     claimGeneration = generationHighWater
