@@ -346,3 +346,13 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 - Current review inventory is 18 rule propositions + 21 AVT scenarios + 36 table rows = 75 review obligations, not 75 independent tests.
 - RDM-001 now has 21 AVT checks and 8 separate model guards. All 8 guards include invalid trigger, empty candidate set, negative weight, empty compound atoms, inconsistent material-NS, incomplete provisional authorization, boolean capability rating and boolean risk anchor.
 - Exact-head CI #1202 (run ID 46123183828) passed on 2dd02e5fd4b06d46c995ee1e934053d15987c001: 67 bilingual Markdown pairs, 172 local links, 21/21 AVT, 8/8 guards, 10/10 hand-authored mutants killed, 210 AVT mutant/check evaluations, zero failures and zero survivors. Structural and registered-harness evidence only; no full matrix-property or independent-assurance claim.
+
+
+## LOT-EVAL-RDM-004 — full decision-table verification (2026-11-28)
+
+- Added `tools/lot_eval_rdm004.py` and a bilingual verification record. All 36 rows across DT-01…DT-05 have stable executable row IDs and deterministic synthetic fixtures.
+- Row-level execution also covers six registered metamorphic properties and four targeted specification mutations. These are reported separately; they are not 46 independent end-to-end tests or a conventional mutation score.
+- Exact-head Documentation Governance run #1216 (run ID `46129592496`) succeeded on `36c2f66af85cbe24255feeaaab17c70329034071`: bilingual documentation validator PASS; existing RDM-001 harness PASS; RDM-004 runner PASS. The RDM-004 runner exits successfully only when all 36 row checks, six metamorphic checks and four targeted mutation checks pass.
+- DT04-R5 intentionally remains UNRESOLVED for non-material NS without a separately complete provisional-authority path. No definitive aggregation rule was invented.
+- RDM-U01…U05 remain unresolved. RDM-R13/R14/R17/R18 and other parent-standard requirements are not all covered by these tables and require separate verification. Synthetic fixtures do not authenticate real evidence, authority, applicability, legal status or control operation.
+- LOT-EVAL-001 remains PROPOSED; REV-01…REV-14 owner dispositions remain PENDING. No candidate/provider selection, procurement, partner integration, production data, financial activity, merge or deployment is authorized.
