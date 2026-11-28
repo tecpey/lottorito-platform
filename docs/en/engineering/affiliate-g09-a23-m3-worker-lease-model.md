@@ -1,7 +1,7 @@
 # G09-A23 M3 — Worker Lease & Claim Generation Model
 
 **Document ID:** LOT-AFFILIATE-G09-A23-M3  
-**Version:** 0.1.1  
+**Version:** 0.1.2  
 **Status:** MODEL DRAFT — TLC validation pending; independent review and candidate refinement not performed  
 **Parent:** [A23 formal protocol model/test strategy](affiliate-g09-a23-formal-protocol-model-test-strategy.md)  
 **Normative proposal:** [ADR-001 — WorkItem Claim, Lease and Fencing](adr-001-workitem-claim-lease-fencing.md)  
@@ -18,7 +18,7 @@ The durable WorkItem state is authoritative. Queue delivery is only a wake-up hi
 1. **Worker process identity is distinct from authenticated principal identity.** W0 and W1 intentionally share the same abstract authenticated principal (worker-service). This prevents a false proof in which stale work is rejected only because the process identity differs. Generation and token must independently fence an older process that resumes under the same service principal.
 2. **Claim generation is per immutable WorkItem.** A successful initial claim or reclaim advances it exactly once. Heartbeat/renewal, processing, completion, retry and park do not advance it. The finite model uses generations 0..2 only as exploration bounds, not as a production representation or exhaustion policy.
 3. **The claim token is an opaque generation-bound symbol.** TLC models binding and mismatch, not cryptographic entropy, secrecy, token transport or credential theft. A token is not treated as a bearer credential by itself.
-4. **Persistence time is distinct from worker-local time.** Worker clocks advance independently of persistence time, allowing slow/fast observation schedules. The worker-local observation and pre-lock validity snapshot are never authoritative in the baseline.
+4. **Persistence time is distinct from worker-local time.** Each worker has a nondeterministically changeable clock offset in {-1, 0, +1} relative to persistence time. This explores bounded slow/fast clock observations without claiming a quantitative drift bound. The request also captures a pre-lock validity snapshot; neither local observation is authoritative in the baseline.
 5. **The serialization point and guard are separate model steps.** A request captures its expected state/generation/token/lifecycle and pre-lock observation, waits, acquires the serialization point, then evaluates the guard against current durable state and persistence time. Time may advance while waiting or while the serialization point is held. The guard and protected mutation are one atomic linearization step.
 6. **A lease expiry is not a state transition.** It makes a CLAIMED item eligible for reclaim. The model also treats PROCESSING as a lease-bearing state that becomes reclaimable after expiry. This is a deliberate refinement beyond ADR-001's current wording (which names READY and expired CLAIMED); the owner and independent reviewers must reconcile this state-machine gap before ADR approval. Before a new generation is committed, an old worker must still be rejected if its lease is expired at the post-serialization guard. If an old worker validly linearizes before expiry while holding the serialization point, its mutation is ordered before any later reclaim.
 7. **A competing authorized state transition** is represented to test stale expected-state guards. Installation lifecycle version changes are represented as an input; the model does not decide the unresolved owner policy for already accepted receipts.
@@ -32,7 +32,7 @@ The model source is formal/G09M3WorkerLeaseGeneration.tla.
 | WorkItem lifecycle | ready, claimed, processing, completed, failed, quarantined |
 | Durable ownership | claimOwner, claimGeneration, claimToken, leaseExpiry |
 | Recovery/guard version | lifecycleVersion |
-| Time | persistenceTime, independent workerClock[W0/W1] |
+| Time | persistenceTime, bounded workerClock offsets for W0/W1 |
 | In-flight worker request | expected state, generation, token, lifecycle, tenant/installation, request-start time and pre-lock observation |
 | Serialization | lockOwner, lock acquisition time, external blocker to model lock wait |
 | Operations | claim/reclaim, heartbeat, start-processing, complete, retry, park |
@@ -97,7 +97,7 @@ A runner is successful only when the baseline completes without an invariant vio
 - One immutable WorkItem; two worker processes W0/W1.
 - Both worker processes share one authenticated service principal, intentionally.
 - Two claim generations (0, 1, 2); LeaseDuration = 2 and persistence-time domain 0..4 are finite exploration constants only.
-- Worker-local clocks advance independently of persistence time; this is a nondeterministic skew/staleness abstraction, not a quantitative clock-drift bound.
+- Worker-local clock offsets vary nondeterministically within -1..+1 relative to persistence time; this is a bounded skew abstraction, not a quantitative clock-drift bound.
 - One serialization point and one external blocker model contention/lock wait.
 - One tenant and one installation are modeled; cross-tenant behavior beyond detecting a mismatched binding belongs to M6.
 - Token entropy, cryptographic authenticity, IAM implementation, database locking/isolation/time semantics, process kill/STONITH, queue behavior, external effects and restore-incarnation protocol are abstracted or excluded.
@@ -127,3 +127,6 @@ The pinned runner is scripts/formal/run_g09_m3.sh; the workflow is .github/workf
 - PostgreSQL, [Explicit Locking](https://www.postgresql.org/docs/current/explicit-locking.html): row-lock serialization and lock-wait behavior; cited as a candidate-evaluation reference only.
 
 These references motivate the model's adversarial schedules. They do not prove any Lottorito implementation or select a provider.
+
+
+The finite clock-offset domain was tightened to -1..+1 to keep the explicit-state search tractable while retaining both slow and fast worker-clock counterexamples. This is an abstraction bound only; production clock behavior remains unselected and unproven.
