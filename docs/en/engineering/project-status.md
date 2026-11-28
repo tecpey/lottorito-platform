@@ -240,3 +240,9 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 - A16 adds ten author-led cross-cutting challenge points, twelve deterministic schedule families, source-freeze/change-control requirements, reviewer independence/competence declaration, independent-oracle/evidence requirements and a signed reviewer disposition template.
 - Research references include AWS Builders' Library/Well-Architected retry and idempotency guidance, PostgreSQL WAL/synchronous replication/failover documentation, fencing-token analysis, Jepsen history-checking methodology, RFC 8785 and RFC 7493. These inform review; no technology is selected.
 - A16 is not independent sign-off. A11-F01..F08 remain OPEN; ADR-002 PROPOSED; A7/A8 extensions NOT RUN/BLOCKED; all A4 gates NOT APPROVED. No candidate/runtime/harness proof, partner integration, financial operation, merge or deployment authorized. CI must be checked on the post-A16 exact head.
+
+
+## G09-A20 — constraint evidence acquisition and adversarial qualification (2026-11-28)
+- Added bilingual LOT-AFFILIATE-G09-A20-001 to PR #76. It defines evidence acquisition for C-01..C-16, system-wide data-flow/location inventory, candidate-neutral invariants and independent oracles, 28 adversarial test designs, execution safety gates and a reproducibility manifest.
+- All A20 cases are DESIGNED / NOT RUN. No owner evidence is acquired or accepted; no candidate is selected/qualified; G1..G9 remain NOT TESTED; ADR-002 remains PROPOSED; OD-01..OD-12 and A11 findings remain OPEN; A12 independent review remains NOT PERFORMED / NOT ASSESSABLE.
+- R0 remains BLOCKED; R1 research-only; R2 NOT STARTED; R3 NOT AUTHORIZED; all A4 gates NOT APPROVED. No runtime/harness execution, partner integration, financial operation, merge or deployment is authorized. Exact-head CI must be checked after all sequential documentation updates.
