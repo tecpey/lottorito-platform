@@ -424,7 +424,7 @@ Minimum acceptance tests:
 3. Partial evidence for 2 of 5 atomic subcriteria cannot pass or score the 5-part parent criterion.
 4. N/A requires prior rationale/approval, exposes effective weights, and cannot remove a mandatory gate.
 5. Material NS blocks a definitive aggregate/ranking.
-6. A synthetic isolated test is tiered on its actual permission; later operational financial/regulated enablement is assessed separately.
+6. A synthetic isolated test is tiered on its actual permission; later operational financial/regulated enablement is assessed separately. A high-impact identity decision that can materially affect access to customer funds/privileged activity or cause severe harm triggers T3.
 7. L1/I5 and L5/I1 remain distinguishable; no unsupported expected-loss claim is made.
 8. Confidence is justified separately and is not multiplied into capability.
 9. TCO records forecast bias/reference class or explicitly discloses unavailable evidence; switching value is considered for consequential choices.
