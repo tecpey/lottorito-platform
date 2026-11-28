@@ -248,3 +248,12 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 - A12 substantive-review requirements (independence/competence/conflict declaration, artifact inventory, reconstructed protocol, adversarial analysis and individual A11 dispositions) are not evidenced in the available GitHub review artifacts. This is an evidence limitation, not a claim that no off-platform analysis occurred.
 - Added bilingual LOT-AFFILIATE-G09-A17-001 and LDR-062. A17 records the approval without inferring technical closure. A11-F01..F08 remain OPEN; OD-01..OD-12 remain OPEN; ADR-002 remains PROPOSED; all A4 gates remain NOT APPROVED.
 - No runtime/persistence proof, candidate selection, partner integration, financial operation, merge or deployment is authorized. The A17 follow-up branch is based on the exact approved PR #76 head; any A17 changes require their own exact-head CI and review.
+
+
+## Enterprise evaluation standard — 2026-11-28
+
+- Added bilingual LOT-EVAL-001 at `docs/en/governance/enterprise-evaluation-standard.md` and `docs/fa/governance/enterprise-evaluation-standard.md`.
+- LOT-EVAL-001 is a proposed parent governance standard spanning product, technology, supplier, integration, data/model and operating-model decisions. It introduces risk-proportionate T0–T3 depth, claim-level evidence classes and freshness, mandatory workflow, non-compensable gates, pre-frozen score rubrics, lifecycle TCO/reversibility, controlled-pilot evidence, decision dossiers, explicit states, reassessment triggers and specialist-profile precedence.
+- It deliberately preserves LOT-PROVIDER-EVAL-001 and LOT-TECH-ADR-001 as specialist documents. It does not silently replace or approve either document, set binding score weights, select a candidate, approve legal/jurisdictional scope, or authorize procurement, implementation, production data, partner integration, financial activity or launch.
+- Reference research includes ISO 31000:2018, ISO/IEC 25010:2023, NIST SP 800-161 Rev.1 Update 1, NIST SP 1326 (2026), NIST SP 1305, OWASP SAMM and FinOps Framework. References inform evaluation design; they do not certify Lottorito or any candidate.
+- First application is proposed as a bounded, non-production retrospective evaluation, to be selected by the accountable owner after review. The standard remains PROPOSED pending owner and specialist review.
