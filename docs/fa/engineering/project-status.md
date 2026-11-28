@@ -1,6 +1,6 @@
 # وضعیت واقعی پروژه و نقطه ادامه کار
 
-**شناسه:** LOT-OPS-001 | **نسخه:** ۲.۰.۰ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۷
+**شناسه:** LOT-OPS-001 | **نسخه:** ۲.۰.۱ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۸
 
 ## وضعیت تأییدشده مخزن
 - مخزن tecpey/lottorito-platform؛ شاخه پیش‌فرض main؛ سطح دسترسی Public طبق تصمیم مالک.
@@ -277,3 +277,5 @@
 - هیچ Candidate، Runtime/Harness اجرایی، اتصال Partner، عملیات مالی، Production، Merge یا Deploy مجاز نشده است.
 
 - G09-A23-M0 با TLC v1.7.4 در Run #11 (`46170075939`) روی Head `2ec0350e476e6ec3b90ce241bfedbe53a50799af` بررسی شد: Baseline برابر ۵۲ State متمایز و بدون نقض؛ Mutantها نقض‌های PairAtomicity، AtMostOneReceipt و AcceptedAckSoundness را کشف کردند. لاگ، Artifact و SHA-256 مدل/Configها در مستند همراه ثبت شده‌اند. این نتیجه محدود به مدل/Bounds است؛ بازبینی مستقل و Candidate/Runtime انجام نشده است.
+
+- اجرای تأییدی M0 روی PR head جاری `c9d2e2b7e3d80bf53a64e928df647bcd1cb20ebc` در Run `46170218651` موفق شد؛ Runner رویداد PR روی merge commit مصنوعی `9a9aa076de9700717e4d41d14766d8414fdd2b5b` اجرا کرد. Baseline: ۵۲ State متمایز، بدون نقض؛ سه Negative Control Counterexampleهای مورد انتظار را تولید کردند. Artifact ID `15273631651` با SHA-256 `0ae142aac63ca8bc9e9cdd1e802b98bdd8abf8e829045e3d99879ba92bd60d4d`. این شواهد فقط M0 محدود است؛ بازبینی مستقل/Refinement و M1–M7 هنوز انجام نشده‌اند.
