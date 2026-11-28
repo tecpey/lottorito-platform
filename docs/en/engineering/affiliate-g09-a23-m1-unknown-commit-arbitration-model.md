@@ -1,7 +1,7 @@
 # G09-A23-M1 — Unknown Commit Arbitration and Concurrent Retry Model
 
 **Document ID:** LOT-AFFILIATE-G09-A23-M1-001  
-**Version:** 0.1.8  
+**Version:** 0.1.9  
 **Status:** Bounded model checked by TLC; independent review and candidate refinement remain open  
 **Model:** `formal/G09M1UnknownCommitArbitration.tla`  
 **Configurations:** two baselines and three negative controls in `formal/G09M1*.cfg`  
@@ -46,7 +46,6 @@ M1 does not model tenants, installations, source epochs, multiple identities, le
 - `receiptCount`: Receipt count for the identity; bounded 0..2 so a mutant can expose duplication.
 - `receiptOwner` and `receiptFingerprints`: owner and fingerprints of committed Receipts.
 - `retryObservedAbsent`: observation of no Receipt; not evidence of abort.
-- `retryCommittedWhileOriginalInflight`: records an unauthorized retry commit while the original attempt remained in flight.
 
 ## 5. Main transitions
 
