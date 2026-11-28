@@ -149,3 +149,8 @@ Validator ساختاری در [scripts/check_docs.py](../../scripts/check_docs.p
 ## G09-A22 افیلیت — اصلاح مشخصات A20
 
 - [G09-A22 — اصلاح مشخصات A20](engineering/affiliate-g09-a22-a20-specification-remediation.md) — Identity/Canonicalization وابسته به تصمیم، پروتکل UNKNOWN Commit، تضمین Receiver خارجی، چرخه عمر Retention/Restore، Traceability، معنای نتایج آزمون و مرز مالی صرفاً ساختگی/ایزوله. صرفاً تحقیق؛ بدون مجوز Runtime.
+
+
+## مدل رسمی و راهبرد آزمون خصمانه G09-A23
+
+- [G09-A23 — مدل رسمی پروتکل و راهبرد آزمون خصمانه](engineering/affiliate-g09-a23-formal-protocol-model-test-strategy.md) — LOT-AFFILIATE-G09-A23-001؛ قرارداد State Machine، Safety/Liveness، Bounds مدل محدود، راهبرد TLA+/TLC، History/Concurrency، Fault Injection، Schedule Generation و نگاشت به A20/A7. صرفاً طراحی؛ هیچ Model Checker، Harness یا Runtime اجرا نشده و هیچ Candidate یا مجوزی تصویب نشده است.
