@@ -232,9 +232,9 @@ ISO/IEC 25010:2023 can provide a product-quality taxonomy for relevant software 
 
 ### Cross-cutting scoring-method warning
 
-The Green Book 2026 distinguishes simple multi-criteria analysis (MCA) based on generic weighting/scoring from structured MCDA. It warns that simple weighting/scoring may lack an objective basis and reduce transparency. HM Treasury's MCDA guidance uses **swing weighting**: weights reflect both the importance of a criterion and the actual performance difference between best and worst options; it requires sensitivity analysis and competent facilitation.
+The UK Government Analysis Function's 2024 MCDA guide states that simple weighting alone is not a valid way to derive weights and that additive MCDA requires cardinal component values and mutual preferential independence. HM Treasury's 2024 MCDA supplementary guidance explains **swing weighting**: weights reflect both the importance of a criterion and the actual performance difference between best and worst options; it requires sensitivity analysis and competent facilitation.
 
-This does not mean Lottorito must adopt HM Treasury's process. It means the current weighted score should not be treated as an objective truth or sole selector. The UK Green Book's stage-specific restriction on MCDA applies to UK public-expenditure appraisal; it must not be transplanted as a legal or universal supplier-selection rule for Lottorito.
+This does not mean Lottorito must adopt HM Treasury's process. It means the current weighted score should not be treated as an objective truth or sole selector. The UK public-expenditure guidance limits its use of MCDA to longlist appraisal and uses other methods at shortlist stage. That stage-specific rule is context-bound and must not be transplanted as a legal or universal supplier-selection rule for Lottorito. The Green Book 2026 is cited here for risk/uncertainty, scenario analysis, sensitivity and optimism-bias guidance—not as the source of the simple-weighting critique.
 
 ### 7.1 Additional candidate gap — cardinal measurement and additive-model validity (proposed RDM-U06)
 
