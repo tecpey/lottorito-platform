@@ -154,3 +154,8 @@ Validator ساختاری در [scripts/check_docs.py](../../scripts/check_docs.p
 ## مدل مرجع تصمیم‌گیری LOT-EVAL
 
 - [LOT-EVAL-RDM-001 — مدل مرجع تصمیم‌گیری و آزمون‌گر خصمانه](governance/enterprise-evaluation-reference-decision-model-001.md) — Harness ایزوله مبتنی بر کتابخانه استاندارد Python برای AVT-01 تا AVT-21 و MUT-01 تا MUT-10؛ صرفاً Synthetic/غیرProduction؛ بازبینی مستقل و تعیین تکلیف مالک در انتظار.
+
+
+## ممیزی خصمانه مدل مرجع LOT-EVAL
+
+- [LOT-EVAL-RDM-002 — ممیزی خصمانه مدل مرجع و Oracleهای آزمون](governance/enterprise-evaluation-reference-model-adversarial-audit-002.md) — ممیزی خصمانه به‌دست نویسنده؛ ویژگی‌های آزموده‌نشده ماتریس را شناسایی و مسیر Oracle مستقل و راستی‌آزمایی چندلایه را تعریف می‌کند. یافته‌ها باز هستند.
