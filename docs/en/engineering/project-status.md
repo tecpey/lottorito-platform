@@ -356,3 +356,11 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 - DT04-R5 intentionally remains UNRESOLVED for non-material NS without a separately complete provisional-authority path. No definitive aggregation rule was invented.
 - RDM-U01…U05 remain unresolved. RDM-R13/R14/R17/R18 and other parent-standard requirements are not all covered by these tables and require separate verification. Synthetic fixtures do not authenticate real evidence, authority, applicability, legal status or control operation.
 - LOT-EVAL-001 remains PROPOSED; REV-01…REV-14 owner dispositions remain PENDING. No candidate/provider selection, procurement, partner integration, production data, financial activity, merge or deployment is authorized.
+
+
+### RDM-004 follow-up — mandatory-gate registry hardening and exact-head CI
+
+- Author-led code review found that the initial DT02-R6 fixture represented omission with an explicit flag. That checked the expected branch but did not itself prove that the evaluator could discover a missing required category from the recorded gate set.
+- Corrected the model with a closed-world ten-category minimum gate registry derived from parent §7. DT02-R6 now omits one required category from the actual recorded set; the evaluator must return `BLOCK_INCOMPLETE_REGISTER`. Unknown categories are rejected.
+- Exact-head Documentation Governance run #1221 (ID `46129804594`) succeeded on `f674bc5979df472a7334088f2937b89290bc50f4`: bilingual validator, RDM-001 and RDM-004 all passed; RDM-004 passed 36/36 rows, 6/6 metamorphic checks and 4/4 targeted mutations.
+- This is a bounded synthetic check. The ten-category register does not decide real applicability, legal sufficiency or control-owner approval. All prior non-authorization and unresolved-policy boundaries remain unchanged.
