@@ -265,3 +265,13 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 - LOT-EVAL-001 advanced in draft from v0.1.0 to v0.2.0 with a bilingual normative Section 17 covering risk tier vs risk rating, inherent/residual risk, multidimensional evidence provenance, evidence sufficiency vs capability score, NS vs zero, normalized scoring, inter-rater controls, lifecycle TCO, supplier due diligence, DATA/MODEL evaluation, ISO/IEC 25010 quality scenarios, pilot protocol, approval separation and specialist-document precedence.
 - The review reconciled the proposed scorecards in LOT-PROVIDER-EVAL-001 and LOT-TECH-ADR-001: their weights remain proposals until explicitly adopted for a named decision unit and reconciled with the parent rubric.
 - A18 is author-led; independent review, owner risk-appetite decisions, specialist approval and exact-head CI remain pending. LOT-EVAL-001 remains PROPOSED. No candidate, provider, technology, jurisdiction, procurement, production data, partner integration, financial activity, merge or deployment is authorized.
+
+
+## LOT-EVAL-001 follow-up corrections — 2026-11-28
+
+- LOT-EVAL-001 is now proposed v0.3.0. Sections 8.3 and 17.10 add the complete capability rubric; separate evidence state and rating; explicit NS/Partial/N/A semantics; atomic-subcriterion handling; confidence anchors; synthetic-test versus operational tier boundary; risk-horizon and ordinal-matrix limitations; TCO forecast-bias/reference-class and switching-value analysis; and formal-assurance criteria.
+- Follow-up adversarial review REV-01…REV-14 is recorded in A18. REV-11 is explicitly non-substantive: the two formulas are equivalent when applicable weights total 100.
+- Owner direction on 2026-11-28 authorizes evidence-supported technical/document corrections across relevant artifacts. This is an implementation instruction, not item-level acceptance or residual-risk approval. All REV owner dispositions remain PENDING.
+- Owner-led review, specialist challenge and independent assurance are distinct. No independent assurance is claimed or recorded. LOT-EVAL-001 remains PROPOSED and unapproved.
+- English/Persian standard, A18, owner-review register and decision records have been synchronized. Documentation Governance must be checked on the final exact head; no CI success is claimed for the new commits.
+- No candidate, supplier, technology, jurisdiction, procurement, contract, production data, partner integration, financial activity, merge or deployment is authorized.
