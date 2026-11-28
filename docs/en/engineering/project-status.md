@@ -1,6 +1,6 @@
 # Verified Project Status and Continuation Point
 
-**Document ID:** LOT-OPS-001 | **Version:** 2.0.12 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-28
+**Document ID:** LOT-OPS-001 | **Version:** 2.0.13 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-28
 
 ## Verified repository state
 - Repository: tecpey/lottorito-platform; default branch main; public visibility by owner decision.
@@ -298,3 +298,11 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 - M2's first implementation attempt had a TLA+ function-constructor parse error; it was corrected, then baseline and negative controls were rerun. The first five-control successful run is superseded by the six-control run above. Do not cite the initial parse failure as a model violation.
 - M3–M7 are not authored. Independent review, candidate refinement, Jepsen/history checking, deterministic simulation, database/runtime proof, A20 execution and owner decisions remain open. A21 findings and all A4 gates remain open/not approved. ADR-002 remains PROPOSED. No runtime, candidate selection, partner integration, financial operation, production, merge or deployment is authorized.
 - PR #76 remains open/unmerged; latest documentation-only commits after the validation head update the bilingual M2/A23/index/project-status records. Always inspect live PR head and exact-head CI before further claims.
+
+
+### Exact-head revalidation after bilingual evidence synchronization
+- PR #76 exact head 66fa19c72418dd5376c179514d57970f5d29fe5f was revalidated: Documentation Governance Run 46175559048, M0 Run 46175558972, M1 Run 46175558925, M2 Run 46175559007 and Affiliate Contract Validation Run 46175554261 all completed SUCCESS.
+- M2 executed on synthetic merge 1c9678f (base f032065f47fe85de2aabf8d47565a57af6af3ae9); baseline 515 generated / 136 distinct states, depth 12; six negative controls detected expected violations. Artifact 15275815204; SHA-256 5c58aa70dce2bdcf93568ef9644f0cc1478da10f9b02f706d89f7a18ff85cbc3. Module SHA-256 ad773d328db633da4789ad064633f933e5ba5870655045a033c1ac82587b4e78.
+- M0/M1 and Affiliate Contract Validation passed on the same exact head. Documentation Governance passed structural bilingual/link validation only; it does not certify semantic parity.
+- Later commits in this branch update only bilingual evidence/status/index documentation; the M2 module, configs, runner and workflow remain unchanged. Current live PR head and its exact-head CI must still be checked before the next handoff.
+- All evidence is finite-model/document/contract validation only. Independent review, candidate refinement, runtime/database proof, Jepsen/history checking, deterministic simulation, A20 execution and A4 gate approvals remain outstanding. PR #76 remains open/unmerged; no merge/deploy is authorized.
