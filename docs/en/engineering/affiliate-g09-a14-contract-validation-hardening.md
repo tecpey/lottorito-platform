@@ -148,3 +148,50 @@ The earlier exact-head evidence in §§4–5 is retained as historical evidence 
 - A13-F01/F03/F04/F06 are VERIFIED for contract/CI scope only. A13-F02 remains PARTIAL pending installation-specific runtime allowlist proof. A13-F05 remains OPEN pending owner decisions and candidate-specific durability/UNKNOWN proof.
 
 **Controlling disposition:** G09-A14 technical hardening is VERIFIED. The previous “IN PROGRESS pending final lockfile/CI” statements in this document are superseded by this section. This does not approve ADR-002, runtime authorization, persistence/queue selection, partner integration, financial operations, merge or deployment. Independent review remains outstanding; all eight A4 gates remain NOT APPROVED.
+
+
+## 9. Post-review follow-up — effective OpenAPI parameter coverage (2026-11-28)
+
+A Codex inline review identified a valid P2 coverage gap: the earlier A14 manifest inventoried the 11 declared OpenAPI/AsyncAPI payload schema roots, but did not inventory the effective OpenAPI Parameter Objects. Constraints such as cursor length, page-size range and Idempotency-Key length could therefore drift without a parameter-specific fixture failing.
+
+**Disposition: CONFIRMED AND ADDRESSED IN CONTRACT VALIDATION.**
+
+The validator and manifest now:
+
+- enumerate effective parameters for every HTTP operation in both OpenAPI documents;
+- include Path Item parameters inherited by operations and apply Operation-level overrides by the OpenAPI parameter identity `(name, in)`;
+- resolve local `#/components/parameters/...` references and fail closed on unresolved, cyclic or non-local parameter references;
+- require exactly one supported parameter schema representation (`schema` or a single-media-type `content` schema);
+- compare the complete effective-parameter ID set against the manifest, including operation, path, location and name;
+- verify each parameter's required flag, reference origin and schema representation against its manifest entry;
+- compile the actual contract schema with the document's component namespace available, then execute positive and negative boundary fixtures.
+
+**Current parameter inventory:** six effective parameters and 25 positive/negative fixtures:
+
+- `cursor`: minimum/type and 2,048/2,049-character boundary;
+- `limit`: integer type and 1/100 versus 0/101 boundaries;
+- `Idempotency-Key`: 3/255 versus 2/256-character boundaries;
+- `referralLinkId`, `attributionId`, `integrationId`: non-empty and 128/129-character boundaries.
+
+The earlier 11 schema roots and 53 schema fixtures remain unchanged and are reported separately; the new parameter inventory is not misrepresented as additional payload schema roots. The current validator reported **117 assertions, 11 schema roots, 53 payload-schema fixtures, six effective parameters and 25 parameter fixtures**.
+
+### Exact-head CI evidence
+
+Reviewed source head: `16143c822578e1b4d8d7b38e4283ab4ac0f466a9`.
+
+- Documentation Governance PR run #1267 (`46164546372`): **SUCCESS**.
+- Affiliate Contract Validation PR run #253 (`46164546461`): **SUCCESS**.
+- Affiliate Contract Validation push run #252 (`46164543052`): **SUCCESS**.
+- The contract job completed strict lockfile-based installs, Redocly validation for both OpenAPI documents, AsyncAPI CLI validation and the Node/Ajv fixture validator.
+- The validator output explicitly reported the 117 assertions and the separate parameter inventory above.
+
+Non-blocking notices remain unchanged: Redocly reports missing `info.license` metadata; AsyncAPI CLI reports that 3.1.0 is newer than the intentionally retained 3.0.0 contract. Neither notice authorizes an inferred license or an unreviewed dialect migration.
+
+### Review and authorization status
+
+- The Codex P2 finding is remediated in the source, but its inline review thread remains open pending reviewer verification; it is not silently marked resolved.
+- GitHub records an `APPROVED` review from `xrayman6zfm-ux` on the prior head. However, the A12 procedure requires a signed independence/competence/conflict declaration and a separate finding-by-finding disposition. Those artifacts are not present in that empty-body approval. Therefore A12 independent review remains **NOT PERFORMED / NOT ASSESSABLE**, and A11-F01..F08 remain OPEN.
+- GitHub currently reports PR #76 as Open with `draft=false`. Earlier Draft statements in this document and PR description are historical and superseded by current GitHub metadata.
+- ADR-002 remains PROPOSED; all eight A4 gates remain NOT APPROVED. No runtime, persistence/queue selection, partner integration, financial operation, merge or deployment is authorized.
+
+This follow-up closes only the identified contract-validator coverage gap after exact-head CI. It does not prove runtime parameter enforcement, persistence behavior or any ADR-002 invariant.
