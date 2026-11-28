@@ -1,7 +1,7 @@
 # LOT-EVAL-RDM-006 — Normative Gap Research & Owner Decision Pack
 
 **Document ID:** LOT-EVAL-RDM-006-001  
-**Version:** 0.1.0  
+**Version:** 0.2.0  
 **Date:** 2026-11-28  
 **Status:** RESEARCH COMPLETE — proposed policy options; owner disposition pending  
 **Parent:** LOT-EVAL-001 v0.3.0  
@@ -298,6 +298,7 @@ Do not interpret an interval-scale overall value as a ratio: a score of 80 is no
 | RDM-U03 | Versioned core decision-unit schema plus triggered conditional fields | UNRESOLVED | PENDING |
 | RDM-U04 | Horizon-bound ordinal likelihood by default; quantitative only with validated domain method | UNRESOLVED | PENDING |
 | RDM-U05 | Criterion-specific measurable anchors; aggregate score is secondary; MCDA/sensitivity for complex material trade-offs | UNRESOLVED | PENDING |
+| RDM-U06 (candidate) | Validate cardinal value functions and additive-model assumptions, or use an ordinal/non-compensatory alternative | NOT REGISTERED — owner must decide whether to add or merge into U05 | PENDING |
 
 No recommendation in this table changes the normative parent standard. The owner may accept, reject, amend or defer each item independently.
 
@@ -334,3 +335,4 @@ This is research and a proposed owner decision pack. It is not an approved amend
 ## 12. Change history
 
 - 0.1.0 (2026-11-28): Initial research synthesis, policy options, conservative recommendations, proposed acceptance tests and owner-decision matrix.
+- 0.2.0 (2026-11-28): Added candidate RDM-U06 after measurement-theory review of the 0–5 weighted additive model; distinguished ordinal ratings from cardinal value functions, documented mutual preferential independence, and added owner decision/acceptance requirements. No normative change adopted.
