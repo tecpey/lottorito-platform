@@ -50,7 +50,7 @@ The DT-02 runner includes a closed-world ten-category minimum gate register deri
 
 ## 4. Cross-row and metamorphic properties
 
-Ten metamorphic checks are registered:
+Eleven metamorphic checks are registered:
 1. Adding a higher in-scope tier trigger cannot lower the selected tier.
 2. Incomplete/unknown decision-unit scope cannot produce a definitive lower tier.
 3. Approved N/A uses the same effective denominator for all candidates.
@@ -61,6 +61,7 @@ Ten metamorphic checks are registered:
 8. Partial atomic coverage takes precedence over generic insufficient-evidence handling after scope mismatch is excluded.
 9. Inherent and residual likelihood-impact pairs are both required and separately retained.
 10. Risk anchors reject Boolean and non-integer values.
+11. Risk schema rejects duplicate impact dimensions and blank evidence/assumption/control-evidence fields.
 
 Metamorphic checks supplement row checks; they do not exhaust the input state space or establish mathematical completeness.
 
@@ -120,4 +121,11 @@ LOT-EVAL-001 remains PROPOSED. REV-01…REV-14 owner dispositions remain PENDING
 ## 10. Change history
 
 - 0.1.0 (2026-11-28): initial 36 row checks, six metamorphic checks and four targeted mutations.
-- 0.2.0 (2026-11-28): corrected DT-03 precedence, DT-04 mandatory-gate precedence and DT-05 inherent/residual risk-pair and evidence-field modelling; expanded metamorphic checks from six to ten. Exact-head CI #1225 succeeded on `79751ad277968346fcd0044d74951af2a2c3301c`.
+- 0.2.0 (2026-11-28): corrected DT-03 precedence, DT-04 mandatory-gate precedence and DT-05 inherent/residual risk-pair and evidence-field modelling; expanded metamorphic checks from six to eleven; added strict dimension uniqueness and non-blank evidence validation. Exact-head CI #1225 succeeded on `79751ad277968346fcd0044d74951af2a2c3301c`.
+
+
+### Subsequent schema-hardening verification
+
+The DT05-R5 row oracle now rejects missing residual-pair values directly, rather than relying only on a mutation switch. Risk schema validation also rejects duplicate/unknown impact dimensions, malformed dimension-rating maps, blank evidence/assumption/control-evidence entries and invalid risk anchors. This adds MT-11.
+
+Documentation Governance run #1231 (ID `46161867851`) succeeded on exact code head `2e0eadfcc2bc6200af1410197dcbeaa563e8fed0`; bilingual documentation validation, RDM-001 and RDM-004 all succeeded. RDM-004 acceptance at this code SHA requires 36/36 row checks, 11/11 metamorphic checks and 4/4 targeted mutations.
