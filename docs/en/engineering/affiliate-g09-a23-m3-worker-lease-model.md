@@ -1,7 +1,7 @@
 # G09-A23 M3 — Worker Lease & Claim Generation Model
 
 **Document ID:** LOT-AFFILIATE-G09-A23-M3  
-**Version:** 0.1.3  
+**Version:** 0.1.4  
 **Status:** MODEL DRAFT — TLC validation pending; independent review and candidate refinement not performed  
 **Parent:** [A23 formal protocol model/test strategy](affiliate-g09-a23-formal-protocol-model-test-strategy.md)  
 **Normative proposal:** [ADR-001 — WorkItem Claim, Lease and Fencing](adr-001-workitem-claim-lease-fencing.md)  
@@ -96,7 +96,7 @@ A runner is successful only when the baseline completes without an invariant vio
 
 - One immutable WorkItem; two worker processes W0/W1.
 - Both worker processes share one authenticated service principal, intentionally.
-- Two claim generations (0, 1, 2); LeaseDuration = 2 and persistence-time domain 0..4 are finite exploration constants only.
+- Two claim generations (0, 1, 2); LeaseDuration = 2 and persistence-time domain 0..2 are finite exploration constants only. A claim can be initially acquired at time 0 and reclaimed at expiry time 2; the second generation's subsequent expiry is outside this M3 bound.
 - Worker-local clock offsets vary nondeterministically within -1..+1 relative to persistence time; this is a bounded skew abstraction, not a quantitative clock-drift bound.
 - One serialization point and one external blocker model contention/lock wait.
 - One tenant and one installation are modeled; cross-tenant behavior beyond detecting a mismatched binding belongs to M6.
