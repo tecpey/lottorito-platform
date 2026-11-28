@@ -55,6 +55,9 @@ A23:
 | callerOutcome | آخرین نتیجه‌ای که Caller واقعاً مشاهده کرده است |
 | claimGeneration | Generation افزایشی Claim برای هر WorkItem |
 | leaseState | وضعیت Lease؛ زمان انقضا به‌تنهایی مجوز Mutation نیست |
+| leaseClockModel | مدل مرجع زمان/Skew و نحوه نمونه‌برداری زمان در ارتباط با نقطه Serialization |
+| leaseObservation | مشاهده اعتبار Lease پس از گرفتن نقطه Serialization؛ نه Timestamp قدیمی پیش از انتظار Lock |
+| workState | وضعیت انتزاعی WorkItem: ready / claimed / processing / completed / failed / quarantined / blocked |
 | outboxState | وضعیت انتشار اختیاری پس از Commit مبدأ |
 | consumerReceipt | Deduplication/Receipt مستقل Consumer |
 | restoreIncarnation | شناسه یکتای چرخه Restore/Recovery |
@@ -84,7 +87,8 @@ A23:
 | TransferAuthority | Epoch جدید فقط با پروتکل مرجع و Fencing قابل‌اعمال فعال شود |
 | RejectStaleWriter | Writer با Epoch قدیمی در نقطه Mutation رد شود |
 | ClaimWork | Claim و Generation جدید در مرجع پایدار و با Transition سریال‌شده |
-| ExpireAndReclaim | Lease قبلی منقضی و Claim جدید صادر شود؛ Generation قبلی باطل بماند |
+| ExpireAndReclaim | Lease قبلی واجد Reclaim شود؛ Claim جدید فقط در Transition سریال‌شده صادر شود؛ Generation قبلی پس از برنده‌شدن Reclaim باطل بماند |
+| LinearizeLeaseTransition | اعتبار Lease پس از اخذ نقطه Serialization سنجیده شود؛ اولین Transition محافظت‌شده‌ای که به‌صورت معتبر Linearize شود برنده است؛ Expiry به‌تنهایی Mutation نیست |
 | ResumeStaleWorker | Worker قدیمی تلاش کند؛ Mutation محافظت‌شده و اثر خارجی باید رد شود |
 | CommitWorkTransition | فقط Owner/Generation/Authority معتبر در لحظه Mutation |
 | PublishOutbox | فقط از Outbox Durable؛ تحویل ممکن است تکراری/نامرتب باشد |
@@ -96,7 +100,7 @@ A23:
 | ReconcileExternalEffect | UNKNOWN مقصد با Lookup مرجع مقصد حل شود؛ نبود Receipt از Cache/Timeout نتیجه‌گیری نشود |
 | RejectStaleDestinationActor | مقصدی که Fencing را پشتیبانی می‌کند Epoch/Generation قدیمی را در نقطه اثر رد کند؛ در غیر این صورت ریسک صریح و تضمین محدود ثبت شود |
 
-**قاعده خطی‌سازی:** هر Transition محافظت‌شده باید نقطه Linearization مشخص داشته باشد. بررسی Lease/Epoch پیش از انتظار برای Lock کافی نیست؛ اعتبار باید در نقطه Mutation سریال‌شده دوباره اثبات شود. A23 هیچ روش پیاده‌سازی خاصی را به‌عنوان پاسخ عمومی تحمیل نمی‌کند.
+**قاعده خطی‌سازی:** هر Transition محافظت‌شده باید نقطه Linearization مشخص داشته باشد. بررسی Lease/Epoch یا نمونه‌برداری زمان پیش از انتظار برای Lock کافی نیست؛ اعتبار باید پس از اخذ نقطه Serialization و در نقطه Mutation سریال‌شده دوباره اثبات شود. انقضای Lease فقط Work را واجد Reclaim می‌کند؛ اگر Transition معتبر Worker قدیمی پیش از Reclaim Linearize شود، قبل از Reclaim مرتب می‌شود؛ پس از Commit شدن Reclaim با Generation جدید، Worker قدیمی رد می‌شود. A23 هیچ روش پیاده‌سازی خاصی را به‌عنوان پاسخ عمومی تحمیل نمی‌کند.
 
 ## ۵. Safety Properties — نقض‌ناپذیری
 
@@ -113,11 +117,12 @@ A23:
 | S-07 Worker Fencing | Generation قدیمی نتواند State محافظت‌شده یا اثر جانبی را Commit کند |
 | S-08 Restore Monotonicity | Restore/PITR نتواند Epoch، Identity مصرف‌شده یا Revocation را ناخواسته احیا/عقب ببرد |
 | S-09 Tenant Isolation | هیچ Read/Write/Disclosure بین Tenantها از طریق Identity، Payload، Retry یا Repair رخ ندهد |
-| S-10 Outbox Boundary | پیام Broker مرجع Acceptance نیست؛ انتشار/تحویل تکراری اثر دوم نسازد |
+| S-10 Outbox Boundary | پیام Broker مرجع Acceptance نیست؛ انتشار/تحویل تکراری در مقصدی که قرارداد Dedup/Idempotency مصوب دارد اثر دوم نسازد؛ در نبود چنین قراردادی تضمین اثر خارجی محدود و Residual Risk ثبت شود |
 | S-11 External Effect Boundary | Atomicity دیتابیس به‌عنوان Exactly-once برای مقصد خارجی معرفی نشود |
 | S-12 Financial Non-effect | Ingress و Worker فاقد مسیر مجاز به Mutation مالی باشند؛ Delta مالی صفر بماند |
 | S-13 Evidence Integrity | هر نتیجه به History، Config، Version، Clock، Actor و Artifact دارای Hash قابل انتساب باشد |
 | S-14 Destination Safety | هر اثر خارجی یا با Idempotency/Lookup/Fencing قابل اثبات در مقصد محافظت شود، یا صریحاً خارج از تضمین Exactly-once و در وضعیت UNKNOWN/Residual Risk باقی بماند؛ Token دیتابیس به‌تنهایی مقصد را Fence نمی‌کند |
+| S-15 Lease Linearization | اعتبار Lease در نقطه Serialization سنجیده شود؛ Expiry به‌تنهایی Revoke/Mutation نیست؛ پس از Linearize شدن Reclaim با Generation جدید، هر Mutation از Generation قدیمی رد شود؛ Transition معتبر Linearizeشده پیش از Reclaim به‌صورت مرتب‌شده حفظ شود |
 
 Safety باید برای تمام Prefixهای قابل‌دسترسی برقرار باشد؛ نه فقط در پایان اجرای خوش‌شانس. هر Counterexample معتبر، FAIL است؛ فقدان Counterexample در مدل محدود، اثبات کلی سامانه واقعی نیست.
 
