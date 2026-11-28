@@ -1,7 +1,7 @@
 # G09-A23 — مدل رسمی پروتکل و راهبرد آزمون خصمانه
 
 **شناسه سند:** LOT-AFFILIATE-G09-A23-001  
-**نسخه:** ۰.۱.۲۰ | **وضعیت:** پیشنهادی؛ M0 تا M2 با TLC در Bounds محدود بررسی شده‌اند؛ Runtime اجرا نشده و M3–M7 تألیف نشده‌اند  
+**نسخه:** ۰.۱.۲۱ | **وضعیت:** پیشنهادی؛ M0 تا M2 با TLC در Bounds محدود بررسی شده‌اند؛ مدل M3 تألیف شده و اعتبارسنجی TLC در انتظار است؛ Runtime اجرا نشده و M4–M7 تألیف نشده‌اند  
 **تاریخ:** ۲۰۲۶-۱۱-۲۸  
 **مبنای بازبینی:** G09-A21، G09-A22، G09-A20، G09-A7، ADR-001 و ADR-002  
 **مرجعیت:** طراحی مشورتی؛ هیچ تصمیم مالک، Candidate، Gate یا مجوز اجرایی تصویب نمی‌شود.
@@ -167,7 +167,7 @@ Fairness قوی/ضعیف، Scheduler، نرخ ورود، ظرفیت، Retry Budg
 1. **M0 — Atomic Acceptance:** دو Caller، یک Identity، یک Receipt و یک WorkItem؛ Crash قبل/بعد نقطه Commit. ماژول و Configهای پایه/Mutant در `formal/G09M0AtomicAcceptance.tla` و فایل‌های همراه تألیف شده و TLC v1.7.4 در Run #11 با ۵۲ State متمایز Baseline و سه Counterexample منطبق با Mutantها اجرا شده است؛ این نتیجه فقط به Bounds M0 تعلق دارد.
 2. **M1 — UNKNOWN Arbitration:** Transaction اولیه In-flight، گم‌شدن پاسخ، Negative Read، Retry هم‌زمان و Commit/Abort دیرهنگام.
 3. **M2 — Authority Epoch:** دو Writer، دو Epoch، Partition، Promotion، بازگشت Primary قدیمی و Restore Epoch. ماژول TLA+ مستقل از Candidate، یک Baseline و شش Negative Control (شامل Rollback مستقل Fence در Sink) در Bounds متناهی روی Head دقیق 96fc7a4830af452f214921ac9af68d7ae4265f33 با TLC بررسی شده‌اند. [مدل و شواهد M2](affiliate-g09-a23-m2-authority-epoch-model.md).
-4. **M3 — Worker Lease:** دو Worker/Generation، Claim و Reclaim، تمدید Lease، Heartbeat/Completion/Retry/Park، State/Token/LifecycleVersion mismatch، شکست Guard با صفر Mutation، توقف Lock، Timestamp قبل/بعد Lock، Clock Skew، انقضای Lease پیش از Reclaim و Resume Worker قدیمی.
+4. **M3 — Worker Lease:** دو Process مربوط به Worker با یک Service Principal احراز‌شده مشترک؛ Claim/Reclaim، تمدید Lease، Heartbeat/Completion/Retry/Park، State/Token/LifecycleVersion mismatch، شکست Guard با صفر Mutation، انتظار Lock، Timestamp قبل/بعد Lock و پیشروی مستقل Clock محلی Worker. ماژول TLA+ مستقل از Candidate و ده Config برای Mutantهای هدفمند Oracle تألیف شده‌اند؛ اعتبارسنجی TLC در انتظار است. [قرارداد مدل M3](affiliate-g09-a23-m3-worker-lease-model.md).
 5. **M4 — Outbox/Consumer/Receiver:** انتشار تکراری، Delay، Reorder، Broker outage، Consumer crash، درخواست خارجی in-flight، پذیرش Receiver پس از انقضای Lease مبدأ، پاسخ گم‌شده، Retry، Idempotency/Fencing مقصد و انقضای Retention Dedup Receiver.
 6. **M5 — Restore/Lifecycle:** PITR/Backup قدیمی، Tombstone و مرز انقضا، افق Replay متناهی/نامتناهی، پیام دیررس Queue، Credential/Key/Schema Rotation، Recovery Incarnation، Failback، Clean-room Quarantine و Gate بازگشایی.
 7. **M6 — Tenant/Principal:** حداقل دو Tenant و دو Principal با سطح دسترسی متفاوت؛ جعل Payload و Repair کم‌اختیار.
@@ -326,3 +326,6 @@ Mutantهای حداقلی اجباری: حذف Unique Constraint؛ Ack قبل ا
 
 
 **یادداشت بازبینی نسخه ۰.۱.۲۰ — بازاجرای روی Head دقیق:** ماژول نهایی M2 با شش کنترل روی PR head برابر با 66fa19c72418dd5376c179514d57970f5d29fe5f در Run [46175559007](https://github.com/tecpey/lottorito-platform/actions/runs/46175559007) مجدداً اجرا شد و SUCCESS گرفت. Baseline دوباره ۱۳۶ State متمایز (۵۱۵ تولیدشده)، عمق ۱۲ را کامل کرد و هر شش Negative Control نقض‌های مورد انتظار را کشف کردند. Artifact 15275815204؛ SHA-256 برابر با 5c58aa70dce2bdcf93568ef9644f0cc1478da10f9b02f706d89f7a18ff85cbc3. روی همان Head دقیق، M0 Run 46175558972، M1 Run 46175558925، Documentation Governance Run 46175559048 و Affiliate Contract Validation Run 46175554261 نیز موفق شدند. Hash سورس مدل نسبت به شواهد Canonical M2 در سند همراه تغییر نکرده است. این کنترل‌ها فقط مدل‌های رسمی محدود و اسناد/قرارداد را بررسی می‌کنند و صحت Candidate/Runtime را اثبات نمی‌کنند. Commitهای بعدی این شاخه، این شواهد را در سند همراه دوزبانه و Project Status همگام می‌کنند؛ CI روی Head دقیق آن Commitهای مستنداتی نیز باید دوباره بررسی شود.
+
+
+**یادداشت بازبینی نسخه ۰.۱.۲۱ — پیش‌نویس مدل M3:** اکنون ماژول TLA+ مستقل از Candidate، یک Config برای Baseline محدود، ده Config برای Mutantهای هدفمند Oracle، Runner با TLC ثابت‌شده و Workflow اختصاصی Actions برای M3 تألیف شده‌اند. در مدل، W0 و W1 عمداً یک Principal احراز‌شده مشترک دارند تا حصارگذاری Generation/Token مستقل از هویت Process آزمایش شود. زمان Persistence، پیشروی Clock محلی Worker، مشاهده پیش از Lock، گرفتن نقطه Serialization و Guard پس از Lock از یکدیگر تفکیک شده‌اند. قرارداد دوزبانه M3، Abstraction و موارد خارج از Scope را ثبت می‌کند. اعتبارسنجی TLC در انتظار است و هنوز هیچ نتیجه‌ای برای M3 ادعا نمی‌شود. ADR-001 همچنان PROPOSED است و A4-GATE-03/04 همچنان اجرای Candidate/Runtime را مسدود می‌کنند.
