@@ -1,6 +1,6 @@
 # دفتر ثبت تصمیم‌های Lottorito
 
-**شناسه سند:** LOT-ADR-REG-001 | **نسخه:** ۲.۵.۳ | **وضعیت:** دفتر ثبت نگهداری‌شده؛ هر رکورد اعتبار و اختیار مستقل خود را دارد
+**شناسه سند:** LOT-ADR-REG-001 | **نسخه:** ۲.۵.۴ | **وضعیت:** دفتر ثبت نگهداری‌شده؛ هر رکورد اعتبار و اختیار مستقل خود را دارد
 
 ## روش خواندن
 این دفتر مانع تبدیل گفتگو، مثال یا پیشنهاد به قانون محصول می‌شود. صرف درج یک مورد به‌معنای تصویب آن نیست؛ ستون وضعیت و مرجع اختیار تعیین‌کننده است. هر تغییر باید شواهد مرتبط داشته باشد.
@@ -138,3 +138,6 @@
 
 | LDR-077 | تکرار نهایی M0 روی PR head جاری با Workflow امن | شواهد اجرای مدل محدود | Run `46171482274` روی PR head `10d143bfb8eaff1892a74e3277f4dcac1f024337` و synthetic merge `a7a670bd6453a2c86fd7733c4aeae3f8aa7b4777`؛ Baseline: ۵۲ State متمایز بدون نقض؛ سه Mutant نقض‌های مورد انتظار را آشکار کردند. Artifact `15273523034`، SHA-256 `5cd254c2bd9b7121af93c0b7384d9927f054031d2acbd7c6eef1e41670eb72d9`. Checkout/Upload با SHA immutable و Checkout credentials خاموش. | فقط مدل محدود M0؛ بدون Candidate/Runtime/Production/Merge/Deploy. |
 | LDR-078 | تکرار نهایی M1 UNKNOWN/Retry روی PR head جاری | شواهد اجرای مدل محدود | Run `46171482180` روی همان PR head و synthetic merge؛ هر دو Baseline: ۱۹ State متمایز، ۲۵ تولیدشده، عمق ۸ و بدون نقض؛ سه Mutant نقض‌های `NoRetryCommitWhileOriginalInflight`، `ReceiptCardinality` و `ConflictSoundness` را آشکار کردند. Artifact `15273920318`، SHA-256 `eb38518421706ed88d03c8bf77339d1747036c5aff6811e6d666ef62b7b78ea9`. | فقط مدل محدود M1؛ بازبینی مستقل، Candidate refinement، DB/Jepsen/History و Liveness باز هستند. هیچ مجوز عملیاتی صادر نمی‌شود. |
+
+| LDR-079 | تثبیت M0 در Head دقیق نهایی PR #76 | شواهد TLC تکرارپذیر | Run `46171747722` روی PR head `19f8e995596bd4fca96b3bea0a211ddb916b1725` و synthetic merge `c50c70bcfb8e1ece85ab155b5c36d547099bac3e`؛ Baseline: ۵۲ State متمایز بدون نقض؛ سه Mutant مورد انتظار. Artifact `15273842484`، SHA-256 `7f346cde1cb5f48b9ae042b5cb23266a53561cccfc4960acd479e8ddf90cc832`. | فقط M0 محدود؛ هیچ Candidate/Runtime/Production/Merge/Deploy را تأیید نمی‌کند. |
+| LDR-080 | تثبیت M1 و ReceiptShape تقویت‌شده در Head دقیق نهایی PR #76 | شواهد TLC و حساسیت Oracle | Run `46171747725` روی همان Head/merge؛ دو Baseline: هرکدام ۱۹ State متمایز، ۲۵ تولیدشده، عمق ۸، بدون نقض؛ سه Mutant، نقض‌های `NoRetryCommitWhileOriginalInflight`، `ReceiptCardinality` و `ConflictSoundness` را آشکار کردند. Artifact `15274170741`، SHA-256 `1dd501ff70955f77ceb4ab9225a55285504ce6d0de905fc205f1fd67544f368e`. ReceiptShape به تطبیق دقیق Owner/Fingerprint تقویت شد. | فقط M1 محدود؛ DB/Jepsen/History/Liveness و Candidate refinement باز هستند. هیچ مجوز عملیاتی صادر نمی‌شود. |
