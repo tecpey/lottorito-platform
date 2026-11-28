@@ -105,6 +105,12 @@ Init ==
     /\ acceptedHistory = {}
     /\ claimEvents = {}
 
+(* Processing remains lease-bearing; an expired processing claim is reclaimable.
+   This is an explicit model refinement requiring ADR-001 owner reconciliation. *)
+ClaimEligible ==
+    \/ workState = "ready"
+    \/ (workState \in {"claimed", "processing"} /\ persistenceTime >= leaseExpiry)
+
 StartRequest(w, op) ==
     /\ w \in Workers
     /\ op \in Ops \ {"none"}
@@ -190,12 +196,6 @@ ReleaseSerializationPoint(w) ==
        requestInstallation, requestStartTime, requestPreLockValid, lockAcquireTime,
        blockerAvailable, mutationCount, lastGuardFailed, lastFailureMutationCount,
        acceptedHistory, claimEvents>>
-
-(* Processing remains lease-bearing; an expired processing claim is reclaimable.
-   This is an explicit model refinement requiring ADR-001 owner reconciliation. *)
-ClaimEligible ==
-    \/ workState = "ready"
-    \/ (workState \in {"claimed", "processing"} /\ persistenceTime >= leaseExpiry)
 
 CompetingReclaim(w) ==
     /\ w \in Workers
