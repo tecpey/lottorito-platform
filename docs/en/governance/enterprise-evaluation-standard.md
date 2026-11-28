@@ -1,7 +1,7 @@
 # Enterprise Product, Technology and Supplier Evaluation Standard
 
 **Document ID:** LOT-EVAL-001  
-**Version:** 0.1.0  
+**Version:** 0.2.0  
 **Date:** 2026-11-28  
 **Status:** PROPOSED — governance baseline; owner approval pending  
 **Authority:** Evaluation method only. It does not select a product, technology, supplier, jurisdiction, legal entity or operating model; authorize procurement, integration, production data, financial activity or launch.
@@ -255,6 +255,82 @@ Use the current edition and exact scope of each source; these frameworks inform 
 - FinOps Framework — cost/usage allocation, forecasting, unit economics, licensing and optimization for cloud decisions: https://www.finops.org/framework/capabilities/
 - NIST CSF 2.0 — organizational cybersecurity outcomes and governance: https://www.nist.gov/cyberframework
 
-## 17. Change history
+## 17. Adversarial hardening addendum — normative clarifications
 
 - 0.1.0 (2026-11-28): initial enterprise-wide parent standard; proposed, pending owner and specialist review.
+
+## 17. Adversarial hardening addendum — normative clarifications
+
+This section is part of LOT-EVAL-001 and prevails over inconsistent general wording in Sections 4, 5, 8, 9 or 14. It closes methodological ambiguities found during the author-led adversarial review. It does not approve a candidate, risk appetite, procurement or production use.
+
+### 17.1 Risk assessment, tier triggers and residual risk
+
+Risk tier and risk rating are different controls. T0–T3 determines governance depth; it is not a probability score and must never be averaged. For each material risk record the asset/process and scope, threat or failure scenario, affected parties, cause/vulnerability, inherent likelihood and impact, existing controls and evidence, residual likelihood and impact, treatment, risk owner, approval authority and expiry/review trigger. A control reduces risk only when its design and operating evidence support that conclusion.
+
+Use documented 1–5 likelihood and impact scales for prioritization where useful. Their product is ordinal triage, not expected monetary loss or scientific precision. Assess impact across confidentiality, integrity, availability, financial loss, legal/regulatory consequence, customer harm, safety and systemic/concentration effects. Do not collapse unlike impact types into one unqualified number.
+
+Apply the highest tier triggered by any condition. T3 is mandatory where a decision can enable custody or movement of customer funds, materially consequential ledger/commission posting, regulated gaming or other legally restricted activity, safety-critical outcomes, or severe/large-scale harm. T2 is mandatory for sensitive personal data, privileged access, cross-tenant boundaries, critical service dependencies, or material external identity/payment processing. T1 applies to material customer/business workflows not meeting higher triggers. T0 is permitted only when readily reversible and there is no sensitive data, privileged access, customer funds, critical path or material external dependency. Unresolved scope or impact uncertainty uses the higher plausible tier.
+
+The owner must define risk appetite and delegated acceptance authority before accepting residual risk. A risk score never waives a mandatory gate, legal requirement, control invariant or T3 approval. High/critical residual risks require explicit named acceptance within delegated authority; otherwise the decision remains Blocked.
+
+### 17.2 Evidence is multidimensional, not a single quality ladder
+
+Do not treat evidence class, independence and authority as interchangeable. For each item separately record: source/issuer and its authority for the claim; independence from supplier and evaluator; directness (official record, executed instrument, observed test, supplier document or secondary report); exact scope match (entity, product, version, region, configuration, date and environment); freshness/validity and reproducibility; integrity/provenance, limitations, conflicts and reviewer.
+
+Distinguish at least: authoritative public/official records; executed contractual instruments; independent assurance reports; directly witnessed tests; supplier-controlled primary documents; supplier assertions/demos; secondary commentary; and unknown/contradictory evidence. A signed contract is authoritative for agreed terms, not independent proof of operational capability. A regulator register may establish a licence entry, not API behavior. A supplier-witnessed test is not automatically independent. One item may support one claim and fail to support another.
+
+Evidence sufficiency is decided per requirement and gate. A high-level class label never validates a claim by itself. Missing, expired, inaccessible or contradictory evidence remains Unknown and blocks a mandatory gate until resolved.
+
+### 17.3 Separate evidence sufficiency from capability scoring
+
+Use two distinct fields: (1) Evidence state: Sufficient / Partial / Insufficient / Unknown / Not applicable; and (2) Capability rating: 0–5, assigned only when evidence is sufficient for the criterion and scope.
+
+Unknown or insufficient evidence is NS (not scored), not zero. A score of 0 means the capability was assessed with sufficient evidence and demonstrated to be unacceptable or absent. Use 0–5 only against a pre-written, measurable criterion and acceptance threshold. A 5 requires exceptional, repeatable evidence relevant to the claim; independent corroboration is required where the risk or claim demands it, not mechanically for every low-risk feature. A 3 means the predefined requirement is met, not merely that a supplier supplied a document.
+
+Before candidate identities/scores are compared, freeze criteria and definitions, applicable dimensions, percentage-point weights, minimum acceptable ratings for critical preferences, evidence requirements, scoring panel, conflicts and aggregation method. Applicable weights must total 100 percentage points. If a criterion is N/A, justify and approve it before scoring; publish effective weights and normalized formula. For ratings r and weights w, normalized result = 100 × sum(r × w) / (5 × sum(w)). Do not publish a definitive aggregate if a material criterion remains NS; show the gap and use a provisional comparison only if the decision authority explicitly permits it.
+
+No aggregate score overrides a failed/unknown mandatory gate, minimum criterion threshold, unacceptable residual risk or legal restriction. Do not double-count correlated criteria (e.g. security in both quality and security dimensions); map each requirement to one primary scoring location. Publish raw ratings, weights, evidence states, effective weights, sensitivity analysis and uncertainty. Differences within evidence uncertainty are ties, not precise rankings.
+
+For T2/T3 and other material decisions, evaluators should score independently before consensus. Record individual scores, disagreement, rationale and final adjudication. The proposer must not be the sole scorer or gate approver. If a second competent reviewer is unavailable, record the limitation and do not call the result independent.
+
+### 17.4 Total-cost and value model
+
+Before comparing TCO, approve a common analysis horizon, currency, FX source/date, inflation/escalation assumptions, discount rate (if using NPV) and tax treatment. Show nominal cash flows and NPV separately where relevant; never silently mix currencies or nominal/real assumptions.
+
+Include build, buy, partner and defer baselines; one-time and recurring costs; fully loaded internal labor; implementation, integration, migration, testing, security/legal assurance, training and support; infrastructure, observability, backup, data transfer and recovery; consumption tiers, minimum commitments, overages, price escalators, FX, taxes, fees, reserves and working capital; incident, outage, fraud, remediation and concentration exposure; parallel run, export, exit, replacement, termination and deletion. Separate sourced prices from estimates and assumptions.
+
+Provide low/base/high scenarios, demand/growth drivers, break-even and unit economics, sensitivity to major cost drivers, and cost of delay/failure where decision-relevant. Do not turn speculative risk into false-precision expected cost. Record excluded costs and who accepted the omission. Compare cost and value per stable business unit with an explicit denominator and quality threshold.
+
+### 17.5 Supplier due-diligence minimum profile
+
+For any material ICT supplier, the dossier must address, proportionate to tier: legal entity and beneficial ownership; ownership/control/influence including relevant foreign ownership/control/influence; corporate and financial stability; product/service provenance and development/supply-chain tiers; critical subcontractors and subprocessors; geographic and operational dependencies; foundational cyber practices; incident history and notification; vulnerability/patch process; business continuity and resilience; concentration and substitutability; and contract, data and exit rights. Record what cannot be verified.
+
+This profile is informed by NIST SP 800-161 Rev.1 Update 1 and the final 2026 NIST SP 1326 due-diligence guide. Supplier self-attestation is an input, not independent verification. Apply additional domain-specific legal, financial, gaming, payment and custody controls where relevant.
+
+### 17.6 Data, AI and model-specific evaluation
+
+A DATA/MODEL decision requires a profile beyond ordinary software scoring. Record model/provider/version and hosting; intended and prohibited uses; training/evaluation data provenance and rights; leakage and retention; personal/sensitive data handling; evaluation-set representativeness and contamination controls; accuracy by relevant cohort; robustness, security and abuse resistance; hallucination/error impact; explainability/traceability where needed; human oversight and override; drift/change notification; reproducibility; fallback and kill switch; output ownership and indemnity; model/prompt portability; and total inference/evaluation cost.
+
+For high-impact or customer-facing AI, define risk controls, human review, monitoring, incident response and domain-specific legal review before pilot. Use ISO/IEC 42001 and NIST AI RMF as relevant references, checking current revision status and applicability. A benchmark, vendor model card or generic certification does not prove fitness for Lottorito's use case.
+
+### 17.7 Product quality and measurable acceptance
+
+For ICT/software products, use ISO/IEC 25010:2023 as a quality-characteristics reference, not a universal weighted score. Map relevant characteristics—functional suitability, performance efficiency, compatibility, interaction capability, reliability, security, maintainability, flexibility and safety—to decision-specific quality scenarios. Each scenario identifies stimulus, environment, response, measurable threshold, owner and evidence. Align with LOT-QA-001; do not invent numeric thresholds or claim conformity from a checklist.
+
+A pilot plan states hypotheses, baseline, success/failure thresholds, sample/load profile, test version, environment, synthetic/minimized data, stop conditions, rollback/cleanup, test owner and evidence retention. Define negative tests and failure schedules before execution. Pilot acceptance is limited to the named test scope and grants no production, regulated-market, customer-fund or launch authority.
+
+### 17.8 Separate approvals and lifecycle gates
+
+Record separate decisions for: discovery/RFI permission; bounded experiment permission; pilot acceptance; procurement and contract signature; architecture/security/privacy/finance/legal acceptance for the named scope; production release; and jurisdiction/product activation or financial operations where applicable. One approval must not be inferred from another. Contract-signature and budget authority must be explicit. T3 activity requires qualified jurisdiction-specific legal/compliance review and explicit owner approval; a provider licence alone is not Lottorito authorization.
+
+Before adoption, define operational owner, support model, SLO/SLI, incident escalation, change notification, periodic evidence review, dependency inventory, portability test, exit trigger and tested exit/continuity plan proportionate to tier. Reassess after material change and suspend the affected scope when a mandatory gate fails or evidence becomes invalid.
+
+### 17.9 Precedence and specialist-document reconciliation
+
+LOT-EVAL-001 governs the common decision process, risk tiering, evidence discipline, mandatory gates, decision states, approval separation and minimum dossier. A specialist profile may add stricter controls and domain-specific tests; it may not weaken parent gates.
+
+Existing specialist scorecards and weights remain proposals unless an explicit owner decision adopts them for a named decision unit. LOT-PROVIDER-EVAL-001's proposed 20/10/15/15/15/10/10/5 weights and LOT-TECH-ADR-001's proposed 1–5 technology matrix are not universal or automatically active. Before use, reconcile criteria with this addendum, eliminate double-counting, define applicable dimensions and freeze the exact rubric/weights for that decision. If conflict remains, mark it OPEN and do not calculate a binding aggregate. This parent standard does not silently supersede specialist documents.
+
+## 18. Change history
+
+- 0.2.0 (2026-11-28): adversarial hardening separates risk tier from risk rating, evidence sufficiency from capability score, clarifies evidence provenance/independence, normalizes scoring, strengthens TCO and supplier due diligence, adds AI/model and ISO/IEC 25010 quality profiles, separates approval stages and reconciles specialist scorecards. Proposed; owner and specialist review pending.
