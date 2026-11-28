@@ -12,7 +12,7 @@ RequestStates == {"idle", "waiting", "locked"}
 WorkStates == {"ready", "claimed", "processing", "completed",
                "failed", "quarantined"}
 Mutations == {"none", "prelock_time", "worker_clock", "stale_generation",
-              "wrong_token", "wrong_tenant", "stale_lifecycle", "stale_state",
+              "wrong_token", "wrong_tenant", "wrong_installation", "stale_lifecycle", "stale_state",
               "expired_heartbeat", "heartbeat_generation",
               "guard_mutates"}
 
@@ -119,7 +119,9 @@ StartRequest(w, op) ==
     /\ requestTenant' = [requestTenant EXCEPT
          ![w] = IF Mutation = "wrong_tenant" /\ op \in ProtectedOps
                 THEN "tenant-B" ELSE TenantID]
-    /\ requestInstallation' = [requestInstallation EXCEPT ![w] = InstallationID]
+    /\ requestInstallation' = [requestInstallation EXCEPT
+         ![w] = IF Mutation = "wrong_installation" /\ op \in ProtectedOps
+                THEN "installation-B" ELSE InstallationID]
     /\ requestStartTime' = [requestStartTime EXCEPT ![w] = persistenceTime]
     /\ requestPreLockValid' = [requestPreLockValid EXCEPT
          ![w] = workerClock[w] < leaseExpiry]
@@ -198,7 +200,7 @@ ApplyClaim(w) ==
     /\ ClaimEligible
     /\ claimGeneration < MaxGeneration
     /\ (Mutation = "wrong_tenant" \/ requestTenant[w] = TenantID)
-    /\ requestInstallation[w] = InstallationID
+    /\ (Mutation = "wrong_installation" \/ requestInstallation[w] = InstallationID)
     /\ claimGeneration' = claimGeneration + 1
     /\ generationHighWater' = claimGeneration + 1
     /\ claimOwner' = PrincipalOf(w)
