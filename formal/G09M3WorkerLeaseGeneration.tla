@@ -27,10 +27,10 @@ PrincipalOf(w) == "worker-service"
 NoOwner == "none"
 NoToken == "no-token"
 TokenValues == {"claim-token-alpha", "claim-token-beta", "claim-token-gamma"}
-NextToken(t) ==
-    CASE t = NoToken -> "claim-token-alpha"
-      [] t = "claim-token-alpha" -> "claim-token-beta"
-      [] t = "claim-token-beta" -> "claim-token-gamma"
+NextClaimToken ==
+    CASE Cardinality(claimEvents) = 0 -> "claim-token-alpha"
+      [] Cardinality(claimEvents) = 1 -> "claim-token-beta"
+      [] Cardinality(claimEvents) = 2 -> "claim-token-gamma"
 WrongToken(t) ==
     IF t = "claim-token-alpha" THEN "claim-token-beta"
     ELSE "claim-token-alpha"
@@ -123,7 +123,7 @@ ClaimEligible ==
 
 ClaimEventRecord(w, kind) ==
     <<claimGeneration, claimGeneration + 1, w, PrincipalOf(w),
-      claimToken, NextToken(claimToken), persistenceTime, leaseExpiry,
+      claimToken, NextClaimToken, persistenceTime, leaseExpiry,
       persistenceTime + LeaseDuration, lifecycleVersion, workState,
       TenantID, InstallationID, kind>>
 
@@ -233,11 +233,11 @@ CompetingReclaim(w) ==
     /\ claimGeneration' = claimGeneration + 1
     /\ generationHighWater' = claimGeneration + 1
     /\ claimOwner' = PrincipalOf(w)
-    /\ claimToken' = NextToken(claimToken)
+    /\ claimToken' = NextClaimToken
     /\ leaseExpiry' = persistenceTime + LeaseDuration
     /\ workState' = "claimed"
     /\ workerGeneration' = [workerGeneration EXCEPT ![w] = claimGeneration + 1]
-    /\ workerToken' = [workerToken EXCEPT ![w] = NextToken(claimToken)]
+    /\ workerToken' = [workerToken EXCEPT ![w] = NextClaimToken]
     /\ workerLifecycle' = [workerLifecycle EXCEPT ![w] = lifecycleVersion]
     /\ mutationCount' = mutationCount + 1
     /\ claimEvents' = claimEvents \cup {ClaimEventRecord(w, "reclaim")}
@@ -262,11 +262,11 @@ ApplyClaim(w) ==
     /\ claimGeneration' = claimGeneration + 1
     /\ generationHighWater' = claimGeneration + 1
     /\ claimOwner' = PrincipalOf(w)
-    /\ claimToken' = NextToken(claimToken)
+    /\ claimToken' = NextClaimToken
     /\ leaseExpiry' = persistenceTime + LeaseDuration
     /\ workState' = "claimed"
     /\ workerGeneration' = [workerGeneration EXCEPT ![w] = claimGeneration + 1]
-    /\ workerToken' = [workerToken EXCEPT ![w] = NextToken(claimToken)]
+    /\ workerToken' = [workerToken EXCEPT ![w] = NextClaimToken]
     /\ workerLifecycle' = [workerLifecycle EXCEPT ![w] = lifecycleVersion]
     /\ mutationCount' = mutationCount + 1
     /\ claimEvents' = claimEvents \cup
