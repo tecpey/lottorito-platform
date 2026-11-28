@@ -6,6 +6,8 @@
 
 This document turns Lottorito's architectural intentions into observable, testable quality scenarios. It is a decision and verification framework, not evidence that a runtime system exists and not approval of a technology stack, service-level objective (SLO), recovery-point objective (RPO), recovery-time objective (RTO), jurisdiction, or operating model.
 
+**Relationship to evaluation governance:** Where these scenarios support a product, technology, provider or operating-model decision, LOT-EVAL-001 governs decision-unit tiering, evidence sufficiency, confidence, risk acceptance and approval rights. A quality scenario's test result is evidence only for its stated configuration, environment, workload and observation period. A described control, planned test or passing isolated prototype does not establish production capability or grant a later lifecycle permission. Do not convert QA scenario status into a provider capability score without the parent rubric and a separately defined decision unit.
+
 It applies across the independently adoptable Affiliate & Agent and Lottery product families, their shared platform capabilities, operator/agent/customer experiences, APIs, provider adapters, background workers, reporting and operational tooling. Product-specific risk may require stricter criteria.
 
 **Authority:** Proposed. Numeric thresholds remain **TBD** until workload assumptions, launch markets, legal obligations, commercial commitments, and owner-approved risk appetite are documented. Do not silently substitute industry examples for approved targets.

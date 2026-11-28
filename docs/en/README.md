@@ -134,3 +134,51 @@ Read repository-root [AGENTS.md](../../AGENTS.md). Use a working branch and pull
 
 
 - [Affiliate G09-A17 — Independent Review Reconciliation & Evidence-Gap Closure](engineering/affiliate-g09-a17-review-reconciliation.md) — records the GitHub APPROVED event against its exact reviewed SHA, distinguishes platform approval from A12 substantive-review evidence, and keeps A11 findings/owner decisions open pending a supplemental disposition.
+
+
+## Enterprise evaluation governance
+
+- [Enterprise Product, Technology and Supplier Evaluation Standard](governance/enterprise-evaluation-standard.md) — LOT-EVAL-001; proposed parent standard for decision framing, risk tiers, evidence, non-compensable gates, fair scoring, total cost, controlled pilots, approvals, monitoring and exit. It governs and points to specialist provider/technology/domain profiles; it selects no candidate.
+
+
+- [LOT-EVAL-A18-001 — Author-led Adversarial Review & Remediation Record](governance/enterprise-evaluation-adversarial-review-a18.md) — records the original 12 A18 findings plus follow-up REV-01…REV-14, maps the proposed v0.3.0 corrections, and distinguishes owner-led review from independent assurance.
+
+- [LOT-EVAL-OWNER-REVIEW-001 — Owner-led Review & Disposition Register](governance/enterprise-evaluation-owner-review-001.md) — records REV-01…REV-14, owner disposition states, the delegated technical-implementation instruction and the rule that implementation does not equal risk acceptance.
+
+- [LOT-EVAL-AVT-001 — Adversarial Acceptance Test Matrix](governance/enterprise-evaluation-adversarial-test-matrix-001.md) — 21 designed adversarial vectors for REV-01/03/04/12/14; test execution, owner disposition and independent assurance remain pending.
+
+- [Provider Evaluation, Due Diligence and RFI Standard](partners/provider-evaluation-standard.md) — LOT-PROVIDER-EVAL-001 v0.2.0; evidence and scoring semantics inherit the LOT-EVAL-001 parent standard.
+- [Technology, Deployment and Reliability ADRs](architecture/technology-deployment-adrs.md) — LOT-TECH-ADR-001 v0.2.0; technology weights remain proposed and inherit the parent rubric.
+- [Lottorito Security Threat Model](security/threat-model.md) — LOT-SEC-TM-001 v0.2.0; residual-risk assessment references the parent likelihood/impact anchors.
+
+
+## LOT-EVAL reference decision model
+
+- [LOT-EVAL-RDM-001 — Reference Decision Model & Adversarial Harness](governance/enterprise-evaluation-reference-decision-model-001.md) — isolated Python standard-library harness for AVT-01…AVT-21 and MUT-01…MUT-10; synthetic/non-production only; independent review and owner disposition pending.
+
+
+## LOT-EVAL reference-model adversarial audit
+
+- [LOT-EVAL-RDM-002 — Adversarial Audit of the Reference Model and Test Oracles](governance/enterprise-evaluation-reference-model-adversarial-audit-002.md) — author-led audit; identifies unverified matrix properties and defines the independent-oracle and multi-layer verification path. Findings remain open.
+
+
+- [LOT-EVAL-RDM-003A — Normative Rule Catalogue & Decision Tables](governance/enterprise-evaluation-decision-rule-catalogue-001.md) — author-led decomposition of LOT-EVAL-001 into atomic rules, five decision tables, unresolved-ambiguity register and rule-to-test traceability; independent oracle review and owner disposition pending.
+
+- [LOT-EVAL-RDM-004 — Full Decision-Table Verification](governance/enterprise-evaluation-full-decision-table-verification-004.md) — executable row-level checks for all 36 decision-table rows, eleven metamorphic checks and four targeted specification mutations; exact-head CI #1231 passed on code SHA `2e0eadfcc2bc6200af1410197dcbeaa563e8fed0`; unresolved policy and non-covered atomic rules remain open.
+
+
+## Historical LOT-EVAL-RDM-003B blind-review draft — superseded
+
+- [Historical LOT-EVAL-RDM-003B — Blind Review Packet](governance/enterprise-evaluation-blind-oracle-review-003b.md) — superseded draft only; no blind review was performed and the 35-row input package was incomplete. Do not use as an active review gate.
+- [Historical LOT-EVAL-RDM-003B Worksheet](governance/enterprise-evaluation-blind-oracle-worksheet-003b.md) — superseded blank template; its former 74-entry count is historical and must not be represented as 74 independent tests.
+
+
+### RDM-003B review correction
+
+- [Author-led adversarial second-pass review](governance/enterprise-evaluation-author-led-second-pass-review-003b.md) — the active review record. The former blind packet and blank worksheet are superseded historical artifacts; no external reviewer or blind oracle is claimed.
+
+
+- DT05 schema hardening: row R5 directly rejects a missing residual pair; risk schema rejects duplicate/unknown dimensions and blank evidence fields; MT-11 added. Exact-head run #1231 succeeded on `2e0eadfcc2bc6200af1410197dcbeaa563e8fed0`.
+
+- [LOT-EVAL-RDM-005 — Bidirectional Traceability Audit](governance/enterprise-evaluation-bidirectional-traceability-audit-005.md) — static integrity checks for 18 rules, 21 AVTs, 10 specification mutations, 36 decision-table rows, 8 model guards, 11 metamorphic properties and 4 targeted mutations; exact-head CI #1245 passed 376/376 checks. This is structural traceability evidence, not semantic verification or independent assurance.
+- [LOT-EVAL-RDM-006 — Normative Gap Research & Owner Decision Pack](governance/enterprise-evaluation-normative-gap-research-006.md) — research-backed options and conservative recommendations for RDM-U01…U05, plus candidate RDM-U06 on cardinal measurement/additive-model validity; all normative dispositions remain pending owner approval.

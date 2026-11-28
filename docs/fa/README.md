@@ -133,3 +133,51 @@ Validator ساختاری در [scripts/check_docs.py](../../scripts/check_docs.p
 
 
 - [G09-A17 افیلیت — تطبیق بازبینی مستقل و بستن شکاف شواهد](engineering/affiliate-g09-a17-review-reconciliation.md) — رویداد APPROVED در GitHub را به SHA دقیق بررسی‌شده متصل می‌کند، تأیید پلتفرم را از شواهد بازبینی محتوایی A12 جدا می‌سازد و یافته‌های A11/تصمیم‌های مالک را تا دریافت Disposition تکمیلی باز نگه می‌دارد.
+
+
+## حاکمیت جامع ارزیابی و انتخاب
+
+- [استاندارد جامع ارزیابی و انتخاب محصول، فناوری و تأمین‌کننده](governance/enterprise-evaluation-standard.md) — LOT-EVAL-001؛ استاندارد مادر پیشنهادی برای چارچوب تصمیم، سطوح ریسک، شواهد، Gateهای غیرقابل‌جبران، امتیازدهی منصفانه، هزینه کل، پایلوت کنترل‌شده، تصویب، پایش و خروج. این سند بر پروفایل‌های تخصصی Provider/Technology/دامنه حاکم است و هیچ گزینه‌ای را انتخاب نمی‌کند.
+
+
+- [LOT-EVAL-A18-001 — گزارش بازبینی خصمانه نویسنده و ثبت اصلاحات](governance/enterprise-evaluation-adversarial-review-a18.md) — ۱۲ یافته اولیه A18 و یافته‌های تکمیلی REV-01 تا REV-14، اصلاحات پیشنهادی نسخه ۰.۳.۰ و تفکیک بازبینی مالک از تضمین مستقل را ثبت می‌کند.
+
+- [LOT-EVAL-OWNER-REVIEW-001 — دفتر بازبینی و تعیین تکلیف مالک](governance/enterprise-evaluation-owner-review-001.md) — یافته‌های REV-01 تا REV-14، وضعیت‌های Disposition مالک، دستور واگذاری اجرای اصلاحات فنی و اصل عدم‌معادل‌بودن اجرا با پذیرش ریسک را ثبت می‌کند.
+
+- [LOT-EVAL-AVT-001 — ماتریس آزمون پذیرش خصمانه](governance/enterprise-evaluation-adversarial-test-matrix-001.md) — ۲۱ بردار آزمون خصمانه طراحی‌شده برای REV-01/03/04/12/14؛ اجرای آزمون، تعیین تکلیف مالک و تضمین مستقل همچنان در انتظار است.
+
+- [استاندارد ارزیابی Provider، بررسی موشکافانه و RFI](partners/provider-evaluation-standard.md) — LOT-PROVIDER-EVAL-001 نسخه ۰.۲.۰؛ معنای شواهد و امتیازدهی آن تابع استاندارد مادر LOT-EVAL-001 است.
+- [ADRهای فناوری، استقرار و قابلیت اطمینان](architecture/technology-deployment-adrs.md) — LOT-TECH-ADR-001 نسخه ۰.۲.۰؛ وزن‌های فناوری پیشنهادی و تابع Rubric استاندارد مادر.
+- [مدل تهدید امنیتی Lottorito](security/threat-model.md) — LOT-SEC-TM-001 نسخه ۰.۲.۰؛ ارزیابی ریسک باقیمانده با ارجاع به لنگرهای احتمال/اثر استاندارد مادر.
+
+
+## مدل مرجع تصمیم‌گیری LOT-EVAL
+
+- [LOT-EVAL-RDM-001 — مدل مرجع تصمیم‌گیری و آزمون‌گر خصمانه](governance/enterprise-evaluation-reference-decision-model-001.md) — Harness ایزوله مبتنی بر کتابخانه استاندارد Python برای AVT-01 تا AVT-21 و MUT-01 تا MUT-10؛ صرفاً Synthetic/غیرProduction؛ بازبینی مستقل و تعیین تکلیف مالک در انتظار.
+
+
+## ممیزی خصمانه مدل مرجع LOT-EVAL
+
+- [LOT-EVAL-RDM-002 — ممیزی خصمانه مدل مرجع و Oracleهای آزمون](governance/enterprise-evaluation-reference-model-adversarial-audit-002.md) — ممیزی خصمانه به‌دست نویسنده؛ ویژگی‌های آزموده‌نشده ماتریس را شناسایی و مسیر Oracle مستقل و راستی‌آزمایی چندلایه را تعریف می‌کند. یافته‌ها باز هستند.
+
+
+- [LOT-EVAL-RDM-003A — کاتالوگ قواعد هنجاری و جدول‌های تصمیم](governance/enterprise-evaluation-decision-rule-catalogue-001.md) — تجزیه به‌دست نویسنده از LOT-EVAL-001 به قواعد اتمی، پنج جدول تصمیم، دفتر ابهام‌های حل‌نشده و ردیابی قاعده به آزمون؛ بازبینی Oracle مستقل و تعیین تکلیف مالک در انتظار.
+
+- [LOT-EVAL-RDM-004 — راستی‌آزمایی کامل جدول‌های تصمیم](governance/enterprise-evaluation-full-decision-table-verification-004.md) — آزمون اجرایی ردیف‌محور برای هر ۳۶ ردیف جدول تصمیم، یازده آزمون Metamorphic و چهار جهش هدفمند مشخصات؛ CI دقیق شماره ۱۲۳۱ روی SHA کد `2e0eadfcc2bc6200af1410197dcbeaa563e8fed0` موفق شد؛ ابهام‌های سیاستی و قواعد خارج از پوشش همچنان باز هستند.
+
+
+## پیش‌نویس تاریخی بازبینی کور LOT-EVAL-RDM-003B — منسوخ‌شده
+
+- [بسته تاریخی بازبینی کور LOT-EVAL-RDM-003B](governance/enterprise-evaluation-blind-oracle-review-003b.md) — پیش‌نویس منسوخ‌شده؛ بازبینی کور انجام نشد و بسته ورودی ۳۵ ردیفی ناقص بود. به‌عنوان Gate فعال بازبینی استفاده نشود.
+- [Worksheet تاریخی LOT-EVAL-RDM-003B](governance/enterprise-evaluation-blind-oracle-worksheet-003b.md) — قالب خالی منسوخ‌شده؛ عدد ۷۴ مورد سابقه تاریخی است و نباید به‌عنوان ۷۴ آزمون مستقل معرفی شود.
+
+
+### اصلاح مسیر بازبینی RDM-003B
+
+- [گزارش بازبینی خصمانه دومرحله‌ای نویسنده](governance/enterprise-evaluation-author-led-second-pass-review-003b.md) — سابقه فعال بازبینی. بسته کور و Worksheet خالی قبلی صرفاً اسناد تاریخی منسوخ‌شده‌اند؛ ادعای بازبین بیرونی یا Oracle کور وجود ندارد.
+
+
+- تکمیل سخت‌سازی DT05: Oracle ردیف R5 فقدان زوج باقیمانده را مستقیم رد می‌کند؛ Schema ریسک ابعاد تکراری/ناشناخته و فیلدهای شواهد خالی را رد می‌کند؛ MT-11 اضافه شد. اجرای دقیق Head شماره ۱۲۳۱ روی `2e0eadfcc2bc6200af1410197dcbeaa563e8fed0` موفق شد.
+
+- [LOT-EVAL-RDM-005 — ممیزی ردیابی دوسویه](governance/enterprise-evaluation-bidirectional-traceability-audit-005.md) — بررسی ساختاری برای ۱۸ قاعده، ۲۱ AVT، ۱۰ جهش مشخصات، ۳۶ ردیف جدول تصمیم، ۸ Guard مدل، ۱۱ ویژگی Metamorphic و ۴ جهش هدفمند؛ CI دقیق شماره ۱۲۴۵ با ۳۷۶/۳۷۶ بررسی موفق شد. این شاهد ردیابی ساختاری است، نه راستی‌آزمایی معنایی یا تضمین مستقل.
+- [LOT-EVAL-RDM-006 — پژوهش شکاف‌های هنجاری و بسته تصمیم مالک](governance/enterprise-evaluation-normative-gap-research-006.md) — گزینه‌های مبتنی بر پژوهش و توصیه‌های محافظه‌کارانه برای RDM-U01 تا U05 به‌همراه نامزد RDM-U06 درباره اعتبار اندازه‌گیری Cardinal/مدل جمع‌پذیر؛ تمام تعیین تکلیف‌های هنجاری در انتظار تصویب صریح مالک باقی می‌مانند.

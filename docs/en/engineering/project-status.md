@@ -248,3 +248,165 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 - A12 substantive-review requirements (independence/competence/conflict declaration, artifact inventory, reconstructed protocol, adversarial analysis and individual A11 dispositions) are not evidenced in the available GitHub review artifacts. This is an evidence limitation, not a claim that no off-platform analysis occurred.
 - Added bilingual LOT-AFFILIATE-G09-A17-001 and LDR-062. A17 records the approval without inferring technical closure. A11-F01..F08 remain OPEN; OD-01..OD-12 remain OPEN; ADR-002 remains PROPOSED; all A4 gates remain NOT APPROVED.
 - No runtime/persistence proof, candidate selection, partner integration, financial operation, merge or deployment is authorized. The A17 follow-up branch is based on the exact approved PR #76 head; any A17 changes require their own exact-head CI and review.
+
+
+## Enterprise evaluation standard — 2026-11-28
+
+- Added bilingual LOT-EVAL-001 at `docs/en/governance/enterprise-evaluation-standard.md` and `docs/fa/governance/enterprise-evaluation-standard.md`.
+- LOT-EVAL-001 is a proposed parent governance standard spanning product, technology, supplier, integration, data/model and operating-model decisions. It introduces risk-proportionate T0–T3 depth, claim-level evidence classes and freshness, mandatory workflow, non-compensable gates, pre-frozen score rubrics, lifecycle TCO/reversibility, controlled-pilot evidence, decision dossiers, explicit states, reassessment triggers and specialist-profile precedence.
+- It deliberately preserves LOT-PROVIDER-EVAL-001 and LOT-TECH-ADR-001 as specialist documents. It does not silently replace or approve either document, set binding score weights, select a candidate, approve legal/jurisdictional scope, or authorize procurement, implementation, production data, partner integration, financial activity or launch.
+- Reference research includes ISO 31000:2018, ISO/IEC 25010:2023, NIST SP 800-161 Rev.1 Update 1, NIST SP 1326 (2026), NIST SP 1305, OWASP SAMM and FinOps Framework. References inform evaluation design; they do not certify Lottorito or any candidate.
+- First application is proposed as a bounded, non-production retrospective evaluation, to be selected by the accountable owner after review. The standard remains PROPOSED pending owner and specialist review.
+
+
+## LOT-EVAL-001 adversarial hardening — 2026-11-28
+
+- Author-led adversarial review report LOT-EVAL-A18-001 added in English and Persian. It records 12 findings: 1 Critical, 10 High and 1 Medium. The report explicitly does not claim independent assurance.
+- LOT-EVAL-001 advanced in draft from v0.1.0 to v0.2.0 with a bilingual normative Section 17 covering risk tier vs risk rating, inherent/residual risk, multidimensional evidence provenance, evidence sufficiency vs capability score, NS vs zero, normalized scoring, inter-rater controls, lifecycle TCO, supplier due diligence, DATA/MODEL evaluation, ISO/IEC 25010 quality scenarios, pilot protocol, approval separation and specialist-document precedence.
+- The review reconciled the proposed scorecards in LOT-PROVIDER-EVAL-001 and LOT-TECH-ADR-001: their weights remain proposals until explicitly adopted for a named decision unit and reconciled with the parent rubric.
+- A18 is author-led; independent review, owner risk-appetite decisions, specialist approval and exact-head CI remain pending. LOT-EVAL-001 remains PROPOSED. No candidate, provider, technology, jurisdiction, procurement, production data, partner integration, financial activity, merge or deployment is authorized.
+
+
+## LOT-EVAL-001 follow-up corrections — 2026-11-28
+
+- LOT-EVAL-001 is now proposed v0.3.0. Sections 8.3 and 17.10 add the complete capability rubric; separate evidence state and rating; explicit NS/Partial/N/A semantics; atomic-subcriterion handling; confidence anchors; synthetic-test versus operational tier boundary; risk-horizon and ordinal-matrix limitations; TCO forecast-bias/reference-class and switching-value analysis; and formal-assurance criteria.
+- Follow-up adversarial review REV-01…REV-14 is recorded in A18. REV-11 is explicitly non-substantive: the two formulas are equivalent when applicable weights total 100.
+- Owner direction on 2026-11-28 authorizes evidence-supported technical/document corrections across relevant artifacts. This is an implementation instruction, not item-level acceptance or residual-risk approval. All REV owner dispositions remain PENDING.
+- Owner-led review, specialist challenge and independent assurance are distinct. No independent assurance is claimed or recorded. LOT-EVAL-001 remains PROPOSED and unapproved.
+- English/Persian standard, A18, owner-review register and decision records have been synchronized. Documentation Governance must be checked on the final exact head; no CI success is claimed for the new commits.
+- No candidate, supplier, technology, jurisdiction, procurement, contract, production data, partner integration, financial activity, merge or deployment is authorized.
+
+
+## Cross-document LOT-EVAL alignment — 2026-11-28
+
+- Provider profile LOT-PROVIDER-EVAL-001 advanced to proposed v0.2.0: evidence authority and independence are separate; its provider-specific weights remain proposals; its capability ratings, NS, Partial, N/A, confidence and hard-gate semantics inherit LOT-EVAL-001 v0.3.0.
+- Technology ADR LOT-TECH-ADR-001 advanced to proposed v0.2.0: its local 1–5-only wording is replaced by the parent 0–5/NS/N/A evidence model; suggested technology weights remain unapproved.
+- Security threat model LOT-SEC-TM-001 advanced to proposed v0.2.0: residual High/Critical risk labels now require a documented scenario, horizon, raw likelihood/impact pair, impact dimensions, uncertainty, control evidence and named acceptance authority, with a reference to the parent risk anchors.
+- The gaming-provider strategy continues to rely on LOT-PROVIDER-EVAL-001 as its common supplier-evaluation process; no gaming provider or market is selected.
+- The bilingual architecture quality-attributes catalogue now clarifies that QA scenario outcomes are bounded by tested scope/configuration/workload/period and inherit LOT-EVAL-001 evidence and decision semantics; QA status alone is not production assurance or a provider score.
+- A further parent-standard consistency pass revised §4 is the sole canonical tier-trigger table and bases tiering on the exact decision unit and permission; bounded synthetic tests are classified by actual scope and are not automatically T3. A high-impact identity decision capable of materially changing access to customer funds/privileged activity or causing severe harm is an explicit T3 trigger. §5.1 now records evidence authority, independence, directness, scope, freshness, reproducibility and limitations as separate attributes rather than a conflated evidence class. §5.2 now contains explicit confidence anchors aligned with §17.10.2. The same corrections are present in Persian.
+- A18 now maps REV-01…REV-14 to the v0.3.0 corrective sections. The next gate is the owner's finding-by-finding review plus specialist challenge where needed; independent assurance remains a distinct, risk/claim-dependent activity, not a synonym for owner review.
+- The owner-review register now has a separate document-implementation-status column for REV-01…REV-14. It records applied document changes separately from owner disposition; substantive acceptance tests and all owner dispositions remain pending. REV-11 is recorded as non-substantive with its equivalence example retained.
+- These are document-level consistency corrections only. No provider weights, technology, security control, residual risk, supplier, jurisdiction, procurement, production, financial activity, merge or deployment is approved.
+
+
+## LOT-EVAL-RDM-001 — deterministic reference model (2026-11-28)
+
+- Added an isolated, standard-library-only Python reference harness at `tools/lot_eval_rdm.py`; it is not imported by product code and uses embedded synthetic fixtures only.
+- Local execution on Python 3.13.5: `python tools/lot_eval_rdm.py` — 21/21 AVT vectors PASS; 10/10 specification mutants killed; 210 mutant/vector evaluations; zero surviving mutants. This is author-led specification-level fault injection, not third-party mutation score or independent assurance.
+- The harness maps the frozen LOT-EVAL-001 v0.3.0 / LOT-EVAL-AVT-001 v0.2.0 baseline at commit `e7aed0892a0de212fc3fd7603a6976eee503a76f`. Documentation Governance run #1133 (ID `46118746808`) succeeded on exact implementation head `863fe0eb8f27e93e68dcd0f6275aaef377cf3c32`: 62 bilingual pairs/160 local links checked and the RDM harness step passed. Any subsequent commit requires a fresh exact-head run.
+- Interpretation stop: non-material NS aggregate treatment is not fully specified by §8.3; absent a separately recorded provisional authority, the model returns UNRESOLVED rather than inventing a rule. Authority/materiality are synthetic inputs, not validated approvals.
+- Coverage is limited to AVT-01…AVT-21. Confidence, TCO, formal assurance, legal eligibility and actual owner dispositions are not automated. No independent reviewer has reconstructed the oracles.
+- LOT-EVAL-001 remains PROPOSED; REV-01…REV-14 remain PENDING. No candidate, procurement, provider integration, production data, financial activity, merge or deployment is authorized.
+
+
+## LOT-EVAL-RDM-002 — adversarial audit (2026-11-28)
+
+- Author-led source-to-oracle audit compared the actual RDM implementation with the frozen matrix's detailed fixtures and metamorphic properties.
+- Findings: 5 HIGH and 5 MEDIUM. Key issues: tier permission boundary not implemented in baseline logic; N/A post-score sequence represented only by a Boolean; required mandatory-gate catalogue is not enforced; AVT-17 duplicates AVT-16 assertions; several AVT-01 metamorphic properties are not executed; horizon is only syntactically non-empty; mutant-equivalence/reachability counts were hard-coded zero and are now correctly reported NOT_ASSESSED/null; exact AVT/MUT population guards have been added, but semantic duplicate behavior under different IDs remains open; oracle independence remains absent.
+- Correct interpretation: 21 registered checks passed; this is not proof that all 21 matrix vectors and their sub-properties were fully verified. Earlier “equivalent/unreachable/unresolved = 0” output is not evidential because the harness does not classify those categories.
+- Recommended next stage: RDM-003 — reconstruct normative decision rules, obtain a blind independent oracle pack, then correct the model using decision tables, event/state-machine tests, metamorphic and property-based invariants, and truthful mutation accounting.
+- This is author-led review, not independent assurance. LOT-EVAL-001 remains PROPOSED; REV-01…REV-14 remain PENDING. No production, procurement, partner integration, financial activity, merge or deployment is authorized.
+
+
+## LOT-EVAL-RDM-003A — normative rule decomposition (2026-11-28)
+
+- Added bilingual `enterprise-evaluation-decision-rule-catalogue-001.md` with 18 atomic rules, five decision tables, five ambiguity issues and a rule-to-test traceability baseline.
+- Explicitly classifies each rule as NORMATIVE, DERIVED-GUARD or UNRESOLVED. No unresolved interpretation is silently encoded as a deterministic result.
+- Key unresolved issues: non-material NS/provisional aggregate authority and materiality; conditional experiment gate versus N/A; minimum decision-unit completeness; calibration of qualitative likelihood; criterion-specific thresholds for 1–5 anchors.
+- The catalogue is an author-led design artifact. It does not change the parent standard or executable model. Independent blind oracle derivation and bilingual semantic review remain pending.
+- Research basis: ISO/IEC/IEEE 29119-4:2021; ISTQB CTFL v4.0.1; NASA SWE-114 and SWE-072; NIST SP 800-160 Vol.1 Rev.1.
+- LOT-EVAL-001 remains PROPOSED; REV-01…REV-14 remain PENDING. No procurement, integration, production, financial activity, merge or deployment is authorized.
+
+
+## LOT-EVAL-RDM-003B — blind independent oracle package (2026-11-28)
+
+- Added bilingual reviewer packet and blank worksheet under `docs/{en,fa}/governance/`; indexed in both documentation READMEs and recorded as LDR-070.
+- Frozen source snapshot: commit `4443ef5336935310f034419d72967dec3d86a21a`; packet records exact blob SHAs for parent standard v0.3.0 and AVT matrix v0.2.0. RDM-003A blob hashes are recorded for audit but explicitly withheld from the reviewer.
+- Review population: 18 atomic rule IDs + 21 AVT input-only cases + 35 decision-table rows = 74 entries. The packet withholds author-derived rule descriptions, decision-table outputs, ambiguity dispositions, model source, model outputs and mutation results.
+- Status is `PENDING_EXTERNAL_REVIEW`: no second reviewer is identified, no blind review has been performed, and no independent oracle has been returned or frozen. A qualified reviewer must complete, attest and hash the worksheet before any reconciliation.
+- RDM-001 remains unchanged. No model changes until the independent worksheet is frozen, discrepancies are classified and any required owner/policy decisions are recorded. This is not independent assurance, adoption of LOT-EVAL-001, or acceptance of REV-01…REV-14.
+- Research basis: ISO/IEC/IEEE 29119-1:2022 test-oracle definition; NASA SWE-141 and NASA IV&V independence guidance. These references inform process design; they do not certify this review.
+- LOT-EVAL-001 remains PROPOSED; REV-01…REV-14 remain PENDING. No candidate selection, procurement, integration, production data, financial activity, merge or deployment is authorized.
+
+
+## RDM-003B — author-led second-pass review correction (2026-11-28)
+
+- The owner directed that the authoring AI perform direct adversarial reviews because no second person is available. The method is now explicitly an author-led second-pass review, not blind review or formal independent assurance.
+- Bilingual report: `docs/{en,fa}/governance/enterprise-evaluation-author-led-second-pass-review-003b.md`; findings AR-01…AR-15.
+- The former blind-review packet and blank worksheet are superseded historical artifacts. The 35 decision-table rows were not supplied as input-only condition combinations, so the claimed blind derivation was not executable.
+- RDM-001 was corrected for: explicit highest-plausible-tier input (not hard-coded T3); separate evidence state and capability rating; distinct AVT-17 ranking-sensitivity behavior; explicit late N/A state; and six model guard checks.
+- AVT-09, AVT-06, AVT-14 and AVT-17 matrix semantics and DT-04 non-overlap are being reconciled bilingually. Exact-head CI is required before any pass claim.
+- Historical CI results from the pre-correction harness do not apply to the corrected source. No independent assurance, owner acceptance, procurement, production, financial activity, merge or deployment is implied.
+
+
+### RDM-003B follow-up verification (latest exact head)
+
+- Full row-level review added AR-16…AR-18: DT-01 bounded-vs-unbounded tier ambiguity, DT-03 precedence, and DT-05 missing required risk-record fields. DT-05 now has seven rows; five decision tables contain 36 rows total.
+- Current review inventory is 18 rule propositions + 21 AVT scenarios + 36 table rows = 75 review obligations, not 75 independent tests.
+- RDM-001 now has 21 AVT checks and 8 separate model guards. All 8 guards include invalid trigger, empty candidate set, negative weight, empty compound atoms, inconsistent material-NS, incomplete provisional authorization, boolean capability rating and boolean risk anchor.
+- Exact-head CI #1202 (run ID 46123183828) passed on 2dd02e5fd4b06d46c995ee1e934053d15987c001: 67 bilingual Markdown pairs, 172 local links, 21/21 AVT, 8/8 guards, 10/10 hand-authored mutants killed, 210 AVT mutant/check evaluations, zero failures and zero survivors. Structural and registered-harness evidence only; no full matrix-property or independent-assurance claim.
+
+
+## LOT-EVAL-RDM-004 — full decision-table verification (2026-11-28)
+
+- Added `tools/lot_eval_rdm004.py` and a bilingual verification record. All 36 rows across DT-01…DT-05 have stable executable row IDs and deterministic synthetic fixtures.
+- Row-level execution also covers six registered metamorphic properties and four targeted specification mutations. These are reported separately; they are not 46 independent end-to-end tests or a conventional mutation score.
+- Exact-head Documentation Governance run #1216 (run ID `46129592496`) succeeded on `36c2f66af85cbe24255feeaaab17c70329034071`: bilingual documentation validator PASS; existing RDM-001 harness PASS; RDM-004 runner PASS. The RDM-004 runner exits successfully only when all 36 row checks, six metamorphic checks and four targeted mutation checks pass.
+- DT04-R5 intentionally remains UNRESOLVED for non-material NS without a separately complete provisional-authority path. No definitive aggregation rule was invented.
+- RDM-U01…U05 remain unresolved. RDM-R13/R14/R17/R18 and other parent-standard requirements are not all covered by these tables and require separate verification. Synthetic fixtures do not authenticate real evidence, authority, applicability, legal status or control operation.
+- LOT-EVAL-001 remains PROPOSED; REV-01…REV-14 owner dispositions remain PENDING. No candidate/provider selection, procurement, partner integration, production data, financial activity, merge or deployment is authorized.
+
+
+### RDM-004 follow-up — mandatory-gate registry hardening and exact-head CI
+
+- Author-led code review found that the initial DT02-R6 fixture represented omission with an explicit flag. That checked the expected branch but did not itself prove that the evaluator could discover a missing required category from the recorded gate set.
+- Corrected the model with a closed-world ten-category minimum gate registry derived from parent §7. DT02-R6 now omits one required category from the actual recorded set; the evaluator must return `BLOCK_INCOMPLETE_REGISTER`. Unknown categories are rejected.
+- Exact-head Documentation Governance run #1221 (ID `46129804594`) succeeded on `f674bc5979df472a7334088f2937b89290bc50f4`: bilingual validator, RDM-001 and RDM-004 all passed; RDM-004 passed 36/36 rows, 6/6 metamorphic checks and 4/4 targeted mutations.
+- This is a bounded synthetic check. The ten-category register does not decide real applicability, legal sufficiency or control-owner approval. All prior non-authorization and unresolved-policy boundaries remain unchanged.
+
+
+### RDM-004 v0.2.0 — adversarial semantic hardening and exact-head verification
+
+- Corrected DT-03 precedence: requested-scope mismatch → Partial atomic coverage → insufficient full-scope evidence → capability rating.
+- Corrected DT-04 precedence: failed mandatory gates now block provisional non-selection output as well as definitive aggregate/selection.
+- Corrected DT-05 risk completeness: separate inherent and residual likelihood-impact pairs; explicit impact-dimension anchors; evidence/assumptions; control evidence when controls are claimed; Boolean and non-integer risk anchors rejected.
+- Added five metamorphic checks overall; RDM-004 now requires 36 row checks, 11 metamorphic checks and 4 targeted mutation checks. MT-11 rejects duplicate impact dimensions and blank evidence fields.
+- Exact-head Documentation Governance run #1231 (ID `46161867851`) succeeded on code SHA `2e0eadfcc2bc6200af1410197dcbeaa563e8fed0`; bilingual docs, RDM-001 and RDM-004 steps succeeded.
+- Earlier runs #1223 and #1224 failed in the RDM-004 step during the correction cycle; #1225 passed after the DT05-R6 stale fixture argument was corrected. These failures were caught before acceptance and remain in the audit trail.
+- Scope remains synthetic and author-led. No independent assurance, owner adoption, legal validation or production readiness is claimed. RDM-U01…U05 and RDM-R13/R14/R17/R18 remain open; all non-authorization boundaries continue.
+
+
+### RDM-004 risk-schema hardening follow-up
+
+- DT05-R5 directly rejects a missing residual likelihood/impact pair.
+- Risk schema rejects duplicate/unknown impact dimensions, malformed dimension-rating maps, and blank evidence/assumption/control-evidence fields; MT-11 added.
+- Exact-head Documentation Governance run #1231 (ID `46161867851`) succeeded on code SHA `2e0eadfcc2bc6200af1410197dcbeaa563e8fed0`; bilingual validation, RDM-001 and RDM-004 passed.
+
+### RDM-005 — bidirectional traceability audit
+
+- Added `tools/lot_eval_rdm005.py` as a static structural audit; it is not a semantic oracle or product-runtime component.
+- Checks exact populations and mappings for 18 rules, 21 AVTs, 10 specification mutations, 36 decision-table rows, 8 RDM-001 guards, 11 RDM-004 metamorphic properties and 4 targeted mutations.
+- Added source-clause reconciliation against the normative catalogue, parent heading existence, forward/reverse AVT/DT consistency, and EN/FA source-clause parity after numeral normalization.
+- Author-led audit corrected: f-string heading-regex false negatives; AVT-001/AVT-00 identifier-boundary false positive; AVT-02/06/13 mapping mismatches; source declarations for RDM-R01/RDM-R05; parser overreach into summary rows; and a real FA RDM-R09 omission of §17.10.1.
+- Exact-head Documentation Governance #1245 (ID `46162905434`) passed on `364dac4591bad89f2a3eca581b9983c5e9750b09`: 376/376 RDM-005 checks; bilingual validation, RDM-001 and RDM-004 passed.
+- RDM-005 is structural metadata integrity only. It does not establish semantic test adequacy, independent assurance, full-standard coverage or owner acceptance. RDM-R13/R14/R17 require human review; RDM-U01…U05 remain open; RDM-R18 remains a proposed derived guard.
+- RDM-004 bilingual status and exact-head record reconciled to run #1231 / SHA `2e0eadfcc2bc6200af1410197dcbeaa563e8fed0`, including 36/36 rows, 11/11 metamorphic checks and 4/4 targeted mutations.
+
+### RDM-006 — normative gap research and owner decision pack
+
+- Created bilingual research package for RDM-U01…U05; recommendations are proposals only and do not alter parent normative text or owner dispositions.
+- U01: bounded sensitivity-based materiality test; NS remains unscored; provisional output, if authorized, is informational and non-selective with named authority, disclosure, expiry and prohibited uses.
+- U02: separate applicability, gate result and permission; bounded experiment is not N/A and never implies operational PASS.
+- U03: versioned decision-unit core schema plus triggered conditional fields; unknown is not false/N/A.
+- U04: horizon-bound ordinal likelihood by default; quantitative probabilities require domain data, reference class, method and uncertainty.
+- U05: criterion-specific operational 0–5 anchors; weighted aggregate remains secondary; consider structured MCDA/swing weighting and rank sensitivity for complex material trade-offs.
+- Research references include HM Treasury Orange Book (updated 18 Nov 2026), Green Book 2026 (updated 28 Oct 2026), MCDA supplementary guidance (16 May 2024), NIST SP 800-30 Rev.1, NASA 6.8, Magenta Book (15 May 2026), NIST SP 800-53 Rev.5.2.0 CA-02, ISO 31000:2018 and ISO/IEC 25010:2023.
+- All U01…U05 remain UNRESOLVED pending explicit owner decisions. No legal applicability, numerical calibration or policy adoption is claimed.
+
+### RDM-006 v0.2.0 — additional measurement-model gap identified
+
+- Added a candidate, not-yet-registered RDM-U06: the current §8.3 weighted sum uses 0–5 ordered anchors, but the standard has not demonstrated interval/cardinal component value functions or mutual preferential independence required for a defensible additive value model.
+- Government Analysis Function MCDA guidance (2024) requires cardinal component values for valid weights and mutual preferential independence for a linear additive model; EFSA (2018) warns that arithmetic calculations treating ordinal categories as quantitative are invalid without quantitative scale meaning.
+- Proposed choices: (a) construct criterion-specific cardinal value functions, elicit swing weights and assess independence; or (b) retain ordinal ratings and use an approved ordinal/non-compensatory method without arithmetic weighted ranking.
+- This is a research finding only. Owner must decide whether to add RDM-U06 or merge it into U05. No change to LOT-EVAL-001 §8.3 or owner dispositions has been made.

@@ -1,6 +1,6 @@
 # Provider Evaluation, Due Diligence and RFI Standard
 
-**Document ID:** LOT-PROVIDER-EVAL-001 | **Version:** 0.1.0 | **Status:** Proposed cross-product governance standard; no provider selected or approved
+**Document ID:** LOT-PROVIDER-EVAL-001 | **Version:** 0.2.0 | **Status:** Proposed cross-product governance standard; no provider selected or approved
 
 ## 1. Purpose, authority and non-goals
 
@@ -47,17 +47,26 @@ Every material claim must be stored in an evidence register, not only in meeting
 - Integrity reference (document hash or immutable repository reference where practical).
 - Limitations, contradictions, follow-up owner and due date.
 
-### 3.1 Evidence classes
+### 3.1 Evidence attributes and source types
 
-| Class | Meaning | Typical examples | Permitted use |
-|---|---|---|---|
-| A — authoritative/verified | Evidence directly verified from the competent authority, executed instrument, independent assurance source or witnessed test | Regulator register checked for exact entity/product/market; signed contract; witnessed sandbox test; independent audit report obtained and scope-checked | Can support a gate or verified finding within its exact scope |
-| B — supplier primary | Supplier-controlled primary material, not independently proven | API specification, security whitepaper, SLA proposal, product catalogue, written sales response | Defines claims and test plans; does not alone prove operational behavior or legal permission |
-| C — supplier assertion | Verbal, presentation or marketing claim | Sales deck, demo statement, website claim, unminuted call | Lead for investigation only |
-| D — secondary | Third-party reporting or reference not issued by the competent authority or supplier | Press article, analyst report, public customer review | Context and corroboration only; investigate provenance and conflicts |
-| U — unknown/unavailable | No adequate evidence, inaccessible source, expired evidence or unresolved contradiction | Missing licence record, unavailable API documentation, unsigned commercial terms | Must remain unknown; never convert absence of evidence into a positive assumption |
+Evidence is not a single quality ladder. For each evidence item, record separately:
+- Authority of the issuer/source for the specific claim.
+- Independence from the supplier and evaluator.
+- Directness: official record, executed instrument, independently scoped assurance, directly witnessed test, supplier-controlled primary document, supplier assertion/demo or secondary report.
+- Exact scope match: legal entity, product/service, version, configuration, jurisdiction, environment, population and date.
+- Freshness/validity, reproducibility, provenance/integrity, reviewer, limitations and unresolved conflicts.
 
-Class A is not a universal quality score. A regulator register can verify a licence entry but not API behavior; a witnessed sandbox test can verify one behavior but not legal authorization. Record evidence by claim and scope. An executed contract does not prove that the supplier has every required licence or that its service meets technical requirements.
+Use source types to describe provenance, not to imply a universal grade:
+- Official/public authority record.
+- Executed contractual instrument.
+- Independent assurance report.
+- Directly witnessed test.
+- Supplier-controlled primary document.
+- Supplier assertion or demonstration.
+- Secondary commentary/reference.
+- Unknown, unavailable, expired or contradictory evidence.
+
+A regulator register may establish a licence entry for the named entity and scope, not API behavior. A signed contract is authoritative for agreed terms, not independent proof of operational capability. A supplier-witnessed test is not automatically independent. One item may support one claim and be insufficient for another. Apply LOT-EVAL-001 Sections 5, 8.3 and 17.10 for the parent evidence-state, capability-rating, confidence and assurance semantics.
 
 ### 3.2 Evidence freshness and contradiction
 
@@ -149,7 +158,7 @@ A failed or unknown mandatory gate blocks progression regardless of weighted sco
 
 ## 6. Comparative scorecard (after hard gates)
 
-The scorecard is a decision aid, not an automatic procurement engine. Score only comparable candidates within the same decision unit and only after mandatory gates have been reviewed. The weights below are a proposed default and require owner/domain approval before use in a binding procurement decision.
+The scorecard is a decision aid, not an automatic procurement engine. Score only comparable candidates within the same exact decision unit and only after mandatory gates have been assessed. The weights below remain a **proposed provider-profile starting point**, not an active default. They may be used only after explicit owner/domain approval for a named decision unit and reconciliation with LOT-EVAL-001.
 
 | Dimension | Proposed weight | What is assessed |
 |---|---:|---|
@@ -163,17 +172,17 @@ The scorecard is a decision aid, not an automatic procurement engine. Score only
 | Exit and portability | 5 | Data portability, migration, termination support and lock-in exposure |
 | **Total** | **100** | |
 
-Use a 0–5 scale for each applicable dimension:
-- **0 — No evidence / unacceptable:** absent, contradictory or fundamentally inadequate.
-- **1 — Critical gaps:** major requirements unmet; extensive remediation or unacceptable risk.
-- **2 — Partial:** some requirements met, but material gaps remain.
-- **3 — Meets documented baseline:** requirements supported by adequate evidence for the stated scope.
-- **4 — Strong:** exceeds baseline and is supported by current, credible evidence.
-- **5 — Demonstrated strength:** exceptional capability proven through relevant independent evidence and witnessed tests.
+Use the single parent capability scale in LOT-EVAL-001 §8.3 and §17.10; do not maintain a conflicting local scale:
+- Evidence state is recorded separately as Sufficient / Partial / Insufficient / Unknown / N/A.
+- Capability rating is 0–5 only when evidence is sufficient for the full atomic criterion; otherwise use NS.
+- 0 means sufficient evidence demonstrates absent or unacceptable capability. Missing/insufficient evidence is NS, never 0.
+- Partial coverage does not positively score a compound criterion. Split compound criteria into atomic subcriteria; unsupported atomic subcriteria remain NS.
+- N/A requires prior written rationale and approval by the accountable control owner; it cannot remove a mandatory gate. Publish original/effective weights and normalization.
+- If a material criterion remains NS, do not publish a definitive aggregate or ranking. A weighted score cannot compensate for failed/unknown hard gates or unacceptable residual risk.
 
-For each score record the requirement IDs, evidence IDs, reviewer, rationale, confidence (High/Medium/Low), unresolved risks and any conditions. A score of 5 without stronger evidence than a score of 3 is not defensible.
+For every rating, record requirement IDs, evidence IDs, evidence state, reviewer, rationale, confidence (High/Medium/Low), unresolved risks, conditions and scope. Confidence is separate and must not be multiplied into the score. For T2/T3 and other material decisions, preserve independent evaluator ratings, disagreement and adjudication; the proposer must not be the sole scorer or gate approver.
 
-Do not average away hard-gate failures. Do not compare a licensed operator with a game studio as if they were interchangeable suppliers. If a dimension is genuinely not applicable, document why; do not silently redistribute its weight. If normalized scores are shown, publish the excluded dimension and formula, and do not compare them with scores using a different dimension set. The recommendation must show gate status and residual risk before any aggregate score.
+Do not compare a licensed operator with a game studio as if they were interchangeable suppliers. The recommendation must show gate status, evidence coverage and residual risk before any aggregate score. Parent-standard formula, N/A, confidence, assurance and acceptance tests apply.
 
 ## 7. Standard RFI questionnaire and response format
 
@@ -265,6 +274,8 @@ Approval must be explicit and recorded by accountable roles. Silence, a demo, a 
 
 ## 12. References and related contracts
 
+- [Parent product, technology and supplier evaluation standard](../governance/enterprise-evaluation-standard.md) — LOT-EVAL-001; the parent governs evidence, scoring, tiers, N/A, confidence and assurance semantics in case of conflict.
+
 Use current, authoritative, jurisdiction-specific sources and record the exact version/date consulted. Relevant Lottorito documents:
 - [Affiliate integration contract](integration-contract.md) — LOT-INT-001.
 - [Lottery provider contract](lottery-provider-contract.md) — LOT-LOTINT-001.
@@ -275,3 +286,8 @@ Use current, authoritative, jurisdiction-specific sources and record the exact v
 - [Architecture quality attributes](../architecture/quality-attributes.md).
 
 **Status reminder:** this is a proposed governance standard. It does not select a provider, grant a licence, approve a contract, certify an API, authorize custody or payouts, authorize real-money activity, or establish implementation readiness.
+
+
+## 13. Change history
+
+- 0.2.0 (2026-11-28): aligned with LOT-EVAL-001 v0.3.0; separated source authority/independence and replaced the local scoring semantics with the parent evidence/rating model. Provider weights remain proposed and inactive without an owner decision for a named decision unit.
