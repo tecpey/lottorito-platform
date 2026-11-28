@@ -1,7 +1,7 @@
 # G09-A23 — Formal Protocol Model & Adversarial Test Strategy
 
 **Document ID:** LOT-AFFILIATE-G09-A23-001  
-**Version:** 0.1.17 | **Status:** PROPOSED; M0 AND M1 TLC-CHECKED WITHIN FINITE BOUNDS; M2 AUTHORED / TLC PENDING; RUNTIME NOT EXECUTED; M3–M7 NOT AUTHORED  
+**Version:** 0.1.18 | **Status:** PROPOSED; M0–M2 TLC-CHECKED WITHIN FINITE BOUNDS; RUNTIME NOT EXECUTED; M3–M7 NOT AUTHORED  
 **Date:** 2026-11-28  
 **Review basis:** G09-A21, G09-A22, G09-A20, G09-A7, ADR-001 and ADR-002  
 **Authority:** Advisory design; no owner decision, candidate, gate or execution permission is approved.
@@ -166,7 +166,7 @@ Do not start with one enormous model. Build staged models with shared interfaces
 
 1. **M0 — Atomic Acceptance:** two callers, one identity, one Receipt and one WorkItem; crash before/during/after commit.
 2. **M1 — UNKNOWN Arbitration:** original transaction in-flight, lost response, negative read, concurrent retry and late commit/abort.
-3. **M2 — Authority Epoch:** two writers, two epochs, partition, promotion, old-primary return and restored epoch. Candidate-neutral TLA+ module, one baseline, five negative-control configurations, pinned runner/workflow and bilingual model note are now authored; exact-head TLC is pending. See [M2 model](affiliate-g09-a23-m2-authority-epoch-model.md).
+3. **M2 — Authority Epoch:** two writers, two epochs, partition, promotion, old-primary return and restored epoch. Candidate-neutral TLA+ module, one baseline and five negative controls are TLC-checked within finite bounds on exact head 5432f768d1f6e40c1fb59b4764a6c80d6e3a378f. See [M2 model and evidence](affiliate-g09-a23-m2-authority-epoch-model.md).
 4. **M3 — Worker Lease:** two workers/generations, claim and reclaim, lease renewal, heartbeat/completion/retry/park, state/token/lifecycle-version mismatch, zero-mutation guard failure, lock wait, pre/post-lock timestamp, clock skew, lease expiry before reclaim and stale-worker resume.
 5. **M4 — Outbox/Consumer/Receiver:** duplicate publication, delay, reorder, broker outage, consumer crash, in-flight external request, receiver acceptance after source lease expiry, lost response, retry, destination idempotency/fencing and receiver dedup-retention expiry.
 6. **M5 — Restore/Lifecycle:** old PITR/backup, tombstone and expiry boundary, finite/unbounded replay horizon, late queue message, credential/key/schema rotation, recovery incarnation, failback, clean-room quarantine and reopening gates.
@@ -317,3 +317,6 @@ Documentation consistency note: after removing the helper flag from executable M
 
 
 **Version 0.1.17 review note — M2 authored:** Added the candidate-neutral M2 TLA+ state machine, baseline and five negative controls, pinned TLC runner, GitHub Actions workflow, and bilingual companion model note. The model separates authority allocation, mutation-sink fencing, fence verification and writer activation; it includes partition, old-primary return and restore quarantine/rollback fault paths. **No M2 TLC execution is claimed yet.** Exact-head baseline and all five expected counterexamples must be inspected before recording a result. M0/M1 evidence remains scoped to their prior exact model/config/toolchain/bounds. M3–M7 remain unauthored; no runtime/candidate, owner decision, A4 gate, merge or deployment is approved.
+
+
+**Version 0.1.18 review note — M2 bounded TLC evidence:** Run [46175199855](https://github.com/tecpey/lottorito-platform/actions/runs/46175199855) completed successfully on exact PR head 5432f768d1f6e40c1fb59b4764a6c80d6e3a378f; synthetic merge commit 491ac36 (base f032065f47fe85de2aabf8d47565a57af6af3ae9). Baseline exhausted 136 distinct states (515 generated), depth 12, without invariant violations. All five negative controls produced their expected counterexamples: early promotion and partition-only promotion → NewWriterActivationRequiresFence; stale write → EveryWriteWasFencedAndAuthorized; restore rollback → RootEpochAtLeastHighWater; forged epoch → AuthenticatedCurrentTokenHasAuthorityOwner. TLC v2.19 / Tools v1.7.4, pinned JAR SHA-256 936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88, Temurin 17.0.21.1, Ubuntu 24.04. Artifact 15275063423; ZIP SHA-256 f877902d92800ba27df1cc1ab0473e16e5d2dde3ae37c97f3b06b75e49eb37e7. M0 and M1 also passed their respective TLC workflows on the same PR head; Affiliate Contract Validation passed. Documentation Governance was cancelled on the preceding head and must be re-run after this documentation update. Evidence remains bounded to these finite models and does not establish candidate/runtime correctness. M3–M7 remain unauthored; independent review, candidate refinement and all owner/A4 gates remain open.
