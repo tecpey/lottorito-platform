@@ -16,7 +16,15 @@ if [[ "$actual_sha256" != "$EXPECTED_SHA256" ]]; then
 fi
 
 printf 'TLA2TOOLS_SHA256=%s\n' "$actual_sha256"
+printf 'TLA+ Tools pin: v1.7.4 (TLC 2.19)\n'
 java -version
+{
+  sha256sum formal/G09M0AtomicAcceptance.tla \
+    formal/G09M0AtomicAcceptance.cfg \
+    formal/G09M0MutantPartialCommit.cfg \
+    formal/G09M0MutantDuplicatePair.cfg \
+    formal/G09M0MutantEarlyAck.cfg
+} | tee "$OUT_DIR/sha256-manifest.txt"
 java_major="$(java -XshowSettings:properties -version 2>&1 | awk -F'= ' '/java.specification.version =/ {print $2; exit}')"
 if [[ ! "$java_major" =~ ^[0-9]+$ ]] || [[ "$java_major" -lt 11 ]]; then
   printf 'TLC 1.7.4 requires Java 11 or newer; detected specification version: %s\n' "$java_major" >&2
