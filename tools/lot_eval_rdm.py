@@ -114,8 +114,9 @@ def risk_record(*, scenario: str, horizon: str, likelihood: int, impact: int,
         raise ValueError("risk scenario is required")
     if not horizon.strip() and mutant != "MUT-06":
         raise ValueError("risk horizon is required")
-    if likelihood not in range(1, 6) or impact not in range(1, 6):
-        raise ValueError("likelihood and impact must be anchored 1..5")
+    if (any(not isinstance(v, int) or isinstance(v, bool) or v not in range(1, 6)
+            for v in (likelihood, impact))):
+        raise ValueError("likelihood and impact must be integer anchors 1..5")
     if not dimensions:
         raise ValueError("at least one impact dimension is required")
     record = {"scenario": scenario, "horizon": horizon,
@@ -172,8 +173,9 @@ def score_candidates(*, original_weights: dict[str, int],
     for name, ratings in candidates.items():
         if set(ratings) != set(effective):
             return {"state": "BLOCKED", "reason": "candidate criterion set differs"}
-        if any(v not in range(0, 6) for v in ratings.values()):
-            return {"state": "BLOCKED", "reason": "ratings must be 0..5"}
+        if any(not isinstance(v, int) or isinstance(v, bool) or v not in range(0, 6)
+               for v in ratings.values()):
+            return {"state": "BLOCKED", "reason": "ratings must be integer anchors 0..5"}
         numerator = sum(ratings[k] * effective[k] for k in effective)
         results[name] = round(100 * numerator / (5 * denominator), 2)
     return {"state": "SCORED", "denominator": denominator,
@@ -437,7 +439,20 @@ GUARD_TESTS: list[tuple[str, Callable[[], bool]]] = [
     ("GUARD-06-incomplete-provisional-authority", lambda: aggregate(
         scores=[3], material_ns=True, ns_present=True,
         provisional_authority={"authorized_by": "synthetic"}).state == "UNRESOLVED"),
+    ("GUARD-07-boolean-capability-rating", lambda: score_candidates(
+        original_weights={"C1": 100}, excluded=set(), approved_before_scoring=True,
+        mandatory_gates={}, candidates={"A": {"C1": True}})["state"] == "BLOCKED"),
+    ("GUARD-08-boolean-risk-anchor", lambda: _boolean_risk_anchor_rejected()),
 ]
+
+
+def _boolean_risk_anchor_rejected() -> bool:
+    try:
+        risk_record(scenario="boolean anchor", horizon="12m", likelihood=True,
+                    impact=3, dimensions=("availability",))
+        return False
+    except ValueError:
+        return True
 
 
 def execute() -> dict:
