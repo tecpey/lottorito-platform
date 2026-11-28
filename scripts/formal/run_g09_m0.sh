@@ -19,7 +19,7 @@ printf 'TLA2TOOLS_SHA256=%s\n' "$actual_sha256"
 java -version
 java_major="$(java -XshowSettings:properties -version 2>&1 | awk -F'= ' '/java.specification.version =/ {print $2; exit}')"
 if [[ ! "$java_major" =~ ^[0-9]+$ ]] || [[ "$java_major" -lt 11 ]]; then
-  printf 'TLC 1.7.4 requires Java 11 or newer; detected specification version: %s\\n' "$java_major" >&2
+  printf 'TLC 1.7.4 requires Java 11 or newer; detected specification version: %s\n' "$java_major" >&2
   exit 1
 fi
 
