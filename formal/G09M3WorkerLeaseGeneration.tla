@@ -354,6 +354,9 @@ CompetingAuthorizedStartProcessing(w) ==
        lockAcquireTime, lockOwner, blockerAvailable, lastFailureMutationCount,
        claimEvents>>
 
+(* Administrative quarantine is intentionally excluded here; worker Park is
+   guarded and recorded above. Operator/recovery quarantine is a separate model. *)
+
 Next ==
     \/ \E w \in Workers : \E op \in Ops \ {"none"} : StartRequest(w, op)
     \/ \E w \in Workers : AcquireSerializationPoint(w)
