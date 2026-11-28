@@ -64,7 +64,7 @@ Local environment: Python 3.13.5. The exact source file was syntax-compiled with
 | Specification mutants generated / executed | 10 / 10 |
 | Mutants killed / survived | 10 / 0 |
 | Mutant/vector evaluations | 210 |
-| Equivalent / unreachable / unresolved mutants | 0 / 0 / 0 |
+| Equivalent / unreachable / unresolved mutants | NOT ASSESSED |
 
 This is a specification-level fault-injection result from this reference harness, not a conventional third-party mutation-testing score or evidence of overall test-suite adequacy. LOT-EVAL-RDM-002 identified gaps between several registered checks and the full matrix properties they nominally map to; therefore the result is 21 registered checks passing, not full verification of all 21 matrix vectors. All expected oracles were authored in the same workstream; no independent reviewer has independently reconstructed them. Independent challenge remains outstanding.
 
@@ -85,4 +85,4 @@ Exact-head GitHub Actions run #1133 (run ID `46118746808`) on commit `863fe0eb8f
 Synthetic/non-production only. No candidate/provider/technology/jurisdiction is selected. No procurement, partner connection, production data, financial activity, customer funds, market activation, merge or deployment is authorized. The harness must remain isolated from product runtime unless a separately approved future decision explicitly changes its scope.
 
 
-**Subsequent audit qualification (LOT-EVAL-RDM-002):** the reported 0 equivalent / unreachable / unresolved mutants were hard-coded by the initial runner and were not derived through analysis. They are not evidence that these categories are empty. Treat all three categories as NOT ASSESSED until a defined classification is performed.
+**Subsequent audit qualification (LOT-EVAL-RDM-002):** the initial runner's equivalent / unreachable / unresolved counts were hard-coded as zero and were not derived through analysis. The runner has since been corrected to report these categories as null with classification status NOT_ASSESSED. It also validates the exact AVT-01…AVT-21 ID population and the fixed MUT-01…MUT-10 population. Semantic duplication under distinct AVT IDs remains unresolved.
