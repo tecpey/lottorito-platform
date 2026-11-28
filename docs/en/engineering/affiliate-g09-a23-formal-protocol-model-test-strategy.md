@@ -1,7 +1,7 @@
 # G09-A23 — Formal Protocol Model & Adversarial Test Strategy
 
 **Document ID:** LOT-AFFILIATE-G09-A23-001  
-**Version:** 0.1.26 | **Status:** PROPOSED; M0–M2 TLC-CHECKED WITHIN FINITE BOUNDS; M3 MODEL DRAFTED / TLC VALIDATION PENDING; RUNTIME NOT EXECUTED; M4–M7 NOT AUTHORED  
+**Version:** 0.1.27 | **Status:** PROPOSED; M0–M2 TLC-CHECKED WITHIN FINITE BOUNDS; M3 MODEL DRAFTED / TLC VALIDATION PENDING; RUNTIME NOT EXECUTED; M4–M7 NOT AUTHORED  
 **Date:** 2026-11-28  
 **Review basis:** G09-A21, G09-A22, G09-A20, G09-A7, ADR-001 and ADR-002  
 **Authority:** Advisory design; no owner decision, candidate, gate or execution permission is approved.
@@ -344,3 +344,6 @@ Documentation consistency note: after removing the helper flag from executable M
 
 
 **Version 0.1.26 review note — M3 scalar request abstraction:** The M3 model now represents the single pending request as scalar state rather than per-worker request maps, with an explicit RequestLockCoherence invariant. W0/W1 remain distinct worker processes for local claim-generation/token/clock state and share the same authenticated principal. The CompetingReclaim transition preserves the stale-request/new-generation interleaving. This is a state-space optimization with no intended protocol-policy change; exact-head TLC validation is pending.
+
+
+**Version 0.1.27 review note — M3 oracle completeness:** The M3 review removed a state-changing transition that was outside the accepted-mutation history. The competing CLAIMED→PROCESSING action now requires a current authorized claimant and records the mutation in the cumulative history; protected mutations also accumulate rather than replacing the prior event. Terminal/ready WorkItem states must not retain an active owner, token or lease, and completion clears those fields without resetting generation. The M3 model remains draft until baseline and all eleven negative controls complete on the exact head.
