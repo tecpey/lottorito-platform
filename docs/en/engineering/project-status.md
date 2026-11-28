@@ -1,6 +1,6 @@
 # Verified Project Status and Continuation Point
 
-**Document ID:** LOT-OPS-001 | **Version:** 2.0.17 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-28
+**Document ID:** LOT-OPS-001 | **Version:** 2.0.18 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-28
 
 ## Verified repository state
 - Repository: tecpey/lottorito-platform; default branch main; public visibility by owner decision.
@@ -329,3 +329,6 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 
 
 - M3 accepted-mutation history records now include a bounded monotonic sequence so identical-valued events remain distinct. This is an abstract-model identity, not a production identifier. Exact-head TLC is still pending.
+
+
+- M3 no longer includes the unrecorded administrative OperatorQuarantine action. Worker Park remains guarded and recorded; administrative quarantine is deferred to its operator/recovery model. TLC must re-run on the resulting exact head.
