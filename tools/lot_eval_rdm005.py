@@ -132,7 +132,7 @@ def ids(text: str, pattern: str) -> set[str]:
 
 def heading_exists(text: str, section_number: str) -> bool:
     # Avoid f-string brace interpolation changing the regex quantifier.
-    pattern = r"^\\s*#{2,3}\\s+" + re.escape(section_number) + r"(?:\\s|\\.|$)"
+    pattern = r"^\s*#{2,3}\s+" + re.escape(section_number) + r"(?:\s|\.|$)"
     return bool(re.search(pattern, text, re.M))
 
 
@@ -143,7 +143,7 @@ def source_clauses_by_rule(catalogue_text: str) -> dict[str, set[str]]:
             continue
         cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
         if len(cells) >= 3:
-            result[cells[0]] = set(re.findall(r"§\\s*([0-9]+(?:\\.[0-9]+)*)", cells[2]))
+            result[cells[0]] = set(re.findall(r"§\s*([0-9]+(?:\.[0-9]+)*)", cells[2]))
     return result
 
 
@@ -214,7 +214,7 @@ def run() -> dict:
     fa_section = "۱۷.۱۰.۳".translate(fa_digits)
     check(heading_exists("### ۱۷.۱۰.۳ عنوان", fa_section),
           "heading parser: Persian numeral section failed", failures)
-    check(ids("LOT-EVAL-AVT-001 AVT-01", r"\\bAVT-\\d{2}\\b") == {"AVT-01"},
+    check(ids("LOT-EVAL-AVT-001 AVT-01", r"\bAVT-\d{2}\b") == {"AVT-01"},
           "identifier parser: AVT-001 prefix false positive", failures)
 
     # Every rule must have a real parent clause and an explicit coverage state.
