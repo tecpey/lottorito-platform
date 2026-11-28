@@ -17,7 +17,7 @@ Mutations == {"none", "prelock_time", "worker_clock", "stale_generation",
               "guard_mutates"}
 
 ASSUME
-    /\ Workers = {"W0", "W1"}
+    /\ Cardinality(Workers) = 2
     /\ LeaseDuration = 2
     /\ Mutation \in Mutations
 
