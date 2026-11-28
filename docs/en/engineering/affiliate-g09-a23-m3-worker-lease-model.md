@@ -1,8 +1,8 @@
 # G09-A23 M3 — Worker Lease & Claim Generation Model
 
 **Document ID:** LOT-AFFILIATE-G09-A23-M3  
-**Version:** 0.1.8  
-**Status:** MODEL DRAFT — TLC validation pending; independent review and candidate refinement not performed  
+**Version:** 0.1.9  
+**Status:** MODEL DRAFT — corrected model awaiting exact-head TLC validation; independent review and candidate refinement not performed  
 **Parent:** [A23 formal protocol model/test strategy](affiliate-g09-a23-formal-protocol-model-test-strategy.md)  
 **Normative proposal:** [ADR-001 — WorkItem Claim, Lease and Fencing](adr-001-workitem-claim-lease-fencing.md)  
 **Traceability:** [A7 47-case traceability](affiliate-g09-a7-47-case-traceability.md), A4-DUR-05, A8-DUR-05a/b/c, A11-WRK-01
@@ -17,7 +17,7 @@ The durable WorkItem state is authoritative. Queue delivery is only a wake-up hi
 
 1. **Worker process identity is distinct from authenticated principal identity.** W0 and W1 intentionally share the same abstract authenticated principal (worker-service). This prevents a false proof in which stale work is rejected only because the process identity differs. Generation and token must independently fence an older process that resumes under the same service principal.
 2. **Claim generation is per immutable WorkItem.** A successful initial claim or reclaim advances it exactly once. Heartbeat/renewal, processing, completion, retry and park do not advance it. The finite model uses generations 0..2 only as exploration bounds, not as a production representation or exhaustion policy.
-3. **The claim token is an opaque generation-bound symbol.** TLC models binding and mismatch, not cryptographic entropy, secrecy, token transport or credential theft. A token is not treated as a bearer credential by itself.
+3. **The claim token is an opaque symbol from a distinct finite token domain; its value is not derived from or numerically equated to claim generation.** TLC models binding and mismatch, not cryptographic entropy, secrecy, token transport or credential theft. A token is not treated as a bearer credential by itself.
 4. **Persistence time is distinct from worker-local time.** Each worker has a nondeterministically changeable clock offset in {-1, 0, +1} relative to persistence time. This explores bounded slow/fast clock observations without claiming a quantitative drift bound. The request also captures a pre-lock validity snapshot; neither local observation is authoritative in the baseline. A single scalar request context represents at most one pending worker request for this WorkItem at a time; a separate atomic competing-reclaim transition represents another claimant winning while the old request waits. This preserves the critical interleaving without modeling an unbounded request queue.
 5. **The serialization point and guard are separate model steps.** A request captures its expected state/generation/token/lifecycle and pre-lock observation, waits, acquires the serialization point, then evaluates the guard against current durable state and persistence time. Time may advance while waiting or while the serialization point is held. The guard and protected mutation are one atomic linearization step.
 6. **A lease expiry is not a state transition.** It makes a CLAIMED item eligible for reclaim. The model also treats PROCESSING as a lease-bearing state that becomes reclaimable after expiry. This is a deliberate refinement beyond ADR-001's current wording (which names READY and expired CLAIMED); the owner and independent reviewers must reconcile this state-machine gap before ADR approval. Before a new generation is committed, an old worker must still be rejected if its lease is expired at the post-serialization guard. If an old worker validly linearizes before expiry while holding the serialization point, its mutation is ordered before any later reclaim.
@@ -62,13 +62,13 @@ The failed guard changes zero protected rows. A worker-local clock check, pre-lo
 |---|---|
 | TypeOK | All abstract variables remain within declared finite domains |
 | RequestLockCoherence | Idle/waiting/locked request state, request worker and lock owner remain coherent |
-| SingleClaimOwner | Active CLAIMED/PROCESSING items retain the current principal and generation-bound token; READY/COMPLETED/FAILED/QUARANTINED items retain no owner, token or lease |
+| SingleClaimOwner | Active CLAIMED/PROCESSING items retain the current principal and active opaque token; READY/COMPLETED/FAILED/QUARANTINED items retain no owner, token or lease |
 | HeartbeatDoesNotAdvanceGeneration | Heartbeat/renewal never advances claim generation |
 | EveryAcceptedMutationWasAuthorized | Every accepted history entry matches owner, generation, token, lifecycle, expected state, tenant, installation, post-lock time and unexpired lease |
 | GuardFailureHasZeroMutation | A failed guard does not change the protected mutation count |
 | LeaseNeverRenewedAfterExpiry | No accepted heartbeat occurs at or after expiry |
 | GenerationHighWaterNeverRegresses | Current generation equals the durable abstract high-water mark |
-| ClaimAdvancesExactlyOnce | Every successful claim event advances by exactly one |
+| ClaimAdvancesExactlyOnce | Every successful claim event advances by exactly one |\n| ClaimEventWellFormed | Every claim/reclaim event records a valid generation step, principal, token change, lease interval, prior state and tenant/installation binding |\n| ClaimTokenNeverReused | Distinct claim generations do not reuse an issued token in the bounded model |\n| ClaimTokenIsLatest | The active durable token is the token recorded for the current claim generation |
 | NewClaimHasCurrentOwnerAndToken | A claimed/processing WorkItem has the current principal and generation-bound token |
 
 The cumulative history oracle retains every accepted protected mutation and every modeled competing authorized mutation (within the finite mutation budget). It records request-start time, lock-acquisition time and the persistence-time observation at the guard. The required ordering is request start ≤ lock acquisition ≤ guard observation. The authoritative expiry decision is made at the last point.
@@ -81,8 +81,8 @@ The runner deliberately injects one defect per TLC configuration:
 |---|---|---|
 | prelock_time | Uses pre-lock observation after an arbitrary lock wait | EveryAcceptedMutationWasAuthorized |
 | worker_clock | Uses a lagging/leading worker clock as authority | EveryAcceptedMutationWasAuthorized |
-| stale_generation | Omits both generation and token binding checks | EveryAcceptedMutationWasAuthorized |
-| wrong_token | Accepts a mismatched claim token | EveryAcceptedMutationWasAuthorized |
+| stale_generation | Omits only generation binding; the request carries a stale generation with the current token | EveryAcceptedMutationWasAuthorized |
+| wrong_token | Omits only token binding; the request carries the current generation with an invalid opaque token | EveryAcceptedMutationWasAuthorized |
 | wrong_tenant | Omits immutable tenant binding | EveryAcceptedMutationWasAuthorized |
 | wrong_installation | Omits immutable installation binding | EveryAcceptedMutationWasAuthorized |
 | stale_lifecycle | Omits lifecycle-version guard | EveryAcceptedMutationWasAuthorized |
@@ -143,3 +143,15 @@ The pending request context is represented as scalar state rather than per-worke
 
 
 **Version 0.1.8 review note — scope discipline:** The unrecorded administrative `OperatorQuarantine` transition was removed from M3. Worker-initiated Park remains the modeled path to QUARANTINED and is covered by the protected-mutation guard/history. Administrative quarantine policy belongs in the relevant operator/recovery model and must not silently bypass M3's worker mutation oracle.
+
+
+**Version 0.1.9 hostile review and correction record — exact-head evidence**
+
+- The previous exact-head run, GitHub Actions run #87 (46179279712) on PR head 97ce124972c3ae5f010bda2857ed1517b9d96650, was **CANCELLED** by the 20-minute job timeout while the baseline case was still running. No baseline completion, state count, depth, mutant result or counterexample is established by that run.
+- The pinned TLA+ Tools v1.7.4 / TLC 2.19 JAR passed its SHA-256 check (936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88). The previous model file SHA-256 was 838ac00aba8b5f299bff30b9a76bffc4dc58c993c3d5d2f685bdab49982beb6a.
+- The cancelled run preserved artifact ID 15277697910, digest sha256:0b49bb2efbc9f66cad02c9ee50850d3523ad0a38cc806780a26751cd94d7c0db, size 817,711,585 bytes (1,795 files). The artifact included TLC metadata directories because they were inside the uploaded output directory; this was an evidence-packaging defect and did not itself establish the cause of TLC runtime.
+- The hostile source review found that the prior model numerically equated claim token and generation, and the stale-generation mutant disabled both generation and token checks. The correction gives tokens a separate opaque symbolic domain, injects a stale-generation/current-token request for the generation mutant, and injects a current-generation/invalid-token request for the token mutant.
+- Claim/reclaim history now records prior/new generation and token, worker/principal, persistence time, old/new lease expiry, lifecycle version, prior state, tenant, installation and claim/reclaim kind. New invariants check event well-formedness, token non-reuse and consistency of the active token with the latest claim event.
+- The protected-transition and competing-authorized-transition paths now share the same primitive guard predicates, reducing semantic drift between the two authorization paths.
+- The runner keeps TLC fingerprint metadata outside the uploaded evidence directory. The workflow timeout was increased to 45 minutes as a bounded diagnostic allowance; this is not a claim that the model is tractable or that TLC completed.
+- The corrected model and all 12 TLC configurations are awaiting a fresh exact-head workflow run. Until that run completes with baseline exhaustion and the expected individual mutant counterexamples, M3 remains **NOT ACCEPTED**. No M4 start, runtime/candidate approval, independent assurance, merge or deployment is implied.
