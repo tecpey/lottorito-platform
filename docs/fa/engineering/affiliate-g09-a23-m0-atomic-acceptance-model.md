@@ -2,7 +2,7 @@
 
 **شناسه:** LOT-AFFILIATE-G09-A23-M0-001  
 **نسخه:** ۰.۱.۰  
-**وضعیت:** مدل اولیه پیشنهادی؛ اجرای TLC و بازبینی مستقل انجام نشده است  
+**وضعیت:** مدل محدود اجراشده با TLC؛ بازبینی مستقل و Refinement به Candidate انجام نشده است  
 **مدل:** `formal/G09M0AtomicAcceptance.tla`  
 **پیکربندی مبنا:** `formal/G09M0AtomicAcceptance.cfg`  
 **مبنای هنجاری:** ADR-002 §§۲، ۴، ۵، ۶ و ۷؛ A22 §۵؛ A23 §§۳، ۴، ۵ و ۷
@@ -80,9 +80,18 @@ M0 فعلاً Liveness/Fairness را ادعا یا بررسی نمی‌کند. `
 | `G09M0MutantDuplicatePair.cfg` | جفت دوم برای همان Identity ساخته شود | AtMostOneReceipt / AtMostOneWorkItem |
 | `G09M0MutantEarlyAck.cfg` | Ack موفق پیش از Commit صادر شود | AcceptedAckSoundness |
 
-این‌ها **انتظار طراحی** هستند، نه نتیجه اجراشده. تا اجرای TLC، Counterexample واقعی و تأیید حساسیت Oracle ثبت نشده است.
+نتایج زیر در Run شماره ۶، روی Head دقیق `975bfe23062de06d8358f0fa9475d8b7e3ebde54` مشاهده شدند:
 
-## ۶. Toolchain Pin و اجرای بازتولیدپذیر
+| پیکربندی | نتیجه واقعی TLC | جست‌وجوی ثبت‌شده |
+|---|---|---|
+| Baseline | بدون نقض Invariant؛ State-space کامل شد | ۸۷ Generated، ۵۲ Distinct، صفر در Queue، عمق ۷ |
+| Partial Commit | نقض `PairAtomicity` در عمق ۳ | ۷ Generated، ۷ Distinct؛ پس از Counterexample متوقف شد |
+| Duplicate Pair | نقض `AtMostOneReceipt` در عمق ۵ | ۳۴ Generated، ۲۴ Distinct؛ پس از Counterexample متوقف شد |
+| Early Ack | نقض `AcceptedAckSoundness` در عمق ۳ | ۷ Generated، ۷ Distinct؛ پس از Counterexample متوقف شد |
+
+هر سه Negative Control دقیقاً Oracle پیش‌بینی‌شده را فعال کردند. شمارش Mutantها State-space کامل نیست؛ TLC پس از یافتن Counterexample متوقف شد.
+
+## ۶. Toolchain Pin و شواهد اجرای واقعی
 
 Toolchain مبنای این مدل روی نسخه پایدار **TLA+ Tools v1.7.4 (TLC 2.19)** ثابت شده است؛ Java 11 یا جدیدتر لازم است. نسخه 1.8.0 که در زمان این بازبینی به‌صورت Pre-release/rolling منتشر شده، فعلاً وارد خط مبنا نمی‌شود. Hash مورد انتظار JAR:
 
@@ -105,7 +114,21 @@ TLC_OUT_DIR=/tmp/g09-m0-results \
 bash scripts/formal/run_g09_m0.sh
 ```
 
-Runner نسخه Java، Hash JAR، خروجی کامل هر Run و Metadata هر State Store را نگه می‌دارد. یک Worker، Seed ثابت و Metadata Directory مستقل برای هر پیکربندی استفاده می‌شود. Baseline باید با خروجی موفق TLC تمام شود؛ سه Mutant باید دقیقاً Invariant پیش‌بینی‌شده را نقض کنند. Exit Code غیرمنتظره، پیام متفاوت، Parser Error یا نبود Counterexample مورد انتظار، شکست Gate است.
+Runner نسخه Java، Hash JAR، SHA-256 مدل و Configها، خروجی کامل هر Run و Metadata هر State Store را نگه می‌دارد. یک Worker، Seed ثابت و Metadata Directory مستقل برای هر پیکربندی استفاده می‌شود.
+
+**Evidence اجراشده:** [GitHub Actions — G09 M0 Formal Model Run #6](https://github.com/tecpey/lottorito-platform/actions/runs/46169921103). نتیجه Job: SUCCESS. Toolchain: Eclipse Temurin OpenJDK 17.0.21.1؛ TLA+ Tools v1.7.4 / TLC 2.19؛ SHA-256 JAR همان Hash Pin بالا. Artifact: `g09-a23-m0-tlc-46169921103-1`؛ Digest: `sha256:d39180206a5051dad3904decef6b839c7bb855e5c457536ce0d7d1813cceac65`.
+
+SHA-256 ماژول و پیکربندی‌های اجراشده:
+
+| فایل | SHA-256 |
+|---|---|
+| `G09M0AtomicAcceptance.tla` | `4740bc9d76c10ec76bf0bca00b5f829963b99365fef0a600a0886a2fe9cf2e6f` |
+| `G09M0AtomicAcceptance.cfg` | `ad63aa16b0604b4c82d5f6c5e3435ccb5e6cd51a3fca994e303a3cd263132f7e` |
+| `G09M0MutantPartialCommit.cfg` | `3fab9ce1b8d3b1b1bcdad8690d28db2e9254171cc5b962526df7ba82fefc7767` |
+| `G09M0MutantDuplicatePair.cfg` | `7e24f26489c8e02c7798a298101d73efd71e49ca61ea383d5885aded91224f3a` |
+| `G09M0MutantEarlyAck.cfg` | `975ecfbf8e14541311ada32e812413a918c6f8d759bfa3c9024258e7b5e39938` |
+
+این نتیجه فقط به همین Module/Config/Toolchain/Bounds تعلق دارد؛ به پیاده‌سازی، Candidate، Durability یا رفتار Production تعمیم داده نمی‌شود.
 
 برای هر Run باید Hash ماژول و Config، خروجی کامل TLC، State/Transition count، زمان/منابع، وضعیت پایان و Counterexampleها ذخیره شوند. اگر Mutant کشف نشود، Oracle یا Mutation باید بازبینی شود؛ آن را PASS تلقی نکنید.
 
@@ -126,12 +149,12 @@ M0 موارد زیر را اثبات نمی‌کند و عمداً به مدل�
 ## ۸. وضعیت شواهد
 
 - فایل TLA+ و Configها ثبت شده‌اند؛
-- TLC در این گام اجرا نشده است؛
-- Syntax/Type Check رسمی هنوز انجام نشده است؛
-- State-space count و Counterexample واقعی وجود ندارد؛
-- Negative Controlها فقط طراحی شده‌اند؛
+- TLC اجرا شده و Baseline با ۵۲ State متمایز و سه Negative Control با Counterexampleهای مورد انتظار خاتمه یافته‌اند؛
+- Parser/Syntax و بررسی Invariantها در همین TLC Run انجام شده‌اند؛ Type-system مستقلی جداگانه اجرا نشده است؛
+- Counterexampleهای Mutant در لاگ Run ثبت شده‌اند؛
+- بازبینی مستقل مدل و بررسی Refinement هنوز انجام نشده است؛
 - هیچ Candidate یا Runtime ارزیابی نشده است؛
 - ADR-002 همچنان PROPOSED و A11-F01..F08 باز می‌مانند؛
 - A20-01..A20-28 همچنان NOT RUN هستند.
 
-**نتیجه:** M0 یک مدل اولیه قابل اجرا برای بررسی پذیرش اتمیک تعریف می‌کند؛ تا اجرای TLC و سپس Refinement به رفتار Candidate، هیچ ادعای صحت پیاده‌سازی یا Qualification مجاز نیست.
+**نتیجه:** M0 در Bounds محدود خود با TLC بررسی شده و سه Mutation عمدی را با Oracleهای پیش‌بینی‌شده کشف کرده است. این نتیجه یک شاهد معتبر برای همان مدل محدود است، نه اثبات کلی پروتکل و نه Qualification پیاده‌سازی. بازبینی مستقل و Refinement به Candidate همچنان الزامی است.
