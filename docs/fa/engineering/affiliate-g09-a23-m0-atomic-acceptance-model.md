@@ -82,18 +82,32 @@ M0 فعلاً Liveness/Fairness را ادعا یا بررسی نمی‌کند. `
 
 این‌ها **انتظار طراحی** هستند، نه نتیجه اجراشده. تا اجرای TLC، Counterexample واقعی و تأیید حساسیت Oracle ثبت نشده است.
 
-## ۶. اجرای بازتولیدپذیر آینده
+## ۶. Toolchain Pin و اجرای بازتولیدپذیر
 
-با نسخه ثابت و ثبت‌شده `tla2tools.jar`، از ریشه Repository:
+Toolchain مبنای این مدل روی نسخه پایدار **TLA+ Tools v1.7.4 (TLC 2.19)** ثابت شده است؛ Java 11 یا جدیدتر لازم است. نسخه 1.8.0 که در زمان این بازبینی به‌صورت Pre-release/rolling منتشر شده، فعلاً وارد خط مبنا نمی‌شود. Hash مورد انتظار JAR:
+
+`SHA-256: 936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88`
+
+دریافت و اعتبارسنجی ابزار:
 
 ```bash
-java -cp tla2tools.jar tlc2.TLC -config formal/G09M0AtomicAcceptance.cfg formal/G09M0AtomicAcceptance.tla
-java -cp tla2tools.jar tlc2.TLC -config formal/G09M0MutantPartialCommit.cfg formal/G09M0AtomicAcceptance.tla
-java -cp tla2tools.jar tlc2.TLC -config formal/G09M0MutantDuplicatePair.cfg formal/G09M0AtomicAcceptance.tla
-java -cp tla2tools.jar tlc2.TLC -config formal/G09M0MutantEarlyAck.cfg formal/G09M0AtomicAcceptance.tla
+curl --fail --location --silent --show-error \
+  https://github.com/tlaplus/tlaplus/releases/download/v1.7.4/tla2tools.jar \
+  --output /tmp/tla2tools.jar
+echo "936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88  /tmp/tla2tools.jar" | sha256sum --check -
 ```
 
-برای هر Run باید نسخه و Hash ابزار، Hash ماژول و Config، خروجی کامل TLC، State/Transition count، زمان/منابع، وضعیت پایان و Counterexampleها ذخیره شوند. اجرای مبنا باید تمام Invariantهای فعال را بدون نقض طی کند؛ هر Mutant باید Invariant پیش‌بینی‌شده را نقض کند. اگر Mutant کشف نشود، Oracle یا Mutation باید بازبینی شود؛ آن را PASS تلقی نکنید.
+اجرای چهار پیکربندی از ریشه Repository:
+
+```bash
+TLA2TOOLS_JAR=/tmp/tla2tools.jar \
+TLC_OUT_DIR=/tmp/g09-m0-results \
+bash scripts/formal/run_g09_m0.sh
+```
+
+Runner نسخه Java، Hash JAR، خروجی کامل هر Run و Metadata هر State Store را نگه می‌دارد. یک Worker، Seed ثابت و Metadata Directory مستقل برای هر پیکربندی استفاده می‌شود. Baseline باید با خروجی موفق TLC تمام شود؛ سه Mutant باید دقیقاً Invariant پیش‌بینی‌شده را نقض کنند. Exit Code غیرمنتظره، پیام متفاوت، Parser Error یا نبود Counterexample مورد انتظار، شکست Gate است.
+
+برای هر Run باید Hash ماژول و Config، خروجی کامل TLC، State/Transition count، زمان/منابع، وضعیت پایان و Counterexampleها ذخیره شوند. اگر Mutant کشف نشود، Oracle یا Mutation باید بازبینی شود؛ آن را PASS تلقی نکنید.
 
 ## ۷. محدودیت‌ها و مسیر توسعه
 
