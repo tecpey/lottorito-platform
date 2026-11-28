@@ -1,6 +1,6 @@
 # مستندات فارسی Lottorito
 
-**شناسه سند:** LOT-DOC-INDEX-FA-001 | **نسخه:** ۲.۴.۰ | **وضعیت:** فهرست مرجع و در حال نگهداری
+**شناسه سند:** LOT-DOC-INDEX-FA-001 | **نسخه:** ۲.۴.۱ | **وضعیت:** فهرست مرجع و در حال نگهداری
 
 این پوشه مرجع رسمی مستندات فارسی Lottorito است. مستندات انگلیسی در docs/en/ نیز به همان اندازه معتبرند.
 
@@ -153,8 +153,10 @@ Validator ساختاری در [scripts/check_docs.py](../../scripts/check_docs.p
 
 ## مدل رسمی و راهبرد آزمون خصمانه G09-A23
 
-- [G09-A23 — مدل رسمی پروتکل و راهبرد آزمون خصمانه](engineering/affiliate-g09-a23-formal-protocol-model-test-strategy.md) — LOT-AFFILIATE-G09-A23-001؛ قرارداد State Machine، Safety/Liveness، Bounds مدل محدود، راهبرد TLA+/TLC، History/Concurrency، Fault Injection، Schedule Generation و نگاشت به A20/A7. برای M0 تا M2 شواهد TLC محدود وجود دارد؛ Baseline مدل M2 تعداد ۱۳۶ State متمایز را کامل کرد و هر شش Negative Control (از جمله Rollback شدن Fence در Sink) روی Head دقیق 66fa19c72418dd5376c179514d57970f5d29fe5f Counterexample مورد انتظار را تولید کردند؛ M3–M7 تألیف نشده‌اند. هیچ Candidate/Runtime تصویب نشده است.
+- [G09-A23 — مدل رسمی پروتکل و راهبرد آزمون خصمانه](engineering/affiliate-g09-a23-formal-protocol-model-test-strategy.md) — LOT-AFFILIATE-G09-A23-001؛ قرارداد State Machine، Safety/Liveness، Bounds مدل محدود، راهبرد TLA+/TLC، History/Concurrency، Fault Injection، Schedule Generation و نگاشت به A20/A7. برای M0 تا M2 شواهد TLC محدود وجود دارد؛ Baseline مدل M2 تعداد ۱۳۶ State متمایز را کامل کرد و هر شش Negative Control (از جمله Rollback شدن Fence در Sink) روی Head دقیق 66fa19c72418dd5376c179514d57970f5d29fe5f Counterexample مورد انتظار را تولید کردند؛ مدل M3 با یازده Config برای Negative Control تألیف شده و اعتبارسنجی TLC در انتظار است؛ M4 تا M7 تألیف نشده‌اند. هیچ Candidate/Runtime تصویب نشده است.
 
-- [G09-A23-M2 — مدل Epoch اختیار و حصارگذاری Writer](engineering/affiliate-g09-a23-m2-authority-epoch-model.md) — LOT-AFFILIATE-G09-A23-M2-001؛ State machine مستقل از Candidate با دو Writer/دو Epoch، Barrier حصارگذاری Sink، Partition، بازگشت Primary قدیمی، Quarantine در Restore، یک Baseline و پنج Negative Control؛ با TLC در Bounds محدود بررسی شده؛ Baseline با ۱۳۶ State متمایز و شش Negative Control مورد انتظار روی Head دقیق 96fc7a4830af452f214921ac9af68d7ae4265f33؛ بازبینی مستقل و Candidate refinement در انتظار است.
+- [G09-A23-M2 — مدل Epoch اختیار و حصارگذاری Writer](engineering/affiliate-g09-a23-m2-authority-epoch-model.md) — LOT-AFFILIATE-G09-A23-M2-001؛ State machine مستقل از Candidate با دو Writer/دو Epoch، Barrier حصارگذاری Sink، Partition، بازگشت Primary قدیمی، Quarantine در Restore، یک Baseline و شش Negative Control؛ با TLC در Bounds محدود بررسی شده؛ Baseline با ۱۳۶ State متمایز و شش Negative Control مورد انتظار روی Head دقیق 96fc7a4830af452f214921ac9af68d7ae4265f33؛ بازبینی مستقل و Candidate refinement در انتظار است.
 
 - بازاجرای تأییدی روی PR head دقیق `66fa19c72418dd5376c179514d57970f5d29fe5f`: M0، M1، M2، Documentation Governance و Affiliate Contract Validation همگی موفق شدند (Runهای `46175558972`، `46175558925`، `46175559007`، `46175559048` و `46175554261`). Baseline مدل M2 برابر ۱۳۶ State متمایز و شش Negative Control مورد انتظار داشت. شواهد محدودند؛ هیچ Candidate/Runtime تصویب نشده است.
+
+- [G09-A23-M3 — مدل Lease و نسل Claim در Worker](engineering/affiliate-g09-a23-m3-worker-lease-model.md) — LOT-AFFILIATE-G09-A23-M3؛ مدل TLA+ مستقل از Candidate برای Claim/Reclaim، انقضای Lease، Fencing پس از Lock، Clock Skew Worker، Guardهای State/Token/Lifecycle و شکست با صفر Mutation. یازده Negative Control تألیف شده‌اند؛ اعتبارسنجی TLC در انتظار است. معنای Reclaim در PROCESSING در ADR-001 همچنان تصمیم باز مالک/بازبین است.
