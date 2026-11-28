@@ -163,3 +163,9 @@ Read repository-root [AGENTS.md](../../AGENTS.md). Use a working branch and pull
 
 
 - [LOT-EVAL-RDM-003A — Normative Rule Catalogue & Decision Tables](governance/enterprise-evaluation-decision-rule-catalogue-001.md) — author-led decomposition of LOT-EVAL-001 into atomic rules, five decision tables, unresolved-ambiguity register and rule-to-test traceability; independent oracle review and owner disposition pending.
+
+
+## LOT-EVAL-RDM-003B — blind independent oracle review
+
+- [LOT-EVAL-RDM-003B — Blind Independent Oracle Review Packet](governance/enterprise-evaluation-blind-oracle-review-003b.md) — reviewer-facing blind protocol, frozen source/blob manifest, 18 atomic rule IDs, 21 input-only adversarial cases and 35 decision-table input rows; no author-derived expected outputs disclosed. Status: PENDING_EXTERNAL_REVIEW.
+- [LOT-EVAL-RDM-003B — Independent Oracle Worksheet](governance/enterprise-evaluation-blind-oracle-worksheet-003b.md) — blank reviewer declaration, per-case oracle record, 74-entry coverage register and freeze/reconciliation record. Do not expose RDM-003A or RDM-001 outputs until the independent worksheet is frozen.
