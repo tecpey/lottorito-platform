@@ -134,3 +134,8 @@ Read repository-root [AGENTS.md](../../AGENTS.md). Use a working branch and pull
 
 
 - [Affiliate G09-A17 — Independent Review Reconciliation & Evidence-Gap Closure](engineering/affiliate-g09-a17-review-reconciliation.md) — records the GitHub APPROVED event against its exact reviewed SHA, distinguishes platform approval from A12 substantive-review evidence, and keeps A11 findings/owner decisions open pending a supplemental disposition.
+
+
+## Enterprise evaluation governance
+
+- [Enterprise Product, Technology and Supplier Evaluation Standard](governance/enterprise-evaluation-standard.md) — LOT-EVAL-001; proposed parent standard for decision framing, risk tiers, evidence, non-compensable gates, fair scoring, total cost, controlled pilots, approvals, monitoring and exit. It governs and points to specialist provider/technology/domain profiles; it selects no candidate.
