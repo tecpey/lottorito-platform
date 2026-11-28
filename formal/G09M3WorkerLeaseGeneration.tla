@@ -184,9 +184,11 @@ ReleaseSerializationPoint(w) ==
        blockerAvailable, mutationCount, lastGuardFailed, lastFailureMutationCount,
        acceptedHistory, claimEvents>>
 
+(* Processing remains lease-bearing; an expired processing claim is reclaimable.
+   This is an explicit model refinement requiring ADR-001 owner reconciliation. *)
 ClaimEligible ==
     \/ workState = "ready"
-    \/ (workState = "claimed" /\ persistenceTime >= leaseExpiry)
+    \/ (workState \in {"claimed", "processing"} /\ persistenceTime >= leaseExpiry)
 
 ApplyClaim(w) ==
     /\ w \in Workers
