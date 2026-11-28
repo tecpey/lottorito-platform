@@ -101,6 +101,8 @@ Both have arithmetic product 5. The matrix must preserve the distinct pairs and 
 **Fixture B:** A preference criterion is genuinely irrelevant to the decision unit; the accountable control owner approves N/A before scoring.  
 **Expected:** retain original weights; disclose excluded criterion, reason, approver, effective weights and denominator; normalize all candidates on the same remaining criteria. Original applicable weights must total 100 percentage points before exclusion.
 
+**Deterministic arithmetic fixture:** original weights are C1=40, C2=30, C3=30. C3 is approved N/A before scoring for every candidate. Candidate Alpha has C1=5 and C2=2; Candidate Beta has C1=3 and C2=4. Effective denominator is 70 for both. Expected normalized scores are Alpha = 100×(5×40+2×30)/(5×70) = **74.29**; Beta = 100×(3×40+4×30)/(5×70) = **68.57**. The same excluded criterion and denominator must apply to both. This fixture tests arithmetic and uniformity only; it does not set a universal acceptance threshold.
+
 **Fixture C:** A mandatory security or legal gate is marked N/A to remove a blocker.  
 **Expected:** invalid. A scoring N/A cannot waive a mandatory gate or law. A materially different decision unit requires explicit re-framing and separate authorization, not relabeling.
 
@@ -180,7 +182,12 @@ This is **specification-mutation analysis**, not a claim that a software mutatio
 - NIST IR 8286A Rev. 1, *Identifying and Estimating Cybersecurity Risk for Enterprise Risk Management* (final, Dec 2025): https://csrc.nist.gov/pubs/ir/8286/a/r1/final
 - NIST IR 8286 Rev. 1, *Integrating Cybersecurity and Enterprise Risk Management* (Dec 2025): https://nvlpubs.nist.gov/nistpubs/ir/2025/NIST.IR.8286r1.pdf
 - ISO/IEC/IEEE 29119-1:2022, *Software testing — General concepts*: https://www.iso.org/obp/ui?_escaped_fragment_=iso%3Astd%3Aiso-iec-ieee%3A29119%3A-1%3Aed-2%3Av1%3Aen
-- ISO/IEC/IEEE 29119-4:2021, *Software testing — Test techniques*: consult the official ISO catalogue for the current edition and licensing terms.
+- ISO/IEC/IEEE 29119-4:2021, *Software testing — Test techniques*: https://www.iso.org/standard/79430.html
+- ISTQB Glossary, *Test oracle*: https://glossary.istqb.org/en_US/term/test-oracle
+- Barr, Harman, McMinn, Shahbaz and Yoo, *The Oracle Problem in Software Testing: A Survey*, IEEE Transactions on Software Engineering 41(5), 2015, DOI: https://doi.org/10.1109/TSE.2014.2372785
+- Schuler and Zeller, *(Un-)Covering Equivalent Mutants*, IEEE ICST 2010, DOI: https://doi.org/10.1109/ICST.2010.30
+- Papadakis et al., *Practical Mutation Testing at Scale: A view from Google*, IEEE Transactions on Software Engineering 48(10), 2022, DOI: https://doi.org/10.1109/TSE.2021.3107634
+- Papadakis et al., *A systematic literature review of techniques and metrics to reduce the cost of mutation testing*, Journal of Systems and Software, 2020: https://www.sciencedirect.com/science/article/pii/S0164121219301554
 
 ## 8. Change history
 
