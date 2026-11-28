@@ -1,7 +1,7 @@
 # G09-A23-M2 — مدل Epoch اختیار و حصارگذاری Writer
 
 **شناسه سند:** LOT-AFFILIATE-G09-A23-M2-001  
-**نسخه:** ۰.۱.۰ | **وضعیت:** تألیف شده؛ اجرای TLC برای Baseline و Negative Controlها در انتظار است  
+**نسخه:** ۰.۱.۱ | **وضعیت:** با TLC در Bounds محدود بررسی شده؛ بازبینی مستقل و Refinement به Candidate در انتظار است  
 **مدل:** formal/G09M2AuthorityEpochFencing.tla  
 **Baseline:** formal/G09M2AuthorityEpochFencing.cfg  
 **Runner:** scripts/formal/run_g09_m2.sh  
@@ -108,7 +108,22 @@ Runner پیش از اجرا، SHA-256 فایل JAR ثابت‌شده TLA+ Tools 
 
 GitHub Actions همان JAR ثابت‌شده را دریافت و Hash آن را بررسی می‌کند، Runner را اجرا می‌کند و Logهای TLC و State metadata را به‌عنوان Artifact نگه می‌دارد. الگوی Runner با M0/M1 یکسان است.
 
-**وضعیت اجرا:** هنگام تألیف این سند هنوز اجرا نشده است. هیچ State count، Counterexample، PASS یا تکمیل Model Checking ادعا نمی‌شود. فقط اجرای Actions روی Head دقیق و بررسی Artifact نگه‌داری‌شده می‌تواند نتیجه این Revision را اثبات کند.
+**شواهد اجرای واقعی:** [GitHub Actions Run 46175199855 — G09 M2 Authority Epoch Fencing](https://github.com/tecpey/lottorito-platform/actions/runs/46175199855) — SUCCESS روی PR head برابر با 5432f768d1f6e40c1fb59b4764a6c80d6e3a378f؛ Runner مربوط به pull_request روی Synthetic merge commit با شناسه کوتاه 491ac36 اجرا شد (Base: f032065f47fe85de2aabf8d47565a57af6af3ae9). Toolchain: TLA+ Tools v1.7.4 / TLC 2.19، SHA-256 فایل JAR برابر با 936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88؛ Eclipse Temurin OpenJDK 17.0.21.1؛ Ubuntu 24.04؛ BFS، یک Worker، Seed=1، fp=0 و Heap برابر 1 GiB.
+
+| Case | نتیجه TLC | Generated / Distinct | Depth |
+|---|---|---:|---:|
+| Baseline | بدون نقض Invariant؛ کل State graph محدود بررسی شد | 515 / 136 | 12 |
+| Early promotion | نقض NewWriterActivationRequiresFence | 31 / 22 | 4 |
+| Partition-only promotion | نقض NewWriterActivationRequiresFence | 76 / 39 | 5 |
+| Stale old-writer mutation | نقض EveryWriteWasFencedAndAuthorized | 72 / 37 | 5 |
+| Restore authority rollback | نقض RootEpochAtLeastHighWater | 27 / 18 | 3 |
+| Forged current-epoch token | نقض AuthenticatedCurrentTokenHasAuthorityOwner | 31 / 22 | 4 |
+
+شمارش State در Mutantها ناقص است؛ TLC پس از نخستین Counterexample مورد انتظار متوقف شده و این اعداد State-space کامل نیستند. Runner فقط به این دلیل موفق شد که Baseline بدون خطا کامل شد و هر پنج Mutant دقیقاً Invariant نام‌برده را نقض کردند.
+
+**Manifest بازتولیدپذیری:** SHA-256 ماژول M2 برابر با a40e2e4779e0deba1ebe11d3aefcb39038dadc9b1cf8200f5a5c0a0aa1ac6503 است. SHA-256 پیکربندی Baseline برابر با c88f19bc769f3b29d4b3a76cb4de75962aa9e67bb98a9436610781d61df8c568 است. Artifact اجرا: [g09-a23-m2-tlc-46175199855-1](https://github.com/tecpey/lottorito-platform/actions/runs/46175199855/artifacts/15275063423)، SHA-256 آرشیو: f877902d92800ba27df1cc1ab0473e16e5d2dde3ae37c97f3b06b75e49eb37e7.
+
+این شواهد فقط به همین ماژول/Config/Toolchain و Bounds متناهی تعلق دارد. این نتیجه اثبات نامتناهی، بازبینی مستقل، Candidate refinement یا راستی‌آزمایی Runtime/Production نیست.
 
 ## ۸. محدودیت‌ها و تعهدهای Refinement
 
@@ -131,4 +146,4 @@ GitHub Actions همان JAR ثابت‌شده را دریافت و Hash آن ر�
 
 ## ۱۰. تعیین وضعیت
 
-M2 به‌صورت مدل State-machine متناهی و مستقل از Candidate، با یک Baseline و پنج Negative Control هدفمند Oracle تألیف شده است. وضعیت آن تا پایان CI روی Head دقیق و بررسی Logها **AUTHORED / TLC PENDING** باقی می‌ماند. این سند A21 Findings را نمی‌بندد، ADR-002 را تصویب نمی‌کند، هیچ A4 Gate را برآورده نمی‌کند، R2 را مجاز نمی‌کند، Candidate مربوط به Persistence را انتخاب نمی‌کند و مجوز Runtime/Partner/Finance/Production، Merge یا Deploy صادر نمی‌کند.
+M2 یک مدل State-machine متناهی و مستقل از Candidate با یک Baseline و پنج Negative Control هدفمند Oracle است. Baseline محدود TLC و هر پنج Negative Control روی Head دقیق ثبت‌شده با موفقیت اجرا شدند. وضعیت **TLC-CHECKED WITHIN FINITE BOUNDS** است؛ بازبینی مستقل و Candidate refinement همچنان در انتظارند. این سند A21 Findings را نمی‌بندد، ADR-002 را تصویب نمی‌کند، هیچ A4 Gate را برآورده نمی‌کند، R2 را مجاز نمی‌کند، Candidate مربوط به Persistence را انتخاب نمی‌کند و مجوز Runtime/Partner/Finance/Production، Merge یا Deploy صادر نمی‌کند.
