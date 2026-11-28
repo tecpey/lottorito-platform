@@ -1,7 +1,7 @@
 # G09-A23-M1 — مدل داوری Commit نامعلوم و Retry هم‌زمان
 
 **شناسه سند:** LOT-AFFILIATE-G09-A23-M1-001  
-**نسخه:** ۰.۱.۵  
+**نسخه:** ۰.۱.۶  
 **وضعیت:** مدل محدود با TLC اجرا شده؛ بازبینی مستقل و Refinement به Candidate همچنان باز  
 **مدل:** `formal/G09M1UnknownCommitArbitration.tla`  
 **پیکربندی‌ها:** دو Baseline و سه Negative Control در `formal/G09M1*.cfg`  
@@ -85,35 +85,27 @@ M1 ادعای Liveness یا زمان محدود برای Resolve کردن UNKNOW
 
 دو Baseline جداگانه همان Fingerprint و Fingerprint متفاوت را بررسی می‌کنند. Negative Controlها باید Oracle را حساس نشان دهند؛ اگر نقض مورد انتظار کشف نشود، M1 قابل‌قبول نیست.
 
-## ۸. شواهد اجرای بازتولیدپذیر
+## ۸. آخرین شواهد اجرای قابل‌بازتولید
 
-**GitHub Actions Run:** `46171267569` — [G09 M1 Unknown Commit Arbitration](https://github.com/tecpey/lottorito-platform/actions/runs/46171267569)  
-**PR head:** `0feb174268beb68ed3e557e6012edf5b325158cf`  
-**Synthetic merge commit اجراشده:** `0ceabe3` (merge of PR head into base `f032065f47fe85de2aabf8d47565a57af6af3ae9`)  
-**Artifact:** [g09-a23-m1-tlc-46172096370-1](https://github.com/tecpey/lottorito-platform/actions/runs/46171482180/artifacts/15273862792)  
-**Artifact ZIP SHA-256:** `3a7f263ff1d23b4d09a60cf996f54b17f81aa7c4aff2a0c0a46dcc7fb2422e11`
+**آخرین PR head:** `a6831c4be9bb904efe0ccf7809e5179db26661a1`
+**Synthetic merge commit اجراشده:** `fe42d58c84388ba3f2bc3b4b503e5eb220f1d52b` (Base: `f032065f47fe85de2aabf8d47565a57af6af3ae9`)
+**GitHub Actions Run:** [46172262017 — G09 M1 Unknown Commit Arbitration](https://github.com/tecpey/lottorito-platform/actions/runs/46172262017) — PASS
+**Artifact:** [g09-a23-m1-tlc-46172262017-1](https://github.com/tecpey/lottorito-platform/actions/runs/46172262017/artifacts/15273828706)
+**Artifact ZIP SHA-256:** `97a5d879f4ddfba8ddb133c25232ce3ec34985c4d1609bd9c7c990eaadc29fd7`
 
-محیط اجرا: TLA+ Tools v1.7.4، TLC 2.19 revision `5a47802`، JAR SHA-256 `936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88`، Eclipse Temurin Java `17.0.21.1+2`، Ubuntu 24.04.5. TLC با BFS، یک Worker، Seed=1، fp=0 و Heap=1GiB اجرا شد. GitHub Actions با Checkout v7.0.1 و Upload Artifact v7.0.2، هر دو Pinشده به Commit SHA تغییرناپذیر، اجرا شد؛ Persisted Checkout Credentials غیرفعال بود.
+Toolchain: TLA+ Tools v1.7.4 / TLC 2.19؛ JAR SHA-256 `936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88`؛ Eclipse Temurin 17.0.21.1؛ Ubuntu 24.04؛ BFS، یک Worker، Seed=1، fp=0، Heap برابر 1 GiB. Checkout و Upload Artifact با SHA ثابت و `persist-credentials: false`.
 
-| Case | TLC result | Generated / distinct states | Depth | Oracle |
-|---|---|---:|---:|---|
-| Baseline — same fingerprint | No violation | 25 / 19 | 8 | PASS |
-| Baseline — different fingerprint | No violation | 25 / 19 | 8 | PASS |
-| Unsafe retry after absent read | `NoRetryCommitWhileOriginalInflight` violated | 18 / 14 | 6 | Detected |
-| Unsafe retry then original commit | `ReceiptCardinality` violated | 25 / 19 | 7 | Detected |
-| Premature conflict | `ConflictSoundness` violated | 14 / 12 | 5 | Detected |
+| Case | نتیجه TLC | Generated / Distinct | Depth |
+|---|---|---:|---:|
+| Baseline — fingerprint یکسان | بدون نقض | 25 / 19 | 8 |
+| Baseline — fingerprint متفاوت | بدون نقض | 25 / 19 | 8 |
+| Unsafe retry در زمان in-flight | `NoRetryCommitWhileOriginalInflight` نقض شد | 18 / 14 | 6 |
+| Double commit | `ReceiptCardinality` نقض شد | 25 / 19 | 7 |
+| Premature conflict | `ConflictSoundness` نقض شد | 14 / 12 | 5 |
 
-SHA-256 فایل‌ها از `sha256-manifest.txt`:
-- TLA module: `3d907df7188727827ad1044a044ac2c1e923a83b56718f2a173885457a193dfb`
-- Same-fingerprint baseline: `55f3ae8c53a52a80093ead4e4c92ab215eeb239152b120c93c90f7ff92fcf759`
-- Different-fingerprint baseline: `483768f621c08d7820282d62a08734843b205f5f0cd14de0036e36abf05dea0e`
-- Unsafe-retry mutant: `9d283981fcc2fadd31aa94b23c37a20a4223c7a1ec1bb5a7b900599073238cef`
-- Double-commit mutant: `8c142ad04ad4b5d27a206528ddd89d6da6c54b0b9419012bbf8fcbea8233f31c`
-- Premature-conflict mutant: `b983511dfb7f1b22113714cb513499f12cfd49ee40a1052a0edd7e036f28eb37`
+Documentation Governance Run [46172262013](https://github.com/tecpey/lottorito-platform/actions/runs/46172262013) و Affiliate Contract Validation Run [46172262015](https://github.com/tecpey/lottorito-platform/actions/runs/46172262015) نیز روی همین Head موفق شدند.
 
-Artifact شامل دو Baseline log، سه Counterexample واقعی و Manifest هش‌هاست. Parser و semantic processing در TLC انجام شده‌اند؛ Type-system مستقل اجرا نشده است.
-
-**مرز تفسیر:** Run به PR head فوق منتسب است، اما Runner روی synthetic merge commit اجرا شده؛ این نتیجه صحت مدل محدود در ترکیب PR و Base را نشان می‌دهد، نه صحت Candidate/Runtime.
+**مرز تفسیر:** این شواهد فقط مدل محدود M1 و فرض‌هایش را بررسی می‌کند؛ رفتار واقعی دیتابیس، تعریف definitive abort در Adapter، Candidate refinement، Jepsen/History checking، Simulation و Runtime هنوز اثبات نشده‌اند. Run روی Synthetic merge انجام شده است.
 
 ## ۹. محدودیت‌ها و گام بعدی
 
