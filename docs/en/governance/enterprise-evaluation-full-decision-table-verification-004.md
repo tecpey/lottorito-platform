@@ -3,7 +3,7 @@
 **Document ID:** LOT-EVAL-RDM-004-001  
 **Version:** 0.1.0  
 **Date:** 2026-11-28  
-**Status:** IMPLEMENTED — exact-head CI verification pending for this revision  
+**Status:** VERIFIED FOR THE BOUNDED FIXTURE SET — exact-head CI run #1214 succeeded  
 **Parent:** LOT-EVAL-001 v0.3.0  
 **Inputs:** LOT-EVAL-RDM-003A decision-rule catalogue v0.1.0; LOT-EVAL-RDM-001; LOT-EVAL-AVT-001 v0.2.0
 
@@ -96,6 +96,8 @@ The exact-head GitHub Actions Documentation Governance run must execute:
 
 The recorded CI run must match the exact PR head SHA. A prior-head run does not verify a later source change. Results must report row checks, metamorphic checks and targeted mutations separately.
 
+**Exact-head verification:** Documentation Governance run #1214 (run ID `46129536308`) succeeded on PR head `18af39533ce3a01091d0e60f3ed3df9c071699e9`. The workflow's RDM-004 execution step completed successfully: 36/36 decision-table row checks, 6/6 metamorphic checks and 4/4 targeted mutation checks passed. The same run also completed the bilingual documentation validator and the existing RDM-001 harness successfully. This evidence applies only to the exact source and fixtures at that SHA.
+
 **Acceptance rule:** all 36 row checks, all six registered metamorphic checks and all four targeted mutation checks must pass on the exact head. A passing run is bounded verification of these fixtures only; it is not proof of full matrix-property coverage, standard adequacy, independent assurance, owner approval or operational readiness.
 
 ## 8. Governance and authorization
@@ -104,4 +106,4 @@ LOT-EVAL-001 remains PROPOSED. REV-01…REV-14 owner dispositions remain PENDING
 
 ## 9. Change history
 
-- 0.1.0 (2026-11-28): first executable row-level verification for 36 decision-table rows, six metamorphic checks and four targeted specification mutations. Exact-head CI verification is recorded separately and must be refreshed after any source change.
+- 0.1.0 (2026-11-28): first executable row-level verification for 36 decision-table rows, six metamorphic checks and four targeted specification mutations; bounded exact-head CI run #1214 succeeded on `18af39533ce3a01091d0e60f3ed3df9c071699e9`. Any later source change requires a new exact-head run.
