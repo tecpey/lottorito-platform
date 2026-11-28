@@ -86,10 +86,21 @@ def evidence_decision(*, sufficient: bool, demonstrated: str = "meets",
 def weighted_score(ratings: dict[str, int], weights: dict[str, int]) -> float:
     if not weights or set(ratings) != set(weights) or sum(weights.values()) <= 0:
         raise ValueError("candidate criteria must match the same non-empty effective rubric")
-    if any(v not in range(0, 6) for v in ratings.values()):
+    if any(not isinstance(v, int) or isinstance(v, bool) or v not in range(0, 6)
+           for v in ratings.values()):
         raise ValueError("capability ratings must be integer anchors 0..5")
+    if any(not isinstance(v, int) or isinstance(v, bool) or v < 0
+           for v in weights.values()):
+        raise ValueError("weights must be non-negative integer values")
     return round(100 * sum(ratings[k] * weights[k] for k in weights)
                  / (5 * sum(weights.values())), 2)
+
+
+def score_population(candidates: dict[str, dict[str, int]],
+                     weights: dict[str, int]) -> dict[str, float]:
+    """Score each candidate independently against one frozen effective rubric."""
+    return {name: weighted_score(ratings, weights)
+            for name, ratings in candidates.items()}
 
 
 def na_decision(*, approved_before_scores: bool, gate_excluded: bool = False,
@@ -274,9 +285,10 @@ def metamorphic_tests() -> dict[str, bool]:
     # Candidate-independent, uniform N/A arithmetic: same effective denominator.
     w = {"A": 40, "B": 30, "C": 30}
     effective = {k: v for k, v in w.items() if k != "C"}
-    alpha_alone = weighted_score({"A": 5, "B": 2}, effective)
-    alpha_with_beta = weighted_score({"A": 5, "B": 2}, effective)
-    beta_with_alpha = weighted_score({"A": 3, "B": 4}, effective)
+    alpha_alone = score_population(
+        {"Alpha": {"A": 5, "B": 2}}, effective)
+    alpha_with_beta = score_population(
+        {"Alpha": {"A": 5, "B": 2}, "Beta": {"A": 3, "B": 4}}, effective)
     # A missing required risk field cannot improve completeness.
     complete = _full_risk()
     incomplete = _full_risk(acceptance_authority=None)
@@ -288,8 +300,9 @@ def metamorphic_tests() -> dict[str, bool]:
         "MT-01-tier-monotonicity": tier_base == "T1" and tier_plus == "T2",
         "MT-02-unknown-scope-no-definitive-lower-tier": tier_unknown == "UNRESOLVED",
         "MT-03-uniform-na-denominator-and-candidate-invariance": (
-            sum(effective.values()) == 70 and alpha_alone == alpha_with_beta == 74.29
-            and beta_with_alpha == 68.57),
+            sum(effective.values()) == 70
+            and alpha_alone["Alpha"] == alpha_with_beta["Alpha"] == 74.29
+            and alpha_with_beta["Beta"] == 68.57),
         "MT-04-missing-risk-field-non-improving": complete == "COMPLETE_FOR_REVIEW" and incomplete == "INCOMPLETE",
         "MT-05-partial-evidence-no-parent-score": partial == ("PARTIAL", None),
         "MT-06-experiment-does-not-grant-production": later == "BLOCK",
