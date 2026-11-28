@@ -1,7 +1,7 @@
 # G09-A23-M0 — Formal Atomic Acceptance Model
 
 **Document ID:** LOT-AFFILIATE-G09-A23-M0-001  
-**Version:** 0.1.5  
+**Version:** 0.1.6  
 **Status:** TLC-executed bounded model; independent review and candidate refinement not performed  
 **Model:** `formal/G09M0AtomicAcceptance.tla`  
 **Baseline configuration:** `formal/G09M0AtomicAcceptance.cfg`  
@@ -148,11 +148,11 @@ In particular, M0 does not assume that observing no record proves the original t
 
 ## 8. Reproducible execution evidence
 
-**PR-associated run:** GitHub Actions Run `46171925729` — [G09 M0 Formal Model](https://github.com/tecpey/lottorito-platform/actions/runs/46171482274)  
-**PR head:** `21f7da014af5c3b106f13663ed41a332a62eda18`  
-**Synthetic merge commit checked by the pull_request runner:** `d0f9c729626feed6d691dd9d02d3263744e3f05d` (merge of the head above into base `f032065f47fe85de2aabf8d47565a57af6af3ae9`)  
-**Artifact:** [g09-a23-m0-tlc-46171925729-1](https://github.com/tecpey/lottorito-platform/actions/runs/46171482274/artifacts/15273603593)  
-**Artifact ZIP SHA-256:** `81acf846cc19a2ec27391075254b1d5917410a19b76edff9a7e734b3ba81a14f`
+**PR-associated run:** GitHub Actions Run `46172096434` — [G09 M0 Formal Model](https://github.com/tecpey/lottorito-platform/actions/runs/46171482274)  
+**PR head:** `0feb174268beb68ed3e557e6012edf5b325158cf`  
+**Synthetic merge commit checked by the pull_request runner:** `62a1470a557ed22251315f9b1d8572b2792101a7` (merge of the head above into base `f032065f47fe85de2aabf8d47565a57af6af3ae9`)  
+**Artifact:** [g09-a23-m0-tlc-46172096434-1](https://github.com/tecpey/lottorito-platform/actions/runs/46171482274/artifacts/15274440322)  
+**Artifact ZIP SHA-256:** `5ca154ba0f89fc986fd99917b70b2b592420bad0568857bf36052343cdd51e1d`
 
 Toolchain and environment:
 - TLA+ Tools release: `v1.7.4`
