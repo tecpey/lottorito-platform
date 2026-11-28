@@ -1,7 +1,7 @@
 # G09-A23-M1 — مدل داوری Commit نامعلوم و Retry هم‌زمان
 
 **شناسه سند:** LOT-AFFILIATE-G09-A23-M1-001  
-**نسخه:** ۰.۱.۲  
+**نسخه:** ۰.۱.۳  
 **وضعیت:** مدل محدود با TLC اجرا شده؛ بازبینی مستقل و Refinement به Candidate همچنان باز  
 **مدل:** `formal/G09M1UnknownCommitArbitration.tla`  
 **پیکربندی‌ها:** دو Baseline و سه Negative Control در `formal/G09M1*.cfg`  
@@ -88,10 +88,10 @@ M1 ادعای Liveness یا زمان محدود برای Resolve کردن UNKNOW
 ## ۸. شواهد اجرای بازتولیدپذیر
 
 **GitHub Actions Run:** `46171267569` — [G09 M1 Unknown Commit Arbitration](https://github.com/tecpey/lottorito-platform/actions/runs/46171267569)  
-**PR head:** `10d143bfb8eaff1892a74e3277f4dcac1f024337`  
+**PR head:** `19f8e995596bd4fca96b3bea0a211ddb916b1725`  
 **Synthetic merge commit اجراشده:** `0ceabe3` (merge of PR head into base `f032065f47fe85de2aabf8d47565a57af6af3ae9`)  
-**Artifact:** [g09-a23-m1-tlc-46171482180-1](https://github.com/tecpey/lottorito-platform/actions/runs/46171482180/artifacts/15273920318)  
-**Artifact ZIP SHA-256:** `eb38518421706ed88d03c8bf77339d1747036c5aff6811e6d666ef62b7b78ea9`
+**Artifact:** [g09-a23-m1-tlc-46171747725-1](https://github.com/tecpey/lottorito-platform/actions/runs/46171482180/artifacts/15274170741)  
+**Artifact ZIP SHA-256:** `1dd501ff70955f77ceb4ab9225a55285504ce6d0de905fc205f1fd67544f368e`
 
 محیط اجرا: TLA+ Tools v1.7.4، TLC 2.19 revision `5a47802`، JAR SHA-256 `936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88`، Eclipse Temurin Java `17.0.21.1+2`، Ubuntu 24.04.5. TLC با BFS، یک Worker، Seed=1، fp=0 و Heap=1GiB اجرا شد. GitHub Actions با Checkout v7.0.1 و Upload Artifact v7.0.2، هر دو Pinشده به Commit SHA تغییرناپذیر، اجرا شد؛ Persisted Checkout Credentials غیرفعال بود.
 
@@ -104,7 +104,7 @@ M1 ادعای Liveness یا زمان محدود برای Resolve کردن UNKNOW
 | Premature conflict | `ConflictSoundness` violated | 14 / 12 | 5 | Detected |
 
 SHA-256 فایل‌ها از `sha256-manifest.txt`:
-- TLA module: `298a817d6fe324d0b0c913c5be5532a2f443d7d0905d52164d1e35c5a7fad397`
+- TLA module: `3d907df7188727827ad1044a044ac2c1e923a83b56718f2a173885457a193dfb`
 - Same-fingerprint baseline: `55f3ae8c53a52a80093ead4e4c92ab215eeb239152b120c93c90f7ff92fcf759`
 - Different-fingerprint baseline: `483768f621c08d7820282d62a08734843b205f5f0cd14de0036e36abf05dea0e`
 - Unsafe-retry mutant: `9d283981fcc2fadd31aa94b23c37a20a4223c7a1ec1bb5a7b900599073238cef`
