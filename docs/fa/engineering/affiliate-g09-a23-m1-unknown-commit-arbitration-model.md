@@ -1,7 +1,7 @@
 # G09-A23-M1 — مدل داوری Commit نامعلوم و Retry هم‌زمان
 
 **شناسه سند:** LOT-AFFILIATE-G09-A23-M1-001  
-**نسخه:** ۰.۱.۴  
+**نسخه:** ۰.۱.۵  
 **وضعیت:** مدل محدود با TLC اجرا شده؛ بازبینی مستقل و Refinement به Candidate همچنان باز  
 **مدل:** `formal/G09M1UnknownCommitArbitration.tla`  
 **پیکربندی‌ها:** دو Baseline و سه Negative Control در `formal/G09M1*.cfg`  
@@ -88,10 +88,10 @@ M1 ادعای Liveness یا زمان محدود برای Resolve کردن UNKNOW
 ## ۸. شواهد اجرای بازتولیدپذیر
 
 **GitHub Actions Run:** `46171267569` — [G09 M1 Unknown Commit Arbitration](https://github.com/tecpey/lottorito-platform/actions/runs/46171267569)  
-**PR head:** `21f7da014af5c3b106f13663ed41a332a62eda18`  
+**PR head:** `0feb174268beb68ed3e557e6012edf5b325158cf`  
 **Synthetic merge commit اجراشده:** `0ceabe3` (merge of PR head into base `f032065f47fe85de2aabf8d47565a57af6af3ae9`)  
-**Artifact:** [g09-a23-m1-tlc-46171925718-1](https://github.com/tecpey/lottorito-platform/actions/runs/46171482180/artifacts/15274021323)  
-**Artifact ZIP SHA-256:** `6eb2c7618dc154f989cf775ae651b3bae4e0db2b65fcd481a8a2212924ea31e0`
+**Artifact:** [g09-a23-m1-tlc-46172096370-1](https://github.com/tecpey/lottorito-platform/actions/runs/46171482180/artifacts/15273862792)  
+**Artifact ZIP SHA-256:** `3a7f263ff1d23b4d09a60cf996f54b17f81aa7c4aff2a0c0a46dcc7fb2422e11`
 
 محیط اجرا: TLA+ Tools v1.7.4، TLC 2.19 revision `5a47802`، JAR SHA-256 `936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88`، Eclipse Temurin Java `17.0.21.1+2`، Ubuntu 24.04.5. TLC با BFS، یک Worker، Seed=1، fp=0 و Heap=1GiB اجرا شد. GitHub Actions با Checkout v7.0.1 و Upload Artifact v7.0.2، هر دو Pinشده به Commit SHA تغییرناپذیر، اجرا شد؛ Persisted Checkout Credentials غیرفعال بود.
 
