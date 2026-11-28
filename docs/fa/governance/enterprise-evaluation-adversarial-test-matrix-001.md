@@ -101,6 +101,8 @@
 **Fixture B:** یک معیار ترجیحی واقعاً برای واحد تصمیم نامرتبط است و مالک کنترل پیش از امتیازدهی N/A را تصویب می‌کند.  
 **انتظار:** وزن اصلی حفظ شود؛ معیار حذف‌شده، دلیل، تصویب‌کننده، وزن مؤثر و مخرج آشکار باشند؛ همه نامزدها با همان معیارهای باقی‌مانده نرمال شوند. مجموع وزن‌های قابل‌اعمال پیش از حذف باید ۱۰۰ واحد درصد باشد.
 
+**Fixture حسابی قطعی:** وزن‌های اولیه C1=40، C2=30 و C3=30 هستند. C3 پیش از امتیازدهی برای همه نامزدها N/A تصویب می‌شود. نامزد Alpha در C1 امتیاز ۵ و در C2 امتیاز ۲ دارد؛ نامزد Beta در C1 امتیاز ۳ و در C2 امتیاز ۴ دارد. مخرج مؤثر برای هر دو ۷۰ است. امتیازهای نرمال‌شده مورد انتظار: Alpha = ۱۰۰×(۵×۴۰+۲×۳۰)/(۵×۷۰) = **۷۴٫۲۹**؛ Beta = ۱۰۰×(۳×۴۰+۴×۳۰)/(۵×۷۰) = **۶۸٫۵۷**. معیار حذف‌شده و مخرج یکسان باید برای هر دو اعمال شود. این Fixture فقط حساب و یکنواختی را می‌آزماید و آستانه پذیرش عمومی تعیین نمی‌کند.
+
 **Fixture C:** Gate امنیتی یا حقوقی اجباری برای حذف مانع N/A می‌شود.  
 **انتظار:** نامعتبر است. N/A در امتیازدهی نمی‌تواند Gate اجباری یا قانون را معاف کند. واحد تصمیم به‌طور ماهوی متفاوت نیازمند بازتعریف صریح و مجوز جداگانه است، نه تغییر برچسب.
 
@@ -180,7 +182,12 @@
 - NIST IR 8286A Rev.1، *Identifying and Estimating Cybersecurity Risk for Enterprise Risk Management* (نسخه نهایی، دسامبر ۲۰۲۵): https://csrc.nist.gov/pubs/ir/8286/a/r1/final
 - NIST IR 8286 Rev.1، *Integrating Cybersecurity and Enterprise Risk Management* (دسامبر ۲۰۲۵): https://nvlpubs.nist.gov/nistpubs/ir/2025/NIST.IR.8286r1.pdf
 - ISO/IEC/IEEE 29119-1:2022، *Software testing — General concepts*: https://www.iso.org/obp/ui?_escaped_fragment_=iso%3Astd%3Aiso-iec-ieee%3A29119%3A-1%3Aed-2%3Av1%3Aen
-- ISO/IEC/IEEE 29119-4:2021، *Software testing — Test techniques*: برای نسخه جاری و شرایط مجوز، کاتالوگ رسمی ISO بررسی شود.
+- ISO/IEC/IEEE 29119-4:2021، *Software testing — Test techniques*: https://www.iso.org/standard/79430.html
+- واژه‌نامه ISTQB، مدخل *Test oracle*: https://glossary.istqb.org/en_US/term/test-oracle
+- Barr، Harman، McMinn، Shahbaz و Yoo، *The Oracle Problem in Software Testing: A Survey*، نشریه IEEE Transactions on Software Engineering، جلد ۴۱، شماره ۵، ۲۰۱۵، DOI: https://doi.org/10.1109/TSE.2014.2372785
+- Schuler و Zeller، *(Un-)Covering Equivalent Mutants*، کنفرانس IEEE ICST 2010، DOI: https://doi.org/10.1109/ICST.2010.30
+- Papadakis و همکاران، *Practical Mutation Testing at Scale: A view from Google*، نشریه IEEE Transactions on Software Engineering، جلد ۴۸، شماره ۱۰، ۲۰۲۲، DOI: https://doi.org/10.1109/TSE.2021.3107634
+- Papadakis و همکاران، *A systematic literature review of techniques and metrics to reduce the cost of mutation testing*، نشریه Journal of Systems and Software، ۲۰۲۰: https://www.sciencedirect.com/science/article/pii/S0164121219301554
 
 ## ۸. تاریخچه تغییر
 
