@@ -1,6 +1,6 @@
 # Lottorito — English Documentation
 
-**Document ID:** LOT-DOC-INDEX-EN-001 | **Version:** 2.4.0 | **Status:** Maintained index
+**Document ID:** LOT-DOC-INDEX-EN-001 | **Version:** 2.4.1 | **Status:** Maintained index
 
 This directory is the authoritative English documentation space for Lottorito. The Persian documentation under docs/fa/ is equally authoritative.
 
@@ -154,8 +154,10 @@ Read repository-root [AGENTS.md](../../AGENTS.md). Use a working branch and pull
 
 ## G09-A23 Formal Model & Adversarial Test Strategy
 
-- [G09-A23 — Formal Protocol Model & Adversarial Test Strategy](engineering/affiliate-g09-a23-formal-protocol-model-test-strategy.md) — LOT-AFFILIATE-G09-A23-001; state-machine contract, safety/liveness, finite-model bounds, TLA+/TLC strategy, history/concurrency testing, fault injection, schedule generation and A20/A7 mapping. M0–M2 have bounded TLC evidence; M2 baseline exhausted 136 distinct states and all six negative controls (including sink-fence rollback) produced expected counterexamples on exact head 66fa19c72418dd5376c179514d57970f5d29fe5f; M3–M7 are not authored. No candidate/runtime approval.
+- [G09-A23 — Formal Protocol Model & Adversarial Test Strategy](engineering/affiliate-g09-a23-formal-protocol-model-test-strategy.md) — LOT-AFFILIATE-G09-A23-001; state-machine contract, safety/liveness, finite-model bounds, TLA+/TLC strategy, history/concurrency testing, fault injection, schedule generation and A20/A7 mapping. M0–M2 have bounded TLC evidence; M2 baseline exhausted 136 distinct states and all six negative controls (including sink-fence rollback) produced expected counterexamples on exact head 66fa19c72418dd5376c179514d57970f5d29fe5f; M3 model drafted with eleven negative-control configs; TLC validation pending. M4–M7 are not authored. No candidate/runtime approval.
 
-- [G09-A23-M2 — Authority Epoch and Writer Fencing Model](engineering/affiliate-g09-a23-m2-authority-epoch-model.md) — LOT-AFFILIATE-G09-A23-M2-001; candidate-neutral two-writer/two-epoch state machine, sink fencing barrier, partition, old-primary return, restore quarantine, one baseline and five negative controls; TLC-checked within finite bounds; baseline 136 distinct states and six expected negative controls on exact head 66fa19c72418dd5376c179514d57970f5d29fe5f; independent review and candidate refinement pending.
+- [G09-A23-M2 — Authority Epoch and Writer Fencing Model](engineering/affiliate-g09-a23-m2-authority-epoch-model.md) — LOT-AFFILIATE-G09-A23-M2-001; candidate-neutral two-writer/two-epoch state machine, sink fencing barrier, partition, old-primary return, restore quarantine, one baseline and six negative controls; TLC-checked within finite bounds; baseline 136 distinct states and six expected negative controls on exact head 66fa19c72418dd5376c179514d57970f5d29fe5f; independent review and candidate refinement pending.
 
 - Exact-head revalidation on PR head `66fa19c72418dd5376c179514d57970f5d29fe5f`: M0, M1, M2, Documentation Governance and Affiliate Contract Validation all passed (Runs `46175558972`, `46175558925`, `46175559007`, `46175559048`, `46175554261`). M2 baseline: 136 distinct states; six expected negative controls. Evidence remains bounded; no candidate/runtime approval.
+
+- [G09-A23-M3 — Worker Lease and Claim Generation Model](engineering/affiliate-g09-a23-m3-worker-lease-model.md) — LOT-AFFILIATE-G09-A23-M3; candidate-neutral TLA+ model for claim/reclaim, lease expiry, post-lock fencing, worker-clock skew, state/token/lifecycle guards and zero-mutation failure. Eleven negative controls are authored; TLC validation is pending. ADR-001's PROCESSING reclaim semantics remain an explicit owner/reviewer decision.
