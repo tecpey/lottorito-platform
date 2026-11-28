@@ -1,7 +1,7 @@
 # G09-A23 — Formal Protocol Model & Adversarial Test Strategy
 
 **Document ID:** LOT-AFFILIATE-G09-A23-001  
-**Version:** 0.1.3 | **Status:** PROPOSED, MODEL/TEST DESIGN ONLY — NO MODEL CHECKER OR RUNTIME EXECUTION  
+**Version:** 0.1.4 | **Status:** PROPOSED; M0 AUTHORED, TLC AND RUNTIME NOT EXECUTED  
 **Date:** 2026-11-28  
 **Review basis:** G09-A21, G09-A22, G09-A20, G09-A7, ADR-001 and ADR-002  
 **Authority:** Advisory design; no owner decision, candidate, gate or execution permission is approved.
@@ -294,7 +294,7 @@ These sources support methods and failure classes; they do not prove Lottorito c
 
 
 - A23: proposed model contract and test strategy; **NOT EXECUTED**.
-- TLA+ model/TLC: not yet authored/executed/reviewed.
+- M0 TLA+ module and four configurations are authored; TLC and syntax/type checking have not run. M1–M7 are not yet authored.
 - Jepsen/history checker/simulation: not executed.
 - A20-01..A20-28: DESIGNED / NOT RUN.
 - A21-F03/F04/F05/F11/F12: receive a design-level method/model response; remain OPEN pending model completion, review and evidence.
@@ -303,5 +303,7 @@ These sources support methods and failure classes; they do not prove Lottorito c
 - ADR-002: PROPOSED; A11-F01..F08 OPEN; A12 not performed.
 - R0 BLOCKED; R1 research; R2 not started; R3 not authorized; A4 not approved.
 - No candidate, runtime, executable harness, partner, financial operation, production, merge or deployment is authorized.
+
+**Version 0.1.4 review note:** the first TLA+ module for M0, one baseline configuration and three negative-control configurations were authored; a bilingual M0 model note was added. This is authorship only: TLC, parser/type checking, state-space exploration and counterexample review have not run. M1–M7, the history checker and simulation remain unstarted.
 
 **Conclusion:** A23 upgrades modeling and testing from a list of scenarios to a traceable engineering method; it does not claim real execution or system acceptance.
