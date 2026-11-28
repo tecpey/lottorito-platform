@@ -1,7 +1,7 @@
 # G09-A23-M2 — Authority Epoch and Writer Fencing Model
 
 **Document ID:** LOT-AFFILIATE-G09-A23-M2-001  
-**Version:** 0.1.1 | **Status:** TLC-CHECKED WITHIN FINITE BOUNDS; INDEPENDENT REVIEW AND CANDIDATE REFINEMENT PENDING  
+**Version:** 0.1.2 | **Status:** TLC-CHECKED WITHIN FINITE BOUNDS; INDEPENDENT REVIEW AND CANDIDATE REFINEMENT PENDING  
 **Model:** formal/G09M2AuthorityEpochFencing.tla  
 **Baseline:** formal/G09M2AuthorityEpochFencing.cfg  
 **Runner:** scripts/formal/run_g09_m2.sh  
@@ -78,6 +78,7 @@ TryAuthorizedWrite is enabled only when the writer is online/reachable/active, i
 | TypeOK | All state remains within the declared finite domains |
 | SingleWriter | At most one writer is active |
 | RootEpochAtLeastHighWater | Restored data cannot lower the authority root below its non-rollback high-water mark |
+| SinkFenceEpochAtLeastHighWater | Restore cannot lower the mutation sink's enforced fence epoch below its own non-rollback high-water mark |
 | NewWriterActivationRequiresFence | W1 cannot be active before verified sink fencing at the current epoch |
 | RestoreQuarantine | During restore/reconciliation, no writer is active and the phase remains quarantined/fenced |
 | EveryWriteWasFencedAndAuthorized | Each accepted write records equal writer/token/authority/sink epochs and the authority owner |
@@ -94,6 +95,7 @@ These are safety checks. M2 makes no liveness claim and does not add fairness as
 | G09M2MutantPartitionPromotion.cfg | Treat partition as sufficient promotion authority | NewWriterActivationRequiresFence |
 | G09M2MutantStaleWrite.cfg | Let W0 write after sink epoch advances | EveryWriteWasFencedAndAuthorized |
 | G09M2MutantRestoreRollback.cfg | Roll authority epoch back to restored stale data | RootEpochAtLeastHighWater |
+| G09M2MutantSinkFenceRollback.cfg | Roll the mutation sink's fence epoch back during restore | SinkFenceEpochAtLeastHighWater |
 | G09M2MutantForgedEpoch.cfg | Give non-owner W0 an authenticated-looking current-epoch token | AuthenticatedCurrentTokenHasAuthorityOwner |
 
 A mutant is accepted only if TLC reports the named invariant violation. If the baseline fails, a mutant is not considered validated. If a mutant does not trigger its expected oracle, inspect the transition and invariant; do not weaken the oracle merely to obtain green CI.
@@ -108,7 +110,7 @@ The runner verifies the pinned TLA+ Tools v1.7.4 JAR SHA-256 before executing on
 
 The GitHub Actions workflow downloads the same pinned JAR, verifies its hash, executes the runner and retains TLC logs/state metadata as an artifact. It uses the same deterministic runner pattern as M0/M1.
 
-**Executed evidence:** [GitHub Actions Run 46175199855 — G09 M2 Authority Epoch Fencing](https://github.com/tecpey/lottorito-platform/actions/runs/46175199855) — SUCCESS on PR head 5432f768d1f6e40c1fb59b4764a6c80d6e3a378f; the pull-request runner executed synthetic merge commit 491ac36 (base f032065f47fe85de2aabf8d47565a57af6af3ae9). Toolchain: TLA+ Tools v1.7.4 / TLC 2.19, JAR SHA-256 936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88; Eclipse Temurin OpenJDK 17.0.21.1; Ubuntu 24.04; BFS, one worker, seed=1, fp=0, 1 GiB heap.
+**Latest executed evidence:** [GitHub Actions Run 46175422477 — G09 M2 Authority Epoch Fencing](https://github.com/tecpey/lottorito-platform/actions/runs/46175422477) — SUCCESS on exact PR head 96fc7a4830af452f214921ac9af68d7ae4265f33; the pull-request runner executed synthetic merge commit 547cd6f (base f032065f47fe85de2aabf8d47565a57af6af3ae9). Toolchain: TLA+ Tools v1.7.4 / TLC 2.19, JAR SHA-256 936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88; Eclipse Temurin OpenJDK 17.0.21.1; Ubuntu 24.04; BFS, one worker, seed=1, fp=0, 1 GiB heap.
 
 | Case | TLC result | Generated / distinct | Depth |
 |---|---|---:|---:|
@@ -117,13 +119,14 @@ The GitHub Actions workflow downloads the same pinned JAR, verifies its hash, ex
 | Partition-only promotion | NewWriterActivationRequiresFence violated | 76 / 39 | 5 |
 | Stale old-writer mutation | EveryWriteWasFencedAndAuthorized violated | 72 / 37 | 5 |
 | Restore authority rollback | RootEpochAtLeastHighWater violated | 27 / 18 | 3 |
+| Restore sink-fence rollback | SinkFenceEpochAtLeastHighWater violated | 27 / 18 | 3 |
 | Forged current-epoch token | AuthenticatedCurrentTokenHasAuthorityOwner violated | 31 / 22 | 4 |
 
-Mutant state counts are partial explorations because TLC stopped at the first expected counterexample; they are not full state-space counts. The runner returned success only because the baseline completed without errors and all five mutants produced their named invariant violations.
+Mutant state counts are partial explorations because TLC stopped at the first expected counterexample; they are not full state-space counts. The runner returned success only because the baseline completed without errors and all six mutants produced their named invariant violations.
 
-**Reproducibility manifest:** M2 module SHA-256: a40e2e4779e0deba1ebe11d3aefcb39038dadc9b1cf8200f5a5c0a0aa1ac6503. Baseline config SHA-256: c88f19bc769f3b29d4b3a76cb4de75962aa9e67bb98a9436610781d61df8c568. The runner artifact is [g09-a23-m2-tlc-46175199855-1](https://github.com/tecpey/lottorito-platform/actions/runs/46175199855/artifacts/15275063423), artifact SHA-256: f877902d92800ba27df1cc1ab0473e16e5d2dde3ae37c97f3b06b75e49eb37e7.
+**Reproducibility manifest:** M2 module SHA-256: ad773d328db633da4789ad064633f933e5ba5870655045a033c1ac82587b4e78. Baseline config SHA-256: f3f4eda5b755e91da9c19cb1e5695a04f5ed69f16361c7d317a2bde1ee09a55a. The runner artifact is [g09-a23-m2-tlc-46175422477-1](https://github.com/tecpey/lottorito-platform/actions/runs/46175422477/artifacts/15275536520), artifact SHA-256: f289ee443e87d314d2df7d97f4908361b8aba4a9d99a9b0c1cc9d50fc133c410.
 
-This is bounded evidence for this exact module/config/toolchain and these finite bounds only. It is not an unbounded proof, independent review, candidate refinement or runtime/production verification.
+This run extends the earlier five-mutant run by independently testing rollback of the mutation sink's fencing metadata. It is the current canonical M2 evidence. The result remains bounded to this exact module/config/toolchain and finite bounds; it is not an unbounded proof, independent review, candidate refinement or runtime/production verification.
 
 ## 8. Limitations and refinement obligations
 
@@ -146,4 +149,4 @@ These sources support the design method and failure model; they do not certify t
 
 ## 10. Disposition
 
-M2 is a candidate-neutral finite-state model with one baseline and five oracle-targeted negative controls. Its bounded TLC baseline and all five expected negative controls completed successfully on the exact head recorded above. Its status is **TLC-CHECKED WITHIN FINITE BOUNDS**; independent review and candidate refinement remain pending. It does not close A21 findings, approve ADR-002, satisfy an A4 gate, authorize R2, select a persistence candidate, or authorize runtime/partner/financial/production work, merge or deployment.
+M2 is a candidate-neutral finite-state model with one baseline and six oracle-targeted negative controls. Its bounded TLC baseline and all six expected negative controls completed successfully on the latest exact head recorded above. Its status is **TLC-CHECKED WITHIN FINITE BOUNDS**; independent review and candidate refinement remain pending. It does not close A21 findings, approve ADR-002, satisfy an A4 gate, authorize R2, select a persistence candidate, or authorize runtime/partner/financial/production work, merge or deployment.
