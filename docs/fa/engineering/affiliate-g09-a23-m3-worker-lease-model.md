@@ -1,7 +1,7 @@
 # G09-A23 M3 — مدل Lease و نسل Claim در Worker
 
 **شناسه سند:** LOT-AFFILIATE-G09-A23-M3  
-**نسخه:** ۰.۱.۷  
+**نسخه:** ۰.۱.۸  
 **وضعیت:** پیش‌نویس مدل — اعتبارسنجی TLC در انتظار؛ بازبینی مستقل و Candidate refinement انجام نشده است  
 **سند مادر:** [راهبرد مدل رسمی و آزمون A23](affiliate-g09-a23-formal-protocol-model-test-strategy.md)  
 **پیشنهاد هنجاری:** [ADR-001 — پروتکل Claim، Lease و Fencing برای WorkItem](adr-001-workitem-claim-lease-fencing.md)  
@@ -146,3 +146,6 @@ Context درخواست Pending به‌صورت State اسکالر مدل شده�
 
 
 **یادداشت بازبینی نسخه ۰.۱.۷ — هویت رویداد:** مجموعه تجمعی Mutationهای پذیرفته‌شده اکنون در هر Record یک Sequence متناهی و یکنواخت افزایشی دارد. این کار مانع ادغام دو رویداد پذیرفته‌شده با مقادیر دیگر یکسان (برای نمونه Heartbeat تکراری در یک زمان انتزاعی Persistence) در یک عضو Set می‌شود. این Sequence صرفاً شناسه داخل مدل متناهی و محدود به بودجه ده Mutation است و شناسه Production محسوب نمی‌شود.
+
+
+**یادداشت بازبینی نسخه ۰.۱.۸ — انضباط Scope:** Transition مدیریتی `OperatorQuarantine` که خارج از History ثبت می‌شد از M3 حذف شد. مسیر Park آغازشده توسط Worker همچنان راه مدل‌شده برای رسیدن به QUARANTINED است و تحت Guard/History مربوط به Mutation محافظت‌شده قرار دارد. Policy مربوط به Quarantine مدیریتی باید در مدل مرتبط با Operator/Recovery بررسی شود و نباید بی‌صدا Oracle مربوط به Mutationهای Worker در M3 را دور بزند.
