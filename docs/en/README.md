@@ -150,3 +150,8 @@ Read repository-root [AGENTS.md](../../AGENTS.md). Use a working branch and pull
 ## Affiliate G09-A22 — A20 specification remediation
 
 - [Affiliate G09-A22 — A20 Specification Remediation](engineering/affiliate-g09-a22-a20-specification-remediation.md) — decision-gated identity/canonicalization, UNKNOWN-commit protocol, external receiver guarantees, retention/restore lifecycle, traceability, test-result semantics and strict synthetic-only financial boundary. Research only; no runtime authorization.
+
+
+## G09-A23 Formal Model & Adversarial Test Strategy
+
+- [G09-A23 — Formal Protocol Model & Adversarial Test Strategy](engineering/affiliate-g09-a23-formal-protocol-model-test-strategy.md) — LOT-AFFILIATE-G09-A23-001; state-machine contract, safety/liveness, finite-model bounds, TLA+/TLC strategy, history/concurrency testing, fault injection, schedule generation and A20/A7 mapping. Design only; no model checker, harness or runtime has been executed, and no candidate or authorization is approved.
