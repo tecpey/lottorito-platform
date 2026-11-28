@@ -254,6 +254,9 @@ Use the current edition and exact scope of each source; these frameworks inform 
 - OWASP SAMM — measurable software assurance practices across Governance, Design, Implementation, Verification and Operations: https://owaspsamm.org/model/
 - FinOps Framework — cost/usage allocation, forecasting, unit economics, licensing and optimization for cloud decisions: https://www.finops.org/framework/capabilities/
 - NIST CSF 2.0 — organizational cybersecurity outcomes and governance: https://www.nist.gov/cyberframework
+- NIST SP 800-30 Rev. 1 — risk assessment concepts, threat/vulnerability, likelihood, impact and response: https://csrc.nist.gov/pubs/sp/800/30/r1/final
+- ISO/IEC 42001:2023 — AI management-system requirements: https://www.iso.org/standard/42001
+- NIST AI Risk Management Framework — AI risk governance and trustworthy-AI practices; check current revision status: https://www.nist.gov/itl/ai-risk-management-framework
 
 ## 17. Adversarial hardening addendum — normative clarifications
 
