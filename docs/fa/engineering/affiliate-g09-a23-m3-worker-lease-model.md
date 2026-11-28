@@ -74,7 +74,10 @@ Mutation محافظت‌شده Worker فقط در نقطه Serialization/Lineari
 | GuardFailureHasZeroMutation | Guard ناموفق شمارنده Mutation محافظت‌شده را تغییر ندهد |
 | LeaseNeverRenewedAfterExpiry | پس از زمان انقضا هیچ Heartbeat پذیرفته نشود |
 | GenerationHighWaterNeverRegresses | Generation جاری با High-water Mark انتزاعی پایدار برابر باشد |
-| ClaimAdvancesExactlyOnce | هر رویداد Claim موفق دقیقاً یک واحد افزایش داشته باشد |\n| ClaimEventWellFormed | هر رویداد Claim/Reclaim، گام معتبر Generation، Principal، تغییر Token، بازه Lease، State قبلی و Binding مربوط به Tenant/Installation را ثبت کند |\n| ClaimTokenNeverReused | در مدل متناهی، Generationهای متفاوت Token صادرشده را دوباره استفاده نکنند |\n| ClaimTokenIsLatest | Token پایدار فعال با Token ثبت‌شده برای آخرین Generation Claim تطبیق داشته باشد |
+| ClaimAdvancesExactlyOnce | هر رویداد Claim موفق دقیقاً یک واحد افزایش داشته باشد |
+| ClaimEventWellFormed | هر رویداد Claim/Reclaim، گام معتبر Generation، Principal، تغییر Token، بازه Lease، State قبلی و Binding مربوط به Tenant/Installation را ثبت کند |
+| ClaimTokenNeverReused | در مدل متناهی، Generationهای متفاوت Token صادرشده را دوباره استفاده نکنند |
+| ClaimTokenIsLatest | Token پایدار فعال با Token ثبت‌شده برای آخرین Generation Claim تطبیق داشته باشد |
 | NewClaimHasCurrentOwnerAndToken | WorkItem در حالت Claimed/Processing دارای Principal و Token Opaque فعال باشد |
 
 Oracle تاریخچه، زمان شروع درخواست، زمان گرفتن Lock و زمان Persistence در لحظه Guard را ثبت می‌کند. ترتیب الزامی چنین است: شروع درخواست ≤ گرفتن Lock ≤ مشاهده Guard. تصمیم معتبر انقضای Lease در آخرین نقطه گرفته می‌شود.
