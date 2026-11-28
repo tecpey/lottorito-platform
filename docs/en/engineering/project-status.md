@@ -263,3 +263,12 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 - No owner decisions or candidate values were invented. OD-01..OD-12, C-01..C-16 remain OPEN; G1..G9 NOT TESTED / NOT PASSED. All A21 findings remain OPEN pending actual evidence and authorized review; A22 prose does not close them.
 - A20-01..A20-28 remain DESIGNED / NOT RUN. ADR-002 PROPOSED; A11-F01..F08 OPEN; A12 NOT PERFORMED / NOT ASSESSABLE; R0 BLOCKED; R1 research-only; R2 NOT STARTED; R3 NOT AUTHORIZED; A4 NOT APPROVED.
 - No runtime/harness, candidate selection, partner integration, financial operation, production access, merge or deployment authorized. A23 formal model/test strategy and A24 evidence/bilingual assurance remain future stages.
+
+
+### G09-A23 — Formal Model & Adversarial Test Strategy (2026-11-28)
+
+- LOT-AFFILIATE-G09-A23-001 was added in both languages. It defines an abstract state-machine contract, 13 safety properties, conditional liveness properties, M0–M7 model families, initial finite bounds, model-checking method, history checker, fault injection, schedule generation and mutation testing.
+- This is research/design only. The TLA+ model has not yet been authored/executed/reviewed; TLC, Jepsen and simulation have not run; A20-01..A20-28 remain NOT RUN.
+- A21-F03/F04/F05/F11/F12 have a design/method response only and remain open pending model and valid evidence. A21-F01/F06/F08/F13 remain for A24.
+- OD-01..OD-12, C-01..C-16 and G1..G9 remain OPEN/NOT APPROVED; ADR-002 remains PROPOSED; R0 BLOCKED, R1 research-only, R2 not started and R3 not authorized.
+- No candidate, executable runtime/harness, partner integration, financial operation, production, merge or deployment is authorized.
