@@ -153,8 +153,8 @@ Fairness قوی/ضعیف، Scheduler، نرخ ورود، ظرفیت، Retry Budg
 1. **M0 — Atomic Acceptance:** دو Caller، یک Identity، یک Receipt و یک WorkItem؛ Crash قبل/حین/بعد Commit.
 2. **M1 — UNKNOWN Arbitration:** Transaction اولیه In-flight، گم‌شدن پاسخ، Negative Read، Retry هم‌زمان و Commit/Abort دیرهنگام.
 3. **M2 — Authority Epoch:** دو Writer، دو Epoch، Partition، Promotion، بازگشت Primary قدیمی و Restore Epoch.
-4. **M3 — Worker Lease:** دو Worker، دو Generation، Expiry/Reclaim، توقف Lock و Resume Worker قدیمی.
-5. **M4 — Outbox/Consumer:** انتشار تکراری، Delay، Reorder، Broker outage، Consumer crash و Deduplication مقصد.
+4. **M3 — Worker Lease:** دو Worker، دو Generation، Expiry/Reclaim، توقف Lock، Timestamp قبل/بعد Lock، Clock Skew، انقضای Lease پیش از Reclaim و Resume Worker قدیمی.
+5. **M4 — Outbox/Consumer/Receiver:** انتشار تکراری، Delay، Reorder، Broker outage، Consumer crash، درخواست خارجی in-flight، پذیرش Receiver پس از انقضای Lease مبدأ، پاسخ گم‌شده، Retry، Idempotency/Fencing مقصد و انقضای Retention Dedup Receiver.
 6. **M5 — Restore/Lifecycle:** PITR، Tombstone، Retention، Credential/Key/Schema Rotation، Recovery Incarnation و Failback.
 7. **M6 — Tenant/Principal:** حداقل دو Tenant و دو Principal با سطح دسترسی متفاوت؛ جعل Payload و Repair کم‌اختیار.
 8. **M7 — Liveness/Resources:** Tenant داغ، Burst، Retry، Quota، Backpressure، Fairness و Degraded Mode.
