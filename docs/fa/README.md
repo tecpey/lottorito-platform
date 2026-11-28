@@ -144,3 +144,8 @@ Validator ساختاری در [scripts/check_docs.py](../../scripts/check_docs.p
 ## G09-A21 افیلیت — بازبینی خصمانه تضمین کیفیت
 
 - [G09-A21 — بازبینی خصمانه تضمین کیفیت سند G09-A20](engineering/affiliate-g09-a21-adversarial-assurance-review.md) — خودبازبینی داخلی و نه Assurance مستقل؛ شامل ۱۳ یافته باز (P0:1، P1:9، P2:3)، شکاف‌های Traceability و مسیر اصلاح کنترل‌شده A22 تا A24. A20 صرفاً تحقیق/طراحی آزمون است؛ بدون مجوز Runtime.
+
+
+## G09-A22 افیلیت — اصلاح مشخصات A20
+
+- [G09-A22 — اصلاح مشخصات A20](engineering/affiliate-g09-a22-a20-specification-remediation.md) — Identity/Canonicalization وابسته به تصمیم، پروتکل UNKNOWN Commit، تضمین Receiver خارجی، چرخه عمر Retention/Restore، Traceability، معنای نتایج آزمون و مرز مالی صرفاً ساختگی/ایزوله. صرفاً تحقیق؛ بدون مجوز Runtime.
