@@ -129,3 +129,5 @@ Read repository-root [AGENTS.md](../../AGENTS.md). Use a working branch and pull
 
 
 - [Affiliate G09-A15 — ADR-002 Persistence Proof Readiness & Owner Decision Matrix](engineering/affiliate-g09-a15-persistence-proof-readiness.md) — candidate-neutral proof obligations, 12 owner decisions, 12 deterministic proof schedules, independent evidence contract and staged gates; no candidate selected and no runtime proof executed.
+
+- [Affiliate G09-A16 — ADR-002 Adversarial Architecture Review & Independent Reviewer Dossier](engineering/affiliate-g09-a16-adversarial-architecture-review.md) — author-led meta-review with ten cross-cutting challenge points, twelve deterministic schedule families, independent-oracle contract and reviewer hand-off; not independent sign-off or runtime proof.
