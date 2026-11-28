@@ -1,7 +1,7 @@
 # G09-A23-M2 — Authority Epoch and Writer Fencing Model
 
 **Document ID:** LOT-AFFILIATE-G09-A23-M2-001  
-**Version:** 0.1.0 | **Status:** AUTHORED; TLC BASELINE AND NEGATIVE CONTROLS PENDING  
+**Version:** 0.1.1 | **Status:** TLC-CHECKED WITHIN FINITE BOUNDS; INDEPENDENT REVIEW AND CANDIDATE REFINEMENT PENDING  
 **Model:** formal/G09M2AuthorityEpochFencing.tla  
 **Baseline:** formal/G09M2AuthorityEpochFencing.cfg  
 **Runner:** scripts/formal/run_g09_m2.sh  
@@ -108,7 +108,22 @@ The runner verifies the pinned TLA+ Tools v1.7.4 JAR SHA-256 before executing on
 
 The GitHub Actions workflow downloads the same pinned JAR, verifies its hash, executes the runner and retains TLC logs/state metadata as an artifact. It uses the same deterministic runner pattern as M0/M1.
 
-**Execution status:** NOT RUN at the time this document was authored. No state count, counterexample, PASS or model-checking completion is claimed. Only an exact-head Actions run and its retained artifact can establish the result for this revision.
+**Executed evidence:** [GitHub Actions Run 46175199855 — G09 M2 Authority Epoch Fencing](https://github.com/tecpey/lottorito-platform/actions/runs/46175199855) — SUCCESS on PR head 5432f768d1f6e40c1fb59b4764a6c80d6e3a378f; the pull-request runner executed synthetic merge commit 491ac36 (base f032065f47fe85de2aabf8d47565a57af6af3ae9). Toolchain: TLA+ Tools v1.7.4 / TLC 2.19, JAR SHA-256 936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88; Eclipse Temurin OpenJDK 17.0.21.1; Ubuntu 24.04; BFS, one worker, seed=1, fp=0, 1 GiB heap.
+
+| Case | TLC result | Generated / distinct | Depth |
+|---|---|---:|---:|
+| Baseline | No invariant violation; complete bounded state graph exhausted | 515 / 136 | 12 |
+| Early promotion | NewWriterActivationRequiresFence violated | 31 / 22 | 4 |
+| Partition-only promotion | NewWriterActivationRequiresFence violated | 76 / 39 | 5 |
+| Stale old-writer mutation | EveryWriteWasFencedAndAuthorized violated | 72 / 37 | 5 |
+| Restore authority rollback | RootEpochAtLeastHighWater violated | 27 / 18 | 3 |
+| Forged current-epoch token | AuthenticatedCurrentTokenHasAuthorityOwner violated | 31 / 22 | 4 |
+
+Mutant state counts are partial explorations because TLC stopped at the first expected counterexample; they are not full state-space counts. The runner returned success only because the baseline completed without errors and all five mutants produced their named invariant violations.
+
+**Reproducibility manifest:** M2 module SHA-256: a40e2e4779e0deba1ebe11d3aefcb39038dadc9b1cf8200f5a5c0a0aa1ac6503. Baseline config SHA-256: c88f19bc769f3b29d4b3a76cb4de75962aa9e67bb98a9436610781d61df8c568. The runner artifact is [g09-a23-m2-tlc-46175199855-1](https://github.com/tecpey/lottorito-platform/actions/runs/46175199855/artifacts/15275063423), artifact SHA-256: f877902d92800ba27df1cc1ab0473e16e5d2dde3ae37c97f3b06b75e49eb37e7.
+
+This is bounded evidence for this exact module/config/toolchain and these finite bounds only. It is not an unbounded proof, independent review, candidate refinement or runtime/production verification.
 
 ## 8. Limitations and refinement obligations
 
@@ -131,4 +146,4 @@ These sources support the design method and failure model; they do not certify t
 
 ## 10. Disposition
 
-M2 is authored as a candidate-neutral finite-state model with one baseline and five oracle-targeted negative controls. Its status remains **AUTHORED / TLC PENDING** until exact-head CI completes and its logs are inspected. It does not close A21 findings, approve ADR-002, satisfy an A4 gate, authorize R2, select a persistence candidate, or authorize runtime/partner/financial/production work, merge or deployment.
+M2 is a candidate-neutral finite-state model with one baseline and five oracle-targeted negative controls. Its bounded TLC baseline and all five expected negative controls completed successfully on the exact head recorded above. Its status is **TLC-CHECKED WITHIN FINITE BOUNDS**; independent review and candidate refinement remain pending. It does not close A21 findings, approve ADR-002, satisfy an A4 gate, authorize R2, select a persistence candidate, or authorize runtime/partner/financial/production work, merge or deployment.
