@@ -1,7 +1,7 @@
 # G09-A23-M0 — مدل رسمی پذیرش اتمیک
 
 **شناسه:** LOT-AFFILIATE-G09-A23-M0-001  
-**نسخه:** ۰.۱.۱  
+**نسخه:** ۰.۱.۲  
 **وضعیت:** مدل محدود اجراشده با TLC؛ بازبینی مستقل و Refinement به Candidate انجام نشده است  
 **مدل:** `formal/G09M0AtomicAcceptance.tla`  
 **پیکربندی مبنا:** `formal/G09M0AtomicAcceptance.cfg`  
@@ -148,11 +148,11 @@ M0 موارد زیر را اثبات نمی‌کند و عمداً به مدل�
 
 ## ۸. شواهد اجرای بازتولیدپذیر
 
-**Run مبنای PR:** GitHub Actions Run `46170218651` — [G09 M0 Formal Model](https://github.com/tecpey/lottorito-platform/actions/runs/46170218651)  
-**PR head:** `c9d2e2b7e3d80bf53a64e928df647bcd1cb20ebc`  
-**Synthetic merge commit بررسی‌شده توسط pull_request runner:** `9a9aa076de9700717e4d41d14766d8414fdd2b5b`  
-**Artifact:** [g09-a23-m0-tlc-46170218651-1](https://github.com/tecpey/lottorito-platform/actions/runs/46170218651/artifacts/15273631651)  
-**Artifact ZIP SHA-256:** `0ae142aac63ca8bc9e9cdd1e802b98bdd8abf8e829045e3d99879ba92bd60d4d`
+**Run مبنای PR:** GitHub Actions Run `46171267528` — [G09 M0 Formal Model](https://github.com/tecpey/lottorito-platform/actions/runs/46171267528)  
+**PR head:** `b9fd70090a158b09131aa4f848e194fe7cefe273`  
+**Synthetic merge commit بررسی‌شده توسط pull_request runner:** `0ceabe3` (ادغام Head فوق با Base `f032065f47fe85de2aabf8d47565a57af6af3ae9`)  
+**Artifact:** [g09-a23-m0-tlc-46171267528-1](https://github.com/tecpey/lottorito-platform/actions/runs/46171267528/artifacts/15273950539)  
+**Artifact ZIP SHA-256:** `d2f1eb916a2c6f2316acf6932aa03ab5caab5a846eac53091cbb452a3a5315b5`
 
 محیط و ابزار:
 - TLA+ Tools release: `v1.7.4`
@@ -179,7 +179,7 @@ Hashهای فایل‌های مدل و Config که در Artifact `sha256-manifes
 
 TLC parser و semantic processing ماژول را انجام داد و Invariantها را بررسی کرد؛ Type-system مستقل جداگانه اجرا نشده است. هر سه Mutant Counterexample واقعی و قابل‌بازتولید تولید کردند. Artifact شامل چهار لاگ TLC و Manifest هش‌هاست.
 
-**مرز تفسیر:** GitHub Run به PR head فوق منتسب است، اما رویداد pull_request در Runner روی synthetic merge commit بالا اجرا شده است؛ این یک Integration Check روی ترکیب PR و base است، نه ادعای اجرای مستقیم روی branch tip به‌تنهایی.
+**مرز تفسیر:** GitHub Run به PR head فوق منتسب است، اما رویداد pull_request در Runner روی synthetic merge commit بالا اجرا شده است؛ این یک Integration Check روی ترکیب PR و base است، نه ادعای اجرای مستقیم روی branch tip به‌تنهایی. Checkout v7.0.1 و Upload Artifact v7.0.2 به SHAهای immutable Pin شده‌اند و Persisted Credentials در Checkout غیرفعال است.
 
 بازبینی مستقل مدل و بررسی Refinement هنوز انجام نشده است؛
 - هیچ Candidate یا Runtime ارزیابی نشده است؛
