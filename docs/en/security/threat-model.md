@@ -1,6 +1,6 @@
 # Lottorito Security Threat Model
 
-**Document ID:** LOT-SEC-TM-001 | **Version:** 0.1.0 | **Status:** Proposed baseline; requires security, product and owner review
+**Document ID:** LOT-SEC-TM-001 | **Version:** 0.2.0 | **Status:** Proposed baseline; requires security, product and owner review
 
 ## 1. Scope and limitations
 This is a system-level threat-model proposal for the intended global, multi-tenant Affiliate & Agent and Lottery platform. It is not a penetration test, security audit, certification, legal assessment or evidence that controls exist. Validate every control against the eventual implementation and deployment.
@@ -75,6 +75,15 @@ Prepare runbooks for account takeover, tenant data exposure, provider compromise
 Before a production-readiness claim, require tenant isolation tests across APIs/DB/cache/storage/queues/analytics/support; object/function/field authorization tests; webhook signature/replay/timestamp/duplicate/key-rotation tests; concurrent financial idempotency, ledger balance and reversal tests; maker-checker/audit tests; secret scanning and dependency/SBOM evidence; backup restore and disaster-recovery exercise; rate-limit/abuse/resource-exhaustion tests; privacy retention/deletion/export tests; and independent penetration test/remediation evidence appropriate to risk and market.
 
 ## 13. Risk acceptance and open decisions
-Every residual high/critical risk needs a named owner, rationale, compensating control, expiry/review date and explicit acceptance. Open decisions: initial jurisdictions, identity assurance, support model, data residency, retention, KMS/HSM design, isolation topology, incident notification duties, provider trust requirements and payout/custody boundary.
+Every residual high/critical risk needs a named owner, rationale, compensating control, expiry/review date and explicit acceptance.
+Risk labels such as High/Critical are prioritization categories, not a substitute for a documented scenario assessment. For each residual threat, record the assessment horizon, inherent and residual likelihood-impact pair, affected impact dimensions, evidence/assumptions, uncertainty, control effectiveness, named risk owner and acceptance authority. Use the anchored likelihood/impact guidance and qualitative-matrix limitations in LOT-EVAL-001 §17.10.4 where applicable; preserve the raw pair and do not multiply ordinal values into expected loss or calibrated quantitative risk. The security owner must define applicable thresholds and acceptance authority for the threat-model scope. A category label alone is not risk acceptance.
+
+- [Parent product, technology and supplier evaluation standard](../governance/enterprise-evaluation-standard.md) — LOT-EVAL-001, especially §17.10.4 for risk assessment discipline.
+ Open decisions: initial jurisdictions, identity assurance, support model, data residency, retention, KMS/HSM design, isolation topology, incident notification duties, provider trust requirements and payout/custody boundary.
 
 This document is not a certification or proof of implemented security controls.
+
+
+## 14. Change history
+
+- 0.2.0 (2026-11-28): aligned residual-risk assessment with the likelihood/impact anchors and matrix limitations in LOT-EVAL-001 v0.3.0; no risk or operational control is approved or proven by this documentation change.
