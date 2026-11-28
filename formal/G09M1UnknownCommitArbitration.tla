@@ -1,5 +1,5 @@
 ---------------- MODULE G09M1UnknownCommitArbitration ----------------
-EXTENDS Naturals
+EXTENDS Naturals, FiniteSets
 
 CONSTANTS
     SameFingerprint,
@@ -64,7 +64,7 @@ TimeoutOriginal ==
                    retryCommittedWhileOriginalInflight>>
 
 StartRetry ==
-    /\ originalStatus = "inflight"
+    /\ originalStatus \in {"inflight", "committed"}
     /\ originalOutcome = "unknown"
     /\ retryStatus = "not_started"
     /\ retryStatus' = "inflight"
