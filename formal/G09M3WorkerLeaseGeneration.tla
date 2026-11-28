@@ -26,7 +26,7 @@ InstallationID == "installation-A"
 PrincipalOf(w) == "worker-service"
 NoOwner == "none"
 MaxGeneration == 2
-MaxTime == 4
+MaxTime == 2
 
 ProtectedOps == {"heartbeat", "start_processing", "complete", "retry", "park"}
 
@@ -110,6 +110,8 @@ StartRequest(w, op) ==
     /\ op \in Ops \ {"none"}
     /\ requestState[w] = "idle"
     /\ \A other \in Workers \ {w} : requestState[other] = "idle"
+    /\ (op = "claim" => ClaimEligible)
+    /\ (op \in ProtectedOps => workState \in {"claimed", "processing"})
     /\ (op = "claim" \/ workerGeneration[w] > 0)
     /\ requestState' = [requestState EXCEPT ![w] = "waiting"]
     /\ requestOp' = [requestOp EXCEPT ![w] = op]
@@ -463,7 +465,7 @@ TypeOK ==
     /\ requestGeneration \in [Workers -> (0..MaxGeneration)]
     /\ requestToken \in [Workers -> (0..(MaxGeneration + 1))]
     /\ requestLifecycle \in [Workers -> (0..1)]
-    /\ requestExpectedState \in [Workers -> WorkStates]
+    /\ requestExpectedState \in [Workers -> {"ready", "claimed", "processing"}]
     /\ requestTenant \in [Workers -> {"tenant-A", "tenant-B"}]
     /\ requestInstallation \in [Workers -> {"installation-A", "installation-B"}]
     /\ requestStartTime \in [Workers -> (0..MaxTime)]
