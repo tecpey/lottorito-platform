@@ -4,12 +4,14 @@ EXTENDS Naturals
 CONSTANTS
     Callers,
     AllowPartialCommit,
-    AllowEarlyAck
+    AllowEarlyAck,
+    AllowDuplicateCommit
 
 ASSUME
     /\ Callers # {}
     /\ AllowPartialCommit \in BOOLEAN
     /\ AllowEarlyAck \in BOOLEAN
+    /\ AllowDuplicateCommit \in BOOLEAN
 
 (*
 M0 abstraction:
@@ -115,6 +117,18 @@ ReconcileUnknown(c) ==
 Negative control 1: deliberately broken atomicity.
 Enabled only by a mutant TLC configuration.
 *)
+CommitDuplicatePair(c) ==
+    /\ AllowDuplicateCommit
+    /\ txState[c] = "inflight"
+    /\ receiptCount = 1
+    /\ workItemCount = 1
+    /\ receiptCount' = 2
+    /\ workItemCount' = 2
+    /\ txState' = [txState EXCEPT ![c] = "duplicate"]
+    /\ callerOutcome' =
+         [callerOutcome EXCEPT ![c] = "duplicate_confirmed"]
+    /\ UNCHANGED receiptOwner
+
 CommitReceiptOnly(c) ==
     /\ AllowPartialCommit
     /\ txState[c] = "inflight"
@@ -148,6 +162,7 @@ Next ==
         \/ DeliverCommitAck(c)
         \/ LoseCommitAck(c)
         \/ ReconcileUnknown(c)
+        \/ CommitDuplicatePair(c)
         \/ CommitReceiptOnly(c)
         \/ EmitEarlyAck(c)
 
@@ -155,8 +170,8 @@ Spec ==
     Init /\ [][Next]_vars
 
 TypeOK ==
-    /\ receiptCount \in 0..1
-    /\ workItemCount \in 0..1
+    /\ receiptCount \in 0..2
+    /\ workItemCount \in 0..2
     /\ receiptOwner \in (Callers \cup {"none"})
     /\ txState \in [Callers -> CallerStates]
     /\ callerOutcome \in [Callers -> CallerOutcomes]
