@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from typing import Callable
 
 MUTANTS = tuple(f"MUT-{i:02d}" for i in range(1, 11))
+EXPECTED_TEST_IDS = tuple(f"AVT-{i:02d}" for i in range(1, 22))
 
 
 @dataclass(frozen=True)
@@ -334,6 +335,15 @@ def _(m):
 
 
 def execute() -> dict:
+    registered_ids = [tid for tid, _ in TESTS]
+    if len(registered_ids) != len(set(registered_ids)):
+        raise RuntimeError("duplicate AVT test ID registration")
+    if set(registered_ids) != set(EXPECTED_TEST_IDS):
+        missing = sorted(set(EXPECTED_TEST_IDS) - set(registered_ids))
+        unexpected = sorted(set(registered_ids) - set(EXPECTED_TEST_IDS))
+        raise RuntimeError(f"unexpected AVT population: missing={missing}, unexpected={unexpected}")
+    if len(MUTANTS) != len(set(MUTANTS)) or set(MUTANTS) != {f"MUT-{i:02d}" for i in range(1, 11)}:
+        raise RuntimeError("unexpected or duplicate specification-mutant population")
     baseline = {tid: bool(fn(None)) for tid, fn in TESTS}
     mutation_results = {}
     for mutant in MUTANTS:
@@ -346,6 +356,7 @@ def execute() -> dict:
         "execution_scope": "synthetic/non-production only",
         "tests": {
             "designed": len(TESTS), "executed": len(TESTS),
+            "coverage_status": "REGISTERED_CHECKS_ONLY; FULL_MATRIX_PROPERTY_COVERAGE_NOT_ESTABLISHED",
             "passed": sum(baseline.values()), "failed": len(TESTS) - sum(baseline.values()),
             "results": {tid: ("PASS" if ok else "FAIL") for tid, ok in baseline.items()}},
         "mutations": {
@@ -353,7 +364,8 @@ def execute() -> dict:
             "mutant_test_executions": len(MUTANTS) * len(TESTS),
             "killed": sum(v["status"] == "KILLED" for v in mutation_results.values()),
             "survived": sum(v["status"] == "SURVIVED" for v in mutation_results.values()),
-            "equivalent": 0, "unreachable": 0, "unresolved": 0,
+            "classification_status": "NOT_ASSESSED",
+            "equivalent": None, "unreachable": None, "unresolved": None,
             "results": mutation_results},
         "limitations": [
             "Specification-level mutants are deterministic fault injections in this reference model, not third-party mutation-tool output.",
