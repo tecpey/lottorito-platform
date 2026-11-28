@@ -144,6 +144,8 @@ Validator ساختاری در [scripts/check_docs.py](../../scripts/check_docs.p
 
 - [LOT-EVAL-OWNER-REVIEW-001 — دفتر بازبینی و تعیین تکلیف مالک](governance/enterprise-evaluation-owner-review-001.md) — یافته‌های REV-01 تا REV-14، وضعیت‌های Disposition مالک، دستور واگذاری اجرای اصلاحات فنی و اصل عدم‌معادل‌بودن اجرا با پذیرش ریسک را ثبت می‌کند.
 
+- [LOT-EVAL-AVT-001 — ماتریس آزمون پذیرش خصمانه](governance/enterprise-evaluation-adversarial-test-matrix-001.md) — ۲۱ بردار آزمون خصمانه طراحی‌شده برای REV-01/03/04/12/14؛ اجرای آزمون، تعیین تکلیف مالک و تضمین مستقل همچنان در انتظار است.
+
 - [استاندارد ارزیابی Provider، بررسی موشکافانه و RFI](partners/provider-evaluation-standard.md) — LOT-PROVIDER-EVAL-001 نسخه ۰.۲.۰؛ معنای شواهد و امتیازدهی آن تابع استاندارد مادر LOT-EVAL-001 است.
 - [ADRهای فناوری، استقرار و قابلیت اطمینان](architecture/technology-deployment-adrs.md) — LOT-TECH-ADR-001 نسخه ۰.۲.۰؛ وزن‌های فناوری پیشنهادی و تابع Rubric استاندارد مادر.
 - [مدل تهدید امنیتی Lottorito](security/threat-model.md) — LOT-SEC-TM-001 نسخه ۰.۲.۰؛ ارزیابی ریسک باقیمانده با ارجاع به لنگرهای احتمال/اثر استاندارد مادر.
