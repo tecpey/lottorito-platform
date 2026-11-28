@@ -423,6 +423,53 @@ function materializeParameterFixture(value) {
   return value;
 }
 
+
+const inheritanceProbe = JSON.parse(JSON.stringify(openApi));
+const probePath = "/v1/affiliate/programs";
+inheritanceProbe.paths[probePath].parameters = [{
+  name: "coverageProbe", in: "query", required: false,
+  schema: { type: "string", minLength: 1 },
+}];
+const inheritedProbe = collectEffectiveParameters(inheritanceProbe, "probe");
+contractAssert("Path Item parameters are inherited by their HTTP operations",
+  inheritedProbe.some((entry) =>
+    entry.id === "probe.GET " + probePath + " :: query.coverageProbe" &&
+    entry.parameter.required === false));
+
+inheritanceProbe.paths[probePath].get.parameters = [{
+  name: "coverageProbe", in: "query", required: true,
+  schema: { type: "string", minLength: 2 },
+}];
+const overriddenProbe = collectEffectiveParameters(inheritanceProbe, "probe")
+  .filter((entry) => entry.id === "probe.GET " + probePath + " :: query.coverageProbe");
+contractAssert("Operation parameters override inherited Path Item parameters by (name, in)",
+  overriddenProbe.length === 1 &&
+  overriddenProbe[0].parameter.required === true &&
+  overriddenProbe[0].parameter.schema.minLength === 2);
+
+const contentProbe = parameterSchemaDescriptor({
+  content: { "text/plain": { schema: { type: "string", minLength: 1, maxLength: 4 } } },
+}, "parameter-content-probe");
+const contentProbeValidator = compileParameterSchema(openApi, contentProbe.schema);
+contractAssert("Single-media-type Parameter content schemas are compiled and enforced",
+  contentProbe.schemaKind === "content" &&
+  contentProbe.contentMediaType === "text/plain" &&
+  contentProbeValidator("abcd") &&
+  !contentProbeValidator("abcde"));
+let rejectedMultiMediaContent = false;
+try {
+  parameterSchemaDescriptor({
+    content: {
+      "text/plain": { schema: { type: "string" } },
+      "application/json": { schema: { type: "object" } },
+    },
+  }, "parameter-content-multi-media-probe");
+} catch {
+  rejectedMultiMediaContent = true;
+}
+contractAssert("Unsupported multi-media-type Parameter content fails closed",
+  rejectedMultiMediaContent);
+
 const actualParameterEntries = PARAMETER_DOCUMENTS.flatMap(({ prefix, document }) =>
   collectEffectiveParameters(document, prefix));
 const actualParameterMap = new Map(actualParameterEntries.map((entry) => [entry.id, entry]));
