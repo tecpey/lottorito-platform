@@ -1,6 +1,6 @@
 # دفتر ثبت تصمیم‌های Lottorito
 
-**شناسه سند:** LOT-ADR-REG-001 | **نسخه:** ۲.۵.۲ | **وضعیت:** دفتر ثبت نگهداری‌شده؛ هر رکورد اعتبار و اختیار مستقل خود را دارد
+**شناسه سند:** LOT-ADR-REG-001 | **نسخه:** ۲.۵.۳ | **وضعیت:** دفتر ثبت نگهداری‌شده؛ هر رکورد اعتبار و اختیار مستقل خود را دارد
 
 ## روش خواندن
 این دفتر مانع تبدیل گفتگو، مثال یا پیشنهاد به قانون محصول می‌شود. صرف درج یک مورد به‌معنای تصویب آن نیست؛ ستون وضعیت و مرجع اختیار تعیین‌کننده است. هر تغییر باید شواهد مرتبط داشته باشد.
@@ -135,3 +135,6 @@
 
 | LDR-075 | مدل‌سازی و بررسی محدود داوری UNKNOWN/Retry در G09-A23-M1 | شواهد TLC برای مدل محدود v0.1.1 | دو Baseline برای Fingerprint برابر/متفاوت هرکدام ۱۹ State متمایز، ۲۵ تولیدشده، عمق ۸ و بدون نقض؛ سه Mutant به‌ترتیب `NoRetryCommitWhileOriginalInflight`، `ReceiptCardinality` و `ConflictSoundness` را نقض کردند. Run `46171267569`، PR head `b9fd70090a158b09131aa4f848e194fe7cefe273`، Artifact `15273009002`، SHA-256 `b48aa95a3b6145082eb7f637dac3950d8e9656270a7ecea0c166f9c806dd2737`. | نتیجه محدود به مدل و Bounds ثبت‌شده است؛ بازبینی مستقل، Candidate refinement، Database/Jepsen/History Checker و Liveness انجام نشده‌اند. A20 NOT RUN؛ M2–M7 تألیف نشده‌اند؛ بدون Candidate/Runtime/Partner/مالی/Production/Merge/Deploy. |
 | LDR-076 | تثبیت مجدد شواهد M0 با Checkout امن و Actionهای Pinشده | شواهد Integration Run تکرارپذیر | Run `46171267528` روی همان PR head و synthetic merge `0ceabe3`؛ Baseline: ۵۲ State متمایز، بدون نقض؛ سه Mutant Counterexampleهای مورد انتظار. Artifact `15273950539`، SHA-256 `d2f1eb916a2c6f2316acf6932aa03ab5caab5a846eac53091cbb452a3a5315b5`. Checkout v7.0.1 و Upload Artifact v7.0.2 با SHA immutable؛ `persist-credentials: false`. | این Run فقط M0 محدود را تأیید می‌کند؛ هیچ Candidate/Runtime/Production/Merge/Deploy را تأیید یا مجاز نمی‌کند. |
+
+| LDR-077 | تکرار نهایی M0 روی PR head جاری با Workflow امن | شواهد اجرای مدل محدود | Run `46171482274` روی PR head `10d143bfb8eaff1892a74e3277f4dcac1f024337` و synthetic merge `a7a670bd6453a2c86fd7733c4aeae3f8aa7b4777`؛ Baseline: ۵۲ State متمایز بدون نقض؛ سه Mutant نقض‌های مورد انتظار را آشکار کردند. Artifact `15273523034`، SHA-256 `5cd254c2bd9b7121af93c0b7384d9927f054031d2acbd7c6eef1e41670eb72d9`. Checkout/Upload با SHA immutable و Checkout credentials خاموش. | فقط مدل محدود M0؛ بدون Candidate/Runtime/Production/Merge/Deploy. |
+| LDR-078 | تکرار نهایی M1 UNKNOWN/Retry روی PR head جاری | شواهد اجرای مدل محدود | Run `46171482180` روی همان PR head و synthetic merge؛ هر دو Baseline: ۱۹ State متمایز، ۲۵ تولیدشده، عمق ۸ و بدون نقض؛ سه Mutant نقض‌های `NoRetryCommitWhileOriginalInflight`، `ReceiptCardinality` و `ConflictSoundness` را آشکار کردند. Artifact `15273920318`، SHA-256 `eb38518421706ed88d03c8bf77339d1747036c5aff6811e6d666ef62b7b78ea9`. | فقط مدل محدود M1؛ بازبینی مستقل، Candidate refinement، DB/Jepsen/History و Liveness باز هستند. هیچ مجوز عملیاتی صادر نمی‌شود. |
