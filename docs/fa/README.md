@@ -139,3 +139,8 @@ Validator ساختاری در [scripts/check_docs.py](../../scripts/check_docs.p
 ## G09-A20 افیلیت — اخذ شواهد و احراز صلاحیت خصمانه
 
 - [G09-A20 — نظام اخذ شواهد و طراحی احراز صلاحیت خصمانه](engineering/affiliate-g09-a20-constraint-evidence-adversarial-qualification.md) — ماتریس Evidence برای C-01 تا C-16، Inventory کامل Data-flow، ناورداها و Oracleهای مستقل، ۲۸ طراحی آزمون خصمانه، Gateهای ایمنی اجرا و Manifest بازتولیدپذیری؛ همه Caseها NOT RUN، بدون احراز صلاحیت Candidate یا مجوز Runtime.
+
+
+## G09-A21 افیلیت — بازبینی خصمانه تضمین کیفیت
+
+- [G09-A21 — بازبینی خصمانه تضمین کیفیت سند G09-A20](engineering/affiliate-g09-a21-adversarial-assurance-review.md) — خودبازبینی داخلی و نه Assurance مستقل؛ شامل ۱۳ یافته باز (P0:1، P1:9، P2:3)، شکاف‌های Traceability و مسیر اصلاح کنترل‌شده A22 تا A24. A20 صرفاً تحقیق/طراحی آزمون است؛ بدون مجوز Runtime.
