@@ -78,6 +78,7 @@ Exact-head GitHub Actions run #1133 (run ID `46118746808`) on commit `863fe0eb8f
 4. **Coverage boundary:** the 21-vector matrix targets REV-01/03/04/12/14. It does not execute every minimum acceptance test or every provision of LOT-EVAL-001. Confidence, TCO forecast bias/switching value, formal assurance, jurisdiction-specific legal review and actual owner disposition are not implemented as automated decisions here.
 5. **Independence:** this is author-led model construction and execution, not independent assurance. A second competent reviewer must derive expected results independently and record disagreements before any independent-assurance claim.
 6. **Status:** LOT-EVAL-001 remains PROPOSED; REV-01…REV-14 owner dispositions remain PENDING. This implementation does not adopt the standard or close owner decisions.
+7. **Fixture simplification:** evidence sufficiency, freshness, scope match, contradiction, control operation, prior N/A approval and mandatory-gate outcomes are represented as synthetic booleans/enums. The harness does not authenticate source artifacts, validate approver delegation or timestamps, determine criterion applicability, or verify real control operation.
 
 ## 7. Safety boundary
 
