@@ -164,7 +164,7 @@ Fairness قوی/ضعیف، Scheduler، نرخ ورود، ظرفیت، Retry Budg
 
 مدل واحد و عظیم از ابتدا ساخته نشود. مدل‌ها به‌صورت مرحله‌ای و با Interface/Invariant مشترک تفکیک شوند:
 
-1. **M0 — Atomic Acceptance:** دو Caller، یک Identity، یک Receipt و یک WorkItem؛ Crash قبل/بعد نقطه Commit. ماژول و Configهای پایه/Mutant در `formal/G09M0AtomicAcceptance.tla` و فایل‌های همراه تألیف شده و TLC v1.7.4 در Run #6 با ۵۲ State متمایز Baseline و سه Counterexample منطبق با Mutantها اجرا شده است؛ این نتیجه فقط به Bounds M0 تعلق دارد.
+1. **M0 — Atomic Acceptance:** دو Caller، یک Identity، یک Receipt و یک WorkItem؛ Crash قبل/بعد نقطه Commit. ماژول و Configهای پایه/Mutant در `formal/G09M0AtomicAcceptance.tla` و فایل‌های همراه تألیف شده و TLC v1.7.4 در Run #11 با ۵۲ State متمایز Baseline و سه Counterexample منطبق با Mutantها اجرا شده است؛ این نتیجه فقط به Bounds M0 تعلق دارد.
 2. **M1 — UNKNOWN Arbitration:** Transaction اولیه In-flight، گم‌شدن پاسخ، Negative Read، Retry هم‌زمان و Commit/Abort دیرهنگام.
 3. **M2 — Authority Epoch:** دو Writer، دو Epoch، Partition، Promotion، بازگشت Primary قدیمی و Restore Epoch.
 4. **M3 — Worker Lease:** دو Worker/Generation، Claim و Reclaim، تمدید Lease، Heartbeat/Completion/Retry/Park، State/Token/LifecycleVersion mismatch، شکست Guard با صفر Mutation، توقف Lock، Timestamp قبل/بعد Lock، Clock Skew، انقضای Lease پیش از Reclaim و Resume Worker قدیمی.
@@ -306,6 +306,6 @@ Mutantهای حداقلی اجباری: حذف Unique Constraint؛ Ack قبل ا
 
 **یادداشت بازبینی نسخه ۰.۱.۴:** نخستین ماژول TLA+ برای M0 و یک پیکربندی Baseline به‌همراه سه Negative Control تألیف شد؛ مستند دوزبانه M0 نیز اضافه شد.
 
-**یادداشت بازبینی نسخه ۰.۱.۵:** TLC v1.7.4 / TLC 2.19 با Java 17.0.21.1 روی Head `975bfe23062de06d8358f0fa9475d8b7e3ebde54` اجرا شد. Baseline: ۸۷ State تولیدشده، ۵۲ Distinct، صفر در Queue، عمق ۷، بدون نقض. سه Mutant به‌ترتیب `PairAtomicity`، `AtMostOneReceipt` و `AcceptedAckSoundness` را نقض کردند. SHA-256 فایل‌ها، لاگ‌ها و Artifact در سند M0 ثبت شده‌اند. این مدل محدود هنوز بازبینی مستقل نشده و هیچ Candidate/Runtime را پوشش نمی‌دهد. M1–M7، History Checker و Simulation همچنان شروع‌نشده‌اند.
+**یادداشت بازبینی نسخه ۰.۱.۵:** TLC v1.7.4 / TLC 2.19 با Java 17.0.21.1 روی Head `2ec0350e476e6ec3b90ce241bfedbe53a50799af` اجرا شد. Baseline: ۸۷ State تولیدشده، ۵۲ Distinct، صفر در Queue، عمق ۷، بدون نقض. سه Mutant به‌ترتیب `PairAtomicity`، `AtMostOneReceipt` و `AcceptedAckSoundness` را نقض کردند. SHA-256 فایل‌ها، لاگ‌ها و Artifact در سند M0 ثبت شده‌اند. این مدل محدود هنوز بازبینی مستقل نشده و هیچ Candidate/Runtime را پوشش نمی‌دهد. M1–M7، History Checker و Simulation همچنان شروع‌نشده‌اند.
 
 **نتیجه:** A23 مدل‌سازی و آزمون را از فهرست سناریو به روش مهندسی قابل‌ردیابی ارتقا می‌دهد؛ اما هیچ شواهدی از اجرای واقعی یا قبولی سامانه ادعا نمی‌کند.
