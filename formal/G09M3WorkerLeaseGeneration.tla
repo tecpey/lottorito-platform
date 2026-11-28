@@ -30,6 +30,10 @@ MaxTime == 4
 
 ProtectedOps == {"heartbeat", "start_processing", "complete", "retry", "park"}
 
+WorkerPermutations ==
+    { [w \in Workers |-> w],
+      [w \in Workers |-> IF w = "W0" THEN "W1" ELSE "W0"] }
+
 VARIABLES
     workState,
     claimGeneration,
