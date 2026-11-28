@@ -127,6 +127,14 @@ HealPartition ==
        writerActive, sinkFenceEpoch, fenceVerified, restoreMode,
        restoredEpoch, acceptedWrites>>
 
+CrashOldWriter ==
+    /\ writerOnline["W0"]
+    /\ writerOnline' = [writerOnline EXCEPT !["W0"] = FALSE]
+    /\ UNCHANGED <<rootEpoch, authorityHighWater, authorityOwner, phase,
+       writerEpoch, tokenEpoch, tokenAuthenticated, writerReachable,
+       writerActive, sinkFenceEpoch, fenceVerified, networkPartition,
+       restoreMode, restoredEpoch, acceptedWrites>>
+
 ReturnOldWriter ==
     /\ ~writerOnline["W0"]
     /\ writerOnline' = [writerOnline EXCEPT !["W0"] = TRUE]
@@ -268,6 +276,7 @@ Next ==
     \/ ActivateNewWriter
     \/ SetPartition
     \/ HealPartition
+    \/ CrashOldWriter
     \/ ReturnOldWriter
     \/ \E w \in Writers : TryAuthorizedWrite(w)
     \/ BeginRestore
