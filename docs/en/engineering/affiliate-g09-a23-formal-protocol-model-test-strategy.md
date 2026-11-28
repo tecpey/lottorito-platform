@@ -1,7 +1,7 @@
 # G09-A23 — Formal Protocol Model & Adversarial Test Strategy
 
 **Document ID:** LOT-AFFILIATE-G09-A23-001  
-**Version:** 0.1.21 | **Status:** PROPOSED; M0–M2 TLC-CHECKED WITHIN FINITE BOUNDS; M3 MODEL DRAFTED / TLC VALIDATION PENDING; RUNTIME NOT EXECUTED; M4–M7 NOT AUTHORED  
+**Version:** 0.1.22 | **Status:** PROPOSED; M0–M2 TLC-CHECKED WITHIN FINITE BOUNDS; M3 MODEL DRAFTED / TLC VALIDATION PENDING; RUNTIME NOT EXECUTED; M4–M7 NOT AUTHORED  
 **Date:** 2026-11-28  
 **Review basis:** G09-A21, G09-A22, G09-A20, G09-A7, ADR-001 and ADR-002  
 **Authority:** Advisory design; no owner decision, candidate, gate or execution permission is approved.
@@ -167,7 +167,7 @@ Do not start with one enormous model. Build staged models with shared interfaces
 1. **M0 — Atomic Acceptance:** two callers, one identity, one Receipt and one WorkItem; crash before/during/after commit.
 2. **M1 — UNKNOWN Arbitration:** original transaction in-flight, lost response, negative read, concurrent retry and late commit/abort.
 3. **M2 — Authority Epoch:** two writers, two epochs, partition, promotion, old-primary return and restored epoch. Candidate-neutral TLA+ module, one baseline and six negative controls (including independent sink-fence rollback) are TLC-checked within finite bounds on exact head 96fc7a4830af452f214921ac9af68d7ae4265f33. See [M2 model and evidence](affiliate-g09-a23-m2-authority-epoch-model.md).
-4. **M3 — Worker Lease:** two worker processes sharing one authenticated service principal; claim/reclaim, lease renewal, heartbeat/completion/retry/park, state/token/lifecycle-version mismatch, zero-mutation guard failure, lock wait, pre/post-lock timestamp and independent worker-clock progression. Candidate-neutral module and ten negative-control configs are drafted; TLC validation is pending. See [M3 model contract](affiliate-g09-a23-m3-worker-lease-model.md).
+4. **M3 — Worker Lease:** two worker processes sharing one authenticated service principal; claim/reclaim, lease renewal, heartbeat/completion/retry/park, state/token/lifecycle-version mismatch, zero-mutation guard failure, lock wait, pre/post-lock timestamp and independent worker-clock progression. Candidate-neutral module and eleven negative-control configs are drafted; TLC validation is pending. The model treats expired PROCESSING as reclaimable and explicitly flags this as a state-machine gap against ADR-001's current READY/CLAIMED wording, requiring owner/reviewer reconciliation. See [M3 model contract](affiliate-g09-a23-m3-worker-lease-model.md).
 5. **M4 — Outbox/Consumer/Receiver:** duplicate publication, delay, reorder, broker outage, consumer crash, in-flight external request, receiver acceptance after source lease expiry, lost response, retry, destination idempotency/fencing and receiver dedup-retention expiry.
 6. **M5 — Restore/Lifecycle:** old PITR/backup, tombstone and expiry boundary, finite/unbounded replay horizon, late queue message, credential/key/schema rotation, recovery incarnation, failback, clean-room quarantine and reopening gates.
 7. **M6 — Tenant/Principal:** at least two tenants and two principals with different permissions; payload spoofing and low-privilege repair.
@@ -329,3 +329,6 @@ Documentation consistency note: after removing the helper flag from executable M
 
 
 **Version 0.1.21 review note — M3 model draft:** M3 now has a candidate-neutral TLA+ module, a bounded baseline config, ten oracle-targeted mutant configs, a pinned TLC runner and a dedicated Actions workflow. The model intentionally gives W0 and W1 the same authenticated principal so generation/token fencing is tested independently of process identity. It separates persistence time, worker-local clock progress, pre-lock observation, serialization acquisition and the post-lock guard. The bilingual M3 contract records the abstraction and exclusions. TLC validation is pending; no M3 result is claimed. ADR-001 remains PROPOSED and A4-GATE-03/04 still block candidate/runtime execution.
+
+
+**Version 0.1.22 review note — M3 protocol challenge:** The M3 model now tests immutable installation binding as a separate mutant and includes PROCESSING in expired-lease reclaim eligibility. This is not silently treated as an approved policy: ADR-001 §5 currently names READY and expired CLAIMED, while A23's abstract WorkItem state includes PROCESSING. The model records the proposed behavior and the discrepancy; owner/independent review must resolve it before ADR-001 approval. The baseline has not yet been accepted as valid until exact-head TLC completes and every mutant matches its oracle.
