@@ -382,3 +382,13 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 - DT05-R5 directly rejects a missing residual likelihood/impact pair.
 - Risk schema rejects duplicate/unknown impact dimensions, malformed dimension-rating maps, and blank evidence/assumption/control-evidence fields; MT-11 added.
 - Exact-head Documentation Governance run #1231 (ID `46161867851`) succeeded on code SHA `2e0eadfcc2bc6200af1410197dcbeaa563e8fed0`; bilingual validation, RDM-001 and RDM-004 passed.
+
+### RDM-005 — bidirectional traceability audit
+
+- Added `tools/lot_eval_rdm005.py` as a static structural audit; it is not a semantic oracle or product-runtime component.
+- Checks exact populations and mappings for 18 rules, 21 AVTs, 10 specification mutations, 36 decision-table rows, 8 RDM-001 guards, 11 RDM-004 metamorphic properties and 4 targeted mutations.
+- Added source-clause reconciliation against the normative catalogue, parent heading existence, forward/reverse AVT/DT consistency, and EN/FA source-clause parity after numeral normalization.
+- Author-led audit corrected: f-string heading-regex false negatives; AVT-001/AVT-00 identifier-boundary false positive; AVT-02/06/13 mapping mismatches; source declarations for RDM-R01/RDM-R05; parser overreach into summary rows; and a real FA RDM-R09 omission of §17.10.1.
+- Exact-head Documentation Governance #1245 (ID `46162905434`) passed on `364dac4591bad89f2a3eca581b9983c5e9750b09`: 376/376 RDM-005 checks; bilingual validation, RDM-001 and RDM-004 passed.
+- RDM-005 is structural metadata integrity only. It does not establish semantic test adequacy, independent assurance, full-standard coverage or owner acceptance. RDM-R13/R14/R17 require human review; RDM-U01…U05 remain open; RDM-R18 remains a proposed derived guard.
+- RDM-004 bilingual status and exact-head record reconciled to run #1231 / SHA `2e0eadfcc2bc6200af1410197dcbeaa563e8fed0`, including 36/36 rows, 11/11 metamorphic checks and 4/4 targeted mutations.
