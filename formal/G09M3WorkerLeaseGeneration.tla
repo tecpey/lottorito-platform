@@ -1,5 +1,5 @@
 ---------------- MODULE G09M3WorkerLeaseGeneration ----------------
-EXTENDS Naturals, FiniteSets, TLC
+EXTENDS Naturals, Integers, FiniteSets, TLC
 
 CONSTANTS
     Workers,
@@ -266,6 +266,21 @@ SetWorkerClockSkew(w, skew) ==
        lockOwner, blockerAvailable, mutationCount, lastGuardFailed,
        lastFailureMutationCount, acceptedHistory, claimEvents>>
 
+
+AuthorizedStartProcessing ==
+    /\ lockOwner = NoOwner
+    /\ workState = "claimed"
+    /\ persistenceTime < leaseExpiry
+    /\ workState' = "processing"
+    /\ mutationCount' = mutationCount + 1
+    /\ lastGuardFailed' = FALSE
+    /\ UNCHANGED <<claimGeneration, generationHighWater, claimOwner, claimToken,
+       leaseExpiry, lifecycleVersion, persistenceTime, workerClock, workerGeneration,
+       workerToken, workerLifecycle, requestState, requestOp, requestGeneration,
+       requestToken, requestLifecycle, requestExpectedState, requestTenant,
+       requestInstallation, requestStartTime, requestPreLockValid, lockAcquireTime,
+       lockOwner, blockerAvailable, lastFailureMutationCount, acceptedHistory,
+       claimEvents>>
 
 AdvanceLifecycleVersion ==
     /\ lifecycleVersion < 1
