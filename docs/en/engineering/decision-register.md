@@ -1,6 +1,6 @@
 # Lottorito Decision Register
 
-**Document ID:** LOT-ADR-REG-001 | **Version:** 2.5.8 | **Status:** Maintained register; entries retain their individual authority state
+**Document ID:** LOT-ADR-REG-001 | **Version:** 2.5.9 | **Status:** Maintained register; entries retain their individual authority state
 
 ## How to read this register
 This register prevents agents from turning discussion, examples or proposals into product rules. A record is not approved merely because it is listed here. The state and authority column govern. Evidence must be linked for every change.
@@ -152,3 +152,6 @@ Prioritize jurisdiction/operating model and initial Lottery product boundary; pr
 
 | LDR-087 | Record M0 execution on TLC-tested PR #76 head `fca277f` | Bounded TLC and hash-identified artifact | Run `46172700581` on synthetic merge `547989755f863440eb35bb42afee936c811b66dd`; baseline: 87 generated / 52 distinct states, depth 7; all three expected mutants detected. Artifact `15274721323`, SHA-256 `81f1e74a40622b1695952b663f0ccf1538411681e96efd2ed42f3a0bac94b7c2`. | Bounded M0 model only; no candidate/runtime/production qualification or merge/deployment authorization. |
 | LDR-088 | Record M1 execution on TLC-tested PR #76 head `fca277f` | Bounded TLC and hash-identified artifact | Run `46172700577` on the same synthetic merge; both baselines: 25 generated / 19 distinct states, depth 8 each; all three expected mutants detected. Artifact `15274271466`, SHA-256 `52c8340c8a3d73b7597957589ddba619029b79e0728ec8ac6796881cdb64e751`. | Bounded M1 model only; DB/Jepsen/history/Liveness and candidate refinement remain open. No operational authority granted. |
+
+| LDR-089 | Correct M1 unsafe-retry oracle | Oracle must check system state, not mutant-specific helper instrumentation | `NoRetryCommitWhileOriginalInflight` now checks the direct relation `~(originalStatus = "inflight" /\ retryStatus = "committed")`; the ghost flag was removed. M1 Run `46172983952` on head `d20bded` detected all three expected mutants with their intended invariants. Artifact `15274741061`, SHA-256 `5fdf36c4378b09deccd8db776cf4ebd48eb8aed020e5ca8b56c9948dac75621f`. | Bounded-model correction; candidate/runtime/database behavior and liveness remain unproven. |
+| LDR-090 | Confirm M0 execution after M1 correction | Reproducible TLC and artifact evidence | M0 Run `46172983850` on the same synthetic merge; baseline: 87 generated / 52 distinct states, depth 7; all three expected mutants. Artifact `15274098135`, SHA-256 `1a5d6a2d83eb71c7dec52355520a3159a8bbc42b58ce7ebc177eb712db0ec637`. | Bounded M0 only; no operational qualification or merge/deployment authorization. |
