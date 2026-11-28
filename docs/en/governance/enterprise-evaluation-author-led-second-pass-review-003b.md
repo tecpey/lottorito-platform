@@ -3,7 +3,7 @@
 **Document ID:** LOT-EVAL-RDM-003B-AR-001  
 **Version:** 0.1.0  
 **Review date:** 2026-11-28  
-**Status:** REVIEW COMPLETED — findings require correction and regression evidence  
+**Status:** REVIEW COMPLETED — corrective changes committed; exact-head CI #1195 SUCCESS  
 **Reviewer role:** Author-led second-pass adversarial reviewer, deliberately separated from implementation-author perspective  
 **Independence statement:** The reviewer is the same AI system that authored prior artifacts and has access to prior outputs. This is not blind review, a second-person review, formal IV&V, independent assurance, certification or owner acceptance.
 
@@ -60,3 +60,23 @@ Until AR-03…AR-10 are corrected and retested, the existing RDM-001 execution r
 6. Update the PR description with the precise limitations and finding dispositions.
 
 RDM-001 may be changed only as a controlled correction against this recorded author-led review. This does not approve LOT-EVAL-001, REV-01…REV-14, any candidate, procurement, integration, production data, financial activity, merge or deployment. Owner decisions remain with the project owner.
+
+## 5. Corrective disposition and additional row-level findings
+
+The owner-directed review supersedes the external blind-review protocol. The old packet/worksheet are retained as historical artifacts; the missing input-only 35-row packet is therefore closed by supersession, not by claiming a blind review occurred. The author reviewed the actual decision-table conditions directly against the frozen parent standard.
+
+Additional findings from full row-level inspection:
+- **AR-16 — MEDIUM, DT-01 overlap:** DT01-R5 (a specifically identified highest plausible tier) and DT01-R6 (unbounded/all-unknown tier inputs) were not mutually exclusive. Corrected by distinguishing a bounded highest plausible tier from an unbounded uncertainty state.
+- **AR-17 — MEDIUM, DT-03 precedence:** scope mismatch, partial atomic coverage and insufficient full-scope evidence could overlap without an explicit decision order. Corrected with explicit precedence: scope mismatch → partial atoms → otherwise insufficient full-scope evidence → capability anchor only on sufficient full-scope evidence.
+- **AR-18 — MEDIUM, DT-05 incomplete record schema:** the “complete” row did not require affected objectives, evidence/assumptions, uncertainty, treatment, risk owner and acceptance authority. Added those mandatory fields and DT05-R7 for missing fields. DT-05 now has seven rows; the five tables contain **36 decision-table rows** in total.
+
+Corrective disposition:
+- AR-01: CLOSED — packet/worksheet reclassified as superseded historical artifacts; no blind/independent claim.
+- AR-02: CLOSED BY SUPERSESSION — no external reviewer workflow remains active; author-led review used the actual source tables. This does not create independent assurance.
+- AR-03…AR-10: CORRECTED IN RDM-001; regression checks added.
+- AR-11: CORRECTED — DT-04 conditions and outcomes are now explicit and non-overlapping by materiality/authorization state.
+- AR-12: CLARIFIED — current inventory is 18 rule propositions + 21 AVT scenarios + 36 decision-table rows = 75 review obligations, not 75 independent tests.
+- AR-13…AR-15: CORRECTED — late-score N/A state, T1/T2 synthetic triggers and assurance-role traceability clarified.
+- AR-16…AR-18: CORRECTED — DT-01, DT-03 and DT-05 row-level defects fixed in both languages.
+
+**Exact-head verification:** Documentation Governance run #1195 (ID `46122995317`) passed on head `aebdd6c44cbebf953e007dae2fd3e3c3ac2f9fb4`: 67 bilingual Markdown pairs, 172 local links, 21/21 AVT checks, 6/6 model guards, 10/10 hand-authored mutants killed and 210 AVT mutant/check evaluations. A subsequent code hardening adds two more guard checks for boolean-as-number inputs; that later source requires a new exact-head CI run before it can be called verified. The #1195 result applies to the head it tested, not later commits.
