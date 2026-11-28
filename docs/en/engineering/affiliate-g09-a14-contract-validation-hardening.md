@@ -133,3 +133,18 @@ Standards inform the contract and checks; they do not prove runtime implementati
 - PR #76 remains Open/Draft. No merge or deployment is authorized.
 
 **Disposition:** G09-A14 is IN PROGRESS. Validator hardening is an implementation candidate; final lockfile closure and exact-head CI evidence are mandatory before claiming completion.
+
+
+## 8. Final exact-head verification — 2026-11-28
+
+The earlier exact-head evidence in §§4–5 is retained as historical evidence for head `3a008718ab9cf40a551441e3a195f73874788f26`. The later and controlling A14 verification is:
+
+**Exact head:** `736390f86ab425a8c273dcf254cc5974e9eb55ae`
+
+- Affiliate Contract Validation #235 — SUCCESS (run `46071082568`).
+- Documentation Governance #1062 — SUCCESS (run `46071082558`).
+- Both workflows completed on this same exact head.
+- Contract validation reported 66 assertions, 11 schema roots and 53 positive/negative fixtures; strict `npm ci` installations, Redocly OpenAPI validation and AsyncAPI CLI validation passed.
+- A13-F01/F03/F04/F06 are VERIFIED for contract/CI scope only. A13-F02 remains PARTIAL pending installation-specific runtime allowlist proof. A13-F05 remains OPEN pending owner decisions and candidate-specific durability/UNKNOWN proof.
+
+**Controlling disposition:** G09-A14 technical hardening is VERIFIED. The previous “IN PROGRESS pending final lockfile/CI” statements in this document are superseded by this section. This does not approve ADR-002, runtime authorization, persistence/queue selection, partner integration, financial operations, merge or deployment. Independent review remains outstanding; all eight A4 gates remain NOT APPROVED.
