@@ -106,6 +106,9 @@ Both have arithmetic product 5. The matrix must preserve the distinct pairs and 
 **Fixture C:** A mandatory security or legal gate is marked N/A to remove a blocker.  
 **Expected:** invalid. A scoring N/A cannot waive a mandatory gate or law. A materially different decision unit requires explicit re-framing and separate authorization, not relabeling.
 
+**Fixture D — ranking sensitivity:** original weights C1=40, C2=30, C3=30. Candidate A scores (5,2,0); candidate B scores (3,4,5). Before N/A, normalized scores are A=52.00 and B=78.00 (B ranks above A). C3 is then validly approved N/A for every candidate before the new scoring round; after uniform re-baselining, A=74.29 and B=68.57 (A ranks above B).  
+**Expected:** both candidates are recalculated with the same remaining criteria and denominator 70; the ranking reversal is visible and explained. This fixture demonstrates sensitivity only; it is not a universal acceptance threshold.
+
 **Metamorphic property:** Applying the same approved N/A criterion to every candidate must use the same denominator and criterion set. A candidate's result must not change because another candidate's evidence is added or removed. N/A must not improve eligibility when a mandatory gate is failed or unknown.
 
 ### 3.5 REV-14 — Partial evidence cannot pass a compound criterion
