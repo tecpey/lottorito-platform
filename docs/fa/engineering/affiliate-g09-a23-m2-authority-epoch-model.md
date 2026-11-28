@@ -1,7 +1,7 @@
 # G09-A23-M2 — مدل Epoch اختیار و حصارگذاری Writer
 
 **شناسه سند:** LOT-AFFILIATE-G09-A23-M2-001  
-**نسخه:** ۰.۱.۱ | **وضعیت:** با TLC در Bounds محدود بررسی شده؛ بازبینی مستقل و Refinement به Candidate در انتظار است  
+**نسخه:** ۰.۱.۲ | **وضعیت:** با TLC در Bounds محدود بررسی شده؛ بازبینی مستقل و Refinement به Candidate در انتظار است  
 **مدل:** formal/G09M2AuthorityEpochFencing.tla  
 **Baseline:** formal/G09M2AuthorityEpochFencing.cfg  
 **Runner:** scripts/formal/run_g09_m2.sh  
@@ -78,6 +78,7 @@ TryAuthorizedWrite فقط وقتی فعال می‌شود که Writer آنلای
 | TypeOK | تمام State در دامنه متناهی تعریف‌شده باقی بماند |
 | SingleWriter | حداکثر یک Writer فعال باشد |
 | RootEpochAtLeastHighWater | داده Restoreشده نتواند Authority Root را پایین‌تر از High-water Mark غیرقابل‌Rollback ببرد |
+| SinkFenceEpochAtLeastHighWater | Restore نتواند Epoch حصارگذاری‌شده در Mutation Sink را پایین‌تر از High-water Mark مستقل آن ببرد |
 | NewWriterActivationRequiresFence | W1 پیش از Fence تأییدشده Sink در Epoch جاری فعال نشود |
 | RestoreQuarantine | در زمان Restore/Reconciliation هیچ Writer فعالی وجود نداشته باشد و Phase در Quarantined/Fenced بماند |
 | EveryWriteWasFencedAndAuthorized | هر Write پذیرفته‌شده، برابری Writer/Token/Authority/Sink Epoch و Authority Owner را در لحظه Write ثبت کند |
@@ -94,6 +95,7 @@ TryAuthorizedWrite فقط وقتی فعال می‌شود که Writer آنلای
 | G09M2MutantPartitionPromotion.cfg | تلقی Partition به‌عنوان اختیار کافی برای Promotion | NewWriterActivationRequiresFence |
 | G09M2MutantStaleWrite.cfg | اجازه Write به W0 پس از جلو رفتن Sink Epoch | EveryWriteWasFencedAndAuthorized |
 | G09M2MutantRestoreRollback.cfg | Rollback کردن Authority Epoch به Epoch داده قدیمی | RootEpochAtLeastHighWater |
+| G09M2MutantSinkFenceRollback.cfg | Rollback کردن Fence در Mutation Sink هنگام Restore | SinkFenceEpochAtLeastHighWater |
 | G09M2MutantForgedEpoch.cfg | دادن Token ظاهراً احراز‌شده Epoch جاری به W0 غیرمالک | AuthenticatedCurrentTokenHasAuthorityOwner |
 
 Mutant فقط زمانی پذیرفته است که TLC دقیقاً Invariant نام‌برده را نقض کند. اگر Baseline شکست بخورد، Mutant معتبر تلقی نمی‌شود. اگر Mutant Oracle مورد انتظار را فعال نکند، Transition و Invariant باید بازبینی شوند؛ Oracle را صرفاً برای سبز شدن CI تضعیف نکنید.
@@ -108,7 +110,7 @@ Runner پیش از اجرا، SHA-256 فایل JAR ثابت‌شده TLA+ Tools 
 
 GitHub Actions همان JAR ثابت‌شده را دریافت و Hash آن را بررسی می‌کند، Runner را اجرا می‌کند و Logهای TLC و State metadata را به‌عنوان Artifact نگه می‌دارد. الگوی Runner با M0/M1 یکسان است.
 
-**شواهد اجرای واقعی:** [GitHub Actions Run 46175199855 — G09 M2 Authority Epoch Fencing](https://github.com/tecpey/lottorito-platform/actions/runs/46175199855) — SUCCESS روی PR head برابر با 5432f768d1f6e40c1fb59b4764a6c80d6e3a378f؛ Runner مربوط به pull_request روی Synthetic merge commit با شناسه کوتاه 491ac36 اجرا شد (Base: f032065f47fe85de2aabf8d47565a57af6af3ae9). Toolchain: TLA+ Tools v1.7.4 / TLC 2.19، SHA-256 فایل JAR برابر با 936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88؛ Eclipse Temurin OpenJDK 17.0.21.1؛ Ubuntu 24.04؛ BFS، یک Worker، Seed=1، fp=0 و Heap برابر 1 GiB.
+**آخرین شواهد اجرای واقعی:** [GitHub Actions Run 46175422477 — G09 M2 Authority Epoch Fencing](https://github.com/tecpey/lottorito-platform/actions/runs/46175422477) — SUCCESS روی PR head دقیق 96fc7a4830af452f214921ac9af68d7ae4265f33؛ Runner مربوط به pull_request روی Synthetic merge commit با شناسه کوتاه 547cd6f اجرا شد (Base: f032065f47fe85de2aabf8d47565a57af6af3ae9). Toolchain: TLA+ Tools v1.7.4 / TLC 2.19، SHA-256 فایل JAR برابر با 936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88؛ Eclipse Temurin OpenJDK 17.0.21.1؛ Ubuntu 24.04؛ BFS، یک Worker، Seed=1، fp=0 و Heap برابر 1 GiB.
 
 | Case | نتیجه TLC | Generated / Distinct | Depth |
 |---|---|---:|---:|
@@ -117,13 +119,14 @@ GitHub Actions همان JAR ثابت‌شده را دریافت و Hash آن ر�
 | Partition-only promotion | نقض NewWriterActivationRequiresFence | 76 / 39 | 5 |
 | Stale old-writer mutation | نقض EveryWriteWasFencedAndAuthorized | 72 / 37 | 5 |
 | Restore authority rollback | نقض RootEpochAtLeastHighWater | 27 / 18 | 3 |
+| Restore sink-fence rollback | نقض SinkFenceEpochAtLeastHighWater | 27 / 18 | 3 |
 | Forged current-epoch token | نقض AuthenticatedCurrentTokenHasAuthorityOwner | 31 / 22 | 4 |
 
-شمارش State در Mutantها ناقص است؛ TLC پس از نخستین Counterexample مورد انتظار متوقف شده و این اعداد State-space کامل نیستند. Runner فقط به این دلیل موفق شد که Baseline بدون خطا کامل شد و هر پنج Mutant دقیقاً Invariant نام‌برده را نقض کردند.
+شمارش State در Mutantها ناقص است؛ TLC پس از نخستین Counterexample مورد انتظار متوقف شده و این اعداد State-space کامل نیستند. Runner فقط به این دلیل موفق شد که Baseline بدون خطا کامل شد و هر شش Mutant دقیقاً Invariant نام‌برده را نقض کردند.
 
-**Manifest بازتولیدپذیری:** SHA-256 ماژول M2 برابر با a40e2e4779e0deba1ebe11d3aefcb39038dadc9b1cf8200f5a5c0a0aa1ac6503 است. SHA-256 پیکربندی Baseline برابر با c88f19bc769f3b29d4b3a76cb4de75962aa9e67bb98a9436610781d61df8c568 است. Artifact اجرا: [g09-a23-m2-tlc-46175199855-1](https://github.com/tecpey/lottorito-platform/actions/runs/46175199855/artifacts/15275063423)، SHA-256 آرشیو: f877902d92800ba27df1cc1ab0473e16e5d2dde3ae37c97f3b06b75e49eb37e7.
+**Manifest بازتولیدپذیری:** SHA-256 ماژول M2 برابر با ad773d328db633da4789ad064633f933e5ba5870655045a033c1ac82587b4e78 است. SHA-256 پیکربندی Baseline برابر با f3f4eda5b755e91da9c19cb1e5695a04f5ed69f16361c7d317a2bde1ee09a55a است. Artifact اجرا: [g09-a23-m2-tlc-46175422477-1](https://github.com/tecpey/lottorito-platform/actions/runs/46175422477/artifacts/15275536520)، SHA-256 آرشیو: f289ee443e87d314d2df7d97f4908361b8aba4a9d99a9b0c1cc9d50fc133c410.
 
-این شواهد فقط به همین ماژول/Config/Toolchain و Bounds متناهی تعلق دارد. این نتیجه اثبات نامتناهی، بازبینی مستقل، Candidate refinement یا راستی‌آزمایی Runtime/Production نیست.
+این اجرا نسبت به Run قبلی با پنج Mutant، یک آزمون مستقل برای Rollback شدن Metadata حصارگذاری Mutation Sink اضافه می‌کند و شواهد Canonical فعلی M2 محسوب می‌شود. نتیجه همچنان فقط به همین ماژول/Config/Toolchain و Bounds متناهی تعلق دارد؛ اثبات نامتناهی، بازبینی مستقل، Candidate refinement یا راستی‌آزمایی Runtime/Production نیست.
 
 ## ۸. محدودیت‌ها و تعهدهای Refinement
 
@@ -146,4 +149,4 @@ GitHub Actions همان JAR ثابت‌شده را دریافت و Hash آن ر�
 
 ## ۱۰. تعیین وضعیت
 
-M2 یک مدل State-machine متناهی و مستقل از Candidate با یک Baseline و پنج Negative Control هدفمند Oracle است. Baseline محدود TLC و هر پنج Negative Control روی Head دقیق ثبت‌شده با موفقیت اجرا شدند. وضعیت **TLC-CHECKED WITHIN FINITE BOUNDS** است؛ بازبینی مستقل و Candidate refinement همچنان در انتظارند. این سند A21 Findings را نمی‌بندد، ADR-002 را تصویب نمی‌کند، هیچ A4 Gate را برآورده نمی‌کند، R2 را مجاز نمی‌کند، Candidate مربوط به Persistence را انتخاب نمی‌کند و مجوز Runtime/Partner/Finance/Production، Merge یا Deploy صادر نمی‌کند.
+M2 یک مدل State-machine متناهی و مستقل از Candidate با یک Baseline و شش Negative Control هدفمند Oracle است. Baseline محدود TLC و هر شش Negative Control روی آخرین Head دقیق ثبت‌شده با موفقیت اجرا شدند. وضعیت **TLC-CHECKED WITHIN FINITE BOUNDS** است؛ بازبینی مستقل و Candidate refinement همچنان در انتظارند. این سند A21 Findings را نمی‌بندد، ADR-002 را تصویب نمی‌کند، هیچ A4 Gate را برآورده نمی‌کند، R2 را مجاز نمی‌کند، Candidate مربوط به Persistence را انتخاب نمی‌کند و مجوز Runtime/Partner/Finance/Production، Merge یا Deploy صادر نمی‌کند.
