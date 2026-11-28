@@ -176,7 +176,9 @@ def risk_record(*, scenario: str | None, horizon_rationale: str | None,
         "financial", "legal_regulatory", "customer", "safety",
         "confidentiality", "integrity", "availability", "systemic_concentration",
     }
-    if (not set(impact_dimensions).issubset(allowed_dimensions)
+    if (len(set(impact_dimensions)) != len(impact_dimensions)
+            or not all(isinstance(d, str) and d in allowed_dimensions for d in impact_dimensions)
+            or not isinstance(impact_dimension_ratings, dict)
             or not impact_dimension_ratings
             or set(impact_dimension_ratings) != set(impact_dimensions)):
         return "INCOMPLETE"
@@ -191,9 +193,15 @@ def risk_record(*, scenario: str | None, horizon_rationale: str | None,
         return "INVALID_PRODUCT_ONLY"
     if not isinstance(control_claimed, bool):
         return "INVALID"
-    if control_claimed and not control_evidence:
+    if control_claimed and (
+            not isinstance(control_evidence, tuple)
+            or not control_evidence
+            or not all(present(v) for v in control_evidence)):
         return "CONTROL_NOT_CREDITED"
-    if not objectives or not evidence_assumptions:
+    if (not isinstance(objectives, tuple) or not objectives
+            or not all(present(v) for v in objectives)
+            or not isinstance(evidence_assumptions, tuple) or not evidence_assumptions
+            or not all(present(v) for v in evidence_assumptions)):
         return "INCOMPLETE"
     if not all(present(v) for v in (uncertainty, treatment, owner, acceptance_authority)):
         return "INCOMPLETE"
@@ -325,10 +333,11 @@ def _(): return _full_risk(horizon_rationale=None) == "INCOMPLETE"
 def _(): return _full_risk(impact_dimensions=None) == "INCOMPLETE"
 @row("DT05-R5")
 def _():
-    # Both inherent and residual pairs, plus per-dimension impact anchors,
-    # must be represented; the product-only mutant is explicitly rejected.
+    # A product-only representation omits the separately required residual
+    # pair; absence of either pair is rejected rather than reconstructed.
     return (_full_risk() == "COMPLETE_FOR_REVIEW"
-            and _full_risk(mutant="MUT-RISK-PRODUCT") == "INVALID_PRODUCT_ONLY")
+            and _full_risk(residual_likelihood=None) == "INVALID_PAIR"
+            and _full_risk(residual_impact=None) == "INVALID_PAIR")
 @row("DT05-R6")
 def _(): return _full_risk(control_evidence=None) == "CONTROL_NOT_CREDITED"
 @row("DT05-R7")
@@ -377,6 +386,10 @@ def metamorphic_tests() -> dict[str, bool]:
         "MT-10-risk-anchors-reject-boolean-and-non-integer-values": (
             _full_risk(inherent_likelihood=True) == "INVALID_PAIR"
             and _full_risk(residual_impact=2.0) == "INVALID_PAIR"),
+        "MT-11-risk-schema-rejects-duplicate-dimensions-and-blank-evidence": (
+            _full_risk(impact_dimensions=("customer", "customer")) == "INCOMPLETE"
+            and _full_risk(control_evidence=(" ",)) == "CONTROL_NOT_CREDITED"
+            and _full_risk(evidence_assumptions=("",)) == "INCOMPLETE"),
     }
 
 
