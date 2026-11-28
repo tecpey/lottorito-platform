@@ -304,6 +304,183 @@ invalid("Canonical event rejects extension string unpaired surrogate", canonical
 invalid("Canonical event rejects extension string Unicode noncharacter", canonicalEventValidator, { ...canonicalFixture, tenantregion: "\uFDD0" });
 invalid("Canonical event rejects prohibited Unicode in core id", canonicalEventValidator, { ...canonicalFixture, id: "bad\u0001id" });
 
+
+const PARAMETER_DOCUMENTS = [
+  { prefix: "management", document: openApi },
+  { prefix: "ingestion", document: partnerApi },
+];
+
+function resolveJsonPointer(root, reference) {
+  if (reference === "#") return root;
+  if (typeof reference !== "string" || !reference.startsWith("#/")) {
+    throw new Error("Only local JSON Pointer references are supported in parameter coverage: " + reference);
+  }
+  const tokens = reference.slice(2).split("/").map((token) =>
+    token.replace(/~1/g, "/").replace(/~0/g, "~"));
+  return tokens.reduce((value, token) => {
+    if (!value || typeof value !== "object" || !Object.hasOwn(value, token)) {
+      throw new Error("Unresolvable local reference: " + reference);
+    }
+    return value[token];
+  }, root);
+}
+
+function resolveParameter(document, rawParameter, operationLabel) {
+  let parameter = rawParameter;
+  const visited = new Set();
+  while (parameter && typeof parameter === "object" && typeof parameter.$ref === "string") {
+    const reference = parameter.$ref;
+    if (visited.has(reference)) throw new Error("Cyclic parameter reference at " + operationLabel + ": " + reference);
+    visited.add(reference);
+    parameter = resolveJsonPointer(document, reference);
+  }
+  if (!parameter || typeof parameter !== "object" || Array.isArray(parameter)) {
+    throw new Error("Parameter reference did not resolve to an object at " + operationLabel);
+  }
+  return { parameter, reference: rawParameter.$ref ?? null };
+}
+
+function collectEffectiveParameters(document, prefix) {
+  const collected = [];
+  for (const [route, pathItem] of Object.entries(document.paths ?? {})) {
+    for (const [method, operation] of Object.entries(pathItem ?? {})) {
+      if (!HTTP_METHODS.has(method.toLowerCase())) continue;
+      const operationLabel = method.toUpperCase() + " " + route;
+      const inherited = new Map();
+      for (const raw of pathItem.parameters ?? []) {
+        const resolved = resolveParameter(document, raw, operationLabel);
+        const key = resolved.parameter.in + "\u0000" + resolved.parameter.name;
+        if (inherited.has(key)) throw new Error("Duplicate path-item parameter " + key + " at " + operationLabel);
+        inherited.set(key, resolved);
+      }
+      const overrides = new Map();
+      for (const raw of operation.parameters ?? []) {
+        const resolved = resolveParameter(document, raw, operationLabel);
+        const key = resolved.parameter.in + "\u0000" + resolved.parameter.name;
+        if (overrides.has(key)) throw new Error("Duplicate operation parameter " + key + " at " + operationLabel);
+        overrides.set(key, resolved);
+      }
+      const effective = new Map(inherited);
+      for (const [key, value] of overrides) effective.set(key, value);
+      for (const resolved of effective.values()) {
+        const parameter = resolved.parameter;
+        if (typeof parameter.name !== "string" || typeof parameter.in !== "string") {
+          throw new Error("Parameter is missing name/in at " + operationLabel);
+        }
+        collected.push({
+          id: prefix + "." + method.toUpperCase() + " " + route + " :: " + parameter.in + "." + parameter.name,
+          operation: operationLabel,
+          parameter,
+          reference: resolved.reference,
+        });
+      }
+    }
+  }
+  return collected;
+}
+
+function parameterSchemaDescriptor(parameter, parameterId) {
+  if (parameter.schema && parameter.content) {
+    throw new Error(parameterId + " must not declare both schema and content");
+  }
+  if (parameter.schema) {
+    return { schema: parameter.schema, schemaKind: "schema", contentMediaType: null };
+  }
+  if (parameter.content && typeof parameter.content === "object") {
+    const entries = Object.entries(parameter.content);
+    if (entries.length !== 1 || !entries[0][1]?.schema) {
+      throw new Error(parameterId + " content must contain exactly one media type with a schema");
+    }
+    return {
+      schema: entries[0][1].schema,
+      schemaKind: "content",
+      contentMediaType: entries[0][0],
+    };
+  }
+  throw new Error(parameterId + " has neither a schema nor a content schema");
+}
+
+function compileParameterSchema(document, schema) {
+  // Keep the OpenAPI components namespace available so local component-schema
+  // references inside a parameter schema resolve against the same contract.
+  return ajv2020.compile({
+    $schema: "https://json-schema.org/draft/2020-12/schema",
+    components: document.components ?? {},
+    parameterSchema: schema,
+    $ref: "#/parameterSchema",
+  });
+}
+
+function materializeParameterFixture(value) {
+  if (value && typeof value === "object" && !Array.isArray(value) &&
+      Object.keys(value).length === 1 && value.$repeatString) {
+    const spec = value.$repeatString;
+    assert.equal(typeof spec.character, "string", "repeatString character must be a string");
+    assert.equal([...spec.character].length, 1, "repeatString character must be one Unicode code point");
+    assert.ok(Number.isInteger(spec.length) && spec.length >= 0, "repeatString length must be a non-negative integer");
+    return spec.character.repeat(spec.length);
+  }
+  return value;
+}
+
+const actualParameterEntries = PARAMETER_DOCUMENTS.flatMap(({ prefix, document }) =>
+  collectEffectiveParameters(document, prefix));
+const actualParameterMap = new Map(actualParameterEntries.map((entry) => [entry.id, entry]));
+const expectedParameterEntries = validationManifest.parameterCoverage;
+assert.ok(Array.isArray(expectedParameterEntries) && expectedParameterEntries.length > 0,
+  "Manifest must enumerate effective OpenAPI parameter schemas");
+const expectedParameterIds = expectedParameterEntries.map((entry) => entry.id).sort();
+const actualParameterIds = actualParameterEntries.map((entry) => entry.id).sort();
+contractAssert("Manifest enumerates every effective OpenAPI parameter exactly once",
+  JSON.stringify(expectedParameterIds) === JSON.stringify(actualParameterIds) &&
+  new Set(expectedParameterIds).size === expectedParameterIds.length);
+
+const executedParameterFixtures = [];
+const seenParameterFixtureIds = new Set();
+for (const expected of expectedParameterEntries) {
+  const actual = actualParameterMap.get(expected.id);
+  assert.ok(actual, "Missing effective parameter: " + expected.id);
+  const parameter = actual.parameter;
+  contractAssert(expected.id + " required flag matches contract",
+    (parameter.required ?? false) === expected.required);
+  contractAssert(expected.id + " reference origin matches contract",
+    actual.reference === expected.reference);
+  const descriptor = parameterSchemaDescriptor(parameter, expected.id);
+  contractAssert(expected.id + " schema representation matches manifest",
+    descriptor.schemaKind === expected.schemaKind &&
+    descriptor.contentMediaType === expected.contentMediaType);
+
+  const validateParameter = compileParameterSchema(
+    PARAMETER_DOCUMENTS.find((entry) => entry.prefix === expected.id.split(".")[0]).document,
+    descriptor.schema
+  );
+  assert.ok(Array.isArray(expected.fixtures) && expected.fixtures.length >= 2,
+    expected.id + " must have positive and negative boundary fixtures");
+  const hasPositive = expected.fixtures.some((fixture) => fixture.valid === true);
+  const hasNegative = expected.fixtures.some((fixture) => fixture.valid === false);
+  contractAssert(expected.id + " has both positive and negative fixtures", hasPositive && hasNegative);
+
+  for (const fixture of expected.fixtures) {
+    const fixtureKey = expected.id + "::" + fixture.id;
+    assert.ok(typeof fixture.id === "string" && fixture.id.length > 0, "Parameter fixture requires a stable ID");
+    assert.ok(!seenParameterFixtureIds.has(fixtureKey), "Duplicate parameter fixture ID: " + fixtureKey);
+    seenParameterFixtureIds.add(fixtureKey);
+    const value = materializeParameterFixture(fixture.value);
+    const validResult = validateParameter(value);
+    assert.equal(validResult, fixture.valid,
+      fixtureKey + ": expected " + (fixture.valid ? "valid" : "invalid") +
+      "; errors=" + JSON.stringify(validateParameter.errors));
+    executedParameterFixtures.push(fixtureKey);
+    assertions += 1;
+  }
+}
+const expectedParameterFixtureIds = expectedParameterEntries.flatMap((entry) =>
+  entry.fixtures.map((fixture) => entry.id + "::" + fixture.id)).sort();
+const actualParameterFixtureIds = executedParameterFixtures.sort();
+contractAssert("Every parameter manifest fixture executes exactly once",
+  JSON.stringify(expectedParameterFixtureIds) === JSON.stringify(actualParameterFixtureIds) &&
+  new Set(expectedParameterFixtureIds).size === expectedParameterFixtureIds.length);
+
 const expectedRoots = validationManifest.schemaRoots.map((entry) => entry.id).sort();
 const actualRoots = [
   ...Object.keys(openApi.components.schemas).map((name) => "management." + name),
@@ -320,6 +497,6 @@ contractAssert("Every manifest fixture executes against its declared schema root
 contractAssert("Every declared schema root has at least one executed fixture",
   validationManifest.schemaRoots.every((entry) => coveredSchemaRoots.has(entry.id) && entry.fixtureIds.length > 0));
 
-console.log("Affiliate contract validation passed: " + assertions + " assertions; exact operation security/scope manifest; " + actualRoots.length + " schema roots; " + actualFixtures.length + " positive/negative fixtures.");
+console.log("Affiliate contract validation passed: " + assertions + " assertions; exact operation security/scope manifest; " + actualRoots.length + " schema roots; " + actualFixtures.length + " schema fixtures; " + actualParameterEntries.length + " effective parameters; " + actualParameterFixtureIds.length + " parameter fixtures.");
 console.log("Dialect note: OpenAPI 3.2.1 instance subset uses Ajv 2020-12; AsyncAPI 3.0.0 defaults to its own Schema Object (a Draft 07 superset), with Ajv limited to the guarded Draft-07-compatible subset. Redocly and AsyncAPI CLI remain full-document validators.");
 console.log("Scope note: this suite does not prove runtime authorization, tenant binding, installation-specific extension allowlists, Inbox/WorkItem atomicity, deduplication, durability, failover, ledger effects or provider compatibility.");
