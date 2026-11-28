@@ -159,3 +159,6 @@ Validator ساختاری در [scripts/check_docs.py](../../scripts/check_docs.p
 ## ممیزی خصمانه مدل مرجع LOT-EVAL
 
 - [LOT-EVAL-RDM-002 — ممیزی خصمانه مدل مرجع و Oracleهای آزمون](governance/enterprise-evaluation-reference-model-adversarial-audit-002.md) — ممیزی خصمانه به‌دست نویسنده؛ ویژگی‌های آزموده‌نشده ماتریس را شناسایی و مسیر Oracle مستقل و راستی‌آزمایی چندلایه را تعریف می‌کند. یافته‌ها باز هستند.
+
+
+- [LOT-EVAL-RDM-003A — کاتالوگ قواعد هنجاری و جدول‌های تصمیم](governance/enterprise-evaluation-decision-rule-catalogue-001.md) — تجزیه به‌دست نویسنده از LOT-EVAL-001 به قواعد اتمی، پنج جدول تصمیم، دفتر ابهام‌های حل‌نشده و ردیابی قاعده به آزمون؛ بازبینی Oracle مستقل و تعیین تکلیف مالک در انتظار.
