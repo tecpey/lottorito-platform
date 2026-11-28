@@ -370,6 +370,22 @@ For each risk, record the assessment horizon, scenario, affected objectives, evi
 
 Preserve and display the raw likelihood-impact pair and the impact dimensions. Prefer an explicitly approved risk matrix with documented decision bands. Multiplying ordinal likelihood and impact values is not a calibrated quantitative measure and can conceal materially different profiles (for example, L1/I5 versus L5/I1). If a product is retained as a screening heuristic, label it ordinal only, preserve the pair, state its limitations and never call it expected loss, probability-adjusted cost or calibrated quantitative risk without supporting empirical data. Risk acceptance thresholds and authority are owner decisions; the matrix cannot approve risk.
 
+
+**Proposed likelihood anchors (for a stated assessment horizon):** 1 Rare — exceptional conditions would be needed and no relevant occurrence/indicator is known; 2 Unlikely — plausible but not expected, with limited indicators or comparable cases; 3 Possible — a credible scenario with some indicators or comparable occurrences during the horizon; 4 Likely — strong indicators or recurring comparable occurrences make it expected during the horizon; 5 Almost certain — ongoing, recurring or near-term occurrence is expected under current exposure. State the horizon (for example, the next 12 months) and the evidence behind the category; do not translate these labels into percentages without calibrated data.
+
+**Proposed impact anchors (rate each relevant dimension separately):** 1 Negligible — localized, readily reversible effect with negligible disruption; 2 Minor — limited disruption or harm, quickly recoverable within documented tolerance; 3 Moderate — material but bounded customer, service, financial or data impact requiring planned remediation; 4 Major — serious customer/operational impact, extended disruption, material financial exposure or significant legal/regulatory concern; 5 Severe — widespread, irreversible or systemic harm, material loss of funds/ledger integrity, safety impact or potentially severe legal/regulatory consequence. Monetary thresholds, legal materiality and service tolerances must be defined for the named decision unit by the accountable owner; these qualitative anchors do not replace them.
+
+**Illustrative qualitative triage matrix (not a risk-acceptance rule):**
+
+| Likelihood \\ Impact | 1 | 2 | 3 | 4 | 5 |
+|---|---|---|---|---|---|
+| 5 | High | High | Severe | Severe | Severe |
+| 4 | Moderate | High | High | Severe | Severe |
+| 3 | Moderate | Moderate | High | High | Severe |
+| 2 | Low | Moderate | Moderate | High | Severe |
+| 1 | Low | Low | Moderate | High | High |
+
+This matrix is a review-priority aid only. It is not a calibrated risk measure, does not imply acceptance, and must be adopted or adjusted by the accountable owner for a named decision unit before use. Any impact-5 scenario, mandatory-gate failure or legally restricted activity must be escalated regardless of the matrix cell. Preserve the original likelihood/impact pair and each impact dimension in all records.
 ### 17.10.5 Total-cost estimation bias and switching value
 
 For material TCO estimates, record historical forecast-versus-actual error where available, reference-class or comparable-project evidence, optimism-bias adjustments and reasons for exclusions. If no usable history or reference class exists, disclose the limitation and use scenario/sensitivity analysis rather than fabricated precision. For consequential or hard-to-reverse choices, calculate or qualitatively document switching value: the point at which a change in cost, demand, performance, delay or risk would reverse the preferred option. Identify assumptions, source dates, horizon, currency/FX, discount treatment and the owner of each estimate. These are decision aids, not guarantees of future cost.
