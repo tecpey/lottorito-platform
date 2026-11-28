@@ -101,7 +101,7 @@ A runner is successful only when the baseline completes without an invariant vio
 - One serialization point and one external blocker model contention/lock wait.
 - One tenant and one installation are modeled; cross-tenant behavior beyond detecting a mismatched binding belongs to M6.
 - Token entropy, cryptographic authenticity, IAM implementation, database locking/isolation/time semantics, process kill/STONITH, queue behavior, external effects and restore-incarnation protocol are abstracted or excluded.
-- The model does not establish liveness, throughput, lease-duration suitability, retry/backoff policy or production capacity.
+- A process restart is not a distinct transition in this finite model; stale local claim data is retained as the resumed-worker abstraction. The explicit restart/reload schedule remains required in the A7/A8 candidate-level test chain. The model does not establish liveness, throughput, lease-duration suitability, retry/backoff policy or production capacity.
 
 ## 8. Scope exclusions and dependencies
 
