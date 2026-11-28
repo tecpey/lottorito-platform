@@ -1,7 +1,7 @@
 # G09-A23 — مدل رسمی پروتکل و راهبرد آزمون خصمانه
 
 **شناسه سند:** LOT-AFFILIATE-G09-A23-001  
-**نسخه:** ۰.۱.۱۷ | **وضعیت:** پیشنهادی؛ M0 و M1 با TLC در Bounds محدود بررسی شده‌اند؛ M2 تألیف شده و اجرای TLC در انتظار است؛ Runtime اجرا نشده و M3–M7 تألیف نشده‌اند  
+**نسخه:** ۰.۱.۱۸ | **وضعیت:** پیشنهادی؛ M0 تا M2 با TLC در Bounds محدود بررسی شده‌اند؛ Runtime اجرا نشده و M3–M7 تألیف نشده‌اند  
 **تاریخ:** ۲۰۲۶-۱۱-۲۸  
 **مبنای بازبینی:** G09-A21، G09-A22، G09-A20، G09-A7، ADR-001 و ADR-002  
 **مرجعیت:** طراحی مشورتی؛ هیچ تصمیم مالک، Candidate، Gate یا مجوز اجرایی تصویب نمی‌شود.
@@ -166,7 +166,7 @@ Fairness قوی/ضعیف، Scheduler، نرخ ورود، ظرفیت، Retry Budg
 
 1. **M0 — Atomic Acceptance:** دو Caller، یک Identity، یک Receipt و یک WorkItem؛ Crash قبل/بعد نقطه Commit. ماژول و Configهای پایه/Mutant در `formal/G09M0AtomicAcceptance.tla` و فایل‌های همراه تألیف شده و TLC v1.7.4 در Run #11 با ۵۲ State متمایز Baseline و سه Counterexample منطبق با Mutantها اجرا شده است؛ این نتیجه فقط به Bounds M0 تعلق دارد.
 2. **M1 — UNKNOWN Arbitration:** Transaction اولیه In-flight، گم‌شدن پاسخ، Negative Read، Retry هم‌زمان و Commit/Abort دیرهنگام.
-3. **M2 — Authority Epoch:** دو Writer، دو Epoch، Partition، Promotion، بازگشت Primary قدیمی و Restore Epoch. ماژول TLA+ مستقل از Candidate، یک Baseline، پنج Negative Control، Runner/Workflow ثابت‌شده و سند همراه دوزبانه تألیف شده‌اند؛ اجرای TLC روی Head دقیق در انتظار است. [مدل M2](affiliate-g09-a23-m2-authority-epoch-model.md).
+3. **M2 — Authority Epoch:** دو Writer، دو Epoch، Partition، Promotion، بازگشت Primary قدیمی و Restore Epoch. ماژول TLA+ مستقل از Candidate، یک Baseline و پنج Negative Control در Bounds متناهی روی Head دقیق 5432f768d1f6e40c1fb59b4764a6c80d6e3a378f با TLC بررسی شده‌اند. [مدل و شواهد M2](affiliate-g09-a23-m2-authority-epoch-model.md).
 4. **M3 — Worker Lease:** دو Worker/Generation، Claim و Reclaim، تمدید Lease، Heartbeat/Completion/Retry/Park، State/Token/LifecycleVersion mismatch، شکست Guard با صفر Mutation، توقف Lock، Timestamp قبل/بعد Lock، Clock Skew، انقضای Lease پیش از Reclaim و Resume Worker قدیمی.
 5. **M4 — Outbox/Consumer/Receiver:** انتشار تکراری، Delay، Reorder، Broker outage، Consumer crash، درخواست خارجی in-flight، پذیرش Receiver پس از انقضای Lease مبدأ، پاسخ گم‌شده، Retry، Idempotency/Fencing مقصد و انقضای Retention Dedup Receiver.
 6. **M5 — Restore/Lifecycle:** PITR/Backup قدیمی، Tombstone و مرز انقضا، افق Replay متناهی/نامتناهی، پیام دیررس Queue، Credential/Key/Schema Rotation، Recovery Incarnation، Failback، Clean-room Quarantine و Gate بازگشایی.
@@ -317,3 +317,6 @@ Mutantهای حداقلی اجباری: حذف Unique Constraint؛ Ack قبل ا
 
 
 **یادداشت بازبینی نسخه ۰.۱.۱۷ — تألیف M2:** State machine مربوط به M2، یک Baseline و پنج Negative Control، Runner ثابت‌شده TLC، GitHub Actions Workflow و سند همراه دوزبانه اضافه شدند. مدل تخصیص اختیار، Fencing در Mutation Sink، تأیید Fence و فعال‌سازی Writer را جدا می‌کند و مسیرهای Partition، بازگشت Primary قدیمی و Quarantine/Rollback در Restore را دربرمی‌گیرد. **هنوز هیچ اجرای TLC برای M2 ادعا نمی‌شود.** پیش از ثبت نتیجه، Baseline روی Head دقیق و هر پنج Counterexample مورد انتظار باید بررسی شوند. شواهد M0/M1 همچنان فقط به Model/Config/Toolchain/Bounds دقیق خودشان محدود است. M3–M7 تألیف نشده‌اند؛ هیچ Runtime/Candidate، تصمیم مالک، A4 Gate، Merge یا Deployment تصویب نشده است.
+
+
+**یادداشت بازبینی نسخه ۰.۱.۱۸ — شواهد TLC محدود M2:** Run [46175199855](https://github.com/tecpey/lottorito-platform/actions/runs/46175199855) روی PR head دقیق 5432f768d1f6e40c1fb59b4764a6c80d6e3a378f با موفقیت تکمیل شد؛ Synthetic merge commit برابر 491ac36 (Base: f032065f47fe85de2aabf8d47565a57af6af3ae9). Baseline تعداد ۱۳۶ State متمایز (۵۱۵ تولیدشده)، عمق ۱۲ را بدون نقض Invariant کامل کرد. هر پنج Negative Control Counterexample مورد انتظار را تولید کردند: Early promotion و Partition-only promotion → NewWriterActivationRequiresFence؛ Stale write → EveryWriteWasFencedAndAuthorized؛ Restore rollback → RootEpochAtLeastHighWater؛ Forged epoch → AuthenticatedCurrentTokenHasAuthorityOwner. TLC 2.19 / Tools v1.7.4، SHA-256 JAR ثابت‌شده 936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88، Temurin 17.0.21.1 و Ubuntu 24.04. Artifact ID برابر 15275063423 و SHA-256 آرشیو f877902d92800ba27df1cc1ab0473e16e5d2dde3ae37c97f3b06b75e49eb37e7 است. M0 و M1 نیز روی همین PR head در Workflowهای TLC خود موفق شدند؛ Affiliate Contract Validation هم موفق شد. Documentation Governance روی Head قبلی Cancel شد و پس از این به‌روزرسانی مستندات باید مجدداً اجرا شود. شواهد به همین مدل‌های متناهی محدودند و صحت Candidate/Runtime را اثبات نمی‌کنند. M3–M7 تألیف نشده‌اند؛ بازبینی مستقل، Candidate refinement و تمام تصمیم‌های مالک/Gateهای A4 باز هستند.
