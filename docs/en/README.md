@@ -125,4 +125,7 @@ Read repository-root [AGENTS.md](../../AGENTS.md). Use a working branch and pull
 
 - [Affiliate G09-A13 — Contract Validation Assurance Review](engineering/affiliate-g09-a13-contract-validation-assurance-review.md) — same-author review of exact-head CI scope, security/scope assertions, AsyncAPI dialect, dependency reproducibility, extension constraints and UNKNOWN response semantics; findings OPEN.
 
-- [Affiliate G09-A14 — Contract Validation Hardening & Response-State Alignment](engineering/affiliate-g09-a14-contract-validation-hardening.md) — hardens exact operation security/scope assertions, CloudEvents extension profile, AsyncAPI dialect checks, lockfile installation and schema/fixture coverage; IN PROGRESS pending lockfile finalization and exact-head CI.
+- [Affiliate G09-A14 — Contract Validation Hardening & Response-State Alignment](engineering/affiliate-g09-a14-contract-validation-hardening.md) — exact operation security/scope manifest, CloudEvents profile, AsyncAPI dialect guard, reproducible lockfiles and 11-root/53-fixture coverage; technical hardening verified on exact head `736390f86ab425a8c273dcf254cc5974e9eb55ae`; runtime/owner decisions remain open.
+
+
+- [Affiliate G09-A15 — ADR-002 Persistence Proof Readiness & Owner Decision Matrix](engineering/affiliate-g09-a15-persistence-proof-readiness.md) — candidate-neutral proof obligations, 12 owner decisions, 12 deterministic proof schedules, independent evidence contract and staged gates; no candidate selected and no runtime proof executed.
