@@ -55,6 +55,9 @@ Commission formulas, NGR, ledger posting, wallet, payment, payout, prize, player
 | callerOutcome | last outcome actually observed by the caller |
 | claimGeneration | monotonically increasing claim generation per WorkItem |
 | leaseState | lease state; expiry alone does not authorize mutation |
+| leaseClockModel | authoritative time/skew model and how time is sampled relative to the serialization point |
+| leaseObservation | lease-validity observation after acquiring the serialization point, not a stale pre-lock timestamp |
+| workState | abstract WorkItem state: ready / claimed / processing / completed / failed / quarantined / blocked |
 | outboxState | optional publication state after source commit |
 | consumerReceipt | consumer-side independent deduplication/receipt |
 | restoreIncarnation | unique identifier for a restore/recovery incarnation |
@@ -84,7 +87,8 @@ The formal model must define at least the following transitions with preconditio
 | TransferAuthority | new epoch activates only through authoritative protocol and enforceable fencing |
 | RejectStaleWriter | old-epoch writer is rejected at the mutation point |
 | ClaimWork | claim and new generation are durable and serialized by the authority |
-| ExpireAndReclaim | old lease expires and new claim is issued; old generation remains invalid |
+| ExpireAndReclaim | old lease becomes eligible for reclaim; new claim is issued only by a serialized transition; old generation remains invalid after reclaim wins |
+| LinearizeLeaseTransition | lease validity is sampled after acquiring the serialization point; the first valid protected transition to linearize wins; expiry alone is not a mutation |
 | ResumeStaleWorker | old worker resumes; protected mutation and external effect must be rejected |
 | CommitWorkTransition | only valid owner/generation/authority at mutation time |
 | PublishOutbox | only from durable outbox; delivery may duplicate or reorder |
@@ -96,7 +100,7 @@ The formal model must define at least the following transitions with preconditio
 | ReconcileExternalEffect | resolve destination UNKNOWN using authoritative destination lookup; do not infer absence from cache/timeout |
 | RejectStaleDestinationActor | a destination that supports fencing rejects old epoch/generation at effect time; otherwise record explicit residual risk and limited guarantee |
 
-**Linearization rule:** every protected transition must have a defined linearization point. Checking lease/epoch before waiting for a lock is insufficient; validity must be re-established at the serialized mutation point. A23 does not prescribe one implementation mechanism as a universal answer.
+**Linearization rule:** every protected transition must have a defined linearization point. Checking lease/epoch or sampling time before waiting for a lock is insufficient; validity must be re-established after acquiring the serialization point and at the serialized mutation. Lease expiry only makes work eligible for reclaim; a valid old-worker transition linearized before reclaim is ordered before it; after reclaim commits with a new generation, the old worker is rejected. A23 does not prescribe one implementation mechanism as a universal answer.
 
 ## 5. Safety properties — invariants
 
@@ -113,11 +117,12 @@ Each property must have a stable ID, related state/transitions, independent orac
 | S-07 Worker Fencing | an old generation cannot commit protected state or a side effect |
 | S-08 Restore Monotonicity | restore/PITR cannot silently resurrect or roll back epoch, consumed identity or revocation |
 | S-09 Tenant Isolation | no cross-tenant read/write/disclosure through identity, payload, retry or repair |
-| S-10 Outbox Boundary | broker messages are not acceptance authority; duplicate publication/delivery creates no second effect |
+| S-10 Outbox Boundary | broker messages are not acceptance authority; duplicate publication/delivery creates no second effect at a destination with an approved deduplication/idempotency contract; without one, external-effect guarantees are limited and residual risk is recorded |
 | S-11 External Effect Boundary | database atomicity is never represented as end-to-end exactly-once for an external destination |
 | S-12 Financial Non-effect | ingress and worker lack an authorized path to financial mutation; financial delta remains zero |
 | S-13 Evidence Integrity | every result is attributable to history, config, version, clock, actor and hashed artifact |
 | S-14 Destination Safety | every external effect is protected by provable destination-side idempotency/lookup/fencing, or explicitly remains outside any exactly-once guarantee as UNKNOWN/residual risk; a database token alone does not fence a destination |
+| S-15 Lease Linearization | lease validity is checked at the serialization point; expiry alone is not revocation/mutation; after reclaim linearizes with a new generation, all old-generation mutations are rejected; a valid transition linearized before reclaim remains ordered before it |
 
 Safety must hold for every reachable prefix, not merely at the end of a lucky run. A valid counterexample is FAIL; absence of a counterexample in a bounded model is not proof of the real system.
 
