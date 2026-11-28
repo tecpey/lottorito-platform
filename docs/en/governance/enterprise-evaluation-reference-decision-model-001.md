@@ -3,7 +3,7 @@
 **Document ID:** LOT-EVAL-RDM-001  
 **Version:** 0.1.0  
 **Date:** 2026-11-28  
-**Status:** CORRECTED AFTER AUTHOR-LED SECOND-PASS REVIEW — exact-head CI pending; no independent assurance or owner disposition implied
+**Status:** CORRECTED AFTER AUTHOR-LED SECOND-PASS REVIEW — exact-head CI #1195 SUCCESS; no independent assurance or owner disposition implied
 **Parent baseline:** LOT-EVAL-001 v0.3.0 and LOT-EVAL-AVT-001 v0.2.0  
 **Frozen parent commit:** `e7aed0892a0de212fc3fd7603a6976eee503a76f`  
 **Authority:** Deterministic reference behavior for the mapped synthetic acceptance vectors only. This is not the Lottorito product runtime, a procurement engine, a legal/security assurance, standard adoption, owner approval or production authorization.
@@ -100,4 +100,4 @@ Current model semantics:
 
 The updated harness still has 21 registered AVT checks, 6 model-guard checks, 10 hand-authored specification mutants and 210 AVT mutant/check evaluations. The six guard checks are reported separately and are not included in the 210 count. AVT-17 remains a single registered check but its behavior is now distinct from AVT-16.
 
-**Verification state:** this source correction has been committed, but no successful exact-head CI result is claimed until the workflow run for the current head completes. Do not reuse the previous 21/21 and 10/10 result as evidence for the corrected source. The author-led second-pass review is not blind, not a second-person review and not formal IV&V.
+**Verification state:** exact-head Documentation Governance run #1195 (ID `46122995317`) succeeded on `aebdd6c44cbebf953e007dae2fd3e3c3ac2f9fb4`. It validated 67 bilingual Markdown pairs and 172 local links; all 21 registered AVT checks and 6 model-guard checks passed; 10/10 hand-authored mutants were killed across 210 AVT mutant/check evaluations, with zero survivors. This is bounded harness/structural evidence only, not full matrix-property coverage. The author-led second-pass review is not blind, not a second-person review and not formal IV&V.
