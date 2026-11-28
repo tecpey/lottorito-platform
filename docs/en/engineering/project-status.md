@@ -255,3 +255,11 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 - A20 is not yet an executable qualification specification. A20-01..A20-28 remain DESIGNED / NOT RUN. No finding is closed and no A20 remediation is silently applied.
 - Proposed controlled sequence: A22 specification remediation; A23 formal model and test strategy; A24 evidence and bilingual assurance package. Owner decisions remain owner decisions.
 - C-01..C-16 OPEN; G1..G9 NOT TESTED; ADR-002 PROPOSED; OD-01..OD-12 OPEN; A11-F01..F08 OPEN; A12 NOT PERFORMED; R0 BLOCKED; R1 research-only; R2 NOT STARTED; R3 NOT AUTHORIZED; A4 NOT APPROVED. No runtime/harness, provider selection, partner integration, financial operation, merge or deployment authorized. Exact-head CI to be checked after sequential updates.
+
+
+## G09-A22 — A20 specification remediation (2026-11-28)
+- Added bilingual LOT-AFFILIATE-G09-A22-001 to PR #76; LDR-067 registered in both decision registers; both README indexes updated.
+- A22 responds at specification-structure level to A21-F02..F10: decision-gated source identity/canonicalization and deduplication; atomic acceptance and UNKNOWN-commit reconciliation; per-destination external receiver contracts and realistic delivery guarantees; retention/tombstone/replay/restore lifecycle; bidirectional requirement-to-proof traceability; PASS/FAIL/INCONCLUSIVE/NOT_RUN/BLOCKED semantics; strict synthetic-only financial isolation; and a minimum machine-readable test-record contract.
+- No owner decisions or candidate values were invented. OD-01..OD-12, C-01..C-16 remain OPEN; G1..G9 NOT TESTED / NOT PASSED. All A21 findings remain OPEN pending actual evidence and authorized review; A22 prose does not close them.
+- A20-01..A20-28 remain DESIGNED / NOT RUN. ADR-002 PROPOSED; A11-F01..F08 OPEN; A12 NOT PERFORMED / NOT ASSESSABLE; R0 BLOCKED; R1 research-only; R2 NOT STARTED; R3 NOT AUTHORIZED; A4 NOT APPROVED.
+- No runtime/harness, candidate selection, partner integration, financial operation, production access, merge or deployment authorized. A23 formal model/test strategy and A24 evidence/bilingual assurance remain future stages.
