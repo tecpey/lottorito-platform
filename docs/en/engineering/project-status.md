@@ -219,3 +219,10 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 - Both strict `npm ci` installs from committed isolated lockfiles passed on Node 24.11.1/npm 11.6.2. Redocly OpenAPI, AsyncAPI CLI 6.2.2 and Node/Ajv payload validation passed: 66 assertions, 11 schema roots, 53 positive/negative fixtures.
 - A13-F01/F03/F04/F06 are verified for contract/CI scope. A13-F02 remains partial pending installation-specific runtime allowlist proof; A13-F05 remains open pending owner decisions and candidate-specific durability/UNKNOWN proof. Non-blocking notices: missing `info.license` metadata and AsyncAPI CLI recommendation to consider 3.1.0; no license or dialect migration is inferred.
 - ADR-002 remains PROPOSED; A11-F01..F08 OPEN; A7/A8 design-only/NOT RUN; all A4 gates NOT APPROVED; independent review outstanding. No runtime, persistence/queue selection, partner integration, financial operation, merge or deployment authorized.
+
+
+## G09-A15 — ADR-002 persistence proof readiness (2026-11-28)
+- Added bilingual LOT-AFFILIATE-G09-A15-001 with seven candidate-neutral proof obligations, 12 owner decisions, 12 synthetic schedules, independent evidence-manifest requirements, staged readiness gates and stop conditions.
+- Baseline inspected: PR #76 head `736390f86ab425a8c273dcf254cc5974e9eb55ae`; Affiliate Contract Validation #235 and Documentation Governance #1062 both SUCCESS on that exact head. These runs do not apply to subsequent A15 documentation commits and do not prove persistence/runtime behavior.
+- The A12 package remains the independent-review procedure; no independent GitHub review sign-off was present in the inspected PR record. A15 is not an independent review. A11-F01..F08 remain OPEN; ADR-002 remains PROPOSED; all A4 gates remain NOT APPROVED; S01-S12 are NOT RUN.
+- A13-F02 installation-specific runtime allowlist and A13-F05 owner/candidate proof remain open. No persistence/queue/vendor selected; no runtime/harness execution, partner integration, financial operation, merge or deployment authorized. Latest-head CI must be checked after the A15 documentation commits.
