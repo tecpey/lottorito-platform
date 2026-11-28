@@ -1,7 +1,7 @@
 # G09-A23 — Formal Protocol Model & Adversarial Test Strategy
 
 **Document ID:** LOT-AFFILIATE-G09-A23-001  
-**Version:** 0.1.0 | **Status:** PROPOSED, MODEL/TEST DESIGN ONLY — NO MODEL CHECKER OR RUNTIME EXECUTION  
+**Version:** 0.1.1 | **Status:** PROPOSED, MODEL/TEST DESIGN ONLY — NO MODEL CHECKER OR RUNTIME EXECUTION  
 **Date:** 2026-11-28  
 **Review basis:** G09-A21, G09-A22, G09-A20, G09-A7, ADR-001 and ADR-002  
 **Authority:** Advisory design; no owner decision, candidate, gate or execution permission is approved.
@@ -89,7 +89,7 @@ The formal model must define at least the following transitions with preconditio
 | ClaimWork | claim and new generation are durable and serialized by the authority |
 | ExpireAndReclaim | old lease becomes eligible for reclaim; new claim is issued only by a serialized transition; old generation remains invalid after reclaim wins |
 | LinearizeLeaseTransition | lease validity is sampled after acquiring the serialization point; the first valid protected transition to linearize wins; expiry alone is not a mutation |
-| ResumeStaleWorker | old worker resumes; protected mutation and external effect must be rejected |
+| ResumeStaleWorker | source-side protected mutation is rejected if the lease is expired at the guard point or owner/generation/token/authority no longer matches. This rejection does not cancel an external request already dispatched; the destination outcome must be checked under the receiver contract |
 | CommitWorkTransition | only valid owner/generation/authority at mutation time |
 | PublishOutbox | only from durable outbox; delivery may duplicate or reorder |
 | ConsumeMessage | consumer rereads/claims authoritative work; broker message alone is not authority |
@@ -98,9 +98,13 @@ The formal model must define at least the following transitions with preconditio
 | Quarantine/Repair | authorized, bounded, fully audited actor; ordinary workers cannot claim quarantined work |
 | SubmitExternalEffect | only after valid work/outbox; destination enforces its own identity/idempotency/fencing contract |
 | ReconcileExternalEffect | resolve destination UNKNOWN using authoritative destination lookup; do not infer absence from cache/timeout |
-| RejectStaleDestinationActor | a destination that supports fencing rejects old epoch/generation at effect time; otherwise record explicit residual risk and limited guarantee |
+| RejectStaleDestinationActor | only a destination with proven receiver-side fencing rejects an old epoch/generation at effect time; otherwise late acceptance may occur and UNKNOWN/residual risk must be recorded |
+| DispatchExternalRequest | dispatch with stable destinationIdentity and fingerprint across the process boundary; in-flight state is independent of the source lease |
+| AcceptExternalRequest | receiver accepts/rejects under its own idempotency/fencing/ordering contract; arrival may occur after the source lease expires |
+| LoseExternalResponse | receiver may have applied the effect but the response is lost; caller observes destinationOutcome=unknown |
+| RetryExternalRequest | retry only with the same approved destinationIdentity/idempotency key and fingerprint; never mint a new key for the same effect |
 
-**Linearization rule:** every protected transition must have a defined linearization point. Checking lease/epoch or sampling time before waiting for a lock is insufficient; validity must be re-established after acquiring the serialization point and at the serialized mutation. Lease expiry only makes work eligible for reclaim; a valid old-worker transition linearized before reclaim is ordered before it; after reclaim commits with a new generation, the old worker is rejected. A23 does not prescribe one implementation mechanism as a universal answer.
+**Linearization and lease-expiry rule (aligned with ADR-001):** every protected transition must have a defined linearization point. Checking lease/epoch or sampling time before waiting for a lock is insufficient; after acquiring the serialization point, the guard must re-evaluate lease validity at that point. If the lease has expired at this point, the transition is rejected even if reclaim or a new generation has not yet been recorded. Expiry alone does not mutate state or generation; it invalidates the lease condition and makes work eligible for reclaim. If the old worker still has a valid lease and current owner/generation/token/authority at the guard point and the serialized mutation succeeds, that transition is ordered before reclaim. If reclaim commits first, the old generation is rejected. A local worker clock or pre-lock timestamp cannot replace this rule. A23 does not prescribe one implementation mechanism as a universal answer.
 
 ## 5. Safety properties — invariants
 
@@ -114,15 +118,15 @@ Each property must have a stable ID, related state/transitions, independent orac
 | S-04 Ack Soundness | ACCEPTED is returned only after durable commit is proven under the approved policy |
 | S-05 Unknown Preservation | UNKNOWN is neither ACCEPTED nor REJECTED until valid reconciliation |
 | S-06 Authority Fencing | an old-epoch actor cannot mutate protected state after authority transfer |
-| S-07 Worker Fencing | an old generation cannot commit protected state or a side effect |
+| S-07 Worker Fencing | an old generation cannot commit source-persistence-owned protected state; an external effect can only be rejected/deduplicated when receiver-side fencing/idempotency is proven, otherwise it is governed by S-14 and remains UNKNOWN/residual risk |
 | S-08 Restore Monotonicity | restore/PITR cannot silently resurrect or roll back epoch, consumed identity or revocation |
 | S-09 Tenant Isolation | no cross-tenant read/write/disclosure through identity, payload, retry or repair |
-| S-10 Outbox Boundary | broker messages are not acceptance authority; duplicate publication/delivery creates no second effect at a destination with an approved deduplication/idempotency contract; without one, external-effect guarantees are limited and residual risk is recorded |
+| S-10 Outbox Boundary | broker messages are not acceptance authority; publisher/consumer and the internal consumer receipt follow the consumer-side deduplication contract; duplicate broker delivery alone must not create duplicate mutation in the consumer's authoritative store. External receiver guarantees are separate under S-14 |
 | S-11 External Effect Boundary | database atomicity is never represented as end-to-end exactly-once for an external destination |
 | S-12 Financial Non-effect | ingress and worker lack an authorized path to financial mutation; financial delta remains zero |
 | S-13 Evidence Integrity | every result is attributable to history, config, version, clock, actor and hashed artifact |
 | S-14 Destination Safety | every external effect is protected by provable destination-side idempotency/lookup/fencing, or explicitly remains outside any exactly-once guarantee as UNKNOWN/residual risk; a database token alone does not fence a destination |
-| S-15 Lease Linearization | lease validity is checked at the serialization point; expiry alone is not revocation/mutation; after reclaim linearizes with a new generation, all old-generation mutations are rejected; a valid transition linearized before reclaim remains ordered before it |
+| S-15 Lease Linearization | lease validity is checked after acquiring the serialization point and in the guard for that mutation; if expired at that point, mutation is rejected even before reclaim; expiry alone does not mutate state/generation; a valid transition before expiry and before reclaim is ordered before reclaim; after reclaim commits with a new generation, all old-generation mutations are rejected |
 
 Safety must hold for every reachable prefix, not merely at the end of a lucky run. A valid counterexample is FAIL; absence of a counterexample in a bounded model is not proof of the real system.
 
@@ -187,7 +191,7 @@ Model checking does not replace testing the actual candidate. After separate gat
 
 ### 8.2 History/concurrency layer
 
-- record Invoke/Complete operations with correlation ID, identity, actor, epoch, generation and observed outcome;
+- record Invoke/Complete operations with correlation ID, identity, actor, epoch, generation and observed outcome; for external effects, record dispatch time, receiver acceptance, receipt and caller outcome separately;
 - independent history checker for uniqueness, ordering, linearization and absence of duplicate effects;
 - fault injector for partition, process kill, network delay/loss, node restart, failover and clock skew;
 - deterministic seed, barriers and ordered schedules for exact race reproduction;
@@ -271,6 +275,9 @@ Model, simulation, history, performance and recovery results are reported separa
 These sources support methods and failure classes; they do not prove Lottorito correctness, any specific candidate or a deployment.
 
 ## 14. Final disposition
+
+**Version 0.1.1 review note:** a cross-check against ADR-001 showed that lease expiry must reject a protected mutation when evaluated by the guard after the serialization point, even before reclaim; expiry alone does not increment generation. Local fencing also must not be described as cancellation of an external request already in flight. Transitions, S-07/S-10/S-14/S-15 and M3/M4 were refined to remove these ambiguities. These refinements do not close A21-F04/F11 and still require model checking and evidence.
+
 
 - A23: proposed model contract and test strategy; **NOT EXECUTED**.
 - TLA+ model/TLC: not yet authored/executed/reviewed.
