@@ -1,6 +1,6 @@
 # وضعیت واقعی پروژه و نقطه ادامه کار
 
-**شناسه:** LOT-OPS-001 | **نسخه:** ۲.۰.۲ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۸
+**شناسه:** LOT-OPS-001 | **نسخه:** ۲.۰.۳ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۸
 
 ## وضعیت تأییدشده مخزن
 - مخزن tecpey/lottorito-platform؛ شاخه پیش‌فرض main؛ سطح دسترسی Public طبق تصمیم مالک.
@@ -281,3 +281,5 @@
 - اجرای تأییدی M0 روی PR head جاری `c9d2e2b7e3d80bf53a64e928df647bcd1cb20ebc` در Run `46170218651` موفق شد؛ Runner رویداد PR روی merge commit مصنوعی `9a9aa076de9700717e4d41d14766d8414fdd2b5b` اجرا کرد. Baseline: ۵۲ State متمایز، بدون نقض؛ سه Negative Control Counterexampleهای مورد انتظار را تولید کردند. Artifact ID `15273631651` با SHA-256 `0ae142aac63ca8bc9e9cdd1e802b98bdd8abf8e829045e3d99879ba92bd60d4d`. این شواهد فقط M0 محدود است؛ بازبینی مستقل/Refinement و M1–M7 هنوز انجام نشده‌اند.
 
 - M0 و M1 در PR head `b9fd70090a158b09131aa4f848e194fe7cefe273` روی synthetic merge commit `0ceabe3` مجدداً در CI بررسی شدند. M0 Run `46171267528`: Baseline با ۵۲ State متمایز و سه Mutant با نقض‌های مورد انتظار؛ Artifact `15273950539` / SHA-256 `d2f1eb916a2c6f2316acf6932aa03ab5caab5a846eac53091cbb452a3a5315b5`. M1 Run `46171267569`: دو Baseline هرکدام ۱۹ State متمایز و ۲۵ تولیدشده، عمق ۸؛ سه Mutant نقض‌های `NoRetryCommitWhileOriginalInflight`، `ReceiptCardinality` و `ConflictSoundness` را کشف کردند؛ Artifact `15273009002` / SHA-256 `b48aa95a3b6145082eb7f637dac3950d8e9656270a7ecea0c166f9c806dd2737`. این شواهد محدود به مدل‌های صوری هستند؛ Candidate/Runtime، بازبینی مستقل، Jepsen/History Checker و Simulation انجام نشده‌اند. M2–M7 هنوز تألیف نشده‌اند.
+
+- آخرین اجرای یکپارچه M0/M1 روی PR head `10d143bfb8eaff1892a74e3277f4dcac1f024337` و synthetic merge commit `a7a670bd6453a2c86fd7733c4aeae3f8aa7b4777`: M0 Run `46171482274` موفق؛ M1 Run `46171482180` موفق؛ Documentation Governance Run `46171482201` موفق. M0: ۵۲ State متمایز در Baseline و سه Mutant مورد انتظار؛ Artifact `15273523034` / `5cd254c2bd9b7121af93c0b7384d9927f054031d2acbd7c6eef1e41670eb72d9`. M1: دو Baseline هرکدام ۱۹ State متمایز، ۲۵ تولیدشده، عمق ۸؛ سه Mutant مورد انتظار؛ Artifact `15273920318` / `eb38518421706ed88d03c8bf77339d1747036c5aff6811e6d666ef62b7b78ea9`. Affiliate Contract Validation برای همین Head در زمان ثبت هنوز در حال اجرا بود؛ تا PASS نهایی ادعا نمی‌شود. تمام نتایج فقط مدل‌های محدودند؛ بدون Candidate/Runtime/Production/Merge/Deploy.
