@@ -246,7 +246,7 @@ The first use should be a retrospective pilot on one bounded, non-production dec
 
 Use the current edition and exact scope of each source; these frameworks inform the method but do not certify Lottorito or decide a candidate:
 
-- ISO 31000:2018 — risk management principles, framework and process. ISO confirmed the edition current in 2023; guidance, not a certifiable standard: https://www.iso.org/standard/65694.html
+- ISO 31000:2018 — risk management principles, framework and process. ISO confirmed the edition current in 2023; guidance, not a certifiable standard: https://www.iso.org/standard/31000
 - ISO/IEC 25010:2023 — ICT/software product quality model; nine characteristics for specifying and evaluating product quality: https://www.iso.org/standard/78176.html
 - NIST SP 800-161 Rev. 1, Update 1 — cybersecurity supply-chain risk management across acquisition and lifecycle: https://csrc.nist.gov/pubs/sp/800/161/r1/upd1/final
 - NIST SP 1326 (2026) — supplier due-diligence quick-start, including ownership/control/influence, provenance, resilience, foundational cyber practices and supply-chain tiers: https://csrc.nist.gov/pubs/sp/1326/final
