@@ -392,3 +392,14 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 - Exact-head Documentation Governance #1245 (ID `46162905434`) passed on `364dac4591bad89f2a3eca581b9983c5e9750b09`: 376/376 RDM-005 checks; bilingual validation, RDM-001 and RDM-004 passed.
 - RDM-005 is structural metadata integrity only. It does not establish semantic test adequacy, independent assurance, full-standard coverage or owner acceptance. RDM-R13/R14/R17 require human review; RDM-U01…U05 remain open; RDM-R18 remains a proposed derived guard.
 - RDM-004 bilingual status and exact-head record reconciled to run #1231 / SHA `2e0eadfcc2bc6200af1410197dcbeaa563e8fed0`, including 36/36 rows, 11/11 metamorphic checks and 4/4 targeted mutations.
+
+### RDM-006 — normative gap research and owner decision pack
+
+- Created bilingual research package for RDM-U01…U05; recommendations are proposals only and do not alter parent normative text or owner dispositions.
+- U01: bounded sensitivity-based materiality test; NS remains unscored; provisional output, if authorized, is informational and non-selective with named authority, disclosure, expiry and prohibited uses.
+- U02: separate applicability, gate result and permission; bounded experiment is not N/A and never implies operational PASS.
+- U03: versioned decision-unit core schema plus triggered conditional fields; unknown is not false/N/A.
+- U04: horizon-bound ordinal likelihood by default; quantitative probabilities require domain data, reference class, method and uncertainty.
+- U05: criterion-specific operational 0–5 anchors; weighted aggregate remains secondary; consider structured MCDA/swing weighting and rank sensitivity for complex material trade-offs.
+- Research references include HM Treasury Orange Book (updated 18 Nov 2026), Green Book 2026 (updated 28 Oct 2026), MCDA supplementary guidance (16 May 2024), NIST SP 800-30 Rev.1, NASA 6.8, Magenta Book (15 May 2026), NIST SP 800-53 Rev.5.2.0 CA-02, ISO 31000:2018 and ISO/IEC 25010:2023.
+- All U01…U05 remain UNRESOLVED pending explicit owner decisions. No legal applicability, numerical calibration or policy adoption is claimed.
