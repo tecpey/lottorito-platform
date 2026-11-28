@@ -154,4 +154,6 @@ Read repository-root [AGENTS.md](../../AGENTS.md). Use a working branch and pull
 
 ## G09-A23 Formal Model & Adversarial Test Strategy
 
-- [G09-A23 — Formal Protocol Model & Adversarial Test Strategy](engineering/affiliate-g09-a23-formal-protocol-model-test-strategy.md) — LOT-AFFILIATE-G09-A23-001; state-machine contract, safety/liveness, finite-model bounds, TLA+/TLC strategy, history/concurrency testing, fault injection, schedule generation and A20/A7 mapping. Design only; no model checker, harness or runtime has been executed, and no candidate or authorization is approved.
+- [G09-A23 — Formal Protocol Model & Adversarial Test Strategy](engineering/affiliate-g09-a23-formal-protocol-model-test-strategy.md) — LOT-AFFILIATE-G09-A23-001; state-machine contract, safety/liveness, finite-model bounds, TLA+/TLC strategy, history/concurrency testing, fault injection, schedule generation and A20/A7 mapping. M0/M1 have bounded TLC evidence; M2 is authored with exact-head TLC pending; M3–M7 are not authored. No candidate/runtime approval.
+
+- [G09-A23-M2 — Authority Epoch and Writer Fencing Model](engineering/affiliate-g09-a23-m2-authority-epoch-model.md) — LOT-AFFILIATE-G09-A23-M2-001; candidate-neutral two-writer/two-epoch state machine, sink fencing barrier, partition, old-primary return, restore quarantine, one baseline and five negative controls; authored, TLC pending.
