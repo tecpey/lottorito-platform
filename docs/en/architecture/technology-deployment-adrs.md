@@ -1,6 +1,6 @@
 # Technology, Deployment and Reliability ADRs
 
-**Document ID:** LOT-TECH-ADR-001 | **Version:** 0.1.0 | **Status:** Proposed decision framework; no stack or provider approved | **Review date:** 2026-11-24
+**Document ID:** LOT-TECH-ADR-001 | **Version:** 0.2.0 | **Status:** Proposed decision framework; no stack or provider approved | **Review date:** 2026-11-24
 
 ## 1. Purpose and authority
 
@@ -145,7 +145,7 @@ Separate operational, financial, security, support and raw-provider data. Financ
 
 ## 11. Decision matrix and scoring
 
-Score each candidate from 1 (poor) to 5 (strong); record evidence and confidence separately. Suggested weights are starting points, not approved priorities.
+This section is a technology-profile supplement; the parent scoring semantics in LOT-EVAL-001 §8.3 and §17.10 are normative. Suggested weights are starting points only, not approved priorities or an active default. Adopt them only by explicit owner decision for a named technology decision unit, after confirming applicability and removing double-counting with mandatory gates.
 
 | Criterion | Suggested weight |
 |---|---:|
@@ -158,7 +158,9 @@ Score each candidate from 1 (poor) to 5 (strong); record evidence and confidence
 | Portability and exit strategy | 5% |
 | Total cost of ownership at forecast scale | 10% |
 
-A high weighted score does not override a failed mandatory control. Record unknowns as unknown; do not award a score from vendor marketing alone.
+Use the parent 0–5 capability rubric only when evidence is sufficient for the full atomic criterion; otherwise record NS. Missing/insufficient evidence is NS, never 0. A 0 requires sufficient evidence demonstrating the capability is absent or unacceptable. Partial evidence cannot pass a compound criterion; split it into atomic subcriteria. N/A requires prior rationale and approval, cannot remove mandatory gates, and requires transparent effective-weight normalization. Do not publish a definitive aggregate if a material criterion is NS. Keep confidence separate from score and do not multiply it into the result.
+
+A high weighted score does not override a failed/unknown mandatory control, a minimum critical-criterion threshold, unacceptable residual risk or legal restriction. Preserve raw ratings, evidence states, weights, exclusions, gate status, uncertainty and evaluator disagreement. For T2/T3 or other material decisions, use independent scoring before consensus where practicable and record limitations if a competent second evaluator is unavailable.
 
 ## 12. Required prototypes and acceptance gates
 
@@ -178,6 +180,8 @@ Initial legal entity/operating model/market; data controller/processor responsib
 
 ## 14. References
 
+- [Parent product, technology and supplier evaluation standard](../governance/enterprise-evaluation-standard.md) — LOT-EVAL-001; technology decision evidence and scoring semantics inherit the parent standard.
+
 These sources inform decision criteria; they do not select a vendor or prove Lottorito implementation:
 - PostgreSQL Row Security Policies: https://www.postgresql.org/docs/current/ddl-rowsecurity.html
 - Kubernetes Production Environment: https://kubernetes.io/docs/setup/production-environment/
@@ -188,5 +192,7 @@ These sources inform decision criteria; they do not select a vendor or prove Lot
 - OWASP API Security Top 10: https://owasp.org/www-project-api-security/
 
 ## 15. Change history
+
+0.2.0 — Aligned the technology matrix with the LOT-EVAL-001 v0.3.0 evidence/rating rubric; weights remain proposed and all ADRs remain PROPOSED.
 
 0.1.0 — Initial evidence-informed technology, deployment, reliability and data-governance decision framework. All decisions remain proposed.
