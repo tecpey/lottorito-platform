@@ -39,12 +39,12 @@ Init ==
     /\ authorityHighWater = 1
     /\ authorityOwner = "W0"
     /\ phase = "active"
-    /\ writerEpoch = ["W0" |-> 1, "W1" |-> 0]
-    /\ tokenEpoch = ["W0" |-> 1, "W1" |-> 0]
-    /\ tokenAuthenticated = ["W0" |-> TRUE, "W1" |-> FALSE]
-    /\ writerOnline = ["W0" |-> TRUE, "W1" |-> TRUE]
-    /\ writerReachable = ["W0" |-> TRUE, "W1" |-> TRUE]
-    /\ writerActive = ["W0" |-> TRUE, "W1" |-> FALSE]
+    /\ writerEpoch = [w \in Writers |-> IF w = "W0" THEN 1 ELSE 0]
+    /\ tokenEpoch = [w \in Writers |-> IF w = "W0" THEN 1 ELSE 0]
+    /\ tokenAuthenticated = [w \in Writers |-> w = "W0"]
+    /\ writerOnline = [w \in Writers |-> TRUE]
+    /\ writerReachable = [w \in Writers |-> TRUE]
+    /\ writerActive = [w \in Writers |-> w = "W0"]
     /\ sinkFenceEpoch = 1
     /\ fenceVerified = TRUE
     /\ networkPartition = FALSE
@@ -121,7 +121,7 @@ SetPartition ==
 HealPartition ==
     /\ networkPartition
     /\ networkPartition' = FALSE
-    /\ writerReachable' = ["W0" |-> TRUE, "W1" |-> TRUE]
+    /\ writerReachable' = [w \in Writers |-> TRUE]
     /\ UNCHANGED <<rootEpoch, authorityHighWater, authorityOwner, phase,
        writerEpoch, tokenEpoch, tokenAuthenticated, writerOnline,
        writerActive, sinkFenceEpoch, fenceVerified, restoreMode,
@@ -172,7 +172,7 @@ BeginRestore ==
     /\ restoreMode' = TRUE
     /\ phase' = "quarantined"
     /\ restoredEpoch' = rootEpoch - 1
-    /\ writerActive' = ["W0" |-> FALSE, "W1" |-> FALSE]
+    /\ writerActive' = [w \in Writers |-> FALSE]
     /\ UNCHANGED <<rootEpoch, authorityHighWater, authorityOwner,
        writerEpoch, tokenEpoch, tokenAuthenticated, writerOnline,
        writerReachable, sinkFenceEpoch, fenceVerified, networkPartition,
