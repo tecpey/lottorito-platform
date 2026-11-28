@@ -222,11 +222,14 @@ ReceiptShape ==
     /\ (receiptCount = 0
         => receiptOwner = "none" /\ receiptFingerprints = {})
     /\ (receiptCount = 1
-        => receiptOwner \in {"original", "retry"}
-           /\ Cardinality(receiptFingerprints) = 1)
+        => \/ /\ receiptOwner = "original"
+              /\ receiptFingerprints = {OriginalFP}
+           \/ /\ receiptOwner = "retry"
+              /\ receiptFingerprints = {RetryFP})
     /\ (receiptCount = 2
         => receiptOwner = "both"
-           /\ OriginalFP \in receiptFingerprints)
+           /\ OriginalFP \in receiptFingerprints
+           /\ RetryFP \in receiptFingerprints)
 
 ReceiptCardinality ==
     receiptCount <= 1
