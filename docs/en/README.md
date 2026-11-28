@@ -1,6 +1,6 @@
 # Lottorito — English Documentation
 
-**Document ID:** LOT-DOC-INDEX-EN-001 | **Version:** 2.3.0 | **Status:** Maintained index
+**Document ID:** LOT-DOC-INDEX-EN-001 | **Version:** 2.4.1 | **Status:** Maintained index
 
 This directory is the authoritative English documentation space for Lottorito. The Persian documentation under docs/fa/ is equally authoritative.
 
@@ -44,7 +44,9 @@ LOT-FIN-POST-001 defines proposed financial posting and reconciliation controls;
 | Security | [Threat model](security/threat-model.md) | LOT-SEC-TM-001; proposed trust boundaries, abuse cases and controls |
 | Engineering | [API resource specification](engineering/api-resource-specification.md) | LOT-API-001; proposed API, auth, error, pagination and webhook conventions |
 | Engineering | [API platform and developer experience](engineering/api-platform-and-developer-experience.md) | LOT-API-PLATFORM-001; proposed control/data planes, app registration, entitlement catalog, credentials, webhooks, SDKs, Developer Portal, sandbox, metering and lifecycle governance |
-| Engineering | [Canonical event contract](engineering/canonical-event-contract.md) | Proposed event envelope and delivery semantics |
+| Engineering | [Canonical event contract](engineering/canonical-event-contract.md) | LOT-EVENT-001; proposed event envelope and delivery semantics |
+| Engineering | [Affiliate API wire contract](engineering/affiliate-api-wire-contract.md) | LOT-AFFILIATE-WIRE-001; proposed OpenAPI/AsyncAPI wire profile and CloudEvents ingress; no endpoint or partner mapping approved |
+| Engineering | [Affiliate wire security review](engineering/affiliate-wire-security-review.md) | LOT-AFFILIATE-SEC-001; threat-oriented contract review, findings and pre-implementation/production gates |
 | Architecture | [Global localization standard](architecture/global-localization-standard.md) | LOT-I18N-001; 12 launch languages and equal quality gates |
 | Architecture | [Live chat and customer communications](architecture/live-chat-and-communications.md) | LOT-COMMS-001; multilingual support and human handoff |
 | Architecture | [Unified multi-tenant B2B2C platform architecture](architecture/unified-b2b2c-platform-architecture.md) | LOT-PLATFORM-001; proposed B2B/B2C/white-label experiences, tenants, identity, dashboards, wallet, payments, chat, security and delivery roadmap |
@@ -79,3 +81,83 @@ Every meaningful change under docs/en/ must be made in the same branch and pull 
 ## Governance
 
 Read repository-root [AGENTS.md](../../AGENTS.md). Use a working branch and pull request. Do not merge, deploy, change repository settings or perform destructive operations without explicit owner authorization.
+
+## Affiliate security acceptance
+
+- [Affiliate security acceptance and runtime boundary](engineering/affiliate-security-acceptance-runtime-boundary.md) — LOT-AFFILIATE-SEC-ACC-001; proposed runtime acceptance matrix, trust boundaries, idempotency, persistence, privacy and release gates; no runtime implementation or production approval.
+
+
+## Affiliate G09-A3 security decisions and runtime proof
+
+- [Affiliate G09-A3 decision packet and synthetic runtime proof plan](engineering/affiliate-g09-a3-decision-and-runtime-proof.md) — LOT-AFFILIATE-G09-A3-001; proposed decision records for IAM, installation/event registry, idempotency/fingerprinting, resource governance, data lifecycle, audit and economic-effect boundary, plus an isolated synthetic runtime proof plan. No decisions are approved and no runtime implementation is claimed.
+
+
+## Affiliate G09-A4 runtime proof architecture
+
+- [Affiliate G09-A4 runtime proof architecture and adversarial test design](engineering/affiliate-g09-a4-runtime-proof-architecture.md) — LOT-AFFILIATE-G09-A4-001; proposed isolated harness, trust boundaries, persistence invariants, 47 adversarial cases, independent test oracles, evidence requirements and stop gates. No runtime implementation or technology selection is approved.
+
+- [Affiliate G09-A5 — Runtime Proof Readiness & Implementation Blueprint](engineering/affiliate-g09-a5-runtime-proof-readiness.md) — proposed logical persistence, atomicity, worker fencing, fixture, failure-injection and executable-test blueprint; no runtime approval.
+
+
+## Affiliate G09-A6 design verification
+
+- [Affiliate G09-A6 — Design Verification & Proof Closure](engineering/affiliate-g09-a6-design-verification.md) — LOT-AFFILIATE-G09-A6-001; independent document-level review of A4/A5, 47-case traceability, ten findings and runtime-proof blockers. Conditional design pass only; no runtime authorization.
+
+
+## Affiliate G09-A7 — 47-case traceability
+
+- [Affiliate G09-A7 — 47-Case Traceability & Decision Closure Blueprint](engineering/affiliate-g09-a7-47-case-traceability.md) — LOT-AFFILIATE-G09-A7-001; 47 individual stable A4 cases, synthetic fixtures, protocol/persistence/security/financial assertions, independent oracles, evidence contract, deterministic race schedules and F01–F10 closure register. Design only; all cases NOT RUN; runtime remains blocked.
+
+- [Affiliate G09-A8 — Independent Verification & Adversarial Challenge](engineering/affiliate-g09-a8-independent-verification.md) — design self-review only; independent review pending; no runtime authorization.
+
+- [Affiliate ADR-001 — Durable WorkItem Claim, Lease & Fencing](engineering/adr-001-workitem-claim-lease-fencing.md) — proposed temporal protocol; owner approval and independent review pending; no runtime authorization.
+
+
+## Affiliate G09 decision records
+
+- [Affiliate ADR-001 — Durable WorkItem Claim, Lease & Fencing](engineering/adr-001-workitem-claim-lease-fencing.md) — proposed temporal protocol; owner approval and independent review pending.
+- [Affiliate ADR-002 — Atomic Ingress Acceptance & Unknown-Commit Reconciliation](engineering/adr-002-atomic-ingress-acceptance-reconciliation.md) — proposed atomic InboxReceipt + WorkItem acceptance, unknown-commit reconciliation, crash matrix and open owner decisions; no runtime authorization.
+
+
+- [Affiliate G09-A11 — ADR-002 Adversarial Design Review](engineering/affiliate-g09-a11-adr002-adversarial-review.md) — same-workflow self-review; eight material findings and nine proposed NOT RUN subcases; independent review pending; no runtime authorization.
+
+- [Affiliate G09-A12 — ADR-002 Independent Review Package](engineering/affiliate-g09-a12-adr002-independent-review-package.md) — reviewer-ready challenge protocol and evidence matrix; independent review NOT PERFORMED; all A11 findings remain OPEN; no runtime authorization.
+
+- [Affiliate G09-A13 — Contract Validation Assurance Review](engineering/affiliate-g09-a13-contract-validation-assurance-review.md) — same-author review of exact-head CI scope, security/scope assertions, AsyncAPI dialect, dependency reproducibility, extension constraints and UNKNOWN response semantics; findings OPEN.
+
+- [Affiliate G09-A14 — Contract Validation Hardening & Response-State Alignment](engineering/affiliate-g09-a14-contract-validation-hardening.md) — exact operation security/scope manifest, CloudEvents profile, AsyncAPI dialect guard, reproducible lockfiles and 11-root/53-fixture coverage; technical hardening verified on exact head `736390f86ab425a8c273dcf254cc5974e9eb55ae`; runtime/owner decisions remain open.
+
+
+- [Affiliate G09-A15 — ADR-002 Persistence Proof Readiness & Owner Decision Matrix](engineering/affiliate-g09-a15-persistence-proof-readiness.md) — candidate-neutral proof obligations, 12 owner decisions, 12 deterministic proof schedules, independent evidence contract and staged gates; no candidate selected and no runtime proof executed.
+
+- [Affiliate G09-A16 — ADR-002 Adversarial Architecture Review & Independent Reviewer Dossier](engineering/affiliate-g09-a16-adversarial-architecture-review.md) — author-led meta-review with ten cross-cutting challenge points, twelve deterministic schedule families, independent-oracle contract and reviewer hand-off; not independent sign-off or runtime proof.
+- [Affiliate G09-A17 — ADR-002 Owner Decision Research & Recommendation Dossier](engineering/affiliate-g09-a17-adr002-owner-decision-research.md) — evidence-based analysis of OD-01..OD-12, conditional recommendations, rejected alternatives, proof requirements, decision dependencies and candidate hard gates; no owner decisions or technology selection made.
+
+- [Affiliate G09-A18 — Persistence & Authority Candidate Architecture Evaluation](engineering/affiliate-g09-a18-persistence-authority-candidate-evaluation.md) — comparative research on engineered PostgreSQL HA, managed PostgreSQL HA, Distributed SQL, conditional Spanner and authority/outbox separation; defines G1–G7 hard gates and an R1 evidence plan; no candidate selected or runtime authorized.
+- [Affiliate G09-A19 — Deployment Constraints & Candidate Qualification Matrix](engineering/affiliate-g09-a19-deployment-constraints-candidate-qualification.md) — constraint-first qualification: C-01..C-16 owner inputs, full data-flow/location inventory, G1–G9 hard gates, BIA-based recovery objectives and reproducible measurement; no provider, region or database selected.
+
+
+## Affiliate G09-A20 — evidence acquisition and adversarial qualification
+
+- [Affiliate G09-A20 — Constraint Evidence Acquisition & Adversarial Qualification Design](engineering/affiliate-g09-a20-constraint-evidence-adversarial-qualification.md) — evidence register for C-01..C-16, full data-flow inventory, candidate-neutral invariants/oracles, 28 adversarial test designs, execution safety gates and reproducibility manifest; all cases NOT RUN, no candidate qualified, no runtime authorization.
+
+
+## Affiliate G09-A21 — adversarial assurance review
+
+- [Affiliate G09-A21 — Adversarial Assurance Review of G09-A20](engineering/affiliate-g09-a21-adversarial-assurance-review.md) — internal self-review, not independent assurance; records 13 open findings (P0:1, P1:9, P2:3), traceability gaps and controlled A22–A24 remediation sequence. A20 remains research/test-design only; no runtime authorization.
+
+
+## Affiliate G09-A22 — A20 specification remediation
+
+- [Affiliate G09-A22 — A20 Specification Remediation](engineering/affiliate-g09-a22-a20-specification-remediation.md) — decision-gated identity/canonicalization, UNKNOWN-commit protocol, external receiver guarantees, retention/restore lifecycle, traceability, test-result semantics and strict synthetic-only financial boundary. Research only; no runtime authorization.
+
+
+## G09-A23 Formal Model & Adversarial Test Strategy
+
+- [G09-A23 — Formal Protocol Model & Adversarial Test Strategy](engineering/affiliate-g09-a23-formal-protocol-model-test-strategy.md) — LOT-AFFILIATE-G09-A23-001; state-machine contract, safety/liveness, finite-model bounds, TLA+/TLC strategy, history/concurrency testing, fault injection, schedule generation and A20/A7 mapping. M0–M2 have bounded TLC evidence; M2 baseline exhausted 136 distinct states and all six negative controls (including sink-fence rollback) produced expected counterexamples on exact head 66fa19c72418dd5376c179514d57970f5d29fe5f; M3 model drafted with eleven negative-control configs; TLC validation pending. M4–M7 are not authored. No candidate/runtime approval.
+
+- [G09-A23-M2 — Authority Epoch and Writer Fencing Model](engineering/affiliate-g09-a23-m2-authority-epoch-model.md) — LOT-AFFILIATE-G09-A23-M2-001; candidate-neutral two-writer/two-epoch state machine, sink fencing barrier, partition, old-primary return, restore quarantine, one baseline and six negative controls; TLC-checked within finite bounds; baseline 136 distinct states and six expected negative controls on exact head 66fa19c72418dd5376c179514d57970f5d29fe5f; independent review and candidate refinement pending.
+
+- Exact-head revalidation on PR head `66fa19c72418dd5376c179514d57970f5d29fe5f`: M0, M1, M2, Documentation Governance and Affiliate Contract Validation all passed (Runs `46175558972`, `46175558925`, `46175559007`, `46175559048`, `46175554261`). M2 baseline: 136 distinct states; six expected negative controls. Evidence remains bounded; no candidate/runtime approval.
+
+- [G09-A23-M3 — Worker Lease and Claim Generation Model](engineering/affiliate-g09-a23-m3-worker-lease-model.md) — LOT-AFFILIATE-G09-A23-M3; candidate-neutral TLA+ model for claim/reclaim, lease expiry, post-lock fencing, worker-clock skew, state/token/lifecycle guards and zero-mutation failure. Eleven negative controls are authored; TLC validation is pending. ADR-001's PROCESSING reclaim semantics remain an explicit owner/reviewer decision.

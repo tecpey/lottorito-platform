@@ -1,0 +1,10 @@
+{
+  "name": "lottorito-contract-tools",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Isolated CLI validators for Lottorito OpenAPI and AsyncAPI contracts",
+  "devDependencies": {
+    "@asyncapi/cli": "6.2.2",
+    "@redocly/cli": "2.83.0"
+  }
+}

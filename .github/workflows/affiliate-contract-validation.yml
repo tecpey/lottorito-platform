@@ -1,0 +1,82 @@
+name: Affiliate Contract Validation
+
+on:
+  push:
+    branches:
+      - docs/g09-affiliate-api-wire-contract-v1
+    paths:
+      - "contracts/openapi/**"
+      - "contracts/asyncapi/**"
+      - "contracts/validation/**"
+      - ".github/contract-tools/**"
+      - ".github/schema-tools/**"
+      - "scripts/validate_affiliate_contract_payloads.mjs"
+      - "docs/en/engineering/affiliate-api-wire-contract.md"
+      - "docs/fa/engineering/affiliate-api-wire-contract.md"
+      - "docs/en/engineering/affiliate-g09-a14-contract-validation-hardening.md"
+      - "docs/fa/engineering/affiliate-g09-a14-contract-validation-hardening.md"
+      - "docs/en/engineering/project-status.md"
+      - "docs/fa/engineering/project-status.md"
+      - ".redocly.yaml"
+      - ".github/workflows/affiliate-contract-validation.yml"
+  pull_request:
+    branches:
+      - docs/affiliate-api-capability-contract-v1
+    paths:
+      - "contracts/openapi/**"
+      - "contracts/asyncapi/**"
+      - "contracts/validation/**"
+      - ".github/contract-tools/**"
+      - ".github/schema-tools/**"
+      - "scripts/validate_affiliate_contract_payloads.mjs"
+      - "docs/en/engineering/affiliate-api-wire-contract.md"
+      - "docs/fa/engineering/affiliate-api-wire-contract.md"
+      - "docs/en/engineering/affiliate-g09-a14-contract-validation-hardening.md"
+      - "docs/fa/engineering/affiliate-g09-a14-contract-validation-hardening.md"
+      - "docs/en/engineering/project-status.md"
+      - "docs/fa/engineering/project-status.md"
+      - ".redocly.yaml"
+      - ".github/workflows/affiliate-contract-validation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: affiliate-contract-validation-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: OpenAPI, AsyncAPI and payload contract validation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: "24.11.1"
+      - name: Install locked contract validators
+        run: |
+          node --version
+          npm --version
+          npm ci --prefix .github/contract-tools --no-audit --no-fund
+          npm ci --prefix .github/schema-tools --no-audit --no-fund
+          echo "CONTRACT_TOOLS_PREFIX=$GITHUB_WORKSPACE/.github/contract-tools" >> "$GITHUB_ENV"
+          echo "SCHEMA_TOOLS_PREFIX=$GITHUB_WORKSPACE/.github/schema-tools" >> "$GITHUB_ENV"
+      - name: Validate OpenAPI contracts
+        run: |
+          "$GITHUB_WORKSPACE/.github/contract-tools/node_modules/.bin/redocly" --version
+          "$GITHUB_WORKSPACE/.github/contract-tools/node_modules/.bin/redocly" check-config --config=.redocly.yaml
+          "$GITHUB_WORKSPACE/.github/contract-tools/node_modules/.bin/redocly" lint --config=.redocly.yaml affiliate_management_v1 --format=github-actions
+          "$GITHUB_WORKSPACE/.github/contract-tools/node_modules/.bin/redocly" lint --config=.redocly.yaml partner_event_ingestion_v1 --format=github-actions
+      - name: Validate AsyncAPI contract
+        run: |
+          "$GITHUB_WORKSPACE/.github/contract-tools/node_modules/.bin/asyncapi" --version
+          "$GITHUB_WORKSPACE/.github/contract-tools/node_modules/.bin/asyncapi" validate --fail-severity=error \
+            contracts/asyncapi/affiliate-domain-events.v1.json
+      - name: Validate schema payload fixtures
+        run: |
+          node scripts/validate_affiliate_contract_payloads.mjs

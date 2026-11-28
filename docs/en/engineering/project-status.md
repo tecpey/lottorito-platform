@@ -1,6 +1,6 @@
 # Verified Project Status and Continuation Point
 
-**Document ID:** LOT-OPS-001 | **Version:** 1.7.0 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-24
+**Document ID:** LOT-OPS-001 | **Version:** 2.0.18 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-28
 
 ## Verified repository state
 - Repository: tecpey/lottorito-platform; default branch main; public visibility by owner decision.
@@ -41,6 +41,9 @@ The finance, security, API and technology/deployment references are proposals, n
 - **LOT-B2C-PRD-001:** proposed product requirements for the dedicated first-party B2C tenant, consuming approved shared modules through common contracts; covers customer journeys, entitlement/jurisdiction gates, wallet, payment, payout, chat, support, notifications, localization, privacy, accessibility and 20 acceptance scenarios. No B2C app launch or runtime is claimed.
 - **LOT-API-PLATFORM-001:** proposed API platform and developer-experience contract extending LOT-API-001/LOT-EVENT-001 with control/data planes, app/client registration, entitlement catalog, credential lifecycle, webhook subscriptions, SDK generation, Developer Portal, isolated sandbox, metering/quotas and lifecycle governance. No API gateway, portal, SDK, sandbox or production API access is claimed.
 - **LOT-AFFILIATE-API-001:** proposed provider-neutral Affiliate & Agent API capability inventory for programs, memberships, hierarchy, campaigns, referral links, attribution, partner event intake, commission statements and reporting. Financial mutations remain in wallet/ledger/payment/payout domains; no partner, commercial formula, endpoint or integration is approved.
+- **LOT-AFFILIATE-SEC-001:** proposed threat-oriented review of the wire contracts. Records high/medium findings for BOLA, token trust and human/machine principal separation, custom scope semantics, event identity/fingerprinting, extension/schema allowlists, SSRF, resource ceilings, data minimization, errors and audit. It is a design review, not a penetration test or production security approval.
+
+- **LOT-AFFILIATE-WIRE-001:** proposed wire-level extension of LOT-AFFILIATE-API-001 / LOT-API-001 / LOT-EVENT-001. Adds separate Affiliate management and partner-event ingress OpenAPI contracts plus a transport-neutral AsyncAPI canonical-event profile. On PR #76 head `5877746173cbc83e715a7134426d2c086c0181b8`, Documentation Governance run `46054085669` (#930) and Affiliate Contract Validation run `46054085685` (#32) both passed. The latter validated both OpenAPI documents (Redocly 2.83.0), the AsyncAPI 3.0.0 document (AsyncAPI CLI 6.2.2) and 31 positive/negative schema-instance assertions (Ajv 8.17.1; separate 2020-12 and Draft 07 instances). These are document/schema checks, not runtime verification. The PR remains Draft; no endpoint, provider, partner mapping, OAuth profile or production deployment is approved.
 
 ## Not verified
 No application implementation, physical database schema/migrations, provider API connection, sandbox certification, financial calculation/posting, payout, penetration test or production deployment has been verified. Documentation Governance CI exists and has passed structural checks on selected PR heads; it does not prove semantic bilingual parity, runtime behavior, legal eligibility or security.
@@ -72,9 +75,260 @@ No application implementation, physical database schema/migrations, provider API
 15. Review LOT-API-PLATFORM-001 with architecture/security/finance/legal/operations; approve API audiences, app/credential model, sandbox, webhook and lifecycle gates before building the Developer Portal or publishing APIs.
 16. Review LOT-AFFILIATE-API-001 against the actual first-pilot partner contract and sandbox; approve the narrow event/resource allowlist, attribution and commission semantics before implementing an adapter or exposing production APIs.
 17. Only after decisions, scaffold the platform and implement isolated vertical slices with tests.
+18. Complete the LOT-AFFILIATE-SEC-001 gates before application implementation: decide authentication trust and scope enforcement, strict JSON parsing and fingerprinting, registered event/schema allowlists, resource ceilings, retention and audit. Add cross-tenant, scope, duplicate-concurrency, conflict and abuse-boundary tests.
+19. Reconcile the exact resource/event allowlist with approved partner documentation and authorized sandbox evidence; only then plan the Affiliate runtime vertical slice.
 
 ## Owner decisions still required
 Legal entity and operating model; initial jurisdiction; provider and source-of-truth rules; USD 100 illustrative agent credit; commission/NGR and network progression; account mapping and funding/custody; payout permissions; technology and deployment choices; data residency and retention; official logo source asset.
 
 ## Evidence discipline
 This record summarizes repository inspection, not an external audit. Re-fetch PR metadata and commit statuses before relying on a head SHA or CI state.
+
+## Latest PR #76 evidence and G09-A3 continuation
+
+- PR #76 remains Open/Draft, base `docs/affiliate-api-capability-contract-v1`, head branch `docs/g09-affiliate-api-wire-contract-v1`; do not merge or deploy.
+- Exact PR head verified: `59414d2cc7544fed187e41e9c823e1d453c41a3a`.
+- Documentation Governance run `46054529199` (#939): **PASS**.
+- Affiliate Contract Validation run `46054529202` (#48): **PASS**; job `140693686036` completed successfully.
+- Run #48 validated Redocly 2.83.0 (both OpenAPI documents valid; one non-blocking missing-license warning per document), AsyncAPI CLI 6.2.2 (AsyncAPI 3.0.0 valid; informational 3.1.0 recommendation), and **46 positive/negative payload and security-boundary assertions** using Ajv 8.17.1 / ajv-formats 3.0.1.
+- The 46 assertions include ProgramPage boundary 100/101 and contract-level checks for separate Management/Ingress bearer schemes and non-empty proposed scope metadata on every secured operation.
+- CI explicitly states it does not test runtime authorization, tenant binding, Inbox/Job atomicity, deduplication, ledger effects or provider allowlists. These remain NOT TESTED at runtime.
+- Added bilingual LOT-AFFILIATE-SEC-ACC-001, a proposed runtime security acceptance and boundary specification. It defines principal/authorization boundaries, trusted ingress flow, idempotency/fingerprint semantics, event/schema governance, resource protection, persistence/worker invariants, privacy/audit, a runtime test matrix and four release gates. It is not implementation or security approval.
+- The workflow checkout used PR merge ref `ad0cd3237e0dbe94cb4a49f257cba0ac00bd167d`, which combines the tested PR head with its base. The PR head remains the exact commit above.
+- Remaining non-blocking tool notices: Redocly license metadata warnings; AsyncAPI informational latest-version recommendation; npm dependency deprecation warnings; GitHub Actions Node 20 deprecation notice for pinned actions. Do not silently treat these as validation failures or production risks without separate assessment.
+
+### Next controlled work
+1. Review LOT-AFFILIATE-SEC-ACC-001 and reconcile every requirement with LOT-API-PLATFORM-001, LOT-IAM-TENANT-001, LOT-EVENT-001, LOT-FIN-POST-001 and LOT-QA-001.
+2. Produce an owner-decision sheet for unresolved identity, capability, installation lifecycle, registry ownership, fingerprint ADR, numeric quotas, retention/audit and commission-effect identity; leave unknown values explicitly TBD.
+3. Define a synthetic-only isolated runtime proof plan and its test harness boundaries. No production adapter, real partner credentials, financial posting or sandbox request until the required decisions and actual partner documentation/authorization exist.
+4. Re-run bilingual documentation governance after index/status updates and verify the exact final PR head and all workflows.
+
+
+## G09-A3 decision packet and synthetic runtime proof plan — 2026-11-27
+
+- Added bilingual LOT-AFFILIATE-G09-A3-001 at `docs/en/engineering/affiliate-g09-a3-decision-and-runtime-proof.md` and `docs/fa/engineering/affiliate-g09-a3-decision-and-runtime-proof.md`.
+- The packet records 15 explicit decision items across principal/IAM, authorization, credentials, installation and event/schema registry, event identity, fingerprinting, concurrency, resource ceilings, data classification/retention/encryption, audit and the financial non-effect boundary. Every item remains Proposed or Open; no owner approval is implied.
+- It defines P0–P6 synthetic proof stages covering harness isolation, identity/tenant boundaries, strict parsing and registry controls, idempotency/concurrency, transaction/crash recovery, resource/privacy controls and zero financial side effects.
+- Runtime proof is not started. It requires explicit owner scope approval, security/operations isolation approval and an approved disposable persistence candidate with real transactional constraints. No partner adapter, real credential, sandbox call, financial posting, merge or deployment is authorized.
+
+
+## G09-A4 runtime proof architecture and adversarial test design — 2026-11-27
+
+- Added bilingual LOT-AFFILIATE-G09-A4-001 at `docs/en/engineering/affiliate-g09-a4-runtime-proof-architecture.md` and `docs/fa/engineering/affiliate-g09-a4-runtime-proof-architecture.md`.
+- The design specifies a synthetic-only disposable harness, seven trust boundaries, eight persistence invariants, 47 stable adversarial case IDs across identity, object/function/property authorization, idempotency/canonicalization, parser/schema/SSRF, resource governance, transaction/worker recovery, privacy/audit and financial non-effect.
+- It defines six independent test oracles, an evidence bundle, eight owner/reviewer approval gates, execution ordering, severity and immediate stop conditions. OWASP API Security Top 10 (2023), RFC 8785, CloudEvents and conditional PostgreSQL references are cited as design references, not as implementation/vendor approvals.
+- No test harness or runtime implementation has been built or run. A4 execution remains BLOCKED pending explicit scope/isolation approval, approved disposable persistence/queue candidates, test identity profile, data/evidence policy, workload ceilings and finance/security attestation of zero financial reachability.
+- No partner adapter, real credential, external sandbox request, commission calculation, financial posting, merge or deployment is authorized.
+
+## G09-A5 continuation point (2026-11-27)
+- Added bilingual LOT-AFFILIATE-G09-A5-001. It translates the 47 stable A4 cases into a technology-neutral persistence/atomicity model, claim-generation fencing protocol, synthetic identity fixtures, failure-injection mapping, executable test contract, independent oracles and gated execution sequence.
+- No database, queue, IAM provider, runtime, quota, retention period or physical schema was selected. A5 is a design blueprint only; A4's eight approval gates remain binding. Runtime implementation and execution remain BLOCKED pending explicit approvals.
+- The blueprint explicitly separates source-event identity, request idempotency key and economic-effect identity; requires durable uniqueness and atomic Receipt+Work creation; treats queue messages as wake-up hints; and requires stale-worker fencing and zero financial reachability.
+
+
+## G09-A6 design verification — 2026-11-27
+- Added bilingual LOT-AFFILIATE-G09-A6-001. The review confirms all 47 stable A4 IDs are represented in A5's grouped mapping, but grouped mapping is not case-level executable coverage.
+- Disposition: **CONDITIONAL DESIGN PASS WITH OPEN FINDINGS**. Ten findings F01–F10 are recorded. F01–F07 block runtime design approval; F08–F10 must close before the affected test groups can be accepted.
+- Key clarifications required: mandatory atomic pair is InboxReceipt + WorkItem; DeliveryOutbox is distinct/conditional and must not weaken that pair; transaction race/unknown-commit schedules; stale-worker zero-write fencing proof; approved identity/fingerprint profile; lifecycle revalidation policy; defense-in-depth financial non-reachability; measurable resource profile; per-case oracle independence; and approved data lifecycle policy.
+- On exact reviewed head `e6808bda79a65c84d0dfab6e8b07094014184910`, Affiliate Contract Validation run `46060385984` (#73) and Documentation Governance run `46060385973` (#956) both completed successfully. These are documentation/contract workflow results only, not runtime evidence.
+- PR #76 remains Open/Draft. A4-GATE-01..08 remain mandatory. No runtime implementation or execution, vendor selection, partner integration, financial operation, merge or deployment is authorized.
+- Next controlled step: close F01–F10 in bilingual documents, add a 47-row case/oracle manifest, then re-run exact-head CI. Runtime remains BLOCKED.
+
+
+## G09-A7 continuation — 2026-11-27
+- Added bilingual LOT-AFFILIATE-G09-A7-001. The manifest contains 47 unique stable A4 IDs (6 IAM, 7 AUTH, 8 IDEM, 6 PARSE, 5 RES, 8 DUR, 4 DATA, 3 FIN) in both language versions; an automated repository read confirmed 47 rows and 47 unique IDs per file, with identical ID order.
+- Each row now maps fixture, deterministic stimulus, expected protocol/authorization, persistence and financial non-effect assertions, independent oracle/evidence, and explicit NOT RUN or policy/ADR BLOCKED status.
+- Added five abstract deterministic schedules: concurrent duplicate ingress, unknown commit outcome, stale-worker fencing, atomic-pair crash matrix and tenant lifecycle race. These are design contracts only, not executed tests.
+- Proposed mandatory atomic pair is InboxReceipt + WorkItem. DeliveryOutbox is separately conditional for downstream publication and cannot replace WorkItem. This is a proposed design clarification, not an approved physical schema or technology choice.
+- F01 is ready for independent review; F02–F10 remain open pending accountable decisions, ADRs and evidence. No numeric quota, retention duration, vendor or runtime is selected.
+- OWASP ASVS is pinned to stable 5.0.0 for future requirement mapping; bleeding-edge content is not silently adopted. No ASVS compliance claim is made.
+- No runtime/harness/DB/queue implementation or execution, partner integration, financial operation, merge or deployment is authorized. All eight A4 gates remain mandatory.
+
+
+## G09-A8 continuation — 2026-11-27
+- Added bilingual LOT-AFFILIATE-G09-A8-001. This is an adversarial **self-review**, not independent approval; no runtime/infrastructure was inspected or executed.
+- Recorded 12 additional findings: lease-validity at mutation, external-side-effect fencing, complete financial capability denial, lifecycle linearization, oracle independence, generation/token lifecycle, unknown-commit reconciliation, evidence provenance/time integrity, retention/deletion conflict, missing interleavings, resource amplification/fairness and semantic bilingual parity.
+- Added eight proposed subcases under existing A4 IDs; the canonical 47 IDs are not renumbered and no tests have run.
+- A7 F01–F10 remain open as previously classified. A7-F01 is still only ready for a genuinely independent review; A8 does not close it. A8-F01..F12 are OPEN.
+- A4-GATE-01..08 remain NOT APPROVED; runtime/harness/database/queue/IAM execution remains BLOCKED. No partner integration, financial operation, merge or deployment is authorized.
+- Next: obtain independent reviewer disposition; resolve temporal protocol and financial capability proof; update A7 subcase traceability and create accountable ADRs; revalidate bilingual governance and exact-head CI.
+
+
+## G09-A9 / ADR-001 — 2026-11-28
+- Added bilingual LOT-AFFILIATE-G09-ADR-001, a proposed durable per-WorkItem claim-generation and guarded-transition protocol. It defines the lease-expiry linearization race, authenticated owner/token checks, no lease resurrection, transaction boundary restrictions, unknown-commit reconciliation and restore/recovery fencing.
+- The key semantic distinction is explicit: lease expiry makes work eligible for reclaim; the first serialized guarded durable transition wins. A transition that linearizes while the lease is valid is ordered before a later reclaim; after expiry or after generation change, the old worker must change zero protected rows. This depends on the eventual persistence engine's proven lock/time/failover semantics and is not yet approved.
+- Added eight A8 subcases to both A7 traceability documents, mapped to their existing A4 parents. Canonical A4 count remains 47; parent and subcase outcomes must be reported separately. All subcases remain NOT RUN/BLOCKED.
+- ADR-001 is PROPOSED. Owner decisions remain open for authoritative time/failover, persistence serialization semantics, generation exhaustion, recovery incarnation authority, lifecycle policy and bounded transaction/worker policy. No DB/queue/vendor or numeric values selected.
+- Independent review is still required. A7 F01–F10 and A8 F01–F12 remain open. All eight A4 gates remain NOT APPROVED; runtime/harness/database/queue/IAM implementation or execution remains BLOCKED. No partner, financial, merge or deployment authorization.
+
+
+## G09-A10 / ADR-002 — atomic acceptance and unknown-commit reconciliation (2026-11-28)
+- Added bilingual LOT-AFFILIATE-G09-ADR-002. It proposes exactly one durable InboxReceipt + WorkItem pair in a single atomic transaction; acknowledgement only after confirmed commit; UNKNOWN as a first-class outcome; authoritative reconciliation by stable source identity; fail-closed handling when the primary/authority is unavailable; conflict and partial-pair quarantine; and a separate conditional DeliveryOutbox boundary.
+- Added a 17-case crash/concurrency/failover matrix (C01–C17), independent-oracle/evidence requirements, alternatives and owner decisions. All cases are NOT RUN. No DB, isolation level, queue, vendor, schema, quota, retention value or topology is selected.
+- Added LDR-055 to both decision registers. ADR-002 remains PROPOSED; owner approval and genuinely independent review are pending. A7-F01–F10 and A8-F01–F12 remain open; all eight A4 gates remain NOT APPROVED. No runtime, partner, financial, merge or deployment authorization.
+- Live PR #76 head before this update was 3112f7e4db83c27c223a054db497665619df5164. Exact-head workflows were queued; final-head CI must be rechecked. A previously observed Documentation Governance failure was caused by ADR-001 lacking the required stable Document ID field in both languages; the two ADR-001 files have since been amended, and that correction must be verified by CI on the final head.
+
+
+## G09-A11 — ADR-002 adversarial design review (2026-11-28)
+- Added bilingual LOT-AFFILIATE-G09-A11-001 against ADR-002 v0.1.0 / reviewed head 985cfee7ce233e6297b7de2d5d2339d8484b843e.
+- Eight findings: A11-F01 commit durability across failover (Critical); F02 authority epoch/split-brain fencing (Critical); F03 negative-read versus in-flight commit race (Critical); F04 pair cardinality/relationship constraints (High); F05 fingerprint profile/version dependency (High); F06 retention-bounded idempotency (Critical); F07 quarantine blast radius/DoS (High); F08 acceptance versus execution response semantics (High).
+- Proposed nine A11 adversarial subcases under existing A4/A8 parents; canonical 47 A4 IDs are unchanged. All subcases are NOT RUN.
+- This is a same-workflow self-review, not independent sign-off. LDR-056 recorded in both decision registers. ADR-002 remains PROPOSED; A7/A8 findings remain open; all eight A4 gates remain NOT APPROVED. No runtime, database, queue, partner, financial, merge or deployment authorization.
+- Research references include official Google Spanner unknown-commit guidance and PostgreSQL HA, replication and WAL durability documentation. No provider/technology is selected.
+
+
+## G09-A12 — ADR-002 v0.3.0 integration (2026-11-28)
+- Integrated A11 design blockers into bilingual ADR-002 v0.3.0: single-writer Authority Epoch and old-primary fencing; acknowledged-commit durability/RPO; replay-horizon-bounded source-event dedupe/tombstones; graduated quarantine and worker exclusion; acceptance-only response semantics.
+- Reconciled A11-F01..F08 in the bilingual A11 review record. This is same-author crosswalk, not independent closure. All eight findings remain OPEN pending owner decisions, independent review and candidate-specific evidence.
+- Expanded bilingual A7 with nine A11 and four supplemental A10 subcases; canonical A4 remains 47 IDs. All added subcases are NOT RUN/BLOCKED.
+- ADR-002 remains PROPOSED. No technology, authority service, database, queue, runtime, partner, financial operation, merge or deployment is authorized. All eight A4 gates remain NOT APPROVED.
+- Exact-head CI must be rechecked after these commits; prior workflow success does not transfer.
+
+- Follow-up synchronization: ADR-002 v0.3.0 now includes the A11 authority-epoch, durability/RPO, replay-retention, quarantine and response-semantics requirements; PostgreSQL HA/failover/WAL references are linked as comparative evidence only. A7 EN/FA each contain the same 47 canonical A4 IDs and 21 unique extension subcases (8 prior + 9 A11 + 4 A10); README EN/FA link the A11 review. All extensions remain NOT RUN/BLOCKED.
+
+- A7 parent-reference precision correction: A11-DUR-02b is now explicitly mapped to both A4-DUR-02 and A4-IDEM-02 in English and Persian; the canonical 47-case set and 21 extension-subcase count are unchanged.
+
+
+## G09-A12 — independent ADR-002 review package (2026-11-28)
+- Added bilingual LOT-AFFILIATE-G09-A12-001. It packages independence/competence criteria, a frozen-input protocol, adversarial reconstruction schedules, an A11-F01..F08 evidence matrix, A7 extension inventory and independent-oracle requirements.
+- The package explicitly does not constitute an independent review. No reviewer has been assigned or signed off; A11-F01..F08 remain OPEN, all A7 extension cases remain NOT RUN/BLOCKED, ADR-002 remains PROPOSED and all eight A4 gates remain NOT APPROVED.
+- Corrected duplicate ADR-002 section numbering and a duplicated Persian A7 statement. These are editorial corrections only and do not close any design finding.
+- Exact-head CI must be rechecked after the final sequential commits. No technology, runtime, partner, financial operation, merge or deployment is authorized.
+
+
+## G09-A13 — contract validation assurance review (2026-11-28)
+- Both workflows on exact source head `e88c6b6fac04b451926a8137ca68571f19e18fa8` completed SUCCESS: Documentation Governance #1014 and Affiliate Contract Validation #151. Job steps confirm OpenAPI lint, AsyncAPI CLI validation and representative Ajv payload fixtures ran.
+- Added bilingual LOT-AFFILIATE-G09-A13-001 as a same-author assurance review, explicitly not independent. Findings A13-F01..F06 remain OPEN: operation-specific scheme/scope assertions, CloudEvents extension conformance/installation allowlist boundary, AsyncAPI dialect wording, transitive dependency reproducibility, 202/503/UNKNOWN response alignment with ADR-002, and fixture coverage completeness.
+- Existing contract and security documentation already state runtime allowlist and scope semantics remain open; this review does not claim those are newly implemented. ADR-002 remains PROPOSED; A11-F01..F08 remain OPEN; A7 remains design-only; all eight A4 gates remain NOT APPROVED.
+- Recommended next package G09-A14 is contract-validator hardening and response-state alignment. No runtime implementation, technology selection, partner integration, financial operation, merge or deployment is authorized.
+
+
+## G09-A14 — contract validation hardening (2026-11-28)
+- Added bilingual LOT-AFFILIATE-G09-A14-001 and machine-readable `contracts/validation/affiliate-contract-validation-manifest.v1.json`.
+- Validator candidate now checks exact per-operation bearer scheme and `x-required-scopes` against a manifest, with seven negative mutation cases; constrains generic CloudEvents extension names/types and validates CloudEvents Unicode semantics for all CloudEvents string-valued context attributes (core and extension); corrects the AsyncAPI 3.0 default Schema Object description and guards the Ajv Draft-07-compatible subset; inventories all 11 current schema roots and 53 positive/negative fixtures.
+- Partner 202/503 wire wording is conditional on atomic persistence and an owner-approved durability acknowledgement; UNKNOWN is explicitly not confirmed acceptance or rejection. Exact UNKNOWN HTTP/error mapping, failure model, RPO and promotion/recovery decisions remain open.
+- Added separate exact-version manifests for `.github/contract-tools` and `.github/schema-tools`; their isolated dependency graphs prevent CLI/Ajv transitive collisions. CI bootstraps both lockfiles and a narrowly scoped write job commits only those files; this temporary path must be removed after lockfiles are committed. Both isolated lockfiles are committed (`.github/contract-tools/package-lock.json` and `.github/schema-tools/package-lock.json`); the temporary bootstrap/artifact/write job has been removed and strict `npm ci` is now mandatory. A13-F04 remains OPEN only until strict `npm ci` passes on the final exact head.
+- A14 is IN PROGRESS. Source-level static cross-check found 53 unique script fixture labels matching 53 manifest fixture IDs; this is not an executed Node/Ajv result. Exact-head CI for the current A14 head must be checked after the latest sequential commits.
+- A13-F02 remains partially open for installation-specific runtime allowlists; A13-F05 remains open for owner decisions and candidate-specific proof. ADR-002 remains PROPOSED; A11-F01..F08 remain OPEN; A7/A8 remain design-only/NOT RUN; all eight A4 gates remain NOT APPROVED. No runtime, persistence selection, partner integration, financial operation, merge or deployment is authorized.
+
+### G09-A14 lockfile checkpoint
+- Both isolated lockfiles are committed at the branch tip: contract-tools (1,409 package records) and schema-tools (7 package records), lockfileVersion 3. The bootstrap/artifact/write-back mechanism has been removed; the validator workflow now uses strict `npm ci` for both prefixes. Final exact-head verification is pending.
+
+### G09-A14 exact-head verification — 2026-11-28
+- Verified exact head `3a008718ab9cf40a551441e3a195f73874788f26`: Documentation Governance #1057 SUCCESS (`46070895494`) and Affiliate Contract Validation #227 SUCCESS (`46070891292`).
+- Both strict `npm ci` installs from committed isolated lockfiles passed on Node 24.11.1/npm 11.6.2. Redocly OpenAPI, AsyncAPI CLI 6.2.2 and Node/Ajv payload validation passed: 66 assertions, 11 schema roots, 53 positive/negative fixtures.
+- A13-F01/F03/F04/F06 are verified for contract/CI scope. A13-F02 remains partial pending installation-specific runtime allowlist proof; A13-F05 remains open pending owner decisions and candidate-specific durability/UNKNOWN proof. Non-blocking notices: missing `info.license` metadata and AsyncAPI CLI recommendation to consider 3.1.0; no license or dialect migration is inferred.
+- ADR-002 remains PROPOSED; A11-F01..F08 OPEN; A7/A8 design-only/NOT RUN; all A4 gates NOT APPROVED; independent review outstanding. No runtime, persistence/queue selection, partner integration, financial operation, merge or deployment authorized.
+
+
+## G09-A15 — ADR-002 persistence proof readiness (2026-11-28)
+- Added bilingual LOT-AFFILIATE-G09-A15-001 with seven candidate-neutral proof obligations, 12 owner decisions, 12 synthetic schedules, independent evidence-manifest requirements, staged readiness gates and stop conditions.
+- Baseline inspected: PR #76 head `736390f86ab425a8c273dcf254cc5974e9eb55ae`; Affiliate Contract Validation #235 and Documentation Governance #1062 both SUCCESS on that exact head. These runs do not apply to subsequent A15 documentation commits and do not prove persistence/runtime behavior.
+- The A12 package remains the independent-review procedure; no independent GitHub review sign-off was present in the inspected PR record. A15 is not an independent review. A11-F01..F08 remain OPEN; ADR-002 remains PROPOSED; all A4 gates remain NOT APPROVED; S01-S12 are NOT RUN.
+- A13-F02 installation-specific runtime allowlist and A13-F05 owner/candidate proof remain open. No persistence/queue/vendor selected; no runtime/harness execution, partner integration, financial operation, merge or deployment authorized. Latest-head CI must be checked after the A15 documentation commits.
+
+
+### G09-A15 exact-head CI verification — 2026-11-28
+- On exact head `5543d7ab24ec263fd0d71c40c157309a72d925c2`, Documentation Governance #1067 (run `46104632406`) and Affiliate Contract Validation #242 (run `46104632398`) both completed SUCCESS.
+- Documentation Governance validated bilingual structure and local links. Affiliate Contract Validation completed locked tool installation, OpenAPI validation, AsyncAPI validation and schema payload fixture validation.
+- A manual identifier-set comparison confirmed matching English/Persian inventories for PO-01..PO-07, OD-01..OD-12, S01..S12 and A11-F01..F08. This is structural ID parity, not a semantic translation audit.
+- These results apply only to the exact head above. Any later commit requires exact-head CI re-verification. No runtime/persistence proof was executed; A11-F01..F08 remain OPEN, ADR-002 remains PROPOSED, S01..S12 remain NOT RUN, and all A4 gates remain NOT APPROVED.
+
+
+## G09-A16 — adversarial architecture review dossier (2026-11-28)
+- Added bilingual LOT-AFFILIATE-G09-A16-001 against frozen baseline PR #76 head `8e9a880c14000bd158f66ae2001c02669ed4cc6b`.
+- A16 adds ten author-led cross-cutting challenge points, twelve deterministic schedule families, source-freeze/change-control requirements, reviewer independence/competence declaration, independent-oracle/evidence requirements and a signed reviewer disposition template.
+- Research references include AWS Builders' Library/Well-Architected retry and idempotency guidance, PostgreSQL WAL/synchronous replication/failover documentation, fencing-token analysis, Jepsen history-checking methodology, RFC 8785 and RFC 7493. These inform review; no technology is selected.
+- A16 is not independent sign-off. A11-F01..F08 remain OPEN; ADR-002 PROPOSED; A7/A8 extensions NOT RUN/BLOCKED; all A4 gates NOT APPROVED. No candidate/runtime/harness proof, partner integration, financial operation, merge or deployment authorized. CI must be checked on the post-A16 exact head.
+
+
+## G09-A20 — constraint evidence acquisition and adversarial qualification (2026-11-28)
+- Added bilingual LOT-AFFILIATE-G09-A20-001 to PR #76. It defines evidence acquisition for C-01..C-16, system-wide data-flow/location inventory, candidate-neutral invariants and independent oracles, 28 adversarial test designs, execution safety gates and a reproducibility manifest.
+- All A20 cases are DESIGNED / NOT RUN. No owner evidence is acquired or accepted; no candidate is selected/qualified; G1..G9 remain NOT TESTED; ADR-002 remains PROPOSED; OD-01..OD-12 and A11 findings remain OPEN; A12 independent review remains NOT PERFORMED / NOT ASSESSABLE.
+- R0 remains BLOCKED; R1 research-only; R2 NOT STARTED; R3 NOT AUTHORIZED; all A4 gates NOT APPROVED. No runtime/harness execution, partner integration, financial operation, merge or deployment is authorized. Exact-head CI must be checked after all sequential documentation updates.
+
+
+## G09-A21 — adversarial assurance review of A20 (2026-11-28)
+- Added bilingual LOT-AFFILIATE-G09-A21-001 to PR #76 and registered LDR-066 in both decision registers; both README indexes updated.
+- A21 is an internal adversarial self-review in the same project-assistance context that authored A20. It is explicitly NOT independent assurance; A12 remains NOT PERFORMED / NOT ASSESSABLE.
+- Recorded 13 open findings: P0=1 (assurance independence); P1=9 (identity/deduplication, UNKNOWN-commit protocol, external side-effect idempotency/fencing, retention/replay/restore bounds, oracle trust boundaries, traceability, executable result contract, financial boundary, recovery controls); P2=3 (liveness/fairness, systematic model/property-based test generation, bilingual semantic parity).
+- A20 is not yet an executable qualification specification. A20-01..A20-28 remain DESIGNED / NOT RUN. No finding is closed and no A20 remediation is silently applied.
+- Proposed controlled sequence: A22 specification remediation; A23 formal model and test strategy; A24 evidence and bilingual assurance package. Owner decisions remain owner decisions.
+- C-01..C-16 OPEN; G1..G9 NOT TESTED; ADR-002 PROPOSED; OD-01..OD-12 OPEN; A11-F01..F08 OPEN; A12 NOT PERFORMED; R0 BLOCKED; R1 research-only; R2 NOT STARTED; R3 NOT AUTHORIZED; A4 NOT APPROVED. No runtime/harness, provider selection, partner integration, financial operation, merge or deployment authorized. Exact-head CI to be checked after sequential updates.
+
+
+## G09-A22 — A20 specification remediation (2026-11-28)
+- Added bilingual LOT-AFFILIATE-G09-A22-001 to PR #76; LDR-067 registered in both decision registers; both README indexes updated.
+- A22 responds at specification-structure level to A21-F02..F10: decision-gated source identity/canonicalization and deduplication; atomic acceptance and UNKNOWN-commit reconciliation; per-destination external receiver contracts and realistic delivery guarantees; retention/tombstone/replay/restore lifecycle; bidirectional requirement-to-proof traceability; PASS/FAIL/INCONCLUSIVE/NOT_RUN/BLOCKED semantics; strict synthetic-only financial isolation; and a minimum machine-readable test-record contract.
+- No owner decisions or candidate values were invented. OD-01..OD-12, C-01..C-16 remain OPEN; G1..G9 NOT TESTED / NOT PASSED. All A21 findings remain OPEN pending actual evidence and authorized review; A22 prose does not close them.
+- A20-01..A20-28 remain DESIGNED / NOT RUN. ADR-002 PROPOSED; A11-F01..F08 OPEN; A12 NOT PERFORMED / NOT ASSESSABLE; R0 BLOCKED; R1 research-only; R2 NOT STARTED; R3 NOT AUTHORIZED; A4 NOT APPROVED.
+- No runtime/harness, candidate selection, partner integration, financial operation, production access, merge or deployment authorized. A23 formal model/test strategy and A24 evidence/bilingual assurance remain future stages.
+
+
+### G09-A23 — Formal Model & Adversarial Test Strategy (2026-11-28)
+
+- LOT-AFFILIATE-G09-A23-001 was added in both languages. It defines an abstract state-machine contract, 15 safety properties, conditional liveness properties, M0–M7 model families, initial finite bounds, model-checking method, history checker, fault injection, schedule generation and mutation testing.
+- This is research/design only. The M0 TLA+ module, one baseline configuration and three negative controls have been authored and checked with TLC v1.7.4. The baseline completed with 52 distinct states and all three mutations produced their expected counterexamples; independent review and candidate refinement have not been performed. M1–M7, Jepsen/history checker and simulation have not run; A20-01..A20-28 remain NOT RUN.
+- A21-F03/F04/F05/F11/F12 have a design/method response only and remain open pending model and valid evidence. A21-F01/F06/F08/F13 remain for A24.
+- Cross-review of A23 v0.1.1 against ADR-001 made two material corrections: lease expiry rejects a mutation at the post-serialization guard even before reclaim; local fencing does not cancel an external request already in flight. M3/M4, S-07/S-10/S-14/S-15 and transitions were refined.
+- A23 v0.1.2, cross-checked against A22, explicitly models restore quarantine, reopening gates, identity high-water marks, replay and conditional tombstone expiry; Restore/Reopen/Replay/ExpireTombstone transitions, lifecycle variables, S-08 and M5 were refined.
+- A23 v0.1.3, cross-checked again against ADR-001, makes atomic claim/reclaim, generation, owner/token, lease expiry, lifecycle version, RenewLease and full heartbeat/completion/retry/park guards explicit. RenewLease does not increment generation or resurrect an expired lease. A21-F04/F05/F10/F11 remain OPEN; no formal/runtime proof or independent assurance is claimed.
+- OD-01..OD-12, C-01..C-16 and G1..G9 remain OPEN/NOT APPROVED; ADR-002 remains PROPOSED; R0 BLOCKED, R1 research-only, R2 not started and R3 not authorized.
+- No candidate, executable runtime/harness, partner integration, financial operation, production, merge or deployment is authorized.
+
+- G09-A23-M0 was checked with TLC v1.7.4 in Run #11 (`46170075939`) on head `2ec0350e476e6ec3b90ce241bfedbe53a50799af`: baseline had 52 distinct states and no violation; mutants detected PairAtomicity, AtMostOneReceipt and AcceptedAckSoundness violations. Logs, artifact and model/config SHA-256 hashes are recorded in the companion note. This result is bounded to the model; no independent review or candidate/runtime validation has occurred.
+
+- M0 confirmation run on current PR head `c9d2e2b7e3d80bf53a64e928df647bcd1cb20ebc` passed in Run `46170218651`; the PR event runner executed on synthetic merge commit `9a9aa076de9700717e4d41d14766d8414fdd2b5b`. Baseline: 52 distinct states, no violation; all three negative controls produced their expected counterexamples. Artifact ID `15273631651`, SHA-256 `0ae142aac63ca8bc9e9cdd1e802b98bdd8abf8e829045e3d99879ba92bd60d4d`. Evidence is limited to bounded M0; independent review/refinement and M1–M7 remain outstanding.
+
+- M0 and M1 were rechecked in CI on PR head `b9fd70090a158b09131aa4f848e194fe7cefe273` using synthetic merge commit `0ceabe3`. M0 Run `46171267528`: baseline had 52 distinct states and all three mutants produced expected violations; artifact `15273950539` / SHA-256 `d2f1eb916a2c6f2316acf6932aa03ab5caab5a846eac53091cbb452a3a5315b5`. M1 Run `46171267569`: both baselines had 19 distinct and 25 generated states, depth 8; three mutants detected `NoRetryCommitWhileOriginalInflight`, `ReceiptCardinality` and `ConflictSoundness`; artifact `15273009002` / SHA-256 `b48aa95a3b6145082eb7f637dac3950d8e9656270a7ecea0c166f9c806dd2737`. Evidence is limited to formal models; no candidate/runtime, independent review, Jepsen/history checker or simulation has occurred. M2–M7 are not yet authored.
+
+- Latest integrated M0/M1 execution on PR head `10d143bfb8eaff1892a74e3277f4dcac1f024337` and synthetic merge commit `a7a670bd6453a2c86fd7733c4aeae3f8aa7b4777`: M0 Run `46171482274` passed; M1 Run `46171482180` passed; Documentation Governance Run `46171482201` passed. M0: 52 distinct baseline states and all three expected mutant detections; artifact `15273523034` / `5cd254c2bd9b7121af93c0b7384d9927f054031d2acbd7c6eef1e41670eb72d9`. M1: each of two baselines had 19 distinct, 25 generated states, depth 8; all three expected mutants detected; artifact `15273920318` / `eb38518421706ed88d03c8bf77339d1747036c5aff6811e6d666ef62b7b78ea9`. Affiliate Contract Validation for this head was still running at the time of this record; no final PASS is claimed. Results apply only to bounded models; no candidate/runtime/production/merge/deployment authority.
+
+
+
+
+- Recorded PR #76 snapshot with all four workflows passing: head `f88769965b5a259444e84a99373e7bd80b95f1ea`; synthetic merge `a86a80bf03a8bd309fa6927343d7b1a42a53da71`; base `f032065f47fe85de2aabf8d47565a57af6af3ae9`. M0 Run `46173159826` PASS: 87 generated / 52 distinct states, depth 7; artifact `15273919206` / `4c69f418349f57a866ca1f89ed34a7cb88c4d27fde4831a0d4c91884ec0497fc`. M1 Run `46173159827` PASS: both baselines 25 generated / 19 distinct states, depth 8; state-based oracle; all three expected mutants detected; artifact `15274292069` / `db8c119daa1ce3998e3314f701955c4f2311046437589070360d8f52119483b8`. Documentation Governance `46173159838` and Affiliate Contract Validation `46173159862` both PASS. TLC executed on the synthetic merge; evidence is bounded to the models. Candidate/runtime/DB integration/Jepsen/simulation/A20 have not run; M2–M7 are not authored. PR remains open/unmerged; no merge/deploy.
+
+## G09-A23 latest formal-model status — 2026-11-28
+- A23 is now v0.1.19 in both languages. M0, M1 and M2 have bounded TLC evidence; this is formal-model verification only, not runtime/candidate proof.
+- M2 was expanded after adversarial review to keep authority-root high-water and mutation-sink fence high-water separate. A sixth negative control now detects rollback of the sink's own fence metadata during restore.
+- Exact model-validation head: 96fc7a4830af452f214921ac9af68d7ae4265f33; base: f032065f47fe85de2aabf8d47565a57af6af3ae9; synthetic merge executed by Actions: 547cd6f.
+- M2 Run [46175422477](https://github.com/tecpey/lottorito-platform/actions/runs/46175422477): SUCCESS. Baseline exhausted 136 distinct states (515 generated), depth 12. Six negative controls produced expected counterexamples: early promotion; partition-only promotion; stale old-writer write; authority-root rollback; sink-fence rollback; forged current-epoch token. Artifact 15275536520; SHA-256 f289ee443e87d314d2df7d97f4908361b8aba4a9d99a9b0c1cc9d50fc133c410.
+- M0 Run [46175422429](https://github.com/tecpey/lottorito-platform/actions/runs/46175422429), M1 Run [46175422489](https://github.com/tecpey/lottorito-platform/actions/runs/46175422489) and Documentation Governance Run [46175422442](https://github.com/tecpey/lottorito-platform/actions/runs/46175422442) also completed successfully on the same exact head. These runs validate the corresponding bounded models and structural documentation checks only.
+- M2's first implementation attempt had a TLA+ function-constructor parse error; it was corrected, then baseline and negative controls were rerun. The first five-control successful run is superseded by the six-control run above. Do not cite the initial parse failure as a model violation.
+- M3 now has a candidate-neutral TLA+ model, one baseline config, eleven negative-control configs, a pinned runner and a dedicated Actions workflow. Its finite abstraction separates process identity from a shared authenticated principal, persistence time from bounded worker-clock skew, pre-lock observation from post-lock guard, and claim generation/token from owner identity. Exact-head TLC validation is pending; no M3 PASS is claimed.
+- M3 deliberately treats expired PROCESSING as reclaimable. ADR-001 currently names READY and expired CLAIMED only; this discrepancy is explicitly open for owner/independent-review reconciliation before ADR-001 approval. M3 also bounds one pending request and ten successful abstract mutations; these are finite-model bounds, not runtime policy. A7/A8 still need explicit candidate-level process-restart and real lock/concurrency schedules.
+- Early M3 TLC attempts exposed model/configuration issues (invalid symmetry domain, negative-clock module import and a missing competing state transition); those runs are failed/inconclusive attempts, not model counterexamples. The current run must complete on the exact latest head before any M3 verification claim.
+- M4–M7 are not authored. Independent review, candidate refinement, Jepsen/history checking, deterministic simulation, database/runtime proof, A20 execution and owner decisions remain open. A21 findings and all A4 gates remain open/not approved. ADR-002 remains PROPOSED. No runtime, candidate selection, partner integration, financial operation, production, merge or deployment is authorized.
+- PR #76 remains open/unmerged; latest documentation-only commits after the validation head update the bilingual M2/A23/index/project-status records. Always inspect live PR head and exact-head CI before further claims.
+
+
+### Exact-head revalidation after bilingual evidence synchronization
+- PR #76 exact head 66fa19c72418dd5376c179514d57970f5d29fe5f was revalidated: Documentation Governance Run 46175559048, M0 Run 46175558972, M1 Run 46175558925, M2 Run 46175559007 and Affiliate Contract Validation Run 46175554261 all completed SUCCESS.
+- M2 executed on synthetic merge 1c9678f (base f032065f47fe85de2aabf8d47565a57af6af3ae9); baseline 515 generated / 136 distinct states, depth 12; six negative controls detected expected violations. Artifact 15275815204; SHA-256 5c58aa70dce2bdcf93568ef9644f0cc1478da10f9b02f706d89f7a18ff85cbc3. Module SHA-256 ad773d328db633da4789ad064633f933e5ba5870655045a033c1ac82587b4e78.
+- M0/M1 and Affiliate Contract Validation passed on the same exact head. Documentation Governance passed structural bilingual/link validation only; it does not certify semantic parity.
+- Later commits in this branch update only bilingual evidence/status/index documentation; the M2 module, configs, runner and workflow remain unchanged. Current live PR head and its exact-head CI must still be checked before the next handoff.
+- All evidence is finite-model/document/contract validation only. Independent review, candidate refinement, runtime/database proof, Jepsen/history checking, deterministic simulation, A20 execution and A4 gate approvals remain outstanding. PR #76 remains open/unmerged; no merge/deploy is authorized.
+
+
+## G09-A23 M3 — current work in progress
+- Bilingual M3 model contract: [EN](affiliate-g09-a23-m3-worker-lease-model.md) / [FA](../../fa/engineering/affiliate-g09-a23-m3-worker-lease-model.md). Model source: formal/G09M3WorkerLeaseGeneration.tla; runner: scripts/formal/run_g09_m3.sh; workflow: .github/workflows/formal-g09-m3.yml.
+- Eleven mutant oracles target pre-lock time, worker-clock skew, stale generation/token, wrong token, tenant/installation binding, stale lifecycle/state, expired heartbeat, heartbeat generation changes and mutation after guard failure.
+- Validation is pending; no baseline state count, negative-control success, candidate refinement or runtime proof is asserted yet. See the M3 document for explicit assumptions and unresolved PROCESSING reclaim discrepancy.
+
+
+### M3 state-space refinement
+- The M3 module now uses one scalar pending-request context plus a dedicated RequestLockCoherence invariant. Two worker processes remain distinct for local claim-generation/token/clock state; CompetingReclaim models a new generation winning while the old request waits.
+- The baseline and eleven negative controls are still awaiting a successful exact-head TLC run. Earlier parse/config failures and long-running attempts are not verification evidence.
+
+
+### M3 adversarial model review — validation pending
+- A review found that the previous competing `AuthorizedStartProcessing` action changed WorkItem state outside the accepted-mutation history. It has been replaced by a current-claimant-authorized competing CLAIMED→PROCESSING action recorded in the same cumulative oracle.
+- Accepted protected mutations now accumulate in history rather than overwriting the previous event. Completion clears active owner/token/lease while preserving generation; the SingleClaimOwner invariant checks READY and terminal states have no active lease.
+- This is a model correctness refinement, not a runtime policy approval. Exact-head TLC baseline and all eleven mutant counterexamples remain pending. M3 remains draft.
+
+
+- M3 accepted-mutation history records now include a bounded monotonic sequence so identical-valued events remain distinct. This is an abstract-model identity, not a production identifier. Exact-head TLC is still pending.
+
+
+- M3 no longer includes the unrecorded administrative OperatorQuarantine action. Worker Park remains guarded and recorded; administrative quarantine is deferred to its operator/recovery model. TLC must re-run on the resulting exact head.

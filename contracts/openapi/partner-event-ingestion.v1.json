@@ -1,0 +1,364 @@
+{
+  "openapi": "3.2.1",
+  "info": {
+    "title": "Lottorito Partner Event Ingestion API",
+    "version": "0.1.0",
+    "description": "Proposed provider-neutral event-ingress wire profile. The integration-specific event schemas and source allowlists must be configured from an approved partner contract. The relative `/` server base is explicit; no host, environment URL or deployed partner endpoint is specified or verified. See LOT-AFFILIATE-WIRE-001."
+  },
+  "servers": [
+    {
+      "url": "/",
+      "description": "Relative base only; no environment host or deployment is specified."
+    }
+  ],
+  "paths": {
+    "/v1/integrations/{integrationId}/events": {
+      "post": {
+        "tags": [
+          "Partner Event Ingestion"
+        ],
+        "operationId": "submitPartnerEvent",
+        "summary": "Submit one partner source event",
+        "description": "Accepts one CloudEvents 1.0.2 structured-mode JSON event. The authenticated machine identity is bound server-side to the integration installation, tenant, product and environment. integrationId is a selector only, not an authorization credential.",
+        "security": [
+          {
+            "partnerBearerAuth": []
+          }
+        ],
+        "x-required-scopes": [
+          "partner.events.write"
+        ],
+        "parameters": [
+          {
+            "name": "integrationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "description": "Opaque integration installation selector; never sufficient for authorization."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/cloudevents+json": {
+              "schema": {
+                "$ref": "#/components/schemas/PartnerCloudEvent"
+              },
+              "examples": {
+                "registration": {
+                  "summary": "Illustrative registration event only; not a partner-approved schema or event mapping.",
+                  "value": {
+                    "specversion": "1.0",
+                    "id": "partner-event-opaque-001",
+                    "source": "urn:partner:configured-source",
+                    "type": "com.partner.registration.completed.v1",
+                    "time": "2026-11-27T10:15:30Z",
+                    "datacontenttype": "application/json",
+                    "data": {
+                      "externalSubjectReference": "subject-opaque-001",
+                      "registeredAt": "2026-11-27T10:15:30Z"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Exact duplicate with the same authenticated source identity and approved payload fingerprint; return the stable existing receipt and create no second WorkItem.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventReceipt"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Proposed success response for a new event. It MUST be emitted only after the InboxReceipt and WorkItem are committed atomically and the owner-approved durability acknowledgement condition is satisfied. The supported failure model, RPO and promotion/recovery behavior remain unapproved; this description is not runtime authorization or a production durability claim.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventReceipt"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid bearer credential.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Credential is not bound to this integration or lacks the required scope.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The same authenticated source and event ID were received with a different payload fingerprint.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload exceeds the configured limit.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported media type.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Malformed, unsupported or schema-invalid event.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Integration or tenant quota exceeded; no silent drop.",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Temporary service unavailability. This response MUST NOT assert that no receipt committed unless non-commit is known. If commit outcome is UNKNOWN, the response MUST NOT imply non-acceptance; the same CloudEvents source + id must be retried through authoritative reconciliation. The exact HTTP status and machine-readable error mapping for UNKNOWN remain PROPOSED pending owner decision.",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "partnerBearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Dedicated short-lived machine access token. Issuer, token format and confidential-client authentication profile remain open; never share with human management API credentials."
+      }
+    },
+    "schemas": {
+      "PartnerCloudEvent": {
+        "type": "object",
+        "additionalProperties": {
+          "description": "Generic CloudEvents extension attribute. Runtime MUST additionally validate the registered installation-specific name, semantic type and value constraints.",
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "integer",
+              "minimum": -2147483648,
+              "maximum": 2147483647
+            }
+          ]
+        },
+        "required": [
+          "specversion",
+          "id",
+          "source",
+          "type",
+          "time",
+          "datacontenttype",
+          "data"
+        ],
+        "properties": {
+          "specversion": {
+            "type": "string",
+            "const": "1.0"
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "description": "Stable source event ID within the source namespace."
+          },
+          "source": {
+            "type": "string",
+            "format": "uri-reference",
+            "minLength": 1,
+            "maxLength": 512,
+            "description": "Must match a source namespace registered for the authenticated integration."
+          },
+          "type": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "description": "Must match the integration's explicit event-type allowlist."
+          },
+          "subject": {
+            "type": "string",
+            "maxLength": 256
+          },
+          "time": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Source occurrence time; preserve separately from received and recorded time."
+          },
+          "datacontenttype": {
+            "type": "string",
+            "const": "application/json"
+          },
+          "dataschema": {
+            "type": "string",
+            "format": "uri-reference",
+            "maxLength": 1024,
+            "description": "Optional provider schema reference; must be registered/allowlisted, not fetched from an arbitrary URL."
+          },
+          "data": {
+            "type": "object",
+            "maxProperties": 64,
+            "description": "Untrusted provider data. Runtime MUST validate against the exact integration-specific schema before normalization.",
+            "additionalProperties": true
+          }
+        },
+        "description": "Lottorito generic CloudEvents JSON profile: property names are lowercase ASCII alphanumeric, start with a letter and are at most 20 characters; non-core extension values use only the CloudEvents JSON primitive forms string, boolean or signed 32-bit integer. Installation-specific extension registration, semantic type checks and allowlisting remain runtime responsibilities.",
+        "propertyNames": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20,
+          "pattern": "^[a-z][a-z0-9]*$"
+        }
+      },
+      "EventReceipt": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "receiptId",
+          "status",
+          "acceptedAt",
+          "duplicate",
+          "correlationId"
+        ],
+        "properties": {
+          "receiptId": {
+            "type": "string",
+            "maxLength": 128
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "accepted",
+              "queued",
+              "processing",
+              "processed",
+              "quarantined"
+            ]
+          },
+          "acceptedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "duplicate": {
+            "type": "boolean"
+          },
+          "correlationId": {
+            "type": "string",
+            "maxLength": 128
+          }
+        }
+      },
+      "Problem": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "type",
+          "title",
+          "status"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "format": "uri-reference"
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer",
+            "minimum": 400,
+            "maximum": 599
+          },
+          "detail": {
+            "type": "string"
+          },
+          "instance": {
+            "type": "string",
+            "format": "uri-reference"
+          },
+          "code": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "requestId": {
+            "type": "string",
+            "maxLength": 128
+          }
+        }
+      }
+    }
+  }
+}

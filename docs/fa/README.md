@@ -1,6 +1,6 @@
 # مستندات فارسی Lottorito
 
-**شناسه سند:** LOT-DOC-INDEX-FA-001 | **نسخه:** ۲.۳.۰ | **وضعیت:** فهرست مرجع و در حال نگهداری
+**شناسه سند:** LOT-DOC-INDEX-FA-001 | **نسخه:** ۲.۴.۱ | **وضعیت:** فهرست مرجع و در حال نگهداری
 
 این پوشه مرجع رسمی مستندات فارسی Lottorito است. مستندات انگلیسی در docs/en/ نیز به همان اندازه معتبرند.
 
@@ -44,7 +44,9 @@ LOT-FIN-POST-001 کنترل‌های پیشنهادی ثبت مالی و تطب�
 | امنیت | [مدل تهدید](security/threat-model.md) | LOT-SEC-TM-001؛ مرز اعتماد، سوءاستفاده و کنترل‌های پیشنهادی |
 | مهندسی | [مشخصات منابع API](engineering/api-resource-specification.md) | LOT-API-001؛ قرارداد API، احراز هویت، خطا، صفحه‌بندی و Webhook |
 | مهندسی | [پلتفرم API و تجربه توسعه‌دهندگان](engineering/api-platform-and-developer-experience.md) | LOT-API-PLATFORM-001؛ Control/Data Plane، ثبت App، کاتالوگ Entitlement، Credential، Webhook، SDK، Developer Portal، Sandbox، Metering و حاکمیت چرخه عمر پیشنهادی |
-| مهندسی | [قرارداد رویداد canonical](engineering/canonical-event-contract.md) | پاکت و معنای تحویل رویداد پیشنهادی |
+| مهندسی | [قرارداد رویداد canonical](engineering/canonical-event-contract.md) | LOT-EVENT-001؛ پاکت و معنای تحویل رویداد پیشنهادی |
+| مهندسی | [قرارداد Wire API افیلیت](engineering/affiliate-api-wire-contract.md) | LOT-AFFILIATE-WIRE-001؛ پروفایل پیشنهادی OpenAPI/AsyncAPI و ورودی CloudEvents؛ بدون تصویب Endpoint یا نگاشت شریک |
+| مهندسی | [بازبینی امنیتی قرارداد Wire افیلیت](engineering/affiliate-wire-security-review.md) | LOT-AFFILIATE-SEC-001؛ بازبینی تهدیدمحور قرارداد، یافته‌ها و دروازه‌های پیش از پیاده‌سازی/Production |
 | معماری | [استاندارد بومی‌سازی جهانی](architecture/global-localization-standard.md) | LOT-I18N-001؛ ۱۲ زبان عرضه و دروازه کیفیت برابر |
 | معماری | [Live Chat و ارتباط با مشتری](architecture/live-chat-and-communications.md) | LOT-COMMS-001؛ پشتیبانی چندزبانه و تحویل به انسان |
 | معماری | [معماری یکپارچه پلتفرم B2B2C چندمستاجری](architecture/unified-b2b2c-platform-architecture.md) | LOT-PLATFORM-001؛ تجربه‌های B2B/B2C/White-Label، Tenant، هویت، داشبورد، Wallet، پرداخت، Chat، امنیت و نقشه راه پیشنهادی |
@@ -79,3 +81,82 @@ Validator ساختاری در [scripts/check_docs.py](../../scripts/check_docs.p
 ## حاکمیت مشارکت
 
 پیش از مشارکت، [AGENTS.md](../../AGENTS.md) را بخوانید. از شاخه کاری و Pull Request استفاده کنید. بدون مجوز صریح مالک، Merge، Deploy، تغییر تنظیمات مخزن یا عملیات مخرب انجام ندهید.
+
+## پذیرش امنیتی افیلیت
+
+- [مشخصات پذیرش امنیتی و مرز Runtime افیلیت](engineering/affiliate-security-acceptance-runtime-boundary.md) — LOT-AFFILIATE-SEC-ACC-001؛ ماتریس پیشنهادی پذیرش Runtime، مرز اعتماد، Idempotency، Persistence، حفاظت داده و Gateهای انتشار؛ بدون پیاده‌سازی Runtime یا تأیید Production.
+
+
+## تصمیم‌های امنیتی و اثبات Runtime افیلیت G09-A3
+
+- [بسته تصمیم‌های G09-A3 و برنامه اثبات Runtime ساختگی](engineering/affiliate-g09-a3-decision-and-runtime-proof.md) — LOT-AFFILIATE-G09-A3-001؛ رکوردهای تصمیم پیشنهادی برای IAM، رجیستری Installation/Event، Idempotency/Fingerprint، حاکمیت منابع، چرخه داده، Audit و مرز اثر مالی، به‌همراه برنامه اثبات Runtime ایزوله و ساختگی. هیچ تصمیمی تصویب نشده و ادعای پیاده‌سازی Runtime وجود ندارد.
+
+
+## معماری اثبات Runtime افیلیت G09-A4
+
+- [معماری اثبات Runtime و طراحی تست‌های خصمانه G09-A4](engineering/affiliate-g09-a4-runtime-proof-architecture.md) — LOT-AFFILIATE-G09-A4-001؛ Harness ایزوله پیشنهادی، مرزهای اعتماد، ناورداهای Persistence، ۴۷ سناریوی خصمانه، Oracleهای مستقل تست، الزامات شواهد و Gateهای توقف. هیچ پیاده‌سازی Runtime یا انتخاب فناوری تصویب نشده است.
+
+- [G09-A5 افیلیت — آمادگی اثبات Runtime و نقشه اجرایی پیاده‌سازی](engineering/affiliate-g09-a5-runtime-proof-readiness.md) — مدل منطقی Persistence، اتمیک‌بودن، Fencing مربوط به Worker، Fixture، تزریق خطا و نقشه تست اجرایی؛ بدون مجوز Runtime.
+
+
+## راستی‌آزمایی طراحی G09-A6 افیلیت
+
+- [G09-A6 افیلیت — راستی‌آزمایی طراحی و بستن شکاف‌های اثبات](engineering/affiliate-g09-a6-design-verification.md) — LOT-AFFILIATE-G09-A6-001؛ بازبینی مستقل اسناد A4/A5، ردیابی ۴۷ سناریو، ده یافته و موانع اثبات Runtime. صرفاً قبولی مشروط طراحی؛ بدون مجوز Runtime.
+
+
+## G09-A7 افیلیت — ردیابی ۴۷ سناریو
+
+- [G09-A7 افیلیت — نقشه ردیابی ۴۷ سناریو و بستن تصمیم‌ها](engineering/affiliate-g09-a7-47-case-traceability.md) — LOT-AFFILIATE-G09-A7-001؛ ۴۷ Case مستقل A4، Fixture ساختگی، Assertionهای پروتکل/Persistence/امنیت/عدم اثر مالی، Oracle مستقل، قرارداد Evidence، برنامه‌های قطعی Race و دفتر بستن F01 تا F10. صرفاً طراحی؛ تمام Caseها NOT RUN و Runtime مسدود است.
+
+- [وابسته G09-A8 — راستی‌آزمایی و چالش خصمانه](engineering/affiliate-g09-a8-independent-verification.md) — خودبازبینی طراحی؛ بازبینی مستقل در انتظار؛ بدون مجوز Runtime.
+
+- [ADR-001 افیلیت — پروتکل Claim، Lease و Fencing پایدار WorkItem](engineering/adr-001-workitem-claim-lease-fencing.md) — پروتکل زمانی پیشنهادی؛ تصویب مالک و بازبینی مستقل در انتظار؛ بدون مجوز Runtime.
+
+
+## رکوردهای تصمیم Affiliate G09
+
+- [ADR-001 افیلیت — پروتکل Claim، Lease و Fencing پایدار WorkItem](engineering/adr-001-workitem-claim-lease-fencing.md) — پروتکل زمانی پیشنهادی؛ تصویب مالک و بازبینی مستقل در انتظار.
+- [ADR-002 افیلیت — پذیرش اتمیک Ingress و تطبیق نتیجه نامعلوم Commit](engineering/adr-002-atomic-ingress-acceptance-reconciliation.md) — جفت اتمیک InboxReceipt + WorkItem، تطبیق Commit نامعلوم، ماتریس Crash و تصمیم‌های باز مالک؛ بدون مجوز Runtime.
+
+
+- [Affiliate G09-A11 — بازبینی خصمانه طراحی ADR-002](engineering/affiliate-g09-a11-adr002-adversarial-review.md) — خودبازبینی در همان جریان؛ هشت یافته مهم و نه Subcase پیشنهادی NOT RUN؛ بازبینی مستقل در انتظار؛ بدون مجوز Runtime.
+
+- [G09-A12 افیلیت — بسته بازبینی مستقل ADR-002](engineering/affiliate-g09-a12-adr002-independent-review-package.md) — پروتکل چالش و ماتریس شواهد برای بازبین مستقل؛ بازبینی مستقل هنوز انجام نشده؛ تمام یافته‌های A11 باز هستند؛ بدون مجوز Runtime.
+
+- [G09-A13 افیلیت — بازبینی اطمینان‌بخشی اعتبارسنجی قرارداد](engineering/affiliate-g09-a13-contract-validation-assurance-review.md) — بازبینی همان نویسنده درباره دامنه CI، Assertionهای امنیت/Scope، Dialect در AsyncAPI، بازتولیدپذیری Dependency، محدودیت Extension و معنای پاسخ UNKNOWN؛ یافته‌ها باز هستند.
+
+- [G09-A14 افیلیت — سخت‌سازی اعتبارسنجی قرارداد و هم‌ترازی وضعیت پاسخ](engineering/affiliate-g09-a14-contract-validation-hardening.md) — Manifest دقیق Security/Scope، Profile مربوط به CloudEvents، Guard مربوط به Dialect در AsyncAPI، Lockfileهای بازتولیدپذیر و پوشش ۱۱ Root/۵۳ Fixture؛ سخت‌سازی فنی روی Head دقیق `736390f86ab425a8c273dcf254cc5974e9eb55ae` تأیید شده؛ تصمیم‌های مالک و اثبات Runtime همچنان باز هستند.
+
+- [G09-A15 افیلیت — آمادگی اثبات Persistence و ماتریس تصمیم‌های مالک ADR-002](engineering/affiliate-g09-a15-persistence-proof-readiness.md) — تعهدات اثبات مستقل از Candidate، ۱۲ تصمیم مالک، ۱۲ Schedule قطعی، قرارداد Evidence مستقل و Gateهای مرحله‌ای؛ بدون انتخاب Candidate و بدون اجرای اثبات Runtime.
+
+- [G09-A16 افیلیت — بازبینی خصمانه معماری ADR-002 و پرونده بازبین مستقل](engineering/affiliate-g09-a16-adversarial-architecture-review.md) — فرابازبینی نویسنده با ده چالش میان‌برشی، دوازده خانواده Schedule قطعی، قرارداد Oracle مستقل و پروتکل تحویل به بازبین؛ نه تأیید مستقل است و نه Proof مربوط به Runtime.
+- [G09-A17 افیلیت — پرونده تحقیق و پیشنهاد تصمیم‌های مالک ADR-002](engineering/affiliate-g09-a17-adr002-owner-decision-research.md) — تحلیل مبتنی بر شواهد OD-01 تا OD-12، پیشنهادهای مشروط، گزینه‌های ردشده، شواهد اثبات، وابستگی تصمیم‌ها و Hard Gateهای Candidate؛ بدون اتخاذ تصمیم مالک یا انتخاب فناوری.
+
+- [G09-A18 افیلیت — ارزیابی معماری Candidateهای Persistence و Authority](engineering/affiliate-g09-a18-persistence-authority-candidate-evaluation.md) — مقایسه پژوهشی PostgreSQL HA مهندسی‌شده، Managed PostgreSQL HA، Distributed SQL، Spanner مشروط و تفکیک Authority/Outbox؛ تعریف Hard Gateهای G1 تا G7 و برنامه شواهد R1؛ بدون انتخاب Candidate یا مجوز Runtime.
+- [G09-A19 افیلیت — ماتریس محدودیت‌های استقرار و احراز صلاحیت Candidateها](engineering/affiliate-g09-a19-deployment-constraints-candidate-qualification.md) — احراز صلاحیت مبتنی بر محدودیت: ورودی‌های مالک C-01 تا C-16، Inventory کامل Data-flow/Location، Hard Gateهای G1 تا G9، اهداف بازیابی مبتنی بر BIA و اندازه‌گیری بازتولیدپذیر؛ بدون انتخاب Provider، Region یا Database.
+
+
+## G09-A20 افیلیت — اخذ شواهد و احراز صلاحیت خصمانه
+
+- [G09-A20 — نظام اخذ شواهد و طراحی احراز صلاحیت خصمانه](engineering/affiliate-g09-a20-constraint-evidence-adversarial-qualification.md) — ماتریس Evidence برای C-01 تا C-16، Inventory کامل Data-flow، ناورداها و Oracleهای مستقل، ۲۸ طراحی آزمون خصمانه، Gateهای ایمنی اجرا و Manifest بازتولیدپذیری؛ همه Caseها NOT RUN، بدون احراز صلاحیت Candidate یا مجوز Runtime.
+
+
+## G09-A21 افیلیت — بازبینی خصمانه تضمین کیفیت
+
+- [G09-A21 — بازبینی خصمانه تضمین کیفیت سند G09-A20](engineering/affiliate-g09-a21-adversarial-assurance-review.md) — خودبازبینی داخلی و نه Assurance مستقل؛ شامل ۱۳ یافته باز (P0:1، P1:9، P2:3)، شکاف‌های Traceability و مسیر اصلاح کنترل‌شده A22 تا A24. A20 صرفاً تحقیق/طراحی آزمون است؛ بدون مجوز Runtime.
+
+
+## G09-A22 افیلیت — اصلاح مشخصات A20
+
+- [G09-A22 — اصلاح مشخصات A20](engineering/affiliate-g09-a22-a20-specification-remediation.md) — Identity/Canonicalization وابسته به تصمیم، پروتکل UNKNOWN Commit، تضمین Receiver خارجی، چرخه عمر Retention/Restore، Traceability، معنای نتایج آزمون و مرز مالی صرفاً ساختگی/ایزوله. صرفاً تحقیق؛ بدون مجوز Runtime.
+
+
+## مدل رسمی و راهبرد آزمون خصمانه G09-A23
+
+- [G09-A23 — مدل رسمی پروتکل و راهبرد آزمون خصمانه](engineering/affiliate-g09-a23-formal-protocol-model-test-strategy.md) — LOT-AFFILIATE-G09-A23-001؛ قرارداد State Machine، Safety/Liveness، Bounds مدل محدود، راهبرد TLA+/TLC، History/Concurrency، Fault Injection، Schedule Generation و نگاشت به A20/A7. برای M0 تا M2 شواهد TLC محدود وجود دارد؛ Baseline مدل M2 تعداد ۱۳۶ State متمایز را کامل کرد و هر شش Negative Control (از جمله Rollback شدن Fence در Sink) روی Head دقیق 66fa19c72418dd5376c179514d57970f5d29fe5f Counterexample مورد انتظار را تولید کردند؛ مدل M3 با یازده Config برای Negative Control تألیف شده و اعتبارسنجی TLC در انتظار است؛ M4 تا M7 تألیف نشده‌اند. هیچ Candidate/Runtime تصویب نشده است.
+
+- [G09-A23-M2 — مدل Epoch اختیار و حصارگذاری Writer](engineering/affiliate-g09-a23-m2-authority-epoch-model.md) — LOT-AFFILIATE-G09-A23-M2-001؛ State machine مستقل از Candidate با دو Writer/دو Epoch، Barrier حصارگذاری Sink، Partition، بازگشت Primary قدیمی، Quarantine در Restore، یک Baseline و شش Negative Control؛ با TLC در Bounds محدود بررسی شده؛ Baseline با ۱۳۶ State متمایز و شش Negative Control مورد انتظار روی Head دقیق 96fc7a4830af452f214921ac9af68d7ae4265f33؛ بازبینی مستقل و Candidate refinement در انتظار است.
+
+- بازاجرای تأییدی روی PR head دقیق `66fa19c72418dd5376c179514d57970f5d29fe5f`: M0، M1، M2، Documentation Governance و Affiliate Contract Validation همگی موفق شدند (Runهای `46175558972`، `46175558925`، `46175559007`، `46175559048` و `46175554261`). Baseline مدل M2 برابر ۱۳۶ State متمایز و شش Negative Control مورد انتظار داشت. شواهد محدودند؛ هیچ Candidate/Runtime تصویب نشده است.
+
+- [G09-A23-M3 — مدل Lease و نسل Claim در Worker](engineering/affiliate-g09-a23-m3-worker-lease-model.md) — LOT-AFFILIATE-G09-A23-M3؛ مدل TLA+ مستقل از Candidate برای Claim/Reclaim، انقضای Lease، Fencing پس از Lock، Clock Skew Worker، Guardهای State/Token/Lifecycle و شکست با صفر Mutation. یازده Negative Control تألیف شده‌اند؛ اعتبارسنجی TLC در انتظار است. معنای Reclaim در PROCESSING در ADR-001 همچنان تصمیم باز مالک/بازبین است.

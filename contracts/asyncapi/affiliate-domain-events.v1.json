@@ -1,0 +1,191 @@
+{
+  "asyncapi": "3.0.0",
+  "info": {
+    "title": "Lottorito Affiliate Canonical Events",
+    "version": "0.1.0",
+    "description": "Logical, transport-neutral event interface. The channel is a contract name, not evidence of a deployed broker or webhook subscription. Domain payload schemas are versioned separately."
+  },
+  "defaultContentType": "application/cloudevents+json",
+  "channels": {
+    "affiliateCanonicalEvents": {
+      "address": "affiliate.canonical-events",
+      "messages": {
+        "affiliateCanonicalEvent": {
+          "$ref": "#/components/messages/AffiliateCanonicalEvent"
+        }
+      },
+      "description": "Logical stream of normalized Affiliate domain events published through a transactional outbox. Delivery is at-least-once."
+    }
+  },
+  "operations": {
+    "publishAffiliateCanonicalEvents": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/affiliateCanonicalEvents"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/affiliateCanonicalEvents/messages/affiliateCanonicalEvent"
+        }
+      ],
+      "summary": "Publish a canonical Affiliate domain event",
+      "description": "A platform event is published only after the owning domain transaction commits its outbox record. Consumers deduplicate using platform event identity and enforce their own economic-effect idempotency."
+    }
+  },
+  "components": {
+    "messages": {
+      "AffiliateCanonicalEvent": {
+        "name": "AffiliateCanonicalEvent",
+        "title": "Affiliate canonical event",
+        "summary": "A normalized event emitted by the Affiliate bounded context.",
+        "contentType": "application/cloudevents+json",
+        "payload": {
+          "type": "object",
+          "additionalProperties": {
+            "description": "Generic CloudEvents extension attribute. Runtime MUST additionally validate the registered installation-specific name, semantic type and value constraints.",
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "integer",
+                "minimum": -2147483648,
+                "maximum": 2147483647
+              }
+            ]
+          },
+          "required": [
+            "specversion",
+            "id",
+            "source",
+            "type",
+            "subject",
+            "time",
+            "tenantid",
+            "productdomain",
+            "sourcesystem",
+            "sourceeventid",
+            "receivedat",
+            "recordedat",
+            "data"
+          ],
+          "properties": {
+            "specversion": {
+              "type": "string",
+              "const": "1.0"
+            },
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256,
+              "description": "New platform-generated immutable event ID; never reuse the partner source event ID."
+            },
+            "source": {
+              "type": "string",
+              "format": "uri-reference",
+              "description": "Domain-owned platform source URI/URN."
+            },
+            "type": {
+              "type": "string",
+              "pattern": "^com[.]lottorito[.]affiliate[.][a-z0-9.-]+[.]v[1-9][0-9]*$",
+              "description": "Domain-qualified, versioned event type."
+            },
+            "subject": {
+              "type": "string",
+              "maxLength": 512,
+              "description": "Opaque aggregate type/id reference."
+            },
+            "time": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Original occurred_at instant."
+            },
+            "datacontenttype": {
+              "type": "string",
+              "const": "application/json"
+            },
+            "dataschema": {
+              "type": "string",
+              "format": "uri-reference"
+            },
+            "tenantid": {
+              "type": "string",
+              "maxLength": 128,
+              "description": "Trusted platform tenant context; never copied from untrusted payload."
+            },
+            "productdomain": {
+              "type": "string",
+              "const": "affiliate"
+            },
+            "correlationid": {
+              "type": "string",
+              "maxLength": 128
+            },
+            "causationid": {
+              "type": "string",
+              "maxLength": 128
+            },
+            "sourcesystem": {
+              "type": "string",
+              "maxLength": 256,
+              "description": "Authenticated original source/provider identity."
+            },
+            "sourceeventid": {
+              "type": "string",
+              "maxLength": 256,
+              "description": "Original source event ID, namespaced by sourcesystem."
+            },
+            "receivedat": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "recordedat": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "data": {
+              "type": "object",
+              "description": "Validated and minimized domain payload; its schema is owned and versioned by the Affiliate domain.",
+              "additionalProperties": true
+            }
+          },
+          "description": "Lottorito generic CloudEvents JSON profile: property names are lowercase ASCII alphanumeric, start with a letter and are at most 20 characters; non-core extension values use only the CloudEvents JSON primitive forms string, boolean or signed 32-bit integer. Installation-specific extension registration, semantic type checks and allowlisting remain runtime responsibilities.",
+          "propertyNames": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20,
+            "pattern": "^[a-z][a-z0-9]*$"
+          }
+        },
+        "examples": [
+          {
+            "name": "illustrativeRegistration",
+            "summary": "Illustrative shape only; not a customer/provider-approved event mapping.",
+            "payload": {
+              "specversion": "1.0",
+              "id": "platform-event-opaque-001",
+              "source": "urn:lottorito:domain:affiliate",
+              "type": "com.lottorito.affiliate.registration.received.v1",
+              "subject": "registration/opaque-001",
+              "time": "2026-11-27T10:15:30Z",
+              "datacontenttype": "application/json",
+              "tenantid": "tenant-opaque-001",
+              "productdomain": "affiliate",
+              "correlationid": "corr-opaque-001",
+              "sourcesystem": "urn:partner:configured-source",
+              "sourceeventid": "partner-event-opaque-001",
+              "receivedat": "2026-11-27T10:15:31Z",
+              "recordedat": "2026-11-27T10:15:31Z",
+              "data": {
+                "externalSubjectReference": "subject-opaque-001"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,57 @@
+name: G09 M1 Unknown Commit Arbitration
+
+on:
+  pull_request:
+    paths:
+      - 'formal/G09M1*'
+      - 'scripts/formal/run_g09_m1.sh'
+      - '.github/workflows/formal-g09-m1.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'formal/G09M1*'
+      - 'scripts/formal/run_g09_m1.sh'
+      - '.github/workflows/formal-g09-m1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  m1-tlc:
+    name: TLC baselines and negative controls
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Verify Java runtime
+        run: java -version
+
+      - name: Download and verify pinned TLA+ tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          jar="$RUNNER_TEMP/tla2tools.jar"
+          curl --fail --location --silent --show-error --retry 3 \
+            https://github.com/tlaplus/tlaplus/releases/download/v1.7.4/tla2tools.jar \
+            --output "$jar"
+          echo "936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88  $jar" | sha256sum --check -
+          echo "TLA2TOOLS_JAR=$jar" >> "$GITHUB_ENV"
+
+      - name: Run M1 TLC baselines and negative controls
+        env:
+          TLC_OUT_DIR: ${{ runner.temp }}/g09-m1-results
+        run: bash scripts/formal/run_g09_m1.sh
+
+      - name: Preserve TLC logs and state metadata
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: g09-a23-m1-tlc-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/g09-m1-results/
+          if-no-files-found: warn
+          retention-days: 30
