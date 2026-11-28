@@ -3,7 +3,7 @@
 **Document ID:** LOT-EVAL-RDM-001  
 **Version:** 0.1.0  
 **Date:** 2026-11-28  
-**Status:** IMPLEMENTED ON A NON-PRODUCTION REVIEW BRANCH — owner disposition and independent review pending  
+**Status:** IMPLEMENTED AND CI-VERIFIED ON A NON-PRODUCTION REVIEW BRANCH — owner disposition and independent review pending  
 **Parent baseline:** LOT-EVAL-001 v0.3.0 and LOT-EVAL-AVT-001 v0.2.0  
 **Frozen parent commit:** `e7aed0892a0de212fc3fd7603a6976eee503a76f`  
 **Authority:** Deterministic reference behavior for the mapped synthetic acceptance vectors only. This is not the Lottorito product runtime, a procurement engine, a legal/security assurance, standard adoption, owner approval or production authorization.
@@ -67,6 +67,8 @@ Local environment: Python 3.13.5. The exact source file was syntax-compiled with
 | Equivalent / unreachable / unresolved mutants | 0 / 0 / 0 |
 
 This is a specification-level fault-injection result from this reference harness, not a conventional third-party mutation-testing score or evidence of overall test-suite adequacy. All expected oracles were authored in the same workstream; no independent reviewer has independently reconstructed them. Independent challenge remains outstanding.
+
+Exact-head GitHub Actions run #1133 (run ID `46118746808`) on commit `863fe0eb8f27e93e68dcd0f6275aaef377cf3c32` succeeded: the structural documentation check validated 62 bilingual Markdown pairs and 160 local links, and the reference-model execution step passed. This is CI evidence for the exact implementation head, not independent assurance.
 
 ## 6. Open interpretation and assurance limitations
 
