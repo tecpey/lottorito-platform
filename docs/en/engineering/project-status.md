@@ -403,3 +403,10 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 - U05: criterion-specific operational 0–5 anchors; weighted aggregate remains secondary; consider structured MCDA/swing weighting and rank sensitivity for complex material trade-offs.
 - Research references include HM Treasury Orange Book (updated 18 Nov 2026), Green Book 2026 (updated 28 Oct 2026), MCDA supplementary guidance (16 May 2024), NIST SP 800-30 Rev.1, NASA 6.8, Magenta Book (15 May 2026), NIST SP 800-53 Rev.5.2.0 CA-02, ISO 31000:2018 and ISO/IEC 25010:2023.
 - All U01…U05 remain UNRESOLVED pending explicit owner decisions. No legal applicability, numerical calibration or policy adoption is claimed.
+
+### RDM-006 v0.2.0 — additional measurement-model gap identified
+
+- Added a candidate, not-yet-registered RDM-U06: the current §8.3 weighted sum uses 0–5 ordered anchors, but the standard has not demonstrated interval/cardinal component value functions or mutual preferential independence required for a defensible additive value model.
+- Government Analysis Function MCDA guidance (2024) requires cardinal component values for valid weights and mutual preferential independence for a linear additive model; EFSA (2018) warns that arithmetic calculations treating ordinal categories as quantitative are invalid without quantitative scale meaning.
+- Proposed choices: (a) construct criterion-specific cardinal value functions, elicit swing weights and assess independence; or (b) retain ordinal ratings and use an approved ordinal/non-compensatory method without arithmetic weighted ranking.
+- This is a research finding only. Owner must decide whether to add RDM-U06 or merge it into U05. No change to LOT-EVAL-001 §8.3 or owner dispositions has been made.
