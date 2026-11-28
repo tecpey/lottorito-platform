@@ -1,7 +1,7 @@
 # G09-A23 — مدل رسمی پروتکل و راهبرد آزمون خصمانه
 
 **شناسه سند:** LOT-AFFILIATE-G09-A23-001  
-**نسخه:** ۰.۱.۱۹ | **وضعیت:** پیشنهادی؛ M0 تا M2 با TLC در Bounds محدود بررسی شده‌اند؛ Runtime اجرا نشده و M3–M7 تألیف نشده‌اند  
+**نسخه:** ۰.۱.۲۰ | **وضعیت:** پیشنهادی؛ M0 تا M2 با TLC در Bounds محدود بررسی شده‌اند؛ Runtime اجرا نشده و M3–M7 تألیف نشده‌اند  
 **تاریخ:** ۲۰۲۶-۱۱-۲۸  
 **مبنای بازبینی:** G09-A21، G09-A22، G09-A20، G09-A7، ADR-001 و ADR-002  
 **مرجعیت:** طراحی مشورتی؛ هیچ تصمیم مالک، Candidate، Gate یا مجوز اجرایی تصویب نمی‌شود.
@@ -323,3 +323,6 @@ Mutantهای حداقلی اجباری: حذف Unique Constraint؛ Ack قبل ا
 
 
 **یادداشت بازبینی نسخه ۰.۱.۱۹ — چالش Rollback شدن Fence در Sink:** در دور دوم بازبینی خصمانه، Rollback شدن Authority Root از Rollback شدن Metadata حصارگذاری خود Mutation Sink جدا شد. M2 اکنون High-water Mark مستقل Sink Fence را مدل می‌کند و Invariant مربوط به SinkFenceEpochAtLeastHighWater را بررسی می‌کند؛ Negative Control ششم عمداً Fence مقصد را هنگام Restore به عقب برمی‌گرداند. Run دقیق [46175422477](https://github.com/tecpey/lottorito-platform/actions/runs/46175422477) روی PR head 96fc7a4830af452f214921ac9af68d7ae4265f33 موفق شد (Synthetic merge: 547cd6f؛ Base: f032065f47fe85de2aabf8d47565a57af6af3ae9). Baseline: ۵۱۵ State تولیدشده/۱۳۶ متمایز، عمق ۱۲ و بدون نقض. هر شش Mutant مورد انتظار کشف شدند: Early promotion، Partition promotion، Stale write، Rollback Authority Root، Rollback Sink Fence و Forged current epoch. Artifact 15275536520؛ SHA-256 f289ee443e87d314d2df7d97f4908361b8aba4a9d99a9b0c1cc9d50fc133c410. Documentation Governance Run 46175422442، M0 Run 46175422429 و M1 Run 46175422489 نیز روی همین Head دقیق موفق شدند. این‌ها فقط نتایج مدل محدودند؛ بازبینی مستقل، Candidate refinement، Runtime، Jepsen/History Checker و Simulation همچنان انجام نشده‌اند. M3–M7 تألیف نشده‌اند؛ هیچ A4 Gate یا تصمیم مالک بسته نشده است.
+
+
+**یادداشت بازبینی نسخه ۰.۱.۲۰ — بازاجرای روی Head دقیق:** ماژول نهایی M2 با شش کنترل روی PR head برابر با 66fa19c72418dd5376c179514d57970f5d29fe5f در Run [46175559007](https://github.com/tecpey/lottorito-platform/actions/runs/46175559007) مجدداً اجرا شد و SUCCESS گرفت. Baseline دوباره ۱۳۶ State متمایز (۵۱۵ تولیدشده)، عمق ۱۲ را کامل کرد و هر شش Negative Control نقض‌های مورد انتظار را کشف کردند. Artifact 15275815204؛ SHA-256 برابر با 5c58aa70dce2bdcf93568ef9644f0cc1478da10f9b02f706d89f7a18ff85cbc3. روی همان Head دقیق، M0 Run 46175558972، M1 Run 46175558925، Documentation Governance Run 46175559048 و Affiliate Contract Validation Run 46175554261 نیز موفق شدند. Hash سورس مدل نسبت به شواهد Canonical M2 در سند همراه تغییر نکرده است. این کنترل‌ها فقط مدل‌های رسمی محدود و اسناد/قرارداد را بررسی می‌کنند و صحت Candidate/Runtime را اثبات نمی‌کنند. Commitهای بعدی این شاخه، این شواهد را در سند همراه دوزبانه و Project Status همگام می‌کنند؛ CI روی Head دقیق آن Commitهای مستنداتی نیز باید دوباره بررسی شود.
