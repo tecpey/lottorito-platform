@@ -1,7 +1,7 @@
 # G09-A23 — مدل رسمی پروتکل و راهبرد آزمون خصمانه
 
 **شناسه سند:** LOT-AFFILIATE-G09-A23-001  
-**نسخه:** ۰.۱.۲۶ | **وضعیت:** پیشنهادی؛ M0 تا M2 با TLC در Bounds محدود بررسی شده‌اند؛ مدل M3 تألیف شده و اعتبارسنجی TLC در انتظار است؛ Runtime اجرا نشده و M4–M7 تألیف نشده‌اند  
+**نسخه:** ۰.۱.۲۷ | **وضعیت:** پیشنهادی؛ M0 تا M2 با TLC در Bounds محدود بررسی شده‌اند؛ مدل M3 تألیف شده و اعتبارسنجی TLC در انتظار است؛ Runtime اجرا نشده و M4–M7 تألیف نشده‌اند  
 **تاریخ:** ۲۰۲۶-۱۱-۲۸  
 **مبنای بازبینی:** G09-A21، G09-A22، G09-A20، G09-A7، ADR-001 و ADR-002  
 **مرجعیت:** طراحی مشورتی؛ هیچ تصمیم مالک، Candidate، Gate یا مجوز اجرایی تصویب نمی‌شود.
@@ -344,3 +344,6 @@ Mutantهای حداقلی اجباری: حذف Unique Constraint؛ Ack قبل ا
 
 
 **یادداشت بازبینی نسخه ۰.۱.۲۶ — Abstraction اسکالر درخواست در M3:** مدل M3 اکنون درخواست Pending واحد را به‌صورت State اسکالر، نه Mapهای جداگانه هر Worker، نمایش می‌دهد و Invariant صریح RequestLockCoherence را اضافه می‌کند. W0/W1 همچنان Processهای متمایز برای State محلی Claim Generation/Token/Clock هستند و Principal احراز‌شده مشترک دارند. Transition مربوط به CompetingReclaim، Interleaving درخواست قدیمی با Generation جدید را حفظ می‌کند. این تغییر بهینه‌سازی State-space است و قصد تغییر Policy پروتکل را ندارد؛ اعتبارسنجی TLC روی Head دقیق در انتظار است.
+
+
+**یادداشت بازبینی نسخه ۰.۱.۲۷ — کامل‌بودن Oracle در M3:** در بازبینی M3، Transition تغییر‌دهنده State که خارج از History مربوط به Mutationهای پذیرفته‌شده بود حذف و با Action رقیب CLAIMED→PROCESSING جایگزین شد که به Claimant مجاز و جاری نیاز دارد و Mutation را در History تجمعی ثبت می‌کند؛ Mutationهای محافظت‌شده نیز به‌جای جایگزینی رویداد قبلی، به History اضافه می‌شوند. Stateهای Ready/Terminal نباید Owner/Token/Lease فعال نگه دارند و Completion این فیلدها را بدون Reset کردن Generation پاک می‌کند. مدل M3 تا تکمیل Baseline و هر یازده Negative Control روی Head دقیق همچنان پیش‌نویس است.
