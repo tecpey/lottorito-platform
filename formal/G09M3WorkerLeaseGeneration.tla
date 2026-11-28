@@ -307,7 +307,7 @@ GuardOK(w) ==
     /\ IF Mutation = "prelock_time"
           THEN requestPreLockValid[w]
        ELSE IF Mutation = "worker_clock"
-          THEN workerClock[w] < leaseExpiry
+          THEN persistenceTime + workerClock[w] < leaseExpiry
        ELSE IF Mutation = "expired_heartbeat" /\ requestOp[w] = "heartbeat"
           THEN TRUE
        ELSE persistenceTime < leaseExpiry
