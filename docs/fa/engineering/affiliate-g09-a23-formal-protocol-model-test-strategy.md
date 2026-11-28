@@ -1,7 +1,7 @@
 # G09-A23 — مدل رسمی پروتکل و راهبرد آزمون خصمانه
 
 **شناسه سند:** LOT-AFFILIATE-G09-A23-001  
-**نسخه:** ۰.۱.۱ | **وضعیت:** پیشنهادی، تحقیق و طراحی مدل — بدون اجرای Model Checker یا Runtime  
+**نسخه:** ۰.۱.۲ | **وضعیت:** پیشنهادی، تحقیق و طراحی مدل — بدون اجرای Model Checker یا Runtime  
 **تاریخ:** ۲۰۲۶-۱۱-۲۸  
 **مبنای بازبینی:** G09-A21، G09-A22، G09-A20، G09-A7، ADR-001 و ADR-002  
 **مرجعیت:** طراحی مشورتی؛ هیچ تصمیم مالک، Candidate، Gate یا مجوز اجرایی تصویب نمی‌شود.
@@ -62,6 +62,11 @@ A23:
 | consumerReceipt | Deduplication/Receipt مستقل Consumer |
 | restoreIncarnation | شناسه یکتای چرخه Restore/Recovery |
 | tombstone | نشانگر پایدار هویت مصرف‌شده/منقضی‌شده طبق سیاست مصوب |
+| tombstoneState | چرخه عمر Marker: active / eligible_for_expiry / expired / legal_hold |
+| sourceReplayHorizon | افق Redelivery/Replay مبدأ؛ کران مصوب متناهی یا صریحاً unbounded |
+| identityProtectionHighWaterMark | High-water Mark مرجع برای جلوگیری از احیای Identity مصرف‌شده |
+| restoreMode | وضعیت Restore: quarantined / reconciling / eligible_to_reopen |
+| recoveryGateSet | مجموعه Gateهای لازم برای تطبیق و بازگشایی Restore |
 | destinationIdentity | هویت پایدار اثر/عملیات در مقصد خارجی طبق قرارداد مقصد |
 | destinationAuthority | Epoch/Generation یا مرجع پذیرش مستقل مقصد، در صورت پشتیبانی |
 | destinationReceipt | Receipt مرجع مقصد برای Idempotency/Lookup |
@@ -93,8 +98,11 @@ A23:
 | CommitWorkTransition | فقط Owner/Generation/Authority معتبر در لحظه Mutation |
 | PublishOutbox | فقط از Outbox Durable؛ تحویل ممکن است تکراری/نامرتب باشد |
 | ConsumeMessage | Consumer مرجع Work را دوباره بخواند/Claim کند؛ پیام Broker به‌تنهایی Authority نیست |
-| Restore | داده و Metadata بازیابی شوند؛ Authority/Identity نباید عقب‌گرد خاموش داشته باشند |
-| ReconcileRestore | اختلاف داده، Epoch، Tombstone، Credential، Schema و Outbox آشکار و تعیین تکلیف شود |
+| Restore | داده و Metadata بازیابی شوند، اما محیط ابتدا در Quarantine بالا بیاید؛ Ingress/Worker غیرفعال، Egress خارجی مسدود و Credentialها ایزوله باشند |
+| ReconcileRestore | اختلاف داده، Epoch، Tombstone/Identity High-water Mark، Queue/Inbox/Outbox، Credential/Key، Schema و Tenant آشکار و تعیین تکلیف شود؛ محیط همچنان Quarantined بماند |
+| ReopenAfterRestore | فقط پس از تکمیل همه Gateهای Recovery و ثبت Evidence مصوب؛ در غیر این صورت Fail Closed |
+| ReplaySourceIdentity | Replay قبل/بعد از انقضای Tombstone طبق افق واقعی مبدأ و Source Epoch/Namespace بررسی شود؛ Identity مصرف‌شده نباید خاموش دوباره پذیرفته شود |
+| ExpireTombstone | فقط پس از اثبات پایان افق متناهی Redelivery/Replay/Backup/PITR/Queue/Manual Replay و نبود Legal Hold؛ اگر افق متناهی اثبات‌پذیر نیست، Expiry ممنوع و Retention دائمی یا Epoch/Namespace Rollover با Cutover اثبات‌شده لازم است |
 | Quarantine/Repair | Actor مجاز، دامنه محدود، Audit کامل؛ Worker عادی حق Claim مورد قرنطینه را ندارد |
 | SubmitExternalEffect | فقط پس از Work/Outbox معتبر؛ مقصد خارجی قرارداد مستقل Identity/Idempotency/Fencing خود را اعمال کند |
 | ReconcileExternalEffect | UNKNOWN مقصد با Lookup مرجع مقصد حل شود؛ نبود Receipt از Cache/Timeout نتیجه‌گیری نشود |
@@ -120,7 +128,7 @@ A23:
 | S-05 Unknown Preservation | UNKNOWN تا Reconciliation معتبر، نه ACCEPTED و نه REJECTED تفسیر نشود |
 | S-06 Authority Fencing | Actor با Epoch قدیمی پس از انتقال Authority نتواند State محافظت‌شده را تغییر دهد |
 | S-07 Worker Fencing | Generation قدیمی نتواند State محافظت‌شده تحت مالکیت Persistence مبدأ را Commit کند؛ اثر خارجی فقط در صورت Fencing/Idempotency اثبات‌شده سمت Receiver قابل رد/Deduplicate است و در غیر این صورت مشمول S-14 و UNKNOWN/Residual Risk است |
-| S-08 Restore Monotonicity | Restore/PITR نتواند Epoch، Identity مصرف‌شده یا Revocation را ناخواسته احیا/عقب ببرد |
+| S-08 Restore Monotonicity | Restore/PITR نتواند Epoch، Identity مصرف‌شده یا Revocation را ناخواسته احیا/عقب ببرد؛ محیط Restoreشده تا تکمیل Reconciliation و Gateهای مصوب در Quarantine بماند و Ingress/Worker/Egress فعال نشوند |
 | S-09 Tenant Isolation | هیچ Read/Write/Disclosure بین Tenantها از طریق Identity، Payload، Retry یا Repair رخ ندهد |
 | S-10 Outbox Boundary | پیام Broker مرجع Acceptance نیست؛ Publisher/Consumer و Receipt داخلی طبق قرارداد Dedup سمت Consumer عمل کنند؛ تحویل تکراری Broker به‌تنهایی نباید Mutation تکراری در Store مرجع Consumer بسازد. تضمین اثر Receiver خارجی جداگانه تحت S-14 است |
 | S-11 External Effect Boundary | Atomicity دیتابیس به‌عنوان Exactly-once برای مقصد خارجی معرفی نشود |
@@ -156,7 +164,7 @@ Fairness قوی/ضعیف، Scheduler، نرخ ورود، ظرفیت، Retry Budg
 3. **M2 — Authority Epoch:** دو Writer، دو Epoch، Partition، Promotion، بازگشت Primary قدیمی و Restore Epoch.
 4. **M3 — Worker Lease:** دو Worker، دو Generation، Expiry/Reclaim، توقف Lock، Timestamp قبل/بعد Lock، Clock Skew، انقضای Lease پیش از Reclaim و Resume Worker قدیمی.
 5. **M4 — Outbox/Consumer/Receiver:** انتشار تکراری، Delay، Reorder، Broker outage، Consumer crash، درخواست خارجی in-flight، پذیرش Receiver پس از انقضای Lease مبدأ، پاسخ گم‌شده، Retry، Idempotency/Fencing مقصد و انقضای Retention Dedup Receiver.
-6. **M5 — Restore/Lifecycle:** PITR، Tombstone، Retention، Credential/Key/Schema Rotation، Recovery Incarnation و Failback.
+6. **M5 — Restore/Lifecycle:** PITR/Backup قدیمی، Tombstone و مرز انقضا، افق Replay متناهی/نامتناهی، پیام دیررس Queue، Credential/Key/Schema Rotation، Recovery Incarnation، Failback، Clean-room Quarantine و Gate بازگشایی.
 7. **M6 — Tenant/Principal:** حداقل دو Tenant و دو Principal با سطح دسترسی متفاوت؛ جعل Payload و Repair کم‌اختیار.
 8. **M7 — Liveness/Resources:** Tenant داغ، Burst، Retry، Quota، Backpressure، Fairness و Degraded Mode.
 
@@ -223,7 +231,7 @@ Retry باید Error-classified، Idempotent، محدود به Budget/Deadline �
 5. هر Bug کشف‌شده به Regression دائمی با Seed/Trace ثابت تبدیل شود.
 6. Mutation Testing صحت Oracle/Checker را با Mutantهای شناخته‌شده ارزیابی کند.
 
-Mutantهای حداقلی اجباری: حذف Unique Constraint؛ Ack قبل از Commit؛ قبول Negative Read از Replica قدیمی؛ عدم بررسی Epoch در Mutation؛ قبول Worker Generation قدیمی؛ قبول Mutation پس از انقضای Lease پیش از Reclaim؛ بازنشانی Epoch پس از Restore؛ Retry با Identity جدید؛ پذیرش درخواست خارجی قدیمی بدون قرارداد Receiver؛ Retry اثر خارجی با Idempotency Key جدید؛ اجرای Side Effect داخل Transaction قابل Retry؛ حذف Consumer Dedup؛ و تبدیل UNKNOWN به REJECTED/ACCEPTED بدون Evidence. اگر Checker Mutant متناظر را تشخیص ندهد، آزمون حساسیت آن INCONCLUSIVE است.
+Mutantهای حداقلی اجباری: حذف Unique Constraint؛ Ack قبل از Commit؛ قبول Negative Read از Replica قدیمی؛ عدم بررسی Epoch در Mutation؛ قبول Worker Generation قدیمی؛ قبول Mutation پس از انقضای Lease پیش از Reclaim؛ بازنشانی Epoch پس از Restore؛ انقضای Tombstone پیش از پایان افق Replay/Backup؛ فعال‌سازی Ingress/Worker/Egress پیش از تکمیل Gateهای Restore؛ Retry با Identity جدید؛ پذیرش درخواست خارجی قدیمی بدون قرارداد Receiver؛ Retry اثر خارجی با Idempotency Key جدید؛ اجرای Side Effect داخل Transaction قابل Retry؛ حذف Consumer Dedup؛ و تبدیل UNKNOWN به REJECTED/ACCEPTED بدون Evidence. اگر Checker Mutant متناظر را تشخیص ندهد، آزمون حساسیت آن INCONCLUSIVE است.
 
 تعداد Seed، تکرار، مدت Soak، پوشش ترکیبی و Thresholdها باید با Workload/Risk مصوب تعیین شوند؛ هیچ عدد نمونه‌ای Default نیست.
 
@@ -277,7 +285,7 @@ Mutantهای حداقلی اجباری: حذف Unique Constraint؛ Ack قبل ا
 
 ## ۱۴. وضعیت نهایی
 
-**یادداشت بازبینی نسخه ۰.۱.۱:** بازبینی تطبیقی با ADR-001 نشان داد انقضای Lease باید در Guard پس از نقطه Serialization، حتی پیش از Reclaim، باعث رد Mutation شود؛ انقضا به‌تنهایی Generation را افزایش نمی‌دهد. همچنین Fencing محلی نباید به‌عنوان لغو درخواست خارجی in-flight تعبیر شود. Transitionها، S-07/S-10/S-14/S-15 و مدل‌های M3/M4 برای رفع این دو ابهام اصلاح شدند. این اصلاحات A21-F04/F11 را نمی‌بندند و هنوز نیازمند Model Checking و Evidence هستند.
+**یادداشت بازبینی نسخه ۰.۱.۲:** بازبینی تطبیقی با ADR-001 و A22 سه مرز را صریح کرد: Lease منقضی در Guard پس از Serialization، حتی پیش از Reclaim، Mutation را رد می‌کند؛ Fencing مبدأ درخواست خارجی in-flight را لغو نمی‌کند؛ Restore باید در Quarantine بماند تا High-water Mark هویت، Tombstone، Queue/Outbox، Credential/Key، Schema و Tenant تطبیق و Gateهای بازگشایی تکمیل شوند. Transitionهای Restore/Reopen/Replay/ExpireTombstone، متغیرهای Lifecycle، S-08 و M5 اصلاح شدند. A21-F04/F05/F10/F11 همچنان OPEN هستند و این اصلاحات جایگزین Model Checking، Evidence یا Assurance مستقل نیستند.
 
 
 - A23: قرارداد مدل و راهبرد آزمون پیشنهادی؛ **NOT EXECUTED**.
