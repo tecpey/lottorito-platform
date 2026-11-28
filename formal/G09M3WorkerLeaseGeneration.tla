@@ -12,7 +12,7 @@ RequestStates == {"idle", "waiting", "locked"}
 WorkStates == {"ready", "claimed", "processing", "completed",
                "failed", "quarantined"}
 Mutations == {"none", "prelock_time", "worker_clock", "stale_generation",
-              "wrong_token", "stale_lifecycle", "stale_state",
+              "wrong_token", "wrong_tenant", "stale_lifecycle", "stale_state",
               "expired_heartbeat", "heartbeat_generation",
               "guard_mutates"}
 
@@ -195,7 +195,7 @@ ApplyClaim(w) ==
     /\ requestOp[w] = "claim"
     /\ ClaimEligible
     /\ claimGeneration < MaxGeneration
-    /\ requestTenant[w] = TenantID
+    /\ (Mutation = "wrong_tenant" \/ requestTenant[w] = TenantID)
     /\ requestInstallation[w] = InstallationID
     /\ claimGeneration' = claimGeneration + 1
     /\ generationHighWater' = claimGeneration + 1
@@ -288,9 +288,9 @@ OperatorQuarantine ==
        lastFailureMutationCount, acceptedHistory, claimEvents>>
 
 GuardOK(w) ==
-    /\ claimOwner = w
-    /\ requestExpectedState[w] = workState
-    /\ workState \in {"claimed", "processing"}
+    /\ (Mutation = "stale_state" \/ claimOwner = w)
+    /\ (Mutation = "stale_state" \/ requestExpectedState[w] = workState)
+    /\ (Mutation = "stale_state" \/ workState \in {"claimed", "processing"})
     /\ (Mutation = "stale_generation" \/ requestGeneration[w] = claimGeneration)
     /\ (Mutation = "wrong_token" \/ requestToken[w] = claimToken)
     /\ (Mutation = "stale_lifecycle" \/ requestLifecycle[w] = lifecycleVersion)
@@ -310,7 +310,9 @@ ProtectedMutationRecord(w) ==
       lifecycleVersion, requestGeneration[w], requestToken[w],
       requestLifecycle[w], requestExpectedState[w], workState,
       requestTenant[w], requestInstallation[w], lockAcquireTime[w],
-      requestStartTime[w], requestOp[w]>>
+      requestStartTime[w], requestOp[w],
+      IF Mutation = "heartbeat_generation" /\ requestOp[w] = "heartbeat"
+      THEN claimGeneration + 1 ELSE claimGeneration>>
 
 ApplyProtectedTransition(w) ==
     /\ w \in Workers
@@ -422,7 +424,8 @@ TypeOK ==
         0..MaxTime \X 0..(MaxTime + LeaseDuration) \X 0..1 \X
         0..MaxGeneration \X 0..(MaxGeneration + 1) \X 0..1 \X
         WorkStates \X WorkStates \X {"tenant-A", "tenant-B"} \X
-        {"installation-A", "installation-B"} \X 0..MaxTime \X 0..MaxTime \X ProtectedOps)
+        {"installation-A", "installation-B"} \X 0..MaxTime \X 0..MaxTime \X
+        ProtectedOps \X 0..MaxGeneration)
     /\ claimEvents \subseteq (0..MaxGeneration \X 1..MaxGeneration \X Workers)
 
 SingleClaimOwner ==
@@ -438,7 +441,7 @@ ClaimAdvancesExactlyOnce ==
 
 HeartbeatDoesNotAdvanceGeneration ==
     \A e \in acceptedHistory :
-        e[17] = "heartbeat" => e[3] = e[8]
+        e[17] = "heartbeat" => e[3] = e[18]
 
 EveryAcceptedMutationWasAuthorized ==
     \A e \in acceptedHistory :
