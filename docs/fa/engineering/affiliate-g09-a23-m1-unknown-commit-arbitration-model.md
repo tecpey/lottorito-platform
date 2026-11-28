@@ -1,7 +1,7 @@
 # G09-A23-M1 — مدل داوری Commit نامعلوم و Retry هم‌زمان
 
 **شناسه سند:** LOT-AFFILIATE-G09-A23-M1-001  
-**نسخه:** ۰.۱.۸  
+**نسخه:** ۰.۱.۹  
 **وضعیت:** مدل محدود با TLC اجرا شده؛ بازبینی مستقل و Refinement به Candidate همچنان باز  
 **مدل:** `formal/G09M1UnknownCommitArbitration.tla`  
 **پیکربندی‌ها:** دو Baseline و سه Negative Control در `formal/G09M1*.cfg`  
@@ -46,7 +46,6 @@ M1 Tenant، Installation، Source Epoch، چند Identity، Lease/Worker، Outbo
 - `receiptCount`: تعداد Receiptهای ثبت‌شده برای Identity؛ بازه ۰ تا ۲ تا Mutant بتواند Duplicate را آشکار کند.
 - `receiptOwner` و `receiptFingerprints`: مالک و Fingerprintهای Receiptهای ثبت‌شده.
 - `retryObservedAbsent`: فقط مشاهده عدم وجود Receipt؛ نه مدرک Abort.
-- `retryCommittedWhileOriginalInflight`: ثبت وقوع Commit غیرمجاز Retry در حالی که تلاش اصلی هنوز In-flight بوده است.
 
 ## ۵. Transitionهای اصلی
 
