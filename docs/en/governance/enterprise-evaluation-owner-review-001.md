@@ -38,7 +38,7 @@ The owner may amend the proposed remediation. Any accepted risk must identify th
 
 ## 2.1 Owner direction for technical implementation
 
-On 2026-11-28, the project owner explicitly directed the assistant to apply evidence-supported technical findings and reasons carefully across the relevant project artifacts, using professional judgment. This authorizes the assistant to implement defensible document-level and technical corrections within PR #78 and keep the English/Persian versions synchronized.
+On 2026-11-28, the project owner explicitly directed the assistant to apply evidence-supported technical findings and reasons carefully across the relevant project artifacts, using professional judgment. This authorizes the assistant to implement defensible document-level and technical corrections across the relevant governance, provider, technology and security artifacts in PR #78 and keep the English/Persian versions synchronized.
 
 This execution authority is separate from formal disposition of each finding. REV-01 through REV-14 therefore remain PENDING in the disposition table until the owner records an explicit item-level decision. Implementation alone does not mean ACCEPT, residual-risk acceptance, approval of risk appetite, adoption of a rubric for a named procurement decision, approval of a supplier/jurisdiction, or authorization for production/financial activity. Any decision involving risk appetite, legal authority, procurement, contract or operations still requires the proper authorized decision-maker and a separate record.
 
