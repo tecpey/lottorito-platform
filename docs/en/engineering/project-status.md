@@ -1,6 +1,6 @@
 # Verified Project Status and Continuation Point
 
-**Document ID:** LOT-OPS-001 | **Version:** 2.0.14 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-28
+**Document ID:** LOT-OPS-001 | **Version:** 2.0.15 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-28
 
 ## Verified repository state
 - Repository: tecpey/lottorito-platform; default branch main; public visibility by owner decision.
@@ -315,3 +315,8 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 - Bilingual M3 model contract: [EN](affiliate-g09-a23-m3-worker-lease-model.md) / [FA](../../fa/engineering/affiliate-g09-a23-m3-worker-lease-model.md). Model source: formal/G09M3WorkerLeaseGeneration.tla; runner: scripts/formal/run_g09_m3.sh; workflow: .github/workflows/formal-g09-m3.yml.
 - Eleven mutant oracles target pre-lock time, worker-clock skew, stale generation/token, wrong token, tenant/installation binding, stale lifecycle/state, expired heartbeat, heartbeat generation changes and mutation after guard failure.
 - Validation is pending; no baseline state count, negative-control success, candidate refinement or runtime proof is asserted yet. See the M3 document for explicit assumptions and unresolved PROCESSING reclaim discrepancy.
+
+
+### M3 state-space refinement
+- The M3 module now uses one scalar pending-request context plus a dedicated RequestLockCoherence invariant. Two worker processes remain distinct for local claim-generation/token/clock state; CompetingReclaim models a new generation winning while the old request waits.
+- The baseline and eleven negative controls are still awaiting a successful exact-head TLC run. Earlier parse/config failures and long-running attempts are not verification evidence.
