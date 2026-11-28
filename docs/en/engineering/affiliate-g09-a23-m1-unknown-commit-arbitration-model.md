@@ -1,7 +1,7 @@
 # G09-A23-M1 — Unknown Commit Arbitration and Concurrent Retry Model
 
 **Document ID:** LOT-AFFILIATE-G09-A23-M1-001  
-**Version:** 0.1.7  
+**Version:** 0.1.8  
 **Status:** Bounded model checked by TLC; independent review and candidate refinement remain open  
 **Model:** `formal/G09M1UnknownCommitArbitration.tla`  
 **Configurations:** two baselines and three negative controls in `formal/G09M1*.cfg`  
@@ -73,7 +73,9 @@ M1 does not model tenants, installations, source epochs, multiple identities, le
 | `NoRetryCommitWhileOriginalInflight` | Retry must not commit while the original attempt is in flight |
 | `NoTerminalRetryResolutionWhileOriginalInflight` | While the original is in flight, retry cannot reach terminal Accepted/Duplicate/Conflict |
 
-M1 makes no Liveness claim and sets no time bound for resolving UNKNOWN. `retry_wait` may remain until the commit authority supplies a definitive result.
+M1 makes no Liveness claim and sets no time bound for resolving UNKNOWN.
+
+**Oracle review correction:** `NoRetryCommitWhileOriginalInflight` is now defined directly from model state: `~(originalStatus = "inflight" /\ retryStatus = "committed")`. The historical helper flag that was set only by the mutant path was removed; the oracle no longer depends on mutant-specific instrumentation and checks the unsafe state relation itself. `retry_wait` may remain until the commit authority supplies a definitive result.
 
 ## 7. Negative controls
 
@@ -87,11 +89,11 @@ Two separate baselines cover equal and differing fingerprints. Negative controls
 
 ## 8. Latest reproducible execution evidence
 
-**Latest PR head:** `fca277f4cae18735f9ce45f3e5b9b0a8c9909f8d`
-**Synthetic merge commit executed:** `547989755f863440eb35bb42afee936c811b66dd` (base: `f032065f47fe85de2aabf8d47565a57af6af3ae9`)
-**GitHub Actions Run:** [46172700577 — G09 M1 Unknown Commit Arbitration](https://github.com/tecpey/lottorito-platform/actions/runs/46172700577) — PASS
-**Artifact:** [g09-a23-m1-tlc-46172700577-1](https://github.com/tecpey/lottorito-platform/actions/runs/46172700577/artifacts/15274271466)
-**Artifact ZIP SHA-256:** `52c8340c8a3d73b7597957589ddba619029b79e0728ec8ac6796881cdb64e751`
+**Latest PR head:** `d20bdedcbd885a7de4945c0195ba7b738c5588df`
+**Synthetic merge commit executed:** `6381c7ce70922edf1a865c73fb792c366d7dd11` (base: `f032065f47fe85de2aabf8d47565a57af6af3ae9`)
+**GitHub Actions Run:** [46172983952 — G09 M1 Unknown Commit Arbitration](https://github.com/tecpey/lottorito-platform/actions/runs/46172983952) — PASS
+**Artifact:** [g09-a23-m1-tlc-46172983952-1](https://github.com/tecpey/lottorito-platform/actions/runs/46172983952/artifacts/15274741061)
+**Artifact ZIP SHA-256:** `5fdf36c4378b09deccd8db776cf4ebd48eb8aed020e5ca8b56c9948dac75621f`
 
 Toolchain: TLA+ Tools v1.7.4 / TLC 2.19; JAR SHA-256 `936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88`; Eclipse Temurin 17.0.21.1; Ubuntu 24.04; BFS, one worker, seed=1, fp=0, 1 GiB heap. Checkout and Upload Artifact are pinned by immutable SHAs; `persist-credentials: false`.
 
