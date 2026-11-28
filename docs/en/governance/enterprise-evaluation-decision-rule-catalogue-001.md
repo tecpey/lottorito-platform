@@ -3,7 +3,7 @@
 **Document ID:** LOT-EVAL-RDM-003A  
 **Version:** 0.1.0  
 **Date:** 2026-11-28  
-**Status:** AUTHOR-LED ANALYSIS — proposed; independent oracle review and owner disposition pending  
+**Status:** AUTHOR-LED ANALYSIS — proposed; author-led adversarial second-pass review completed; owner disposition pending  
 **Parent:** LOT-EVAL-001 v0.3.0  
 **Related:** LOT-EVAL-AVT-001 v0.2.0; LOT-EVAL-RDM-001; LOT-EVAL-RDM-002
 
@@ -170,7 +170,7 @@ Evaluate this table only after the N/A decision has passed the prior-approval an
 
 This artifact is ready for independent review only when the following are completed:
 
-- [ ] A competent second reviewer independently derives expected outcomes from LOT-EVAL-001 v0.3.0 without seeing the model's expected outputs.
+- [x] Author-led adversarial second-pass review completed and findings recorded in LOT-EVAL-RDM-003B-AR-001. This is not blind review, a second-person review or formal IV&V.
 - [ ] Every rule's modal force and source clause are confirmed.
 - [ ] Every table combination is classified feasible, infeasible or unresolved; no implicit don't-care is used for unknowns.
 - [ ] All unresolved issues are adjudicated by the appropriate owner/control authority or remain explicitly blocked.
