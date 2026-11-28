@@ -233,3 +233,10 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 - Documentation Governance validated bilingual structure and local links. Affiliate Contract Validation completed locked tool installation, OpenAPI validation, AsyncAPI validation and schema payload fixture validation.
 - A manual identifier-set comparison confirmed matching English/Persian inventories for PO-01..PO-07, OD-01..OD-12, S01..S12 and A11-F01..F08. This is structural ID parity, not a semantic translation audit.
 - These results apply only to the exact head above. Any later commit requires exact-head CI re-verification. No runtime/persistence proof was executed; A11-F01..F08 remain OPEN, ADR-002 remains PROPOSED, S01..S12 remain NOT RUN, and all A4 gates remain NOT APPROVED.
+
+
+## G09-A16 — adversarial architecture review dossier (2026-11-28)
+- Added bilingual LOT-AFFILIATE-G09-A16-001 against frozen baseline PR #76 head `8e9a880c14000bd158f66ae2001c02669ed4cc6b`.
+- A16 adds ten author-led cross-cutting challenge points, twelve deterministic schedule families, source-freeze/change-control requirements, reviewer independence/competence declaration, independent-oracle/evidence requirements and a signed reviewer disposition template.
+- Research references include AWS Builders' Library/Well-Architected retry and idempotency guidance, PostgreSQL WAL/synchronous replication/failover documentation, fencing-token analysis, Jepsen history-checking methodology, RFC 8785 and RFC 7493. These inform review; no technology is selected.
+- A16 is not independent sign-off. A11-F01..F08 remain OPEN; ADR-002 PROPOSED; A7/A8 extensions NOT RUN/BLOCKED; all A4 gates NOT APPROVED. No candidate/runtime/harness proof, partner integration, financial operation, merge or deployment authorized. CI must be checked on the post-A16 exact head.
