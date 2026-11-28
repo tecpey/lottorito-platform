@@ -1,7 +1,7 @@
 # G09-A23 M3 — مدل Lease و نسل Claim در Worker
 
 **شناسه سند:** LOT-AFFILIATE-G09-A23-M3  
-**نسخه:** ۰.۱.۱  
+**نسخه:** ۰.۱.۲  
 **وضعیت:** پیش‌نویس مدل — اعتبارسنجی TLC در انتظار؛ بازبینی مستقل و Candidate refinement انجام نشده است  
 **سند مادر:** [راهبرد مدل رسمی و آزمون A23](affiliate-g09-a23-formal-protocol-model-test-strategy.md)  
 **پیشنهاد هنجاری:** [ADR-001 — پروتکل Claim، Lease و Fencing برای WorkItem](adr-001-workitem-claim-lease-fencing.md)  
@@ -21,7 +21,7 @@ M3 یک WorkItem پایدار و دو Process مربوط به Worker را جدا
 
 ۳. **Claim Token یک نماد انتزاعی و Opaque وابسته به Generation است.** TLC فقط Binding و Mismatch را مدل می‌کند، نه Entropy رمزنگاری، محرمانگی، انتقال Token یا سرقت Credential. Token به‌تنهایی Bearer Credential محسوب نمی‌شود.
 
-۴. **زمان Persistence از زمان محلی Worker جداست.** Clockهای Worker مستقل از زمان Persistence جلو می‌روند تا Scheduleهای Clock کند/تند و مشاهده کهنه بررسی شوند. در Baseline، مشاهده محلی Worker و Snapshot پیش از Lock مرجع تصمیم نیستند.
+۴. **زمان Persistence از زمان محلی Worker جداست.** هر Worker یک Clock Offset غیرقطعی در دامنه {-1، ۰، +1} نسبت به زمان Persistence دارد. این کار مشاهده ساعت کند/تند را در یک دامنه محدود بررسی می‌کند، بدون آن‌که Bound کمی برای Drift ادعا شود. درخواست همچنین Snapshot اعتبار Lease پیش از Lock را ثبت می‌کند؛ در Baseline هیچ‌یک از این مشاهدات محلی مرجع تصمیم نیستند.
 
 ۵. **نقطه Serialization و Guard دو مرحله مجزا هستند.** درخواست، State/Generation/Token/Lifecycle مورد انتظار و مشاهده پیش از Lock را ثبت می‌کند؛ سپس منتظر می‌ماند، نقطه Serialization را می‌گیرد و Guard را در برابر وضعیت پایدار و زمان Persistence فعلی ارزیابی می‌کند. زمان می‌تواند هنگام انتظار یا حتی در زمان نگه‌داشتن نقطه Serialization جلو برود. Guard و Mutation محافظت‌شده یک گام اتمیک و نقطه Linearization هستند.
 
@@ -38,7 +38,7 @@ M3 یک WorkItem پایدار و دو Process مربوط به Worker را جدا
 | چرخه عمر WorkItem | ready، claimed، processing، completed، failed، quarantined |
 | مالکیت پایدار | claimOwner، claimGeneration، claimToken، leaseExpiry |
 | نسخه Guard/Recovery | lifecycleVersion |
-| زمان | persistenceTime و workerClock[W0/W1] مستقل |
+| زمان | persistenceTime و Clock Offset محدود Worker برای W0/W1 |
 | درخواست درحال‌اجرای Worker | State/Generation/Token/Lifecycle مورد انتظار، Tenant/Installation، زمان شروع و مشاهده پیش از Lock |
 | Serialization | lockOwner، زمان گرفتن Lock و External Blocker برای مدل‌سازی انتظار |
 | عملیات | Claim/Reclaim، Heartbeat، Start-processing، Complete، Retry و Park |
@@ -103,7 +103,7 @@ Runner فقط وقتی موفق است که Baseline بدون نقض Invariant �
 - یک WorkItem تغییرناپذیر و دو Process مربوط به Worker با نام W0 و W1.
 - هر دو Process عمداً یک Service Principal احراز‌شده مشترک دارند.
 - دو Generation Claim (۰، ۱، ۲)؛ LeaseDuration = 2 و دامنه زمان Persistence از ۰ تا ۴ فقط ثابت‌های اکتشاف متناهی هستند.
-- Clockهای محلی Worker مستقل از زمان Persistence جلو می‌روند؛ این یک Abstraction غیرقطعی از Skew/کهنگی است، نه Bound کمی Drift ساعت.
+- Clock Offset محلی Worker به‌صورت غیرقطعی در دامنه ۱- تا ۱+ نسبت به زمان Persistence تغییر می‌کند؛ این یک Abstraction محدود از Skew است، نه Bound کمی Drift ساعت.
 - یک نقطه Serialization و یک External Blocker برای مدل‌سازی Contention/انتظار Lock.
 - فقط یک Tenant و یک Installation مدل شده‌اند؛ بررسی چندمستاجری فراتر از تشخیص Binding نامنطبق در M6 است.
 - Entropy Token، اصالت رمزنگاری، پیاده‌سازی IAM، Semantics مربوط به Lock/Isolation/Time در Database، Kill/STONITH، رفتار Queue، اثرات خارجی و پروتکل Restore Incarnation انتزاع یا خارج از Scope هستند.
@@ -133,3 +133,6 @@ Runner ثابت‌شده در scripts/formal/run_g09_m3.sh و Workflow در .git
 - PostgreSQL، [Explicit Locking](https://www.postgresql.org/docs/current/explicit-locking.html): Serialization مبتنی بر Row Lock و رفتار انتظار Lock؛ فقط مرجع ارزیابی Candidate است.
 
 این منابع Scheduleهای خصمانه مدل را توجیه می‌کنند؛ هیچ‌کدام پیاده‌سازی Lottorito را اثبات یا Providerی را انتخاب نمی‌کنند.
+
+
+دامنه محدود Clock Offset به ۱- تا ۱+ کاهش یافت تا جست‌وجوی Explicit-state قابل‌کنترل بماند و در عین حال Counterexample مربوط به Clock کند و تند حفظ شود. این صرفاً Bound مربوط به Abstraction است؛ رفتار Clock در Production انتخاب یا اثبات نشده است.
