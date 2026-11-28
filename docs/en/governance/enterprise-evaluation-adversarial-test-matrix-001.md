@@ -153,6 +153,18 @@ It is **not** acceptable evidence of standard adoption, successful operational u
 
 **Exit gate:** no unresolved Critical/High test failure; no unexplained blocked mandatory-gate test; bilingual semantic parity confirmed; owner and specialist approvals recorded where required. Passing these tests does not itself adopt LOT-EVAL-001.
 
+### 6.1 Adversarial review findings for v0.2.0
+
+The following defects were found by comparing the matrix against the exact LOT-EVAL-001 v0.3.0 text. They are document-design findings, not executed test failures:
+
+| Finding | Severity | Defect | Disposition |
+|---|---|---|---|
+| AVTR-01 | High | AVT-01 originally blocked every aggregate whenever any evidence was NS, while §8.3 blocks a definitive aggregate when a **material** criterion remains NS and permits only explicitly controlled provisional treatment. | Corrected: NS remains unscored at criterion level; aggregate handling now distinguishes materiality and requires transparent disclosure/authority. |
+| AVTR-02 | Medium | The parent-section mapping cited §§17.1–17.3 but omitted the direct normative provisions in §§17.10.1–17.10.7. | Corrected: parent mapping and acceptance traceability now identify §§4, 8.3 and 17.10.1–17.10.7, with §§17.1–17.3 retained only for related lifecycle/approval context. |
+| AVTR-03 | Low | Inserting the mutation catalogue created duplicate section numbering for the research references and change history. | Corrected: change history is now §9; research references remain §8. |
+
+The v0.2.0 arithmetic fixture and mutation catalogue are additional test-design improvements. The above findings are considered **document corrections applied**, not owner dispositions, executed acceptance tests or independent assurance. All AVT vectors and MUT operators remain DESIGNED.
+
 ## 7. Specification-mutation catalogue and execution protocol
 
 This is **specification-mutation analysis**, not a claim that a software mutation-testing tool has been run against an implementation. The object being challenged is the written decision rule and its test oracle. A future executable reference evaluator may support conventional mutation testing, but none is assumed here.
@@ -189,7 +201,7 @@ This is **specification-mutation analysis**, not a claim that a software mutatio
 - Papadakis et al., *Practical Mutation Testing at Scale: A view from Google*, IEEE Transactions on Software Engineering 48(10), 2022, DOI: https://doi.org/10.1109/TSE.2021.3107634
 - Papadakis et al., *A systematic literature review of techniques and metrics to reduce the cost of mutation testing*, Journal of Systems and Software, 2020: https://www.sciencedirect.com/science/article/pii/S0164121219301554
 
-## 8. Change history
+## 9. Change history
 
 - 0.2.0 (2026-11-28): corrected REV-01 materiality/NS aggregate semantics; repaired parent-section traceability; added a ten-operator specification-mutation catalogue and explicit accounting/execution protocol. No tests or mutations executed.
 - 0.1.0 (2026-11-28): initial bilingual adversarial acceptance-test design for REV-01, REV-03, REV-04, REV-12 and REV-14. No tests executed.
