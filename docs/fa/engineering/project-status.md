@@ -240,3 +240,11 @@
 - A16 شامل ده چالش میان‌برشی تدوین‌کننده، دوازده خانواده Schedule قطعی، الزامات Freeze Source/کنترل تغییر، اظهارنامه استقلال و صلاحیت بازبین، الزامات Oracle/Evidence مستقل و قالب Disposition امضاشده است.
 - منابع تحقیق شامل راهنماهای AWS Builders' Library/Well-Architected درباره Retry و Idempotency، مستندات PostgreSQL درباره WAL/Synchronous Replication/Failover، تحلیل Fencing Token، روش History Checking در Jepsen، RFC 8785 و RFC 7493 هستند. این منابع برای بازبینی‌اند و فناوری انتخاب نمی‌کنند.
 - A16 تأیید مستقل نیست. A11-F01 تا F08 باز؛ ADR-002 در وضعیت PROPOSED؛ Extensionهای A7/A8 در وضعیت NOT RUN/BLOCKED؛ تمام Gateهای A4 تصویب‌نشده‌اند. هیچ Proof مربوط به Candidate/Runtime/Harness، اتصال شریک، عملیات مالی، Merge یا Deploy مجاز نیست. CI باید روی Head دقیق پس از A16 بررسی شود.
+
+
+## G09-A17 — تطبیق بازبینی مستقل (۲۰۲۶-۱۱-۲۸)
+- PR شماره ۷۶ از Draft به Ready for review تغییر وضعیت داده است؛ همچنان OPEN و ادغام‌نشده است. در آخرین بررسی GitHub مقدار `mergeable=true` گزارش کرد. این صرفاً مشاهده قابلیت ادغام در پلتفرم است.
+- Review شماره 6095766449 از `xrayman6zfm-ux` با وضعیت `APPROVED` در زمان `2026-11-28T04:19:55Z` ثبت شده و به Commit دقیق `b547d3976c97e6068ace6747dbf72f3a6fb9828f` اشاره می‌کند. متن Review خالی است و Inline Review Thread مشاهده نشد. این یک شاهد معتبر تأیید در سطح پلتفرم است.
+- الزامات بازبینی محتوایی A12 (اظهارنامه استقلال/صلاحیت/تعارض، فهرست Artifactها، بازسازی پروتکل، تحلیل خصمانه و Disposition جداگانه A11) در Artifactهای قابل مشاهده GitHub مستند نشده‌اند. این محدودیت شواهد است، نه ادعای نبود تحلیل خارج از GitHub.
+- سند دوزبانه LOT-AFFILIATE-G09-A17-001 و LDR-062 اضافه شدند. A17 تأیید را بدون استنباط بسته‌شدن فنی ثبت می‌کند. A11-F01 تا F08 و OD-01 تا OD-12 باز؛ ADR-002 همچنان PROPOSED؛ تمام Gateهای A4 تصویب‌نشده‌اند.
+- هیچ Proof مربوط به Runtime/Persistence، انتخاب Candidate، اتصال شریک، عملیات مالی، Merge یا Deploy مجاز نیست. شاخه پیگیری A17 از Head دقیق PR شماره ۷۶ ساخته شده؛ تغییرات A17 نیازمند CI و بازبینی مستقل روی Head دقیق خود هستند.
