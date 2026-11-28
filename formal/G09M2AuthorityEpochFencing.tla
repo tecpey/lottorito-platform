@@ -186,6 +186,7 @@ ReconcileRestore ==
     /\ phase = "quarantined"
     /\ restoredEpoch' = rootEpoch
     /\ sinkFenceEpoch' = rootEpoch
+    /\ sinkFenceHighWater' = rootEpoch
     /\ fenceVerified' = TRUE
     /\ phase' = "fenced"
     /\ UNCHANGED <<rootEpoch, authorityHighWater, authorityOwner,
