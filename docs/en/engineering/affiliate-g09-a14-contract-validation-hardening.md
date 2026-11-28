@@ -164,7 +164,8 @@ The validator and manifest now:
 - require exactly one supported parameter schema representation (`schema` or a single-media-type `content` schema);
 - compare the complete effective-parameter ID set against the manifest, including operation, path, location and name;
 - verify each parameter's required flag, reference origin and schema representation against its manifest entry;
-- compile the actual contract schema with the document's component namespace available, then execute positive and negative boundary fixtures.
+- compile the actual contract schema with the document's component namespace available, then execute positive and negative boundary fixtures;
+- exercise the collector itself with synthetic probes proving Path Item inheritance, Operation-level `(name, in)` override behavior, single-media-type `content` schema enforcement and fail-closed rejection of unsupported multi-media-type content.
 
 **Current parameter inventory:** six effective parameters and 25 positive/negative fixtures:
 
@@ -173,15 +174,15 @@ The validator and manifest now:
 - `Idempotency-Key`: 3/255 versus 2/256-character boundaries;
 - `referralLinkId`, `attributionId`, `integrationId`: non-empty and 128/129-character boundaries.
 
-The earlier 11 schema roots and 53 schema fixtures remain unchanged and are reported separately; the new parameter inventory is not misrepresented as additional payload schema roots. The current validator reported **117 assertions, 11 schema roots, 53 payload-schema fixtures, six effective parameters and 25 parameter fixtures**.
+The earlier 11 schema roots and 53 schema fixtures remain unchanged and are reported separately; the new parameter inventory is not misrepresented as additional payload schema roots. The current validator reported **121 assertions, 11 schema roots, 53 payload-schema fixtures, six effective parameters and 25 parameter fixtures**.
 
 ### Exact-head CI evidence
 
-Reviewed source head: `16143c822578e1b4d8d7b38e4283ab4ac0f466a9`.
+Reviewed source head: `adf8a65bcf66dc891bfba01c6099acc17ea85453`.
 
-- Documentation Governance PR run #1267 (`46164546372`): **SUCCESS**.
-- Affiliate Contract Validation PR run #253 (`46164546461`): **SUCCESS**.
-- Affiliate Contract Validation push run #252 (`46164543052`): **SUCCESS**.
+- Documentation Governance PR run #1271 (`46164717590`): **SUCCESS**.
+- Affiliate Contract Validation PR run #262 (`46164717611`): **SUCCESS**.
+- Affiliate Contract Validation push run #261 (`46164713536`): **SUCCESS**.
 - The contract job completed strict lockfile-based installs, Redocly validation for both OpenAPI documents, AsyncAPI CLI validation and the Node/Ajv fixture validator.
 - The validator output explicitly reported the 117 assertions and the separate parameter inventory above.
 
