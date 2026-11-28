@@ -1,7 +1,7 @@
 # G09-A23 — مدل رسمی پروتکل و راهبرد آزمون خصمانه
 
 **شناسه سند:** LOT-AFFILIATE-G09-A23-001  
-**نسخه:** ۰.۱.۳ | **وضعیت:** پیشنهادی، تحقیق و طراحی مدل — بدون اجرای Model Checker یا Runtime  
+**نسخه:** ۰.۱.۴ | **وضعیت:** پیشنهادی؛ M0 تألیف شده، TLC و Runtime اجرا نشده‌اند  
 **تاریخ:** ۲۰۲۶-۱۱-۲۸  
 **مبنای بازبینی:** G09-A21، G09-A22، G09-A20، G09-A7، ADR-001 و ADR-002  
 **مرجعیت:** طراحی مشورتی؛ هیچ تصمیم مالک، Candidate، Gate یا مجوز اجرایی تصویب نمی‌شود.
@@ -164,7 +164,7 @@ Fairness قوی/ضعیف، Scheduler، نرخ ورود، ظرفیت، Retry Budg
 
 مدل واحد و عظیم از ابتدا ساخته نشود. مدل‌ها به‌صورت مرحله‌ای و با Interface/Invariant مشترک تفکیک شوند:
 
-1. **M0 — Atomic Acceptance:** دو Caller، یک Identity، یک Receipt و یک WorkItem؛ Crash قبل/حین/بعد Commit.
+1. **M0 — Atomic Acceptance:** دو Caller، یک Identity، یک Receipt و یک WorkItem؛ Crash قبل/بعد نقطه Commit. ماژول و Configهای پایه/Mutant در `formal/G09M0AtomicAcceptance.tla` و فایل‌های همراه تألیف شده‌اند؛ TLC هنوز اجرا نشده است.
 2. **M1 — UNKNOWN Arbitration:** Transaction اولیه In-flight، گم‌شدن پاسخ، Negative Read، Retry هم‌زمان و Commit/Abort دیرهنگام.
 3. **M2 — Authority Epoch:** دو Writer، دو Epoch، Partition، Promotion، بازگشت Primary قدیمی و Restore Epoch.
 4. **M3 — Worker Lease:** دو Worker/Generation، Claim و Reclaim، تمدید Lease، Heartbeat/Completion/Retry/Park، State/Token/LifecycleVersion mismatch، شکست Guard با صفر Mutation، توقف Lock، Timestamp قبل/بعد Lock، Clock Skew، انقضای Lease پیش از Reclaim و Resume Worker قدیمی.
@@ -188,7 +188,7 @@ Bounds زیر فقط نقطه شروع Model Exploration هستند، نه ظر�
 
 ### ۷.۳ خروجی اجباری TLC/Model Checker
 
-برای هر Run آینده: نسخه ابزار و Runtime، Hash فایل‌های Model/Config، Constants/Bounds، Assumptions، Invariants/Temporal Properties، State/Transition count، زمان/منابع، وضعیت تکمیل/قطع، Counterexample کامل، Trace و روش بازتولید ثبت شود. State-space exhaustion فقط برای همان مدل و Bounds گزارش شود. اگر Run ناقص، محدودیت منابع یا Property بررسی‌نشده وجود داشت، نتیجه INCONCLUSIVE است.
+برای هر Run آینده: نسخه ابزار و Runtime، Hash فایل‌های Model/Config، Constants/Bounds، Assumptions، Invariants/Temporal Properties، State/Transition count، زمان/منابع، وضعیت تکمیل/قطع، Counterexample کامل، Trace و روش بازتولید ثبت شود. M0 اکنون به‌صورت فایل TLA+ و چهار Config (یک Baseline و سه Negative Control) تألیف شده است؛ تا اجرای TLC هیچ نتیجه‌ای گزارش نمی‌شود. State-space exhaustion فقط برای همان مدل و Bounds گزارش شود. اگر Run ناقص، محدودیت منابع یا Property بررسی‌نشده وجود داشت، نتیجه INCONCLUSIVE است.
 
 TLC یک Explicit-state Model Checker برای زیرمجموعه‌ای از TLA+ و مدل‌های محدود است؛ بنابراین نتیجه به مدل، Bounds و Propertyهای واقعاً بررسی‌شده محدود می‌ماند. [R1]
 
@@ -294,7 +294,7 @@ Mutantهای حداقلی اجباری: حذف Unique Constraint؛ Ack قبل ا
 
 
 - A23: قرارداد مدل و راهبرد آزمون پیشنهادی؛ **NOT EXECUTED**.
-- TLA+ Model/TLC: هنوز ساخته/اجرا/بررسی نشده است.
+- M0 TLA+ module و چهار Config تألیف شده‌اند؛ TLC و Syntax/Type Check هنوز اجرا نشده‌اند. M1–M7 هنوز تألیف نشده‌اند.
 - Jepsen/History Checker/Simulation: هنوز اجرا نشده است.
 - A20-01..A20-28: DESIGNED / NOT RUN.
 - A21-F03/F04/F05/F11/F12: در سطح روش/مدل پاسخ طراحی دریافت می‌کنند؛ تا تکمیل Model، بازبینی و Evidence همچنان OPEN.
@@ -303,5 +303,7 @@ Mutantهای حداقلی اجباری: حذف Unique Constraint؛ Ack قبل ا
 - ADR-002: PROPOSED؛ A11-F01..F08 OPEN؛ A12 انجام‌نشده.
 - R0 BLOCKED؛ R1 تحقیق؛ R2 شروع‌نشده؛ R3 غیرمجاز؛ A4 تصویب‌نشده.
 - هیچ Candidate، Runtime، Harness اجرایی، Partner، عملیات مالی، Production، Merge یا Deploy مجاز نیست.
+
+**یادداشت بازبینی نسخه ۰.۱.۴:** نخستین ماژول TLA+ برای M0 و یک پیکربندی Baseline به‌همراه سه Negative Control تألیف شد؛ مستند دوزبانه M0 نیز اضافه شد. این صرفاً تألیف مدل است: TLC، Parser/Type Check، State-space Exploration و Counterexampleها هنوز اجرا/بازبینی نشده‌اند. M1–M7، History Checker و Simulation همچنان شروع‌نشده‌اند.
 
 **نتیجه:** A23 مدل‌سازی و آزمون را از فهرست سناریو به روش مهندسی قابل‌ردیابی ارتقا می‌دهد؛ اما هیچ شواهدی از اجرای واقعی یا قبولی سامانه ادعا نمی‌کند.
