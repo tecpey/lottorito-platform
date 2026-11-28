@@ -322,7 +322,7 @@ CompetingStartProcessingRecord(w) ==
     <<w, claimOwner, claimGeneration, claimToken, persistenceTime, leaseExpiry,
       lifecycleVersion, workerGeneration[w], workerToken[w], workerLifecycle[w],
       workState, workState, TenantID, InstallationID, persistenceTime,
-      persistenceTime, "start_processing", claimGeneration>>
+      persistenceTime, "start_processing", claimGeneration, mutationCount + 1>>
 
 (* An independently authorized current claimant wins the serialization point
    while an older request waits. This atomic acquire/guard/mutate/release action
@@ -391,7 +391,7 @@ ProtectedMutationRecord(w) ==
       requestExpectedState, workState, requestTenant, requestInstallation,
       lockAcquireTime, requestStartTime, requestOp,
       IF Mutation = "heartbeat_generation" /\ requestOp = "heartbeat"
-      THEN claimGeneration + 1 ELSE claimGeneration>>
+      THEN claimGeneration + 1 ELSE claimGeneration, mutationCount + 1>>
 
 ApplyProtectedTransition(w) ==
     /\ w \in Workers
@@ -512,7 +512,7 @@ TypeOK ==
         (0..1) \X (0..MaxGeneration) \X (0..(MaxGeneration + 1)) \X
         (0..1) \X WorkStates \X WorkStates \X {"tenant-A", "tenant-B"} \X
         {"installation-A", "installation-B"} \X (0..MaxTime) \X
-        (0..MaxTime) \X ProtectedOps \X (0..MaxGeneration))
+        (0..MaxTime) \X ProtectedOps \X (0..MaxGeneration) \X (1..10))
     /\ claimEvents \subseteq ((0..MaxGeneration) \X (1..MaxGeneration) \X Workers)
 
 RequestLockCoherence ==
