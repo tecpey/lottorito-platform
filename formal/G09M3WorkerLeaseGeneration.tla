@@ -408,41 +408,41 @@ Spec == Init /\ [][Next]_vars
 
 TypeOK ==
     /\ workState \in WorkStates
-    /\ claimGeneration \in 0..MaxGeneration
-    /\ generationHighWater \in 0..MaxGeneration
+    /\ claimGeneration \in (0..MaxGeneration)
+    /\ generationHighWater \in (0..MaxGeneration)
     /\ claimOwner \in {NoOwner, "worker-service"}
-    /\ claimToken \in 0..MaxGeneration
-    /\ leaseExpiry \in 0..(MaxTime + LeaseDuration)
-    /\ lifecycleVersion \in 0..1
-    /\ persistenceTime \in 0..MaxTime
-    /\ workerClock \in [Workers -> 0..MaxTime]
-    /\ workerGeneration \in [Workers -> 0..MaxGeneration]
-    /\ workerToken \in [Workers -> 0..MaxGeneration]
-    /\ workerLifecycle \in [Workers -> 0..1]
+    /\ claimToken \in (0..MaxGeneration)
+    /\ leaseExpiry \in (0..(MaxTime + LeaseDuration))
+    /\ lifecycleVersion \in (0..1)
+    /\ persistenceTime \in (0..MaxTime)
+    /\ workerClock \in [Workers -> (0..MaxTime)]
+    /\ workerGeneration \in [Workers -> (0..MaxGeneration)]
+    /\ workerToken \in [Workers -> (0..MaxGeneration)]
+    /\ workerLifecycle \in [Workers -> (0..1)]
     /\ requestState \in [Workers -> RequestStates]
     /\ requestOp \in [Workers -> Ops]
-    /\ requestGeneration \in [Workers -> 0..MaxGeneration]
-    /\ requestToken \in [Workers -> 0..(MaxGeneration + 1)]
-    /\ requestLifecycle \in [Workers -> 0..1]
+    /\ requestGeneration \in [Workers -> (0..MaxGeneration)]
+    /\ requestToken \in [Workers -> (0..(MaxGeneration + 1))]
+    /\ requestLifecycle \in [Workers -> (0..1)]
     /\ requestExpectedState \in [Workers -> WorkStates]
     /\ requestTenant \in [Workers -> {"tenant-A", "tenant-B"}]
     /\ requestInstallation \in [Workers -> {"installation-A", "installation-B"}]
-    /\ requestStartTime \in [Workers -> 0..MaxTime]
+    /\ requestStartTime \in [Workers -> (0..MaxTime)]
     /\ requestPreLockValid \in [Workers -> BOOLEAN]
-    /\ lockAcquireTime \in [Workers -> 0..MaxTime]
+    /\ lockAcquireTime \in [Workers -> (0..MaxTime)]
     /\ lockOwner \in (Workers \cup {NoOwner, "external"})
     /\ blockerAvailable \in BOOLEAN
     /\ mutationCount \in 0..20
     /\ lastGuardFailed \in BOOLEAN
     /\ lastFailureMutationCount \in 0..20
     /\ acceptedHistory \subseteq
-       (Workers \X {"worker-service"} \X 0..MaxGeneration \X 0..MaxGeneration \X
-        0..MaxTime \X 0..(MaxTime + LeaseDuration) \X 0..1 \X
-        0..MaxGeneration \X 0..(MaxGeneration + 1) \X 0..1 \X
+       (Workers \X {"worker-service"} \X (0..MaxGeneration) \X (0..MaxGeneration) \X
+        (0..MaxTime) \X (0..(MaxTime + LeaseDuration)) \X (0..1) \X
+        (0..MaxGeneration) \X (0..(MaxGeneration + 1)) \X (0..1) \X
         WorkStates \X WorkStates \X {"tenant-A", "tenant-B"} \X
-        {"installation-A", "installation-B"} \X 0..MaxTime \X 0..MaxTime \X
-        ProtectedOps \X 0..MaxGeneration)
-    /\ claimEvents \subseteq (0..MaxGeneration \X 1..MaxGeneration \X Workers)
+        {"installation-A", "installation-B"} \X (0..MaxTime) \X (0..MaxTime) \X
+        ProtectedOps \X (0..MaxGeneration))
+    /\ claimEvents \subseteq ((0..MaxGeneration) \X (1..MaxGeneration) \X Workers)
 
 SingleClaimOwner ==
     /\ (workState = "ready" => claimOwner = NoOwner)
