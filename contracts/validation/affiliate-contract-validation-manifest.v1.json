@@ -174,5 +174,236 @@
         "Canonical event rejects prohibited Unicode in core id"
       ]
     }
+  ],
+  "parameterCoverage": [
+    {
+      "id": "management.GET /v1/affiliate/programs :: query.cursor",
+      "required": false,
+      "reference": "#/components/parameters/Cursor",
+      "schemaKind": "schema",
+      "contentMediaType": null,
+      "fixtures": [
+        {
+          "id": "cursor-min-valid",
+          "valid": true,
+          "value": "x"
+        },
+        {
+          "id": "cursor-max-valid",
+          "valid": true,
+          "value": {
+            "$repeatString": {
+              "character": "x",
+              "length": 2048
+            }
+          }
+        },
+        {
+          "id": "cursor-over-max-invalid",
+          "valid": false,
+          "value": {
+            "$repeatString": {
+              "character": "x",
+              "length": 2049
+            }
+          }
+        },
+        {
+          "id": "cursor-wrong-type-invalid",
+          "valid": false,
+          "value": 1
+        }
+      ]
+    },
+    {
+      "id": "management.GET /v1/affiliate/programs :: query.limit",
+      "required": false,
+      "reference": "#/components/parameters/Limit",
+      "schemaKind": "schema",
+      "contentMediaType": null,
+      "fixtures": [
+        {
+          "id": "limit-min-valid",
+          "valid": true,
+          "value": 1
+        },
+        {
+          "id": "limit-max-valid",
+          "valid": true,
+          "value": 100
+        },
+        {
+          "id": "limit-below-min-invalid",
+          "valid": false,
+          "value": 0
+        },
+        {
+          "id": "limit-above-max-invalid",
+          "valid": false,
+          "value": 101
+        },
+        {
+          "id": "limit-string-invalid",
+          "valid": false,
+          "value": "25"
+        }
+      ]
+    },
+    {
+      "id": "management.POST /v1/affiliate/referral-links :: header.Idempotency-Key",
+      "required": true,
+      "reference": "#/components/parameters/IdempotencyKey",
+      "schemaKind": "schema",
+      "contentMediaType": null,
+      "fixtures": [
+        {
+          "id": "idempotency-key-min-valid",
+          "valid": true,
+          "value": "abc"
+        },
+        {
+          "id": "idempotency-key-max-valid",
+          "valid": true,
+          "value": {
+            "$repeatString": {
+              "character": "x",
+              "length": 255
+            }
+          }
+        },
+        {
+          "id": "idempotency-key-under-min-invalid",
+          "valid": false,
+          "value": "ab"
+        },
+        {
+          "id": "idempotency-key-over-max-invalid",
+          "valid": false,
+          "value": {
+            "$repeatString": {
+              "character": "x",
+              "length": 256
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "management.GET /v1/affiliate/referral-links/{referralLinkId} :: path.referralLinkId",
+      "required": true,
+      "reference": "#/components/parameters/ReferralLinkId",
+      "schemaKind": "schema",
+      "contentMediaType": null,
+      "fixtures": [
+        {
+          "id": "referral-link-id-min-valid",
+          "valid": true,
+          "value": "x"
+        },
+        {
+          "id": "referral-link-id-max-valid",
+          "valid": true,
+          "value": {
+            "$repeatString": {
+              "character": "x",
+              "length": 128
+            }
+          }
+        },
+        {
+          "id": "referral-link-id-empty-invalid",
+          "valid": false,
+          "value": ""
+        },
+        {
+          "id": "referral-link-id-over-max-invalid",
+          "valid": false,
+          "value": {
+            "$repeatString": {
+              "character": "x",
+              "length": 129
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "management.GET /v1/affiliate/attributions/{attributionId} :: path.attributionId",
+      "required": true,
+      "reference": null,
+      "schemaKind": "schema",
+      "contentMediaType": null,
+      "fixtures": [
+        {
+          "id": "attribution-id-min-valid",
+          "valid": true,
+          "value": "x"
+        },
+        {
+          "id": "attribution-id-max-valid",
+          "valid": true,
+          "value": {
+            "$repeatString": {
+              "character": "x",
+              "length": 128
+            }
+          }
+        },
+        {
+          "id": "attribution-id-empty-invalid",
+          "valid": false,
+          "value": ""
+        },
+        {
+          "id": "attribution-id-over-max-invalid",
+          "valid": false,
+          "value": {
+            "$repeatString": {
+              "character": "x",
+              "length": 129
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "ingestion.POST /v1/integrations/{integrationId}/events :: path.integrationId",
+      "required": true,
+      "reference": null,
+      "schemaKind": "schema",
+      "contentMediaType": null,
+      "fixtures": [
+        {
+          "id": "integration-id-min-valid",
+          "valid": true,
+          "value": "x"
+        },
+        {
+          "id": "integration-id-max-valid",
+          "valid": true,
+          "value": {
+            "$repeatString": {
+              "character": "x",
+              "length": 128
+            }
+          }
+        },
+        {
+          "id": "integration-id-empty-invalid",
+          "valid": false,
+          "value": ""
+        },
+        {
+          "id": "integration-id-over-max-invalid",
+          "valid": false,
+          "value": {
+            "$repeatString": {
+              "character": "x",
+              "length": 129
+            }
+          }
+        }
+      ]
+    }
   ]
 }
