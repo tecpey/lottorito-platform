@@ -1,7 +1,7 @@
 # Enterprise Product, Technology and Supplier Evaluation Standard
 
 **Document ID:** LOT-EVAL-001  
-**Version:** 0.2.0  
+**Version:** 0.3.0  
 **Date:** 2026-11-28  
 **Status:** PROPOSED — governance baseline; owner approval pending  
 **Authority:** Evaluation method only. It does not select a product, technology, supplier, jurisdiction, legal entity or operating model; authorize procurement, integration, production data, financial activity or launch.
@@ -159,20 +159,30 @@ Use these as a reusable catalogue; select applicable dimensions and create a dom
 - reversibility, portability and exit cost;
 - measurable user/business value and outcome evidence.
 
-### 8.3 Anchored scale
+### 8.3 Anchored capability scale and evidence state
 
-| Score | Anchor |
+Record evidence sufficiency separately from capability. Use **Sufficient / Partial / Insufficient / Unknown / N/A** for evidence state and **0–5 / NS** for capability rating. NS means not scored; it is not zero and must never be converted to zero or treated as a neutral value.
+
+| Rating | Required interpretation |
 |---:|---|
-| 0 | No credible evidence, unsupported, contradictory or unacceptable |
-| 1 | Major gap; does not meet minimum requirement |
-| 2 | Partially meets; material remediation or limitation remains |
-| 3 | Meets the pre-defined requirement with adequate scope-matched evidence |
-| 4 | Exceeds requirement with strong, current evidence and demonstrated operational fit |
-| 5 | Exceptional, independently corroborated and repeatably demonstrated for the exact scope |
+| 0 | Sufficient, scope-matched evidence demonstrates that the capability is absent or unacceptable against the pre-defined criterion. |
+| 1 | Sufficient evidence demonstrates a severe gap and failure of the minimum acceptance threshold. |
+| 2 | Sufficient evidence demonstrates partial capability, with material limitations or remediation still required. |
+| 3 | Sufficient evidence demonstrates that the pre-defined requirement and threshold are met for the exact scope. |
+| 4 | Strong, current and reproducible evidence demonstrates performance materially above the requirement in the intended operating context. |
+| 5 | Exceptional, repeatable evidence demonstrates performance materially above the requirement; independent corroboration is required where risk, claim type or tier warrants it. |
+| NS | Evidence is missing, inaccessible, contradictory, expired, out of scope or otherwise insufficient to support a defensible rating. |
+| N/A | The criterion genuinely does not apply to the named decision unit; written rationale and approval by the accountable control owner are required before scoring. |
 
-Calculate only using the frozen applicable dimensions: weighted score = sum(score × approved weight) / 5. Publish the formula, weights, excluded dimensions and raw scores. Do not silently redistribute N/A weights; predefine the normalization method or do not calculate an aggregate.
+A rating of 0 is a positive finding about demonstrated capability, not a penalty for missing evidence. A supplier assertion, unverified demo or absence of documentation cannot by itself justify 0. A criterion may be rated only when its evidence is sufficient for its full defined scope.
 
-Display score beside confidence, gate status, evidence coverage and residual risk. Do not rank unlike decision units, different risk tiers or candidates assessed under different rubrics. Report ties and uncertainty honestly. A higher score is not a recommendation if the difference is within evidence uncertainty or lifecycle cost/risk.
+Split compound criteria into atomic, testable subcriteria before scoring. Evidence for only some subcriteria must not be used to pass or positively score the entire compound criterion. If an atomic subcriterion remains unsupported, mark that subcriterion NS. Do not expand a claim beyond the entity, product, version, configuration, environment, jurisdiction or population actually evidenced.
+
+N/A must be approved before candidate scoring; it cannot remove a mandatory gate or a requirement that is material to the decision. Publish the original and effective weights and the exact denominator. Where approved N/A criteria are excluded, normalize only across the remaining applicable weights and show the calculation. Applicable weights must total 100 percentage points before exclusions. If any material criterion remains NS, do not publish a definitive aggregate or rank; show the evidence gap and keep the comparison blocked or explicitly provisional under a separately recorded authority decision.
+
+For applicable ratings r and approved weights w, the normalized score is 100 × sum(r × w) / (5 × sum(w)). When applicable weights total 100, this is algebraically equivalent to sum(r × w) / 5. Publish raw ratings, evidence states, original/effective weights, excluded criteria, gate status, confidence, uncertainty and sensitivity. A weighted score never overrides a failed/unknown mandatory gate, minimum criterion threshold, unacceptable residual risk or legal restriction.
+
+For T2/T3 and other material decisions, evaluators score independently before consensus. Preserve individual ratings, disagreements, rationale and adjudication. The proposer must not be the sole scorer or approver of critical gates. If no competent second evaluator is available, record that limitation; do not describe the outcome as independent.
 
 ## 9. Total cost, value and reversibility
 
@@ -333,6 +343,62 @@ LOT-EVAL-001 governs the common decision process, risk tiering, evidence discipl
 
 Existing specialist scorecards and weights remain proposals unless an explicit owner decision adopts them for a named decision unit. LOT-PROVIDER-EVAL-001's proposed 20/10/15/15/15/10/10/5 weights and LOT-TECH-ADR-001's proposed 1–5 technology matrix are not universal or automatically active. Before use, reconcile criteria with this addendum, eliminate double-counting, define applicable dimensions and freeze the exact rubric/weights for that decision. If conflict remains, mark it OPEN and do not calculate a binding aggregate. This parent standard does not silently supersede specialist documents.
 
+## 17.10 Follow-up adversarial corrections — normative precedence
+
+This subsection is part of LOT-EVAL-001 v0.3.0. It supersedes any inconsistent wording in Sections 4, 5, 8, 9 and 17.1–17.9. It records method corrections arising from follow-up adversarial review REV-01…REV-14. It does not record owner acceptance of residual risk, approve a candidate, or authorize procurement, integration, production, financial activity or launch.
+
+### 17.10.1 Evidence states, partial evidence and scoring
+
+Apply the evidence-state/rating separation and full 0–5/NS/N/A rubric in Section 8.3. “Partial” describes coverage, not a positive score. Where a criterion is compound, split it into atomic subcriteria; score only fully evidenced atomic subcriteria and mark unsupported atomic subcriteria NS. A parent criterion cannot pass because a subset of its subcriteria passed. Missing evidence is not evidence of failure; demonstrated failure requires sufficient positive evidence. Material NS prevents a definitive aggregate. No mandatory gate may be removed or compensated through N/A or weighting.
+
+### 17.10.2 Evidence authority, independence and confidence
+
+Do not use a single evidence class to imply both authority and independence. Record at least: issuer/authority for the particular claim; independence from supplier and evaluator; directness; exact scope match; freshness/validity; reproducibility; provenance/integrity; limitations and conflicts. Confidence is a separate judgment, not a score multiplier. Use:
+- **High:** current, complete, scope-matched, reproducible evidence from an authoritative or appropriately independent source, with no material unresolved contradiction.
+- **Medium:** credible evidence with a bounded limitation in independence, coverage, recency or reproducibility that does not invalidate the stated conclusion.
+- **Low:** material gaps, indirect or supplier-controlled evidence, stale evidence, unresolved contradiction or weak scope match. Low confidence cannot support a favorable definitive conclusion on a material claim.
+Record evaluator rationale and disagreement; calibrate evaluators on common examples before material scoring. Do not average confidence labels or multiply them into capability scores.
+
+### 17.10.3 Decision-unit tiering and synthetic-test boundary
+
+Tier the exact decision unit and permission being requested, not a hypothetical future product capability. A bounded, isolated, synthetic-data test with no real users, funds, production access, external partner connection or regulated-market activity is not automatically T3 merely because a later operational product could be T3. Classify the test itself on its actual scope and impact, document its containment and stop conditions, and assess the later operational enablement separately. Any capability enabling materially consequential ledger/commission posting, custody or movement of customer funds, high-impact identity or legally restricted/regulated-market activity remains subject to the applicable higher-tier gates and separate authorization. A successful synthetic test does not inherit or grant operational permission.
+
+Use one canonical tier table and highest-trigger rule across the document. Tier (T0–T3) is governance depth; likelihood/impact is a separate per-risk assessment. Do not average tiers.
+
+### 17.10.4 Risk scales, horizon and aggregation limits
+
+For each risk, record the assessment horizon, scenario, affected objectives, evidence/assumptions, uncertainty, inherent likelihood-impact pair, controls and their evidence, residual pair, treatment, owner and acceptance authority. Define likelihood anchors for the selected horizon and impact anchors separately for relevant dimensions (financial, legal/regulatory, customer, safety, confidentiality, integrity, availability and systemic/concentration). Do not use unanchored numbers.
+
+Preserve and display the raw likelihood-impact pair and the impact dimensions. Prefer an explicitly approved risk matrix with documented decision bands. Multiplying ordinal likelihood and impact values is not a calibrated quantitative measure and can conceal materially different profiles (for example, L1/I5 versus L5/I1). If a product is retained as a screening heuristic, label it ordinal only, preserve the pair, state its limitations and never call it expected loss, probability-adjusted cost or calibrated quantitative risk without supporting empirical data. Risk acceptance thresholds and authority are owner decisions; the matrix cannot approve risk.
+
+### 17.10.5 Total-cost estimation bias and switching value
+
+For material TCO estimates, record historical forecast-versus-actual error where available, reference-class or comparable-project evidence, optimism-bias adjustments and reasons for exclusions. If no usable history or reference class exists, disclose the limitation and use scenario/sensitivity analysis rather than fabricated precision. For consequential or hard-to-reverse choices, calculate or qualitatively document switching value: the point at which a change in cost, demand, performance, delay or risk would reverse the preferred option. Identify assumptions, source dates, horizon, currency/FX, discount treatment and the owner of each estimate. These are decision aids, not guarantees of future cost.
+
+### 17.10.6 Formal assurance and role separation
+
+“Formal assurance” is not a label for an ordinary review, supplier certificate or CI run. Before relying on it, define the assurance objective and scope; competent provider and relevant expertise; objectivity and independence proportionate to the claim; conflicts; criteria and method; evidence access and sampling; period/configuration covered; exclusions and limitations; report and findings; remediation/closure method; and the authority that accepts the result. Record whether the work is owner-led review, specialist challenge/control assessment, supplier assurance or independent third-line assurance. These roles are not interchangeable. An owner-led review or author-led adversarial review must never be described as independent assurance.
+
+### 17.10.7 Cross-document and acceptance consistency
+
+The same evidence-state semantics, rating anchors, N/A controls, tier boundary, risk-pair treatment, confidence anchors, TCO assumptions and assurance-role definitions must be used in the main body, this addendum, A18, owner-review records, examples, decision registers and both language versions. Remove stale/duplicated version markers; Section 18 is the sole change-history authority. A formula example must demonstrate equivalence when applicable weights total 100; it is a clarity check, not a substantive defect.
+
+Minimum acceptance tests:
+1. Missing/expired/out-of-scope evidence → NS, never 0.
+2. Sufficient evidence of unacceptable capability → 0.
+3. Partial evidence for 2 of 5 atomic subcriteria cannot pass or score the 5-part parent criterion.
+4. N/A requires prior rationale/approval, exposes effective weights, and cannot remove a mandatory gate.
+5. Material NS blocks a definitive aggregate/ranking.
+6. A synthetic isolated test is tiered on its actual permission; later operational financial/regulated enablement is assessed separately.
+7. L1/I5 and L5/I1 remain distinguishable; no unsupported expected-loss claim is made.
+8. Confidence is justified separately and is not multiplied into capability.
+9. TCO records forecast bias/reference class or explicitly discloses unavailable evidence; switching value is considered for consequential choices.
+10. Formal assurance has a defined scope, competent independent provider where independence is claimed, method, access, limitations, report and acceptance authority.
+11. Formula example: ratings 3, 4, 5 with weights 40, 30, 30 yields 78 under either equivalent formula.
+12. English and Persian normative meaning, examples, statuses and version history remain semantically aligned.
+
 ## 18. Change history
+
+- 0.3.0 (2026-11-28): Follow-up REV-01…REV-14 corrections; evidence/rating separation; Partial and N/A semantics; synthetic-test/operational tier boundary; confidence and risk anchors; TCO bias and switching value; formal-assurance definition and bilingual acceptance tests. Proposed; final owner and specialist approval remains required.
 
 - 0.2.0 (2026-11-28): adversarial hardening separates risk tier from risk rating, evidence sufficiency from capability score, clarifies evidence provenance/independence, normalizes scoring, strengthens TCO and supplier due diligence, adds AI/model and ISO/IEC 25010 quality profiles, separates approval stages and reconciles specialist scorecards. Proposed; owner and specialist review pending.
