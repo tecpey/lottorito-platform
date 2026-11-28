@@ -219,3 +219,10 @@
 - هر دو نصب سخت‌گیرانه `npm ci` از Lockfileهای مجزای ثبت‌شده با Node 24.11.1/npm 11.6.2 موفق شدند. Redocly OpenAPI، AsyncAPI CLI 6.2.2 و اعتبارسنجی Payload با Node/Ajv موفق شدند: ۶۶ Assertion، ۱۱ Schema Root و ۵۳ Fixture مثبت/منفی.
 - A13-F01/F03/F04/F06 در محدوده قرارداد/CI تأیید شدند. A13-F02 برای Proof مربوط به Allowlist نصب در Runtime جزئاً باز است؛ A13-F05 تا تصمیم مالک و Proof اختصاصی Durability/UNKNOWN باز می‌ماند. هشدارهای غیرمسدودکننده: نبود Metadata مربوط به `info.license` و پیشنهاد AsyncAPI CLI برای بررسی نسخه 3.1.0؛ هیچ License یا Migration مربوط به Dialect استنباط نمی‌شود.
 - ADR-002 همچنان PROPOSED؛ A11-F01 تا F08 باز؛ A7/A8 صرفاً طراحی و NOT RUN؛ تمام Gateهای A4 تصویب‌نشده؛ بازبینی مستقل باقی است. بدون مجوز Runtime، انتخاب Persistence/Queue، اتصال شریک، عملیات مالی، Merge یا Deploy.
+
+
+## G09-A15 — آمادگی اثبات Persistence برای ADR-002 (۲۰۲۶-۱۱-۲۸)
+- سند دوزبانه LOT-AFFILIATE-G09-A15-001 با هفت تعهد اثبات مستقل از Candidate، ۱۲ تصمیم مالک، ۱۲ Schedule ساختگی، الزامات Manifest شواهد مستقل، Gateهای مرحله‌ای آمادگی و شرایط توقف اضافه شد.
+- خط مبنای بررسی: Head مربوط به PR شماره ۷۶ برابر با `736390f86ab425a8c273dcf254cc5974e9eb55ae`؛ Affiliate Contract Validation شماره ۲۳۵ و Documentation Governance شماره ۱۰۶۲ هر دو روی همان Head دقیق SUCCESS شدند. این نتایج به Commitهای مستنداتی بعدی A15 منتقل نمی‌شوند و رفتار Persistence/Runtime را اثبات نمی‌کنند.
+- بسته A12 همچنان روش بازبینی مستقل است؛ در رکورد PR بررسی‌شده، Review مستقل ثبت‌شده‌ای در GitHub وجود نداشت. A15 بازبینی مستقل نیست. A11-F01 تا F08 باز؛ ADR-002 در وضعیت PROPOSED؛ تمام Gateهای A4 تصویب‌نشده؛ S01 تا S12 در وضعیت NOT RUN هستند.
+- Allowlist مختص Installation در Runtime مربوط به A13-F02 و تصمیم/Proof مالک و Candidate مربوط به A13-F05 باز هستند. هیچ Persistence/Queue/Vendor انتخاب نشده؛ هیچ Runtime/Harness اجرا، شریک متصل، عملیات مالی، Merge یا Deploy مجاز نیست. CI روی Head نهایی پس از Commitهای مستنداتی A15 باید بررسی شود.
