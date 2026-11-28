@@ -1,7 +1,7 @@
 # G09-A23 — Formal Protocol Model & Adversarial Test Strategy
 
 **Document ID:** LOT-AFFILIATE-G09-A23-001  
-**Version:** 0.1.19 | **Status:** PROPOSED; M0–M2 TLC-CHECKED WITHIN FINITE BOUNDS; RUNTIME NOT EXECUTED; M3–M7 NOT AUTHORED  
+**Version:** 0.1.20 | **Status:** PROPOSED; M0–M2 TLC-CHECKED WITHIN FINITE BOUNDS; RUNTIME NOT EXECUTED; M3–M7 NOT AUTHORED  
 **Date:** 2026-11-28  
 **Review basis:** G09-A21, G09-A22, G09-A20, G09-A7, ADR-001 and ADR-002  
 **Authority:** Advisory design; no owner decision, candidate, gate or execution permission is approved.
@@ -323,3 +323,6 @@ Documentation consistency note: after removing the helper flag from executable M
 
 
 **Version 0.1.19 review note — M2 sink-fence rollback challenge:** A second adversarial pass separated authority-root rollback from rollback of the mutation sink's own fence metadata. M2 now models an independent sink-fence high-water mark and checks SinkFenceEpochAtLeastHighWater; a sixth negative control deliberately rolls the sink fence back during restore. Exact-head Run [46175422477](https://github.com/tecpey/lottorito-platform/actions/runs/46175422477) passed on PR head 96fc7a4830af452f214921ac9af68d7ae4265f33 (synthetic merge 547cd6f; base f032065f47fe85de2aabf8d47565a57af6af3ae9). Baseline: 515 generated / 136 distinct states, depth 12, no violation. Six expected mutants detected: early promotion, partition promotion, stale write, authority-root rollback, sink-fence rollback and forged current epoch. Artifact 15275536520; SHA-256 f289ee443e87d314d2df7d97f4908361b8aba4a9d99a9b0c1cc9d50fc133c410. Documentation Governance Run 46175422442, M0 Run 46175422429 and M1 Run 46175422489 also passed on the same exact head. These are bounded model results only; independent review, candidate refinement, runtime, Jepsen/history checking and simulation remain outstanding. M3–M7 are not authored; no A4 gate or owner decision is closed.
+
+
+**Version 0.1.20 review note — exact-head revalidation:** M2's final six-control module was re-executed on PR head 66fa19c72418dd5376c179514d57970f5d29fe5f in Run [46175559007](https://github.com/tecpey/lottorito-platform/actions/runs/46175559007), SUCCESS. The baseline again exhausted 136 distinct states (515 generated), depth 12; all six negative controls detected their expected invariant violations. Artifact 15275815204; SHA-256 5c58aa70dce2bdcf93568ef9644f0cc1478da10f9b02f706d89f7a18ff85cbc3. On the same exact head, M0 Run 46175558972, M1 Run 46175558925, Documentation Governance Run 46175559048 and Affiliate Contract Validation Run 46175554261 also passed. The model source hash is unchanged from the canonical M2 evidence in the companion document. These checks are bounded formal-model and document/contract checks only; they do not establish candidate/runtime correctness. Subsequent commits in this branch synchronize this evidence into the bilingual companion and project-status documents; exact-head CI must be rechecked for those documentation commits.
