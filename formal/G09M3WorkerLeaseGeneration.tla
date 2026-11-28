@@ -1,5 +1,5 @@
 ---------------- MODULE G09M3WorkerLeaseGeneration ----------------
-EXTENDS Naturals, FiniteSets
+EXTENDS Naturals, FiniteSets, TLC
 
 CONSTANTS
     Workers,
@@ -30,9 +30,7 @@ MaxTime == 4
 
 ProtectedOps == {"heartbeat", "start_processing", "complete", "retry", "park"}
 
-WorkerPermutations ==
-    { [w \in Workers |-> w],
-      [w \in Workers |-> IF w = "W0" THEN "W1" ELSE "W0"] }
+WorkerPermutations == Permutations(Workers)
 
 VARIABLES
     workState,
