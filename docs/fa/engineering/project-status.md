@@ -1,6 +1,6 @@
 # وضعیت واقعی پروژه و نقطه ادامه کار
 
-**شناسه:** LOT-OPS-001 | **نسخه:** ۲.۰.۱۳ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۸
+**شناسه:** LOT-OPS-001 | **نسخه:** ۲.۰.۱۴ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۸
 
 ## وضعیت تأییدشده مخزن
 - مخزن tecpey/lottorito-platform؛ شاخه پیش‌فرض main؛ سطح دسترسی Public طبق تصمیم مالک.
@@ -296,7 +296,10 @@
 - M2 Run [46175422477](https://github.com/tecpey/lottorito-platform/actions/runs/46175422477): SUCCESS. Baseline تعداد ۱۳۶ State متمایز (۵۱۵ تولیدشده)، عمق ۱۲ را کامل کرد. شش Negative Control، Counterexampleهای مورد انتظار را تولید کردند: Early promotion؛ Partition-only promotion؛ Write از Writer قدیمی؛ Rollback Authority Root؛ Rollback Fence در Sink؛ Forged current-epoch token. Artifact ID برابر 15275536520؛ SHA-256 برابر f289ee443e87d314d2df7d97f4908361b8aba4a9d99a9b0c1cc9d50fc133c410.
 - M0 Run [46175422429](https://github.com/tecpey/lottorito-platform/actions/runs/46175422429)، M1 Run [46175422489](https://github.com/tecpey/lottorito-platform/actions/runs/46175422489) و Documentation Governance Run [46175422442](https://github.com/tecpey/lottorito-platform/actions/runs/46175422442) نیز روی همان Head دقیق موفق شدند. این Runها فقط مدل‌های محدود مربوط و کنترل ساختاری مستندات را اعتبارسنجی می‌کنند.
 - نخستین تلاش اجرای M2 با خطای Parse مربوط به Function Constructor در TLA+ متوقف شد؛ خطا اصلاح و سپس Baseline و Negative Controlها دوباره اجرا شدند. اجرای موفق پنج‌کنترلی اولیه با Run شش‌کنترلی بالا جایگزین شده است. خطای Parse اولیه را نباید به‌عنوان نقض مدل تعبیر کرد.
-- M3 تا M7 تألیف نشده‌اند. بازبینی مستقل، Candidate refinement، Jepsen/History Checker، Simulation قطعی، اثبات DB/Runtime، اجرای A20 و تصمیم‌های مالک همچنان باز هستند. یافته‌های A21 و تمام Gateهای A4 باز/تصویب‌نشده‌اند. ADR-002 همچنان PROPOSED است. هیچ Runtime، انتخاب Candidate، اتصال Partner، عملیات مالی، Production، Merge یا Deploy مجاز نیست.
+- برای M3 اکنون یک مدل TLA+ مستقل از Candidate، یک Config برای Baseline، یازده Config برای Negative Control، Runner ثابت‌شده و Workflow اختصاصی Actions تألیف شده است. Abstraction متناهی آن هویت Process را از Principal احراز‌شده مشترک، زمان Persistence را از Clock Skew محدود Worker، مشاهده پیش از Lock را از Guard پس از Lock و Claim Generation/Token را از هویت Owner جدا می‌کند. اعتبارسنجی TLC روی Head دقیق در انتظار است؛ هیچ PASS برای M3 ادعا نمی‌شود.
+- M3 عمداً PROCESSING منقضی را قابل Reclaim می‌داند. ADR-001 فعلاً فقط READY و CLAIMED منقضی را نام می‌برد؛ این اختلاف پیش از تصویب ADR-001 صریحاً برای تطبیق مالک/بازبین مستقل باز است. M3 همچنین یک درخواست Pending و ده Mutation انتزاعی موفق را Bound می‌کند؛ این‌ها Bound مدل متناهی‌اند، نه Policy Runtime. Scheduleهای صریح Restart Process و Lock/Concurrency واقعی همچنان باید در سطح Candidate و A7/A8 آزمایش شوند.
+- تلاش‌های اولیه TLC برای M3، اشکال‌های مدل/Config را آشکار کردند (دامنه نامعتبر Symmetry، Import مربوط به Clock منفی و Transition رقیبِ مفقود). آن Runها تلاش ناموفق/غیرقطعی‌اند، نه Counterexample مدل. پیش از هر ادعای Verification برای M3، اجرای فعلی باید روی آخرین Head دقیق کامل شود.
+- M4 تا M7 تألیف نشده‌اند. بازبینی مستقل، Candidate refinement، Jepsen/History Checker، Simulation قطعی، اثبات DB/Runtime، اجرای A20 و تصمیم‌های مالک همچنان باز هستند. یافته‌های A21 و تمام Gateهای A4 باز/تصویب‌نشده‌اند. ADR-002 همچنان PROPOSED است. هیچ Runtime، انتخاب Candidate، اتصال Partner، عملیات مالی، Production، Merge یا Deploy مجاز نیست.
 - PR شماره ۷۶ همچنان Open/Unmerged است؛ Commitهای مستنداتی پس از Head اعتبارسنجی، اسناد M2/A23/فهرست‌ها و Project Status دوزبانه را همگام می‌کنند. پیش از هر ادعای بعدی، Head زنده PR و CI روی Head دقیق بررسی شود.
 
 
@@ -306,3 +309,9 @@
 - M0/M1 و Affiliate Contract Validation روی همان Head دقیق موفق شدند. Documentation Governance صرفاً ساختار دوزبانه و لینک‌های محلی را بررسی کرده و هم‌ارزی معنایی را تأیید نمی‌کند.
 - Commitهای بعدی این شاخه فقط اسناد دوزبانه Evidence/Status/Index را به‌روزرسانی می‌کنند؛ ماژول M2، Configها، Runner و Workflow تغییری نکرده‌اند. با این حال پیش از تحویل گام بعد، Head زنده PR و CI روی Head دقیق باید دوباره بررسی شوند.
 - تمام شواهد محدود به مدل متناهی/مستندات/قرارداد هستند. بازبینی مستقل، Candidate refinement، اثبات Runtime/Database، Jepsen/History Checker، Simulation قطعی، اجرای A20 و تصویب Gateهای A4 همچنان انجام نشده‌اند. PR شماره ۷۶ باز و Unmerged است؛ Merge/Deploy مجاز نیست.
+
+
+## G09-A23 M3 — کار در حال انجام
+- قرارداد مدل دوزبانه M3: [EN](../en/engineering/affiliate-g09-a23-m3-worker-lease-model.md) / [FA](affiliate-g09-a23-m3-worker-lease-model.md). سورس مدل: formal/G09M3WorkerLeaseGeneration.tla؛ Runner: scripts/formal/run_g09_m3.sh؛ Workflow: .github/workflows/formal-g09-m3.yml.
+- یازده Oracle مربوط به Mutantها، Pre-lock time، Clock Skew Worker، Generation/Token قدیمی، Token اشتباه، Binding Tenant/Installation، Lifecycle/State قدیمی، Heartbeat پس از انقضا، تغییر Generation هنگام Heartbeat و Mutation پس از شکست Guard را هدف می‌گیرند.
+- اعتبارسنجی در انتظار است؛ هنوز هیچ State count، موفقیت Negative Control، Candidate refinement یا اثبات Runtime ادعا نمی‌شود. فرض‌ها و اختلاف حل‌نشده Reclaim در PROCESSING در سند M3 ثبت شده‌اند.
