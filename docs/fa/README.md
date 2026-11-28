@@ -168,3 +168,8 @@ Validator ساختاری در [scripts/check_docs.py](../../scripts/check_docs.p
 
 - [LOT-EVAL-RDM-003B — بسته بازبینی کورِ مستقل برای استخراج Oracle](governance/enterprise-evaluation-blind-oracle-review-003b.md) — پروتکل مخصوص بازبین، Manifest منابع و Blobهای Freezeشده، ۱۸ شناسه قاعده اتمی، ۲۱ سناریوی صرفاً ورودی و ۳۵ ردیف ورودی جدول تصمیم؛ بدون افشای خروجی‌های مورد انتظار نویسنده. وضعیت: PENDING_EXTERNAL_REVIEW.
 - [LOT-EVAL-RDM-003B — Worksheet استخراج مستقل Oracle](governance/enterprise-evaluation-blind-oracle-worksheet-003b.md) — اعلامیه بازبین، فرم Oracle برای هر مورد، فهرست پوشش ۷۴ موردی و سابقه Freeze/تطبیق. تا Freeze شدن Worksheet مستقل، RDM-003A یا خروجی RDM-001 افشا نشود.
+
+
+### اصلاح مسیر بازبینی RDM-003B
+
+- [گزارش بازبینی خصمانه دومرحله‌ای نویسنده](governance/enterprise-evaluation-author-led-second-pass-review-003b.md) — سابقه فعال بازبینی. بسته کور و Worksheet خالی قبلی صرفاً اسناد تاریخی منسوخ‌شده‌اند؛ ادعای بازبین بیرونی یا Oracle کور وجود ندارد.
