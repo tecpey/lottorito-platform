@@ -3,9 +3,9 @@
 **Document ID:** LOT-EVAL-A18-001  
 **Version:** 0.1.0  
 **Date:** 2026-11-28  
-**Status:** REVIEW REPORT — author-led; independent review pending  
+**Status:** REVIEW REPORT — author-led; owner-led review initiated; no independent assurance performed  
 **Review target:** LOT-EVAL-001 v0.1.0 and existing specialist profiles  
-**Remediated draft:** LOT-EVAL-001 v0.2.0 on PR #78 branch
+**Remediated draft:** LOT-EVAL-001 v0.3.0 on PR #78 branch
 
 ## 1. Executive determination
 
@@ -81,6 +81,33 @@ These are draft document remediations. They are not independently validated and 
 An independent reviewer must receive the exact v0.2.0 files and this register; declare competence, independence and conflicts; inspect the specialist documents; challenge every finding and remediation; add counterexamples; and issue finding-by-finding dispositions. The reviewer must distinguish document reasoning from executed tests and must not make owner decisions on risk appetite, weights, legal scope or procurement.
 
 After independent review, reconcile findings, update both languages together, run exact-head Documentation Governance and obtain explicit owner approval before declaring LOT-EVAL-001 approved. No merge or deployment is authorized by this report.
+
+## 6.1 Follow-up adversarial review — REV-01…REV-14
+
+A second author-led pass examined internal consistency, scoring semantics, decision-unit boundaries, risk aggregation, cost-estimate bias and assurance-role definitions. The findings below are reviewer conclusions and technical recommendations, not independent assurance or owner risk acceptance.
+
+| ID | Severity | Finding / required correction |
+|---|---|---|
+| REV-01 | CRITICAL | Separate evidence sufficiency from capability rating: missing/insufficient evidence is NS; 0 requires sufficient evidence demonstrating unacceptable/absent capability. |
+| REV-02 | HIGH | Separate source authority from independence; record each as a distinct evidence attribute. |
+| REV-03 | HIGH | Reconcile tier triggers and classify the exact permission/decision unit; distinguish a bounded synthetic test from later operational enablement. |
+| REV-04 | HIGH | Anchor likelihood/impact scales to a stated horizon, scenario, evidence, uncertainty and explicit acceptance authority. |
+| REV-05 | HIGH | Use one complete 0–5 rubric with consistent anchors; define NS/N/A and when independent corroboration is warranted. |
+| REV-06 | MEDIUM | Anchor High/Medium/Low confidence and define conflict handling and evaluator calibration. |
+| REV-07 | HIGH | Distinguish owner-led review, specialist challenge, supplier assurance and independent assurance; do not mislabel one as another. |
+| REV-08 | LOW | Keep Section 18 as the sole version-history authority; remove duplicate/stale version markers. |
+| REV-09 | HIGH | Define formal assurance by competence, objectivity, scope, method, evidence access, limitations, report and acceptance authority. |
+| REV-10 | MEDIUM | Add historical forecast-error/reference-class/optimism-bias treatment and switching-value analysis to material TCO decisions. |
+| REV-11 | NOT SUBSTANTIVE | The two weighted-score formulas are equivalent when applicable weights total 100; retain as a clarity test, not an open defect. |
+| REV-12 | HIGH | Require prior N/A rationale/approval, visible effective weights, and prohibit N/A from removing mandatory gates. |
+| REV-13 | MEDIUM | Preserve raw likelihood-impact pairs; do not treat ordinal multiplication as calibrated quantitative risk or expected loss. |
+| REV-14 | MEDIUM | Operationalize Partial evidence through atomic subcriteria; unsupported atomic criteria remain NS and partial coverage cannot pass a compound criterion. |
+
+### Implementation and assurance boundary
+
+The project owner instructed the assistant on 2026-11-28 to apply technically supported corrections throughout the relevant project artifacts, using evidence and professional judgment. This authorizes preparation and application of document-level technical corrections within the current PR scope. It does **not** convert any REV item into an owner disposition, accept residual risk, approve a rubric for a named procurement decision, authorize a supplier or jurisdiction, or permit production/financial activity. The owner-disposition register therefore remains PENDING until the owner records item-level decisions.
+
+The current correction set is LOT-EVAL-001 v0.3.0, including a revised §8.3 rubric and normative follow-up rules in §17.10. These are proposed document controls and remain subject to owner/specialist review and exact-head documentation validation.
 
 ## 7. References
 
