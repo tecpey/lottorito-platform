@@ -10,7 +10,7 @@
 
 ## 1. Purpose and decision authority
 
-This register enables the project owner to disposition the findings from the adversarial review of LOT-EVAL-001 v0.2.0 and its A18 review report. It separates:
+This register enables the project owner to disposition the findings from the adversarial review of LOT-EVAL-001 v0.3.0 and its A18 review report. It separates:
 - the reviewer’s observation and technical recommendation;
 - the owner’s explicit decision;
 - evidence required to close the item; and
@@ -35,6 +35,12 @@ The owner may amend the proposed remediation. Any accepted risk must identify th
 5. Risk-tier classification applies to the **decision unit, capability and permission being authorized**. A bounded synthetic test is not automatically T3 solely because a future product may handle financial activity. Conversely, operational enablement of materially consequential ledger/commission posting, high-impact identity or regulated market access remains subject to the applicable higher-tier gates.
 6. No provider, product, jurisdiction, legal entity, contract, procurement, deployment, production operation or financial activity is approved by this register.
 7. PR #78 must remain open and Draft unless the owner separately authorizes a state change. No merge or deployment is authorized.
+
+## 2.1 Owner direction for technical implementation
+
+On 2026-11-28, the project owner explicitly directed the assistant to apply evidence-supported technical findings and reasons carefully across the relevant project artifacts, using professional judgment. This authorizes the assistant to implement defensible document-level and technical corrections within PR #78 and keep the English/Persian versions synchronized.
+
+This execution authority is separate from formal disposition of each finding. REV-01 through REV-14 therefore remain PENDING in the disposition table until the owner records an explicit item-level decision. Implementation alone does not mean ACCEPT, residual-risk acceptance, approval of risk appetite, adoption of a rubric for a named procurement decision, approval of a supplier/jurisdiction, or authorization for production/financial activity. Any decision involving risk appetite, legal authority, procurement, contract or operations still requires the proper authorized decision-maker and a separate record.
 
 ## 3. Finding disposition register
 
@@ -71,7 +77,7 @@ Decision authority is not delegated to the author/reviewer by this register.
 ## 5. Implementation and verification protocol
 
 After owner dispositions are recorded:
-1. Convert only ACCEPT items into approved remediation tasks, respecting any owner-defined scope.
+1. Convert ACCEPT items into approved remediation tasks. Separately delegated evidence-supported technical corrections may be prepared/applied before all dispositions are complete, but this does not close any finding or change its PENDING status; respecting any owner-defined scope.
 2. For REJECT, retain the finding and rationale in the audit trail; do not silently delete it.
 3. For DEFER, record the accountable owner, due date/trigger, interim control and residual risk.
 4. For NEEDS-EVIDENCE, identify the evidence request and decision deadline/trigger.
