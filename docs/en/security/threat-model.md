@@ -79,7 +79,8 @@ Every residual high/critical risk needs a named owner, rationale, compensating c
 Risk labels such as High/Critical are prioritization categories, not a substitute for a documented scenario assessment. For each residual threat, record the assessment horizon, inherent and residual likelihood-impact pair, affected impact dimensions, evidence/assumptions, uncertainty, control effectiveness, named risk owner and acceptance authority. Use the anchored likelihood/impact guidance and qualitative-matrix limitations in LOT-EVAL-001 §17.10.4 where applicable; preserve the raw pair and do not multiply ordinal values into expected loss or calibrated quantitative risk. The security owner must define applicable thresholds and acceptance authority for the threat-model scope. A category label alone is not risk acceptance.
 
 - [Parent product, technology and supplier evaluation standard](../governance/enterprise-evaluation-standard.md) — LOT-EVAL-001, especially §17.10.4 for risk assessment discipline.
- Open decisions: initial jurisdictions, identity assurance, support model, data residency, retention, KMS/HSM design, isolation topology, incident notification duties, provider trust requirements and payout/custody boundary.
+
+**Open decisions:** initial jurisdictions, identity assurance, support model, data residency, retention, KMS/HSM design, isolation topology, incident notification duties, provider trust requirements and payout/custody boundary.
 
 This document is not a certification or proof of implemented security controls.
 
