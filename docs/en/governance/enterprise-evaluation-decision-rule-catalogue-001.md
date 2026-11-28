@@ -160,7 +160,7 @@ Evaluate this table only after the N/A decision has passed the prior-approval an
 | RDM-R01…R03 tier | AVT-06…AVT-09 | Matrix scenarios exist; RDM-001 does not yet implement the full decision-unit/permission truth table |
 | RDM-R04…R05 gates | AVT-07, AVT-08, AVT-15 | Current RDM has no closed-world mandatory-gate catalogue |
 | RDM-R06…R08 evidence / atomic scope | AVT-01…AVT-05, AVT-18…AVT-21 | Current checks cover only subsets; full metamorphic and scope invariants remain outstanding |
-| RDM-R09…R12 N/A / aggregate | AVT-01, AVT-14…AVT-17 | AVT-14 lacks event sequencing; AVT-17 is semantically duplicated in current harness |
+| RDM-R09…R12 N/A / aggregate | AVT-01, AVT-14…AVT-17 | AVT-14 models a visible-score/late-request condition; AVT-17 is a distinct before/after ranking-sensitivity fixture. Full metamorphic coverage remains bounded to these fixtures |
 | RDM-R13…R14 evidence authority / confidence | Not directly covered | Inspection/review and new tests required; do not infer automated coverage |
 | RDM-R15…R16 risk | AVT-10…AVT-13 | Horizon test is syntactic; scenario and raw-pair checks are partial |
 | RDM-R17 assurance roles | No direct AVT mapping | No executable acceptance vector; require human governance review; AVT-21 is unrelated and must not be cited |
