@@ -233,3 +233,10 @@
 - Documentation Governance ساختار دوزبانه و Linkهای محلی را اعتبارسنجی کرد. Affiliate Contract Validation نصب Toolchain قفل‌شده، اعتبارسنجی OpenAPI، اعتبارسنجی AsyncAPI و Fixtureهای Payload را کامل کرد.
 - مقایسه دستی مجموعه شناسه‌ها، تطابق موجودی نسخه‌های فارسی/انگلیسی را برای PO-01 تا PO-07، OD-01 تا OD-12، S01 تا S12 و A11-F01 تا F08 تأیید کرد. این فقط تطابق ساختاری شناسه‌هاست و جای ممیزی معنایی ترجمه را نمی‌گیرد.
 - این نتایج فقط به Head دقیق بالا مربوط‌اند. هر Commit بعدی نیازمند بررسی مجدد CI روی Head دقیق خودش است. هیچ Proof مربوط به Runtime/Persistence اجرا نشده؛ A11-F01 تا F08 باز، ADR-002 در وضعیت PROPOSED، S01 تا S12 در وضعیت NOT RUN و تمام Gateهای A4 تصویب‌نشده‌اند.
+
+
+## G09-A16 — پرونده بازبینی خصمانه معماری (۲۰۲۶-۱۱-۲۸)
+- سند دوزبانه LOT-AFFILIATE-G09-A16-001 بر مبنای Head ثابت‌شده PR شماره ۷۶ برابر با `8e9a880c14000bd158f66ae2001c02669ed4cc6b` اضافه شد.
+- A16 شامل ده چالش میان‌برشی تدوین‌کننده، دوازده خانواده Schedule قطعی، الزامات Freeze Source/کنترل تغییر، اظهارنامه استقلال و صلاحیت بازبین، الزامات Oracle/Evidence مستقل و قالب Disposition امضاشده است.
+- منابع تحقیق شامل راهنماهای AWS Builders' Library/Well-Architected درباره Retry و Idempotency، مستندات PostgreSQL درباره WAL/Synchronous Replication/Failover، تحلیل Fencing Token، روش History Checking در Jepsen، RFC 8785 و RFC 7493 هستند. این منابع برای بازبینی‌اند و فناوری انتخاب نمی‌کنند.
+- A16 تأیید مستقل نیست. A11-F01 تا F08 باز؛ ADR-002 در وضعیت PROPOSED؛ Extensionهای A7/A8 در وضعیت NOT RUN/BLOCKED؛ تمام Gateهای A4 تصویب‌نشده‌اند. هیچ Proof مربوط به Candidate/Runtime/Harness، اتصال شریک، عملیات مالی، Merge یا Deploy مجاز نیست. CI باید روی Head دقیق پس از A16 بررسی شود.
