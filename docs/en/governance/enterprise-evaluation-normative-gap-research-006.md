@@ -9,7 +9,7 @@
 
 ## 1. Executive conclusion
 
-This package researches five unresolved normative issues and one cross-cutting weakness in the current scoring method. It proposes conservative, testable policy options but does **not** adopt them. The owner retains all normative decision rights.
+This package researches five unresolved normative issues and two cross-cutting weaknesses in the current scoring method. It proposes conservative, testable policy options but does **not** adopt them. The owner retains all normative decision rights.
 
 The principal conclusions are:
 
@@ -234,7 +234,40 @@ ISO/IEC 25010:2023 can provide a product-quality taxonomy for relevant software 
 
 The Green Book 2026 distinguishes simple multi-criteria analysis (MCA) based on generic weighting/scoring from structured MCDA. It warns that simple weighting/scoring may lack an objective basis and reduce transparency. HM Treasury's MCDA guidance uses **swing weighting**: weights reflect both the importance of a criterion and the actual performance difference between best and worst options; it requires sensitivity analysis and competent facilitation.
 
-This does not mean Lottorito must adopt HM Treasury's process. It means the current weighted score should not be treated as an objective truth or sole selector.
+This does not mean Lottorito must adopt HM Treasury's process. It means the current weighted score should not be treated as an objective truth or sole selector. The UK Green Book's stage-specific restriction on MCDA applies to UK public-expenditure appraisal; it must not be transplanted as a legal or universal supplier-selection rule for Lottorito.
+
+### 7.1 Additional candidate gap — cardinal measurement and additive-model validity (proposed RDM-U06)
+
+The current parent formula is an additive weighted sum of 0–5 ratings. Such arithmetic implicitly treats the inputs as cardinal value measures: the size of a difference between adjacent rating points matters, and the values can be traded off through weights. Merely assigning numbers to ordered categories does not establish this property.
+
+The Government Analysis Function's MCDA guide states that component values must be cardinal for weights to be valid, and that a linear additive value model is valid only under mutual preferential independence between criteria. It also distinguishes criterion performance from the component value function that translates performance into stakeholder preference. EFSA's scientific guidance explains that ordinal categories express order but not the magnitude of differences; numerical labels do not create interval measurement, and calculations that treat ordinal scales as quantitative are invalid.
+
+**Finding:** LOT-EVAL-001 §8.3 defines ordered 0–5 capability anchors and a weighted arithmetic formula, but the present evidence does not establish that each 0–5 scale is an interval/cardinal value function or that mutual preferential independence holds across the selected criteria. This does not prove the formula is mathematically wrong in every application; it means the assumptions required to interpret its output as a valid additive preference ranking are currently undocumented and unverified.
+
+**Options:**
+
+| Option | Approach | Consequence |
+|---|---|---|
+| U06-A — retain ordinal ratings only | Keep 0–5 as ordered capability categories; do not use arithmetic aggregation to rank options | Most transparent where value intervals cannot be defended; may reduce convenience of one-number summaries |
+| U06-B — construct cardinal value functions | For each criterion, map measured performance to an interval-scale preference value using defined worst/best anchors and elicited intermediate indifference points; elicit swing weights; assess preferential independence | Supports additive aggregation if assumptions and evidence are satisfied; requires expert effort and documented elicitation |
+| U06-C — use non-compensatory/ordinal decision methods | Preserve hard gates and critical thresholds; use dominance, lexicographic or appropriate outranking/robust ordinal methods where cardinal trade-offs are not defensible | Avoids false cardinality but produces different outputs and requires method-specific governance |
+
+**Recommended direction:** do not use the current weighted total as a definitive ranking until the project has either (a) justified criterion-specific cardinal value functions, swing weights and additive-model assumptions, or (b) selected and documented an alternative method that does not require cardinal aggregation. Until then, show raw criterion profiles, gates, evidence states and uncertainty; label any arithmetic total as a non-decisional descriptive index if it is retained at all.
+
+Do not interpret an interval-scale overall value as a ratio: a score of 80 is not “twice as much value” as 40. Do not allow additive compensation across mandatory gates or critical thresholds. If stakeholders say a trade-off “depends” on another criterion, investigate whether preferential independence fails; do not force a constant weight.
+
+**Owner decision required:** add RDM-U06 as a distinct unresolved issue or incorporate it into U05; decide whether the existing weighted aggregate may be used pending validation; approve the required value-function/weight-elicitation or alternative ranking method.
+
+**Acceptance tests to add if adopted:**
+- Numeric aggregation is blocked unless each input is marked as a validated cardinal value, not merely an ordinal rating.
+- Each criterion has a performance-to-value function with explicit range-of-interest and documented intermediate preference points.
+- Weights are elicited from swings between worst and best performance, not importance labels alone.
+- Mutual preferential independence is assessed and documented for an additive model.
+- If independence or cardinality is not supported, the additive aggregate is suppressed and an approved alternative is used.
+- Sensitivity analysis varies value-function shapes, weights and uncertain performance; rank robustness is reported.
+- No ratio interpretation is made from interval-scale totals; no gate/threshold can be compensated.
+
+**This is a candidate gap only.** It is not yet added to the canonical RDM-003A unresolved register and has no owner disposition.
 
 **Recommended safeguard:**
 - hard gates and critical thresholds first;
@@ -291,6 +324,8 @@ No recommendation in this table changes the normative parent standard. The owner
 8. ISO 31000:2018, **Risk management — Guidelines**, reviewed and confirmed in 2023: https://www.iso.org/standard/31000
 9. ISO/IEC 25010:2023, **Product quality model**: https://www.iso.org/standard/78176.html
 10. NIST SP 800-160 Vol. 1 Rev. 1, **Engineering Trustworthy Secure Systems** (2022): https://csrc.nist.gov/pubs/sp/800/160/v1/r1/final
+11. UK Government Analysis Function, **An Introductory Guide to Multi-Criteria Decision Analysis (MCDA)** (1 May 2024): https://analysisfunction.civilservice.gov.uk/policy-store/an-introductory-guide-to-mcda/
+12. EFSA Scientific Committee, **The principles and methods behind EFSA's Guidance on Uncertainty Analysis in Scientific Assessment**, EFSA Journal (2018): https://doi.org/10.2903/j.efsa.2018.5122
 
 ## 11. Governance boundary
 
