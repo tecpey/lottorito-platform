@@ -240,3 +240,9 @@
 - A16 شامل ده چالش میان‌برشی تدوین‌کننده، دوازده خانواده Schedule قطعی، الزامات Freeze Source/کنترل تغییر، اظهارنامه استقلال و صلاحیت بازبین، الزامات Oracle/Evidence مستقل و قالب Disposition امضاشده است.
 - منابع تحقیق شامل راهنماهای AWS Builders' Library/Well-Architected درباره Retry و Idempotency، مستندات PostgreSQL درباره WAL/Synchronous Replication/Failover، تحلیل Fencing Token، روش History Checking در Jepsen، RFC 8785 و RFC 7493 هستند. این منابع برای بازبینی‌اند و فناوری انتخاب نمی‌کنند.
 - A16 تأیید مستقل نیست. A11-F01 تا F08 باز؛ ADR-002 در وضعیت PROPOSED؛ Extensionهای A7/A8 در وضعیت NOT RUN/BLOCKED؛ تمام Gateهای A4 تصویب‌نشده‌اند. هیچ Proof مربوط به Candidate/Runtime/Harness، اتصال شریک، عملیات مالی، Merge یا Deploy مجاز نیست. CI باید روی Head دقیق پس از A16 بررسی شود.
+
+
+## G09-A20 — اخذ شواهد و احراز صلاحیت خصمانه (۲۰۲۶-۱۱-۲۸)
+- سند دوزبانه LOT-AFFILIATE-G09-A20-001 در PR شماره ۷۶ اضافه شد. این سند اخذ Evidence برای C-01 تا C-16، Inventory سراسری Data-flow/Location، ناورداها و Oracleهای مستقل، ۲۸ طراحی آزمون خصمانه، Gateهای ایمنی اجرا و Manifest بازتولیدپذیری را تعریف می‌کند.
+- تمام Caseهای A20 در وضعیت DESIGNED / NOT RUN هستند. هیچ Evidence مالک اخذ یا پذیرفته نشده؛ هیچ Candidate انتخاب/Qualify نشده؛ G1 تا G9 همچنان NOT TESTED؛ ADR-002 همچنان PROPOSED؛ OD-01 تا OD-12 و یافته‌های A11 باز؛ بازبینی مستقل A12 انجام‌نشده/غیرقابل ارزیابی است.
+- R0 مسدود؛ R1 صرفاً تحقیق؛ R2 شروع‌نشده؛ R3 غیرمجاز؛ تمام Gateهای A4 تصویب‌نشده‌اند. هیچ Runtime/Harness، اتصال Partner، عملیات مالی، Merge یا Deploy مجاز نیست. CI روی Head دقیق پس از تمام Commitهای متوالی مستندات باید بررسی شود.
