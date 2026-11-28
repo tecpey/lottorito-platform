@@ -88,7 +88,7 @@ The formal model must define at least the following transitions with preconditio
 | RejectStaleWriter | old-epoch writer is rejected at the mutation point |
 | ClaimWork | claim and new generation are durable and serialized by the authority |
 | ExpireAndReclaim | old lease becomes eligible for reclaim; new claim is issued only by a serialized transition; old generation remains invalid after reclaim wins |
-| LinearizeLeaseTransition | lease validity is sampled after acquiring the serialization point; the first valid protected transition to linearize wins; expiry alone is not a mutation |
+| LinearizeLeaseTransition | after acquiring the serialization point, the guard evaluates lease validity there; if expired, mutation is rejected; only a transition with a valid lease and complete guard may linearize |
 | ResumeStaleWorker | source-side protected mutation is rejected if the lease is expired at the guard point or owner/generation/token/authority no longer matches. This rejection does not cancel an external request already dispatched; the destination outcome must be checked under the receiver contract |
 | CommitWorkTransition | only valid owner/generation/authority at mutation time |
 | PublishOutbox | only from durable outbox; delivery may duplicate or reorder |
@@ -103,6 +103,7 @@ The formal model must define at least the following transitions with preconditio
 | AcceptExternalRequest | receiver accepts/rejects under its own idempotency/fencing/ordering contract; arrival may occur after the source lease expires |
 | LoseExternalResponse | receiver may have applied the effect but the response is lost; caller observes destinationOutcome=unknown |
 | RetryExternalRequest | retry only with the same approved destinationIdentity/idempotency key and fingerprint; never mint a new key for the same effect |
+| ExpireReceiverDedupWindow | record destination dedup-retention expiry; replay after expiry must not be assumed a safe duplicate without a new receiver contract and explicit risk/outcome |
 
 **Linearization and lease-expiry rule (aligned with ADR-001):** every protected transition must have a defined linearization point. Checking lease/epoch or sampling time before waiting for a lock is insufficient; after acquiring the serialization point, the guard must re-evaluate lease validity at that point. If the lease has expired at this point, the transition is rejected even if reclaim or a new generation has not yet been recorded. Expiry alone does not mutate state or generation; it invalidates the lease condition and makes work eligible for reclaim. If the old worker still has a valid lease and current owner/generation/token/authority at the guard point and the serialized mutation succeeds, that transition is ordered before reclaim. If reclaim commits first, the old generation is rejected. A local worker clock or pre-lock timestamp cannot replace this rule. A23 does not prescribe one implementation mechanism as a universal answer.
 
@@ -222,7 +223,7 @@ Generation method:
 5. Turn every discovered bug into a permanent regression with fixed seed/trace.
 6. Mutation-test oracle/checker correctness using known mutants.
 
-Minimum mutants: remove unique constraint; acknowledge before commit; accept a negative read from a stale replica; omit epoch check at mutation; accept an old worker generation; reset epoch after restore; retry with a new identity; execute side effects inside a retried transaction; remove consumer deduplication; and convert UNKNOWN to REJECTED/ACCEPTED without evidence. If the checker misses its corresponding mutant, checker sensitivity is INCONCLUSIVE.
+Minimum mutants: remove unique constraint; acknowledge before commit; accept a negative read from a stale replica; omit epoch check at mutation; accept an old worker generation; accept a mutation after lease expiry but before reclaim; reset epoch after restore; retry with a new identity; accept a stale external request without a receiver contract; retry an external effect with a new idempotency key; ignore receiver-side dedup-retention expiry; execute side effects inside a retried transaction; remove consumer deduplication; and convert UNKNOWN to REJECTED/ACCEPTED without evidence. If the checker misses its corresponding mutant, checker sensitivity is INCONCLUSIVE.
 
 Seed count, repetitions, soak duration, combinatorial coverage and thresholds must be derived from approved workload/risk; no example value is a default.
 
