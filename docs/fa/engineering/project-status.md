@@ -312,6 +312,6 @@
 
 
 ## G09-A23 M3 — کار در حال انجام
-- قرارداد مدل دوزبانه M3: [EN](../en/engineering/affiliate-g09-a23-m3-worker-lease-model.md) / [FA](affiliate-g09-a23-m3-worker-lease-model.md). سورس مدل: formal/G09M3WorkerLeaseGeneration.tla؛ Runner: scripts/formal/run_g09_m3.sh؛ Workflow: .github/workflows/formal-g09-m3.yml.
+- قرارداد مدل دوزبانه M3: [EN](../../en/engineering/affiliate-g09-a23-m3-worker-lease-model.md) / [FA](affiliate-g09-a23-m3-worker-lease-model.md). سورس مدل: formal/G09M3WorkerLeaseGeneration.tla؛ Runner: scripts/formal/run_g09_m3.sh؛ Workflow: .github/workflows/formal-g09-m3.yml.
 - یازده Oracle مربوط به Mutantها، Pre-lock time، Clock Skew Worker، Generation/Token قدیمی، Token اشتباه، Binding Tenant/Installation، Lifecycle/State قدیمی، Heartbeat پس از انقضا، تغییر Generation هنگام Heartbeat و Mutation پس از شکست Guard را هدف می‌گیرند.
 - اعتبارسنجی در انتظار است؛ هنوز هیچ State count، موفقیت Negative Control، Candidate refinement یا اثبات Runtime ادعا نمی‌شود. فرض‌ها و اختلاف حل‌نشده Reclaim در PROCESSING در سند M3 ثبت شده‌اند.
