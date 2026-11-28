@@ -1,6 +1,6 @@
 # Lottorito Decision Register
 
-**Document ID:** LOT-ADR-REG-001 | **Version:** 2.5.4 | **Status:** Maintained register; entries retain their individual authority state
+**Document ID:** LOT-ADR-REG-001 | **Version:** 2.5.5 | **Status:** Maintained register; entries retain their individual authority state
 
 ## How to read this register
 This register prevents agents from turning discussion, examples or proposals into product rules. A record is not approved merely because it is listed here. The state and authority column govern. Evidence must be linked for every change.
@@ -140,3 +140,6 @@ Prioritize jurisdiction/operating model and initial Lottery product boundary; pr
 
 | LDR-079 | Confirm M0 on exact final PR #76 head | Reproducible TLC evidence | Run `46171747722` on PR head `19f8e995596bd4fca96b3bea0a211ddb916b1725` and synthetic merge `c50c70bcfb8e1ece85ab155b5c36d547099bac3e`; baseline: 52 distinct states, no violation; all three mutants as expected. Artifact `15273842484`, SHA-256 `7f346cde1cb5f48b9ae042b5cb23266a53561cccfc4960acd479e8ddf90cc832`. | Bounded M0 only; does not qualify any candidate/runtime/production/merge/deployment. |
 | LDR-080 | Confirm M1 and strengthened ReceiptShape on exact final PR #76 head | TLC and oracle-sensitivity evidence | Run `46171747725` on the same head/merge; two baselines: 19 distinct, 25 generated states, depth 8 each, no violation; three mutants exposed `NoRetryCommitWhileOriginalInflight`, `ReceiptCardinality` and `ConflictSoundness`. Artifact `15274170741`, SHA-256 `1dd501ff70955f77ceb4ab9225a55285504ce6d0de905fc205f1fd67544f368e`. ReceiptShape was strengthened to bind owner/fingerprint exactly. | Bounded M1 only; DB/Jepsen/history/Liveness and candidate refinement remain open. No operational authority granted. |
+
+| LDR-081 | Final M0 confirmation on exact head `21f7da0` | Reproducible TLC and artifact evidence | Run `46171925729`, synthetic merge `d0f9c729626feed6d691dd9d02d3263744e3f05d`; baseline: 52 distinct states, no violation; all three expected mutants. Artifact `15273603593`, SHA-256 `81acf846cc19a2ec27391075254b1d5917410a19b76edff9a7e734b3ba81a14f`. | Bounded M0 only; no candidate/runtime/production qualification or merge/deployment authorization. |
+| LDR-082 | Final M1 confirmation with strengthened ReceiptShape on exact head `21f7da0` | TLC and oracle-sensitivity evidence | Run `46171925718`, same synthetic merge; two baselines: 19 distinct, 25 generated states, depth 8 each; three mutants exposed `NoRetryCommitWhileOriginalInflight`, `ReceiptCardinality` and `ConflictSoundness`. Artifact `15274021323`, SHA-256 `6eb2c7618dc154f989cf775ae651b3bae4e0db2b65fcd481a8a2212924ea31e0`. | Bounded M1 only; DB/Jepsen/history/Liveness and candidate refinement remain open. No operational authority granted. |
