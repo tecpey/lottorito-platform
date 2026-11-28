@@ -1,7 +1,7 @@
 # G09-A23-M2 — مدل Epoch اختیار و حصارگذاری Writer
 
 **شناسه سند:** LOT-AFFILIATE-G09-A23-M2-001  
-**نسخه:** ۰.۱.۲ | **وضعیت:** با TLC در Bounds محدود بررسی شده؛ بازبینی مستقل و Refinement به Candidate در انتظار است  
+**نسخه:** ۰.۱.۳ | **وضعیت:** با TLC در Bounds محدود بررسی شده؛ بازبینی مستقل و Refinement به Candidate در انتظار است  
 **مدل:** formal/G09M2AuthorityEpochFencing.tla  
 **Baseline:** formal/G09M2AuthorityEpochFencing.cfg  
 **Runner:** scripts/formal/run_g09_m2.sh  
@@ -150,3 +150,10 @@ GitHub Actions همان JAR ثابت‌شده را دریافت و Hash آن ر�
 ## ۱۰. تعیین وضعیت
 
 M2 یک مدل State-machine متناهی و مستقل از Candidate با یک Baseline و شش Negative Control هدفمند Oracle است. Baseline محدود TLC و هر شش Negative Control روی آخرین Head دقیق ثبت‌شده با موفقیت اجرا شدند. وضعیت **TLC-CHECKED WITHIN FINITE BOUNDS** است؛ بازبینی مستقل و Candidate refinement همچنان در انتظارند. این سند A21 Findings را نمی‌بندد، ADR-002 را تصویب نمی‌کند، هیچ A4 Gate را برآورده نمی‌کند، R2 را مجاز نمی‌کند، Candidate مربوط به Persistence را انتخاب نمی‌کند و مجوز Runtime/Partner/Finance/Production، Merge یا Deploy صادر نمی‌کند.
+
+
+## ۱۱. بازاجرای تأییدی روی آخرین Head دقیق PR
+
+مدل M2 با شش کنترل روی PR head دقیق 66fa19c72418dd5376c179514d57970f5d29fe5f در [Run 46175559007](https://github.com/tecpey/lottorito-platform/actions/runs/46175559007) دوباره اجرا شد و SUCCESS گرفت. Synthetic merge: 1c9678f؛ Base: f032065f47fe85de2aabf8d47565a57af6af3ae9. SHA-256 مدل بدون تغییر و برابر با ad773d328db633da4789ad064633f933e5ba5870655045a033c1ac82587b4e78 باقی ماند. Baseline: ۵۱۵ State تولیدشده/۱۳۶ متمایز، عمق ۱۲ و بدون نقض؛ هر شش Negative Control دقیقاً نقض Invariant مورد انتظار را ثبت کردند. Artifact ID برابر 15275815204؛ SHA-256 برابر 5c58aa70dce2bdcf93568ef9644f0cc1478da10f9b02f706d89f7a18ff85cbc3 است.
+
+روی همان Head دقیق، Documentation Governance Run 46175559048، M0 Run 46175558972، M1 Run 46175558925 و Affiliate Contract Validation Run 46175554261 نیز موفق شدند. این نتایج ساختار و لینک‌های دوزبانه، مدل‌های محدود M0/M1 و اعتبارسنجی قرارداد/Schema را روی همان Head تأیید می‌کنند. نتیجه همچنان Runtime نیست و مستقل از Candidate باقی می‌ماند.
