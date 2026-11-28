@@ -87,12 +87,24 @@ def evidence_decision(*, sufficient: bool, demonstrated: str = "meets",
                       fresh: bool = True, scope_match: bool = True,
                       contradictory: bool = False, coverage: str = "complete",
                       mutant: str | None = None) -> tuple[str, int | None]:
-    if not fresh or not scope_match or contradictory or not sufficient:
+    # Explicit precedence follows DT-03: scope mismatch, partial atomic
+    # coverage, then insufficient full-scope evidence, then capability rating.
+    if not isinstance(scope_match, bool) or not isinstance(fresh, bool):
+        return ("INVALID", None)
+    if not scope_match:
+        return ("NS", None)
+    if contradictory or not fresh:
         if mutant == "MUT-EVIDENCE-ZERO":
             return ("SCORED", 0)
         return ("NS", None)
     if coverage == "partial":
         return ("PARTIAL", None)
+    if coverage != "complete" or not isinstance(sufficient, bool):
+        return ("INVALID", None)
+    if not sufficient:
+        if mutant == "MUT-EVIDENCE-ZERO":
+            return ("SCORED", 0)
+        return ("NS", None)
     anchors = {
         "absent": 0, "severe_gap": 1, "partial_limits": 2,
         "meets": 3, "above": 4, "exceptional": 5,
@@ -131,39 +143,59 @@ def na_decision(*, approved_before_scores: bool, gate_excluded: bool = False,
         return "REJECT_LATE_NA"
     if gate_excluded:
         return "REJECT_GATE_NA"
+    # Mandatory gates are non-compensable and precede every publication path,
+    # including provisional non-selection information.
+    if not all_other_controls_pass:
+        return "BLOCK_OTHER_CONTROL"
     if ns_present and ns_material:
         return "BLOCK_DEFINITIVE"
     if ns_present and not ns_material:
         return ("PROVISIONAL_NON_SELECTION" if provisional_complete
                 else "UNRESOLVED_NON_MATERIAL_NS")
-    if not all_other_controls_pass:
-        return "BLOCK_OTHER_CONTROL"
     return "AGGREGATION_PERMITTED"
 
 
 def risk_record(*, scenario: str | None, horizon_rationale: str | None,
                 impact_dimensions: tuple[str, ...] | None,
-                likelihood: int | None, impact: int | None,
-                control_claimed: bool, control_operating_evidence: bool,
+                impact_dimension_ratings: dict[str, int] | None,
+                inherent_likelihood: int | None, inherent_impact: int | None,
+                residual_likelihood: int | None, residual_impact: int | None,
+                control_claimed: bool, control_evidence: tuple[str, ...] | None,
                 objectives: tuple[str, ...] | None,
-                assumptions: tuple[str, ...] | None,
+                evidence_assumptions: tuple[str, ...] | None,
                 uncertainty: str | None, treatment: str | None,
                 owner: str | None, acceptance_authority: str | None,
                 mutant: str | None = None) -> str:
-    if not scenario:
+    def present(value):
+        return isinstance(value, str) and bool(value.strip())
+    if not present(scenario) or not present(horizon_rationale):
         return "INCOMPLETE"
-    if not horizon_rationale:
+    if not impact_dimensions or not isinstance(impact_dimensions, tuple):
         return "INCOMPLETE"
-    if not impact_dimensions:
+    allowed_dimensions = {
+        "financial", "legal_regulatory", "customer", "safety",
+        "confidentiality", "integrity", "availability", "systemic_concentration",
+    }
+    if (not set(impact_dimensions).issubset(allowed_dimensions)
+            or not impact_dimension_ratings
+            or set(impact_dimension_ratings) != set(impact_dimensions)):
         return "INCOMPLETE"
-    if likelihood not in range(1, 6) or impact not in range(1, 6):
+    anchors = (inherent_likelihood, inherent_impact, residual_likelihood, residual_impact)
+    if any(not isinstance(v, int) or isinstance(v, bool) or v not in range(1, 6)
+           for v in anchors):
         return "INVALID_PAIR"
+    if any(not isinstance(v, int) or isinstance(v, bool) or v not in range(1, 6)
+           for v in impact_dimension_ratings.values()):
+        return "INVALID_IMPACT_ANCHOR"
     if mutant == "MUT-RISK-PRODUCT":
         return "INVALID_PRODUCT_ONLY"
-    if control_claimed and not control_operating_evidence:
+    if not isinstance(control_claimed, bool):
+        return "INVALID"
+    if control_claimed and not control_evidence:
         return "CONTROL_NOT_CREDITED"
-    if not all((objectives, assumptions, uncertainty, treatment, owner,
-                acceptance_authority)):
+    if not objectives or not evidence_assumptions:
+        return "INCOMPLETE"
+    if not all(present(v) for v in (uncertainty, treatment, owner, acceptance_authority)):
         return "INCOMPLETE"
     return "COMPLETE_FOR_REVIEW"
 
@@ -173,10 +205,12 @@ def _full_risk(**overrides) -> str:
         scenario="synthetic service outage",
         horizon_rationale="likelihood calibrated to next 12 months",
         impact_dimensions=("availability", "customer"),
-        likelihood=2, impact=4,
-        control_claimed=True, control_operating_evidence=True,
+        impact_dimension_ratings={"availability": 4, "customer": 3},
+        inherent_likelihood=3, inherent_impact=4,
+        residual_likelihood=2, residual_impact=3,
+        control_claimed=True, control_evidence=("synthetic restore test evidence",),
         objectives=("availability objective",),
-        assumptions=("synthetic assumption",),
+        evidence_assumptions=("synthetic incident evidence", "synthetic assumption"),
         uncertainty="limited sample",
         treatment="mitigate",
         owner="synthetic risk owner",
@@ -290,11 +324,15 @@ def _(): return _full_risk(horizon_rationale=None) == "INCOMPLETE"
 @row("DT05-R4")
 def _(): return _full_risk(impact_dimensions=None) == "INCOMPLETE"
 @row("DT05-R5")
-def _(): return _full_risk(mutant="MUT-RISK-PRODUCT") == "INVALID_PRODUCT_ONLY"
+def _():
+    # Both inherent and residual pairs, plus per-dimension impact anchors,
+    # must be represented; the product-only mutant is explicitly rejected.
+    return (_full_risk() == "COMPLETE_FOR_REVIEW"
+            and _full_risk(mutant="MUT-RISK-PRODUCT") == "INVALID_PRODUCT_ONLY")
 @row("DT05-R6")
 def _(): return _full_risk(control_operating_evidence=False) == "CONTROL_NOT_CREDITED"
 @row("DT05-R7")
-def _(): return _full_risk(assumptions=None) == "INCOMPLETE"
+def _(): return _full_risk(evidence_assumptions=None) == "INCOMPLETE"
 
 
 def metamorphic_tests() -> dict[str, bool]:
@@ -327,6 +365,18 @@ def metamorphic_tests() -> dict[str, bool]:
         "MT-04-missing-risk-field-non-improving": complete == "COMPLETE_FOR_REVIEW" and incomplete == "INCOMPLETE",
         "MT-05-partial-evidence-no-parent-score": partial == ("PARTIAL", None),
         "MT-06-experiment-does-not-grant-production": later == "BLOCK",
+        "MT-07-failed-mandatory-gate-blocks-provisional-output": (
+            na_decision(approved_before_scores=True, ns_present=True,
+                        ns_material=False, provisional_complete=True,
+                        all_other_controls_pass=False) == "BLOCK_OTHER_CONTROL"),
+        "MT-08-partial-coverage-precedes-insufficient-evidence": (
+            evidence_decision(sufficient=False, coverage="partial") == ("PARTIAL", None)),
+        "MT-09-inherent-and-residual-risk-pairs-are-required": (
+            _full_risk() == "COMPLETE_FOR_REVIEW"
+            and _full_risk(residual_impact=None) == "INVALID_PAIR"),
+        "MT-10-risk-anchors-reject-boolean-and-non-integer-values": (
+            _full_risk(inherent_likelihood=True) == "INVALID_PAIR"
+            and _full_risk(residual_impact=2.0) == "INVALID_PAIR"),
     }
 
 
