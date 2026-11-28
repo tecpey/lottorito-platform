@@ -128,3 +128,5 @@ Validator ساختاری در [scripts/check_docs.py](../../scripts/check_docs.p
 - [G09-A14 افیلیت — سخت‌سازی اعتبارسنجی قرارداد و هم‌ترازی وضعیت پاسخ](engineering/affiliate-g09-a14-contract-validation-hardening.md) — Manifest دقیق Security/Scope، Profile مربوط به CloudEvents، Guard مربوط به Dialect در AsyncAPI، Lockfileهای بازتولیدپذیر و پوشش ۱۱ Root/۵۳ Fixture؛ سخت‌سازی فنی روی Head دقیق `736390f86ab425a8c273dcf254cc5974e9eb55ae` تأیید شده؛ تصمیم‌های مالک و اثبات Runtime همچنان باز هستند.
 
 - [G09-A15 افیلیت — آمادگی اثبات Persistence و ماتریس تصمیم‌های مالک ADR-002](engineering/affiliate-g09-a15-persistence-proof-readiness.md) — تعهدات اثبات مستقل از Candidate، ۱۲ تصمیم مالک، ۱۲ Schedule قطعی، قرارداد Evidence مستقل و Gateهای مرحله‌ای؛ بدون انتخاب Candidate و بدون اجرای اثبات Runtime.
+
+- [G09-A16 افیلیت — بازبینی خصمانه معماری ADR-002 و پرونده بازبین مستقل](engineering/affiliate-g09-a16-adversarial-architecture-review.md) — فرابازبینی نویسنده با ده چالش میان‌برشی، دوازده خانواده Schedule قطعی، قرارداد Oracle مستقل و پروتکل تحویل به بازبین؛ نه تأیید مستقل است و نه Proof مربوط به Runtime.
