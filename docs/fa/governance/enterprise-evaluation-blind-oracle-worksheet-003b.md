@@ -1,6 +1,6 @@
 # LOT-EVAL-RDM-003B — Worksheet استخراج مستقل Oracle (بازبینی کور)
 
-**شناسه سند:** LOT-EVAL-RDM-003B-WKS-FA | **نسخه:** ۰.۱.۰  
+**شناسه سند:** LOT-EVAL-RDM-003B-WKS-001 | **نسخه:** ۰.۱.۰  
 **وضعیت:** قالب خالی — `PENDING_EXTERNAL_REVIEW`  
 **بسته ثابت‌شده:** LOT-EVAL-RDM-003B-FA نسخه ۰.۱.۰  
 **Commit منابع Freezeشده:** `4443ef5336935310f034419d72967dec3d86a21a`
