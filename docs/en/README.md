@@ -139,3 +139,6 @@ Read repository-root [AGENTS.md](../../AGENTS.md). Use a working branch and pull
 ## Enterprise evaluation governance
 
 - [Enterprise Product, Technology and Supplier Evaluation Standard](governance/enterprise-evaluation-standard.md) — LOT-EVAL-001; proposed parent standard for decision framing, risk tiers, evidence, non-compensable gates, fair scoring, total cost, controlled pilots, approvals, monitoring and exit. It governs and points to specialist provider/technology/domain profiles; it selects no candidate.
+
+
+- [LOT-EVAL-A18-001 — Author-led Adversarial Review & Remediation Record](governance/enterprise-evaluation-adversarial-review-a18.md) — records 12 author-led findings against LOT-EVAL-001 v0.1.0 and maps the draft v0.2.0 hardening addendum; independent review remains pending.
