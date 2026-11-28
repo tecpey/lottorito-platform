@@ -150,6 +150,7 @@ TryAuthorizedWrite(w) ==
          acceptedWrites \cup
            {[writer |-> w,
              epoch |-> writerEpoch[w],
+             ownerAtWrite |-> authorityOwner,
              tokenEpochAtWrite |-> tokenEpoch[w],
              authorityEpochAtWrite |-> rootEpoch,
              fenceEpochAtWrite |-> sinkFenceEpoch]}
@@ -227,6 +228,7 @@ UnsafeStaleWrite ==
          acceptedWrites \cup
            {[writer |-> "W0",
              epoch |-> writerEpoch["W0"],
+             ownerAtWrite |-> authorityOwner,
              tokenEpochAtWrite |-> tokenEpoch["W0"],
              authorityEpochAtWrite |-> rootEpoch,
              fenceEpochAtWrite |-> sinkFenceEpoch]}
@@ -298,6 +300,7 @@ TypeOK ==
     /\ acceptedWrites \subseteq
          [writer : Writers,
           epoch : 0..3,
+          ownerAtWrite : Writers,
           tokenEpochAtWrite : 0..3,
           authorityEpochAtWrite : 0..3,
           fenceEpochAtWrite : 0..3]
@@ -326,7 +329,7 @@ EveryWriteWasFencedAndAuthorized ==
       /\ write.epoch = write.tokenEpochAtWrite
       /\ write.epoch = write.authorityEpochAtWrite
       /\ write.epoch = write.fenceEpochAtWrite
-      /\ write.writer = write.writer
+      /\ write.writer = write.ownerAtWrite
 
 AuthenticatedCurrentTokenHasAuthorityOwner ==
     \A w \in Writers :
