@@ -92,6 +92,9 @@ A23:
 | Restore | داده و Metadata بازیابی شوند؛ Authority/Identity نباید عقب‌گرد خاموش داشته باشند |
 | ReconcileRestore | اختلاف داده، Epoch، Tombstone، Credential، Schema و Outbox آشکار و تعیین تکلیف شود |
 | Quarantine/Repair | Actor مجاز، دامنه محدود، Audit کامل؛ Worker عادی حق Claim مورد قرنطینه را ندارد |
+| SubmitExternalEffect | فقط پس از Work/Outbox معتبر؛ مقصد خارجی قرارداد مستقل Identity/Idempotency/Fencing خود را اعمال کند |
+| ReconcileExternalEffect | UNKNOWN مقصد با Lookup مرجع مقصد حل شود؛ نبود Receipt از Cache/Timeout نتیجه‌گیری نشود |
+| RejectStaleDestinationActor | مقصدی که Fencing را پشتیبانی می‌کند Epoch/Generation قدیمی را در نقطه اثر رد کند؛ در غیر این صورت ریسک صریح و تضمین محدود ثبت شود |
 
 **قاعده خطی‌سازی:** هر Transition محافظت‌شده باید نقطه Linearization مشخص داشته باشد. بررسی Lease/Epoch پیش از انتظار برای Lock کافی نیست؛ اعتبار باید در نقطه Mutation سریال‌شده دوباره اثبات شود. A23 هیچ روش پیاده‌سازی خاصی را به‌عنوان پاسخ عمومی تحمیل نمی‌کند.
 
