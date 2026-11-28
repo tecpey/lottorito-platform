@@ -1,6 +1,6 @@
 # LOT-EVAL-RDM-003B — Blind Independent Oracle Review Packet
 
-**Document ID:** LOT-EVAL-RDM-003B-EN  
+**Document ID:** LOT-EVAL-RDM-003B-001  
 **Version:** 0.1.0  
 **Date:** 2026-11-28  
 **Status:** REVIEW PACKAGE PREPARED — `PENDING_EXTERNAL_REVIEW`  
