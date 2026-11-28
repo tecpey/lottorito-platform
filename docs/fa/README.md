@@ -163,7 +163,7 @@ Validator ساختاری در [scripts/check_docs.py](../../scripts/check_docs.p
 
 - [LOT-EVAL-RDM-003A — کاتالوگ قواعد هنجاری و جدول‌های تصمیم](governance/enterprise-evaluation-decision-rule-catalogue-001.md) — تجزیه به‌دست نویسنده از LOT-EVAL-001 به قواعد اتمی، پنج جدول تصمیم، دفتر ابهام‌های حل‌نشده و ردیابی قاعده به آزمون؛ بازبینی Oracle مستقل و تعیین تکلیف مالک در انتظار.
 
-- [LOT-EVAL-RDM-004 — راستی‌آزمایی کامل جدول‌های تصمیم](governance/enterprise-evaluation-full-decision-table-verification-004.md) — آزمون اجرایی ردیف‌محور برای هر ۳۶ ردیف جدول تصمیم، یازده آزمون Metamorphic و چهار جهش هدفمند مشخصات؛ CI دقیق شماره ۱۲۲۵ روی SHA کد `2e0eadfcc2bc6200af1410197dcbeaa563e8fed0` موفق شد؛ ابهام‌های سیاستی و قواعد خارج از پوشش همچنان باز هستند.
+- [LOT-EVAL-RDM-004 — راستی‌آزمایی کامل جدول‌های تصمیم](governance/enterprise-evaluation-full-decision-table-verification-004.md) — آزمون اجرایی ردیف‌محور برای هر ۳۶ ردیف جدول تصمیم، یازده آزمون Metamorphic و چهار جهش هدفمند مشخصات؛ CI دقیق شماره ۱۲۳۱ روی SHA کد `2e0eadfcc2bc6200af1410197dcbeaa563e8fed0` موفق شد؛ ابهام‌های سیاستی و قواعد خارج از پوشش همچنان باز هستند.
 
 
 ## پیش‌نویس تاریخی بازبینی کور LOT-EVAL-RDM-003B — منسوخ‌شده
@@ -178,3 +178,5 @@ Validator ساختاری در [scripts/check_docs.py](../../scripts/check_docs.p
 
 
 - تکمیل سخت‌سازی DT05: Oracle ردیف R5 فقدان زوج باقیمانده را مستقیم رد می‌کند؛ Schema ریسک ابعاد تکراری/ناشناخته و فیلدهای شواهد خالی را رد می‌کند؛ MT-11 اضافه شد. اجرای دقیق Head شماره ۱۲۳۱ روی `2e0eadfcc2bc6200af1410197dcbeaa563e8fed0` موفق شد.
+
+- [LOT-EVAL-RDM-005 — ممیزی ردیابی دوسویه](governance/enterprise-evaluation-bidirectional-traceability-audit-005.md) — بررسی ساختاری برای ۱۸ قاعده، ۲۱ AVT، ۱۰ جهش مشخصات، ۳۶ ردیف جدول تصمیم، ۸ Guard مدل، ۱۱ ویژگی Metamorphic و ۴ جهش هدفمند؛ CI دقیق شماره ۱۲۴۵ با ۳۷۶/۳۷۶ بررسی موفق شد. این شاهد ردیابی ساختاری است، نه راستی‌آزمایی معنایی یا تضمین مستقل.
