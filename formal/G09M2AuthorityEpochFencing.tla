@@ -6,7 +6,8 @@ CONSTANT Mutation
 Writers == {"W0", "W1"}
 Phases == {"active", "frozen", "allocated", "fenced", "quarantined"}
 Mutations == {"none", "early_promotion", "partition_promotion",
-              "stale_write", "restore_rollback", "forged_epoch"}
+              "stale_write", "restore_rollback", "forged_epoch",
+              "sink_fence_rollback"}
 
 ASSUME Mutation \in Mutations
 
@@ -21,7 +22,7 @@ VARIABLES
     writerOnline,
     writerReachable,
     writerActive,
-    sinkFenceEpoch,
+    sinkFenceEpoch, sinkFenceHighWater,
     fenceVerified,
     networkPartition,
     restoreMode,
@@ -31,7 +32,7 @@ VARIABLES
 vars ==
     << rootEpoch, authorityHighWater, authorityOwner, phase,
        writerEpoch, tokenEpoch, tokenAuthenticated, writerOnline,
-       writerReachable, writerActive, sinkFenceEpoch, fenceVerified,
+       writerReachable, writerActive, sinkFenceEpoch, sinkFenceHighWater, fenceVerified,
        networkPartition, restoreMode, restoredEpoch, acceptedWrites >>
 
 Init ==
@@ -46,6 +47,7 @@ Init ==
     /\ writerReachable = [w \in Writers |-> TRUE]
     /\ writerActive = [w \in Writers |-> w = "W0"]
     /\ sinkFenceEpoch = 1
+    /\ sinkFenceHighWater = 1
     /\ fenceVerified = TRUE
     /\ networkPartition = FALSE
     /\ restoreMode = FALSE
@@ -59,7 +61,7 @@ FreezeOldWriter ==
     /\ writerActive' = [writerActive EXCEPT !["W0"] = FALSE]
     /\ UNCHANGED <<rootEpoch, authorityHighWater, authorityOwner,
        writerEpoch, tokenEpoch, tokenAuthenticated, writerOnline,
-       writerReachable, sinkFenceEpoch, fenceVerified, networkPartition,
+       writerReachable, sinkFenceEpoch, sinkFenceHighWater, fenceVerified, networkPartition,
        restoreMode, restoredEpoch, acceptedWrites>>
 
 AllocateNewEpoch ==
@@ -74,12 +76,13 @@ AllocateNewEpoch ==
     /\ phase' = "allocated"
     /\ fenceVerified' = FALSE
     /\ UNCHANGED <<writerOnline, writerReachable, writerActive,
-       sinkFenceEpoch, networkPartition, restoreMode, restoredEpoch,
+       sinkFenceEpoch, sinkFenceHighWater, networkPartition, restoreMode, restoredEpoch,
        acceptedWrites>>
 
 ApplyFenceAtSink ==
     /\ phase = "allocated"
     /\ sinkFenceEpoch' = rootEpoch
+    /\ sinkFenceHighWater' = rootEpoch
     /\ phase' = "fenced"
     /\ fenceVerified' = FALSE
     /\ UNCHANGED <<rootEpoch, authorityHighWater, authorityOwner,
@@ -93,7 +96,7 @@ VerifyFenceEvidence ==
     /\ fenceVerified' = TRUE
     /\ UNCHANGED <<rootEpoch, authorityHighWater, authorityOwner, phase,
        writerEpoch, tokenEpoch, tokenAuthenticated, writerOnline,
-       writerReachable, writerActive, sinkFenceEpoch, networkPartition,
+       writerReachable, writerActive, sinkFenceEpoch, sinkFenceHighWater, networkPartition,
        restoreMode, restoredEpoch, acceptedWrites>>
 
 ActivateNewWriter ==
@@ -106,7 +109,7 @@ ActivateNewWriter ==
     /\ writerActive' = [writerActive EXCEPT !["W1"] = TRUE]
     /\ UNCHANGED <<rootEpoch, authorityHighWater, authorityOwner,
        writerEpoch, tokenEpoch, tokenAuthenticated, writerOnline,
-       writerReachable, sinkFenceEpoch, fenceVerified, networkPartition,
+       writerReachable, sinkFenceEpoch, sinkFenceHighWater, fenceVerified, networkPartition,
        restoreMode, restoredEpoch, acceptedWrites>>
 
 SetPartition ==
@@ -115,7 +118,7 @@ SetPartition ==
     /\ writerReachable' = [writerReachable EXCEPT !["W0"] = FALSE]
     /\ UNCHANGED <<rootEpoch, authorityHighWater, authorityOwner, phase,
        writerEpoch, tokenEpoch, tokenAuthenticated, writerOnline,
-       writerActive, sinkFenceEpoch, fenceVerified, restoreMode,
+       writerActive, sinkFenceEpoch, sinkFenceHighWater, fenceVerified, restoreMode,
        restoredEpoch, acceptedWrites>>
 
 HealPartition ==
@@ -124,7 +127,7 @@ HealPartition ==
     /\ writerReachable' = [w \in Writers |-> TRUE]
     /\ UNCHANGED <<rootEpoch, authorityHighWater, authorityOwner, phase,
        writerEpoch, tokenEpoch, tokenAuthenticated, writerOnline,
-       writerActive, sinkFenceEpoch, fenceVerified, restoreMode,
+       writerActive, sinkFenceEpoch, sinkFenceHighWater, fenceVerified, restoreMode,
        restoredEpoch, acceptedWrites>>
 
 CrashOldWriter ==
@@ -132,7 +135,7 @@ CrashOldWriter ==
     /\ writerOnline' = [writerOnline EXCEPT !["W0"] = FALSE]
     /\ UNCHANGED <<rootEpoch, authorityHighWater, authorityOwner, phase,
        writerEpoch, tokenEpoch, tokenAuthenticated, writerReachable,
-       writerActive, sinkFenceEpoch, fenceVerified, networkPartition,
+       writerActive, sinkFenceEpoch, sinkFenceHighWater, fenceVerified, networkPartition,
        restoreMode, restoredEpoch, acceptedWrites>>
 
 ReturnOldWriter ==
@@ -140,7 +143,7 @@ ReturnOldWriter ==
     /\ writerOnline' = [writerOnline EXCEPT !["W0"] = TRUE]
     /\ UNCHANGED <<rootEpoch, authorityHighWater, authorityOwner, phase,
        writerEpoch, tokenEpoch, tokenAuthenticated, writerReachable,
-       writerActive, sinkFenceEpoch, fenceVerified, networkPartition,
+       writerActive, sinkFenceEpoch, sinkFenceHighWater, fenceVerified, networkPartition,
        restoreMode, restoredEpoch, acceptedWrites>>
 
 TryAuthorizedWrite(w) ==
@@ -164,7 +167,7 @@ TryAuthorizedWrite(w) ==
              fenceEpochAtWrite |-> sinkFenceEpoch]}
     /\ UNCHANGED <<rootEpoch, authorityHighWater, authorityOwner, phase,
        writerEpoch, tokenEpoch, tokenAuthenticated, writerOnline,
-       writerReachable, writerActive, sinkFenceEpoch, fenceVerified,
+       writerReachable, writerActive, sinkFenceEpoch, sinkFenceHighWater, fenceVerified,
        networkPartition, restoreMode, restoredEpoch>>
 
 BeginRestore ==
@@ -175,7 +178,7 @@ BeginRestore ==
     /\ writerActive' = [w \in Writers |-> FALSE]
     /\ UNCHANGED <<rootEpoch, authorityHighWater, authorityOwner,
        writerEpoch, tokenEpoch, tokenAuthenticated, writerOnline,
-       writerReachable, sinkFenceEpoch, fenceVerified, networkPartition,
+       writerReachable, sinkFenceEpoch, sinkFenceHighWater, fenceVerified, networkPartition,
        acceptedWrites>>
 
 ReconcileRestore ==
@@ -201,7 +204,7 @@ FinishRestore ==
     /\ writerActive' = [writerActive EXCEPT ![authorityOwner] = TRUE]
     /\ UNCHANGED <<rootEpoch, authorityHighWater, authorityOwner,
        writerEpoch, tokenEpoch, tokenAuthenticated, writerOnline,
-       writerReachable, sinkFenceEpoch, fenceVerified, networkPartition,
+       writerReachable, sinkFenceEpoch, sinkFenceHighWater, fenceVerified, networkPartition,
        restoredEpoch, acceptedWrites>>
 
 (* Negative control: activate the new writer before sink fencing/evidence. *)
@@ -212,7 +215,7 @@ UnsafeEarlyPromotion ==
     /\ writerActive' = [writerActive EXCEPT !["W1"] = TRUE]
     /\ UNCHANGED <<rootEpoch, authorityHighWater, authorityOwner,
        writerEpoch, tokenEpoch, tokenAuthenticated, writerOnline,
-       writerReachable, sinkFenceEpoch, fenceVerified, networkPartition,
+       writerReachable, sinkFenceEpoch, sinkFenceHighWater, fenceVerified, networkPartition,
        restoreMode, restoredEpoch, acceptedWrites>>
 
 (* Negative control: a partition is incorrectly treated as proof of failure. *)
@@ -224,7 +227,7 @@ UnsafePartitionPromotion ==
     /\ writerActive' = [writerActive EXCEPT !["W1"] = TRUE]
     /\ UNCHANGED <<rootEpoch, authorityHighWater, authorityOwner,
        writerEpoch, tokenEpoch, tokenAuthenticated, writerOnline,
-       writerReachable, sinkFenceEpoch, fenceVerified, networkPartition,
+       writerReachable, sinkFenceEpoch, sinkFenceHighWater, fenceVerified, networkPartition,
        restoreMode, restoredEpoch, acceptedWrites>>
 
 (* Negative control: stale W0 bypasses the mutation sink after fencing. *)
@@ -242,8 +245,18 @@ UnsafeStaleWrite ==
              fenceEpochAtWrite |-> sinkFenceEpoch]}
     /\ UNCHANGED <<rootEpoch, authorityHighWater, authorityOwner, phase,
        writerEpoch, tokenEpoch, tokenAuthenticated, writerOnline,
-       writerReachable, writerActive, sinkFenceEpoch, fenceVerified,
+       writerReachable, writerActive, sinkFenceEpoch, sinkFenceHighWater, fenceVerified,
        networkPartition, restoreMode, restoredEpoch>>
+
+(* Negative control: restore rolls the mutation sink fence back. *)
+UnsafeSinkFenceRollback ==
+    /\ Mutation = "sink_fence_rollback"
+    /\ restoreMode
+    /\ sinkFenceEpoch' = restoredEpoch
+    /\ UNCHANGED <<rootEpoch, authorityHighWater, authorityOwner, phase,
+       writerEpoch, tokenEpoch, tokenAuthenticated, writerOnline,
+       writerReachable, writerActive, sinkFenceHighWater, fenceVerified,
+       networkPartition, restoreMode, restoredEpoch, acceptedWrites>>
 
 (* Negative control: restore rolls the authority root back to old data. *)
 UnsafeRestoreRollback ==
@@ -252,7 +265,7 @@ UnsafeRestoreRollback ==
     /\ rootEpoch' = restoredEpoch
     /\ UNCHANGED <<authorityHighWater, authorityOwner, phase, writerEpoch,
        tokenEpoch, tokenAuthenticated, writerOnline, writerReachable,
-       writerActive, sinkFenceEpoch, fenceVerified, networkPartition,
+       writerActive, sinkFenceEpoch, sinkFenceHighWater, fenceVerified, networkPartition,
        restoreMode, restoredEpoch, acceptedWrites>>
 
 (* Negative control: an unauthorised writer forges a current-epoch token. *)
@@ -264,7 +277,7 @@ UnsafeForgedEpoch ==
     /\ tokenEpoch' = [tokenEpoch EXCEPT !["W0"] = rootEpoch]
     /\ tokenAuthenticated' = [tokenAuthenticated EXCEPT !["W0"] = TRUE]
     /\ UNCHANGED <<rootEpoch, authorityHighWater, authorityOwner, phase,
-       writerOnline, writerReachable, writerActive, sinkFenceEpoch,
+       writerOnline, writerReachable, writerActive, sinkFenceEpoch, sinkFenceHighWater,
        fenceVerified, networkPartition, restoreMode, restoredEpoch,
        acceptedWrites>>
 
@@ -286,6 +299,7 @@ Next ==
     \/ UnsafePartitionPromotion
     \/ UnsafeStaleWrite
     \/ UnsafeRestoreRollback
+    \/ UnsafeSinkFenceRollback
     \/ UnsafeForgedEpoch
 
 Spec == Init /\ [][Next]_vars
@@ -302,6 +316,7 @@ TypeOK ==
     /\ writerReachable \in [Writers -> BOOLEAN]
     /\ writerActive \in [Writers -> BOOLEAN]
     /\ sinkFenceEpoch \in 0..3
+    /\ sinkFenceHighWater \in 1..3
     /\ fenceVerified \in BOOLEAN
     /\ networkPartition \in BOOLEAN
     /\ restoreMode \in BOOLEAN
@@ -319,6 +334,9 @@ SingleWriter ==
 
 RootEpochAtLeastHighWater ==
     rootEpoch >= authorityHighWater
+
+SinkFenceEpochAtLeastHighWater ==
+    sinkFenceEpoch >= sinkFenceHighWater
 
 NewWriterActivationRequiresFence ==
     writerActive["W1"] =>
