@@ -1,7 +1,7 @@
 # G09-A23 M3 — مدل Lease و نسل Claim در Worker
 
 **شناسه سند:** LOT-AFFILIATE-G09-A23-M3  
-**نسخه:** ۰.۱.۰  
+**نسخه:** ۰.۱.۱  
 **وضعیت:** پیش‌نویس مدل — اعتبارسنجی TLC در انتظار؛ بازبینی مستقل و Candidate refinement انجام نشده است  
 **سند مادر:** [راهبرد مدل رسمی و آزمون A23](affiliate-g09-a23-formal-protocol-model-test-strategy.md)  
 **پیشنهاد هنجاری:** [ADR-001 — پروتکل Claim، Lease و Fencing برای WorkItem](adr-001-workitem-claim-lease-fencing.md)  
@@ -25,7 +25,7 @@ M3 یک WorkItem پایدار و دو Process مربوط به Worker را جدا
 
 ۵. **نقطه Serialization و Guard دو مرحله مجزا هستند.** درخواست، State/Generation/Token/Lifecycle مورد انتظار و مشاهده پیش از Lock را ثبت می‌کند؛ سپس منتظر می‌ماند، نقطه Serialization را می‌گیرد و Guard را در برابر وضعیت پایدار و زمان Persistence فعلی ارزیابی می‌کند. زمان می‌تواند هنگام انتظار یا حتی در زمان نگه‌داشتن نقطه Serialization جلو برود. Guard و Mutation محافظت‌شده یک گام اتمیک و نقطه Linearization هستند.
 
-۶. **انقضای Lease به‌خودی‌خود Transition وضعیت نیست.** انقضا WorkItem با وضعیت CLAIMED را واجد شرایط Reclaim می‌کند. پیش از Commit شدن Generation جدید نیز Worker قدیمی باید در صورتی که Lease در Guard پس از Serialization منقضی شده باشد رد شود. اگر Worker قدیمی درحالی‌که Lease معتبر است و نقطه Serialization را در اختیار دارد Mutation را Linearize کند، آن Mutation قبل از Reclaim بعدی مرتب می‌شود.
+۶. **انقضای Lease به‌خودی‌خود Transition وضعیت نیست.** انقضا WorkItem با وضعیت CLAIMED را واجد شرایط Reclaim می‌کند. مدل همچنین PROCESSING را State دارای Lease در نظر می‌گیرد که پس از انقضا قابل Reclaim است. این یک Refinement آگاهانه فراتر از عبارت فعلی ADR-001 است (که READY و CLAIMED منقضی‌شده را نام می‌برد)؛ مالک و بازبینان مستقل باید این شکاف State Machine را پیش از تصویب ADR حل کنند. پیش از Commit شدن Generation جدید نیز Worker قدیمی باید در صورتی که Lease در Guard پس از Serialization منقضی شده باشد رد شود. اگر Worker قدیمی درحالی‌که Lease معتبر است و نقطه Serialization را در اختیار دارد Mutation را Linearize کند، آن Mutation قبل از Reclaim بعدی مرتب می‌شود.
 
 ۷. **یک Transition مجاز و رقیب State** برای آزمون Guard مربوط به Expected State مدل شده است. تغییر Lifecycle Version نیز به‌عنوان ورودی مدل می‌شود؛ اما مدل درباره Policy مالک برای Receiptهای قبلاً پذیرفته‌شده تصمیم نمی‌گیرد.
 
@@ -89,6 +89,7 @@ Runner در هر Config مربوط به TLC عمداً یک نقص مستقل ت
 | stale_generation | حذف هر دو کنترل Generation و Token | EveryAcceptedMutationWasAuthorized |
 | wrong_token | پذیرش Claim Token نامنطبق | EveryAcceptedMutationWasAuthorized |
 | wrong_tenant | حذف Binding تغییرناپذیر Tenant | EveryAcceptedMutationWasAuthorized |
+| wrong_installation | حذف Binding تغییرناپذیر Installation | EveryAcceptedMutationWasAuthorized |
 | stale_lifecycle | حذف Guard مربوط به Lifecycle Version | EveryAcceptedMutationWasAuthorized |
 | stale_state | حذف Guard مربوط به Expected State | EveryAcceptedMutationWasAuthorized |
 | expired_heartbeat | اجازه تمدید پس از انقضا | EveryAcceptedMutationWasAuthorized |
@@ -122,3 +123,13 @@ Runner فقط وقتی موفق است که Baseline بدون نقض Invariant �
 Runner ثابت‌شده در scripts/formal/run_g09_m3.sh و Workflow در .github/workflows/formal-g09-m3.yml قرار دارد. نسخه TLA+ Tools v1.7.4 / TLC 2.19 با SHA-256 Pin شده و Log و Metadata هر Case به‌صورت Artifact در GitHub Actions نگهداری می‌شود. Hash دقیق Model/Config، Bounds، شمار Stateها، وضعیت تکمیل، Trace و Digest Artifact فقط پس از اجرای موفق روی Head دقیق به این سند افزوده می‌شوند.
 
 **وضعیت اعتبارسنجی:** در انتظار اجرای TLC روی Head دقیق PR. هیچ Runtime یا Candidate آزمایش یا تصویب نشده است.
+
+
+## ۱۰. منابع پژوهشی
+
+- Martin Kleppmann، [How to do distributed locking](https://martin.kleppmann.com/2016/02/08/how-to-do-distributed-locking.html) (۲۰۱۶): Process متوقف‌شده و Request با تأخیر می‌توانند پس از انقضای Lease هم فعال شوند؛ Resource محافظت‌شده باید Token قدیمی Fencing را فعالانه رد کند.
+- Marc Brooker / AWS Builders' Library، [Leader election in distributed systems](https://aws.amazon.com/builders-library/leader-election-in-distributed-systems/) (۲۰۱۹): رفتار Lease/Heartbeat، توقف Process، فرض‌های مربوط به مدت زمان Clock و ریسک‌های Leader Election؛ در صورت عدم نیاز به Leader، Idempotency و Optimistic Concurrency گزینه‌های جایگزین‌اند.
+- PostgreSQL، [Date/Time Functions and Operators](https://www.postgresql.org/docs/current/functions-datetime.html): Timestamp آغاز Transaction با نمونه‌برداری زمان واقعی تفاوت دارد؛ این فقط مثال معنایی است، نه انتخاب Database.
+- PostgreSQL، [Explicit Locking](https://www.postgresql.org/docs/current/explicit-locking.html): Serialization مبتنی بر Row Lock و رفتار انتظار Lock؛ فقط مرجع ارزیابی Candidate است.
+
+این منابع Scheduleهای خصمانه مدل را توجیه می‌کنند؛ هیچ‌کدام پیاده‌سازی Lottorito را اثبات یا Providerی را انتخاب نمی‌کنند.
