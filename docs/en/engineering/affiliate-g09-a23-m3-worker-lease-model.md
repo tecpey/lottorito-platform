@@ -1,7 +1,7 @@
 # G09-A23 M3 — Worker Lease & Claim Generation Model
 
 **Document ID:** LOT-AFFILIATE-G09-A23-M3  
-**Version:** 0.1.7  
+**Version:** 0.1.8  
 **Status:** MODEL DRAFT — TLC validation pending; independent review and candidate refinement not performed  
 **Parent:** [A23 formal protocol model/test strategy](affiliate-g09-a23-formal-protocol-model-test-strategy.md)  
 **Normative proposal:** [ADR-001 — WorkItem Claim, Lease and Fencing](adr-001-workitem-claim-lease-fencing.md)  
@@ -140,3 +140,6 @@ The pending request context is represented as scalar state rather than per-worke
 
 
 **Version 0.1.7 review note — event identity:** The cumulative accepted-mutation set now carries a bounded monotonic mutation sequence in each record. This prevents two otherwise identical accepted events (for example, repeated heartbeats at the same abstract persistence time) from collapsing into one set element. The sequence is a finite-model identity only, bounded by the existing ten-mutation exploration budget; it is not a production identifier.
+
+
+**Version 0.1.8 review note — scope discipline:** The unrecorded administrative `OperatorQuarantine` transition was removed from M3. Worker-initiated Park remains the modeled path to QUARANTINED and is covered by the protected-mutation guard/history. Administrative quarantine policy belongs in the relevant operator/recovery model and must not silently bypass M3's worker mutation oracle.
