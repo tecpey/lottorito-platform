@@ -46,6 +46,10 @@ The 36 table rows are verification obligations, not 36 independent end-to-end te
 
 These labels describe the fixture's expected disposition, not the commercial or legal feasibility of a real supplier or product.
 
+## 3.2 Mandatory-gate register completeness
+
+The DT-02 runner includes a closed-world ten-category minimum gate register derived from parent §7. It detects an omitted category rather than relying only on a caller-supplied “omitted” Boolean. Each category still needs an explicit decision-specific disposition; a recorded N/A is not automatically valid without the required rationale/approval.
+
 ## 4. Cross-row and metamorphic properties
 
 Six metamorphic checks are registered:
@@ -78,6 +82,8 @@ RDM-004 deliberately does not resolve:
 - RDM-U05: criterion-specific measurable 1–5 anchors.
 
 The current decision tables do not directly cover every atomic rule. In particular, RDM-R13/R14 (evidence authority, independence and confidence), RDM-R17 (assurance-role separation) and RDM-R18 (end-to-end decision traceability) require separate human/structural verification. No RDM-004 result closes those gaps.
+
+The ten-category register is a bounded encoding of the parent §7 minimum list. It does not decide applicability, legal sufficiency or whether a control is truly not applicable.
 
 Synthetic booleans and enums stand in for real evidence sufficiency, approval, applicability, enforceability, authority and control-operation evidence. The harness does not authenticate documents, identities, delegation, timestamps, legal status, control effectiveness or real-world risk.
 
