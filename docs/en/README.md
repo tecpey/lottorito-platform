@@ -164,7 +164,7 @@ Read repository-root [AGENTS.md](../../AGENTS.md). Use a working branch and pull
 
 - [LOT-EVAL-RDM-003A — Normative Rule Catalogue & Decision Tables](governance/enterprise-evaluation-decision-rule-catalogue-001.md) — author-led decomposition of LOT-EVAL-001 into atomic rules, five decision tables, unresolved-ambiguity register and rule-to-test traceability; independent oracle review and owner disposition pending.
 
-- [LOT-EVAL-RDM-004 — Full Decision-Table Verification](governance/enterprise-evaluation-full-decision-table-verification-004.md) — executable row-level checks for all 36 decision-table rows, ten metamorphic checks and four targeted specification mutations; exact-head CI #1225 passed on code SHA `79751ad277968346fcd0044d74951af2a2c3301c`; unresolved policy and non-covered atomic rules remain open.
+- [LOT-EVAL-RDM-004 — Full Decision-Table Verification](governance/enterprise-evaluation-full-decision-table-verification-004.md) — executable row-level checks for all 36 decision-table rows, eleven metamorphic checks and four targeted specification mutations; exact-head CI #1225 passed on code SHA `2e0eadfcc2bc6200af1410197dcbeaa563e8fed0`; unresolved policy and non-covered atomic rules remain open.
 
 
 ## Historical LOT-EVAL-RDM-003B blind-review draft — superseded
@@ -176,3 +176,6 @@ Read repository-root [AGENTS.md](../../AGENTS.md). Use a working branch and pull
 ### RDM-003B review correction
 
 - [Author-led adversarial second-pass review](governance/enterprise-evaluation-author-led-second-pass-review-003b.md) — the active review record. The former blind packet and blank worksheet are superseded historical artifacts; no external reviewer or blind oracle is claimed.
+
+
+- DT05 schema hardening: row R5 directly rejects a missing residual pair; risk schema rejects duplicate/unknown dimensions and blank evidence fields; MT-11 added. Exact-head run #1231 succeeded on `2e0eadfcc2bc6200af1410197dcbeaa563e8fed0`.
