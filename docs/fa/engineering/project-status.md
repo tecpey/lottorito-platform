@@ -1,6 +1,6 @@
 # وضعیت واقعی پروژه و نقطه ادامه کار
 
-**شناسه:** LOT-OPS-001 | **نسخه:** ۲.۰.۱۲ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۸
+**شناسه:** LOT-OPS-001 | **نسخه:** ۲.۰.۱۳ | **وضعیت:** خط مبنای تأییدشده و در حال نگهداری | **بازبینی:** ۲۰۲۶-۱۱-۲۸
 
 ## وضعیت تأییدشده مخزن
 - مخزن tecpey/lottorito-platform؛ شاخه پیش‌فرض main؛ سطح دسترسی Public طبق تصمیم مالک.
@@ -298,3 +298,11 @@
 - نخستین تلاش اجرای M2 با خطای Parse مربوط به Function Constructor در TLA+ متوقف شد؛ خطا اصلاح و سپس Baseline و Negative Controlها دوباره اجرا شدند. اجرای موفق پنج‌کنترلی اولیه با Run شش‌کنترلی بالا جایگزین شده است. خطای Parse اولیه را نباید به‌عنوان نقض مدل تعبیر کرد.
 - M3 تا M7 تألیف نشده‌اند. بازبینی مستقل، Candidate refinement، Jepsen/History Checker، Simulation قطعی، اثبات DB/Runtime، اجرای A20 و تصمیم‌های مالک همچنان باز هستند. یافته‌های A21 و تمام Gateهای A4 باز/تصویب‌نشده‌اند. ADR-002 همچنان PROPOSED است. هیچ Runtime، انتخاب Candidate، اتصال Partner، عملیات مالی، Production، Merge یا Deploy مجاز نیست.
 - PR شماره ۷۶ همچنان Open/Unmerged است؛ Commitهای مستنداتی پس از Head اعتبارسنجی، اسناد M2/A23/فهرست‌ها و Project Status دوزبانه را همگام می‌کنند. پیش از هر ادعای بعدی، Head زنده PR و CI روی Head دقیق بررسی شود.
+
+
+### بازاعتبارسنجی روی Head دقیق پس از همگام‌سازی شواهد دوزبانه
+- PR شماره ۷۶ روی Head دقیق 66fa19c72418dd5376c179514d57970f5d29fe5f مجدداً بررسی شد: Documentation Governance Run 46175559048، M0 Run 46175558972، M1 Run 46175558925، M2 Run 46175559007 و Affiliate Contract Validation Run 46175554261 همگی SUCCESS شدند.
+- اجرای M2 روی Synthetic merge برابر با 1c9678f (Base: f032065f47fe85de2aabf8d47565a57af6af3ae9) انجام شد؛ Baseline برابر ۵۱۵ State تولیدشده/۱۳۶ متمایز، عمق ۱۲؛ شش Negative Control نقض‌های مورد انتظار را کشف کردند. Artifact ID برابر 15275815204؛ SHA-256 برابر 5c58aa70dce2bdcf93568ef9644f0cc1478da10f9b02f706d89f7a18ff85cbc3. SHA-256 ماژول برابر ad773d328db633da4789ad064633f933e5ba5870655045a033c1ac82587b4e78 است.
+- M0/M1 و Affiliate Contract Validation روی همان Head دقیق موفق شدند. Documentation Governance صرفاً ساختار دوزبانه و لینک‌های محلی را بررسی کرده و هم‌ارزی معنایی را تأیید نمی‌کند.
+- Commitهای بعدی این شاخه فقط اسناد دوزبانه Evidence/Status/Index را به‌روزرسانی می‌کنند؛ ماژول M2، Configها، Runner و Workflow تغییری نکرده‌اند. با این حال پیش از تحویل گام بعد، Head زنده PR و CI روی Head دقیق باید دوباره بررسی شوند.
+- تمام شواهد محدود به مدل متناهی/مستندات/قرارداد هستند. بازبینی مستقل، Candidate refinement، اثبات Runtime/Database، Jepsen/History Checker، Simulation قطعی، اجرای A20 و تصویب Gateهای A4 همچنان انجام نشده‌اند. PR شماره ۷۶ باز و Unmerged است؛ Merge/Deploy مجاز نیست.
