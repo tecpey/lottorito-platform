@@ -1,7 +1,7 @@
 # G09-A23-M0 — مدل رسمی پذیرش اتمیک
 
 **شناسه:** LOT-AFFILIATE-G09-A23-M0-001  
-**نسخه:** ۰.۱.۲  
+**نسخه:** ۰.۱.۳  
 **وضعیت:** مدل محدود اجراشده با TLC؛ بازبینی مستقل و Refinement به Candidate انجام نشده است  
 **مدل:** `formal/G09M0AtomicAcceptance.tla`  
 **پیکربندی مبنا:** `formal/G09M0AtomicAcceptance.cfg`  
@@ -148,11 +148,11 @@ M0 موارد زیر را اثبات نمی‌کند و عمداً به مدل�
 
 ## ۸. شواهد اجرای بازتولیدپذیر
 
-**Run مبنای PR:** GitHub Actions Run `46171267528` — [G09 M0 Formal Model](https://github.com/tecpey/lottorito-platform/actions/runs/46171267528)  
-**PR head:** `b9fd70090a158b09131aa4f848e194fe7cefe273`  
-**Synthetic merge commit بررسی‌شده توسط pull_request runner:** `0ceabe3` (ادغام Head فوق با Base `f032065f47fe85de2aabf8d47565a57af6af3ae9`)  
-**Artifact:** [g09-a23-m0-tlc-46171267528-1](https://github.com/tecpey/lottorito-platform/actions/runs/46171267528/artifacts/15273950539)  
-**Artifact ZIP SHA-256:** `d2f1eb916a2c6f2316acf6932aa03ab5caab5a846eac53091cbb452a3a5315b5`
+**Run مبنای PR:** GitHub Actions Run `46171482274` — [G09 M0 Formal Model](https://github.com/tecpey/lottorito-platform/actions/runs/46171482274)  
+**PR head:** `10d143bfb8eaff1892a74e3277f4dcac1f024337`  
+**Synthetic merge commit بررسی‌شده توسط pull_request runner:** `a7a670bd6453a2c86fd7733c4aeae3f8aa7b4777` (ادغام Head فوق با Base `f032065f47fe85de2aabf8d47565a57af6af3ae9`)  
+**Artifact:** [g09-a23-m0-tlc-46171482274-1](https://github.com/tecpey/lottorito-platform/actions/runs/46171482274/artifacts/15273523034)  
+**Artifact ZIP SHA-256:** `5cd254c2bd9b7121af93c0b7384d9927f054031d2acbd7c6eef1e41670eb72d9`
 
 محیط و ابزار:
 - TLA+ Tools release: `v1.7.4`
