@@ -184,7 +184,7 @@ Reviewed source head: `adf8a65bcf66dc891bfba01c6099acc17ea85453`.
 - Affiliate Contract Validation PR run #262 (`46164717611`): **SUCCESS**.
 - Affiliate Contract Validation push run #261 (`46164713536`): **SUCCESS**.
 - The contract job completed strict lockfile-based installs, Redocly validation for both OpenAPI documents, AsyncAPI CLI validation and the Node/Ajv fixture validator.
-- The validator output explicitly reported the 117 assertions and the separate parameter inventory above.
+- The validator output explicitly reported the 121 assertions and the separate parameter inventory above.
 
 Non-blocking notices remain unchanged: Redocly reports missing `info.license` metadata; AsyncAPI CLI reports that 3.1.0 is newer than the intentionally retained 3.0.0 contract. Neither notice authorizes an inferred license or an unreviewed dialect migration.
 
