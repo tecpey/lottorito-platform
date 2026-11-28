@@ -88,7 +88,7 @@ A23:
 | RejectStaleWriter | Writer با Epoch قدیمی در نقطه Mutation رد شود |
 | ClaimWork | Claim و Generation جدید در مرجع پایدار و با Transition سریال‌شده |
 | ExpireAndReclaim | Lease قبلی واجد Reclaim شود؛ Claim جدید فقط در Transition سریال‌شده صادر شود؛ Generation قبلی پس از برنده‌شدن Reclaim باطل بماند |
-| LinearizeLeaseTransition | اعتبار Lease پس از اخذ نقطه Serialization سنجیده شود؛ اولین Transition محافظت‌شده‌ای که به‌صورت معتبر Linearize شود برنده است؛ Expiry به‌تنهایی Mutation نیست |
+| LinearizeLeaseTransition | پس از اخذ نقطه Serialization، Guard اعتبار Lease را همان‌جا ارزیابی کند؛ اگر منقضی است Mutation رد شود؛ فقط Transition دارای Lease معتبر و Guard کامل می‌تواند Linearize شود |
 | ResumeStaleWorker | Mutation روی State محافظت‌شده مبدأ در صورت انقضای Lease در نقطه Guard یا عدم تطابق Owner/Generation/Token/Authority رد شود. این ردشدن، درخواست خارجی قبلاً ارسال‌شده را لغو نمی‌کند؛ نتیجه مقصد باید با قرارداد Receiver بررسی شود |
 | CommitWorkTransition | فقط Owner/Generation/Authority معتبر در لحظه Mutation |
 | PublishOutbox | فقط از Outbox Durable؛ تحویل ممکن است تکراری/نامرتب باشد |
@@ -103,6 +103,7 @@ A23:
 | AcceptExternalRequest | Receiver درخواست را طبق Idempotency/Fencing/Ordering خودش بپذیرد یا رد کند؛ زمان رسیدن ممکن است پس از انقضای Lease مبدأ باشد |
 | LoseExternalResponse | اثر Receiver ممکن است اعمال شده باشد، اما پاسخ گم شود؛ Caller نتیجه destinationOutcome=unknown مشاهده کند |
 | RetryExternalRequest | فقط با همان destinationIdentity/Idempotency Key و Fingerprint مصوب Retry شود؛ تولید Key جدید برای همان اثر ممنوع است |
+| ExpireReceiverDedupWindow | پایان Retention Dedup مقصد ثبت شود؛ Replay پس از آن نباید بدون قرارداد جدید به‌عنوان Duplicate امن فرض شود و باید Risk/Outcome صریح داشته باشد |
 
 **قاعده خطی‌سازی و انقضای Lease (هم‌راستا با ADR-001):** هر Transition محافظت‌شده باید نقطه Linearization مشخص داشته باشد. بررسی Lease/Epoch یا نمونه‌برداری زمان پیش از انتظار برای Lock کافی نیست؛ پس از اخذ نقطه Serialization، Guard باید Lease را در همان نقطه دوباره ارزیابی کند. اگر Lease در این نقطه منقضی شده باشد، Transition رد می‌شود، حتی اگر هنوز Reclaim یا Generation جدیدی ثبت نشده باشد. انقضا به‌تنهایی State یا Generation را تغییر نمی‌دهد؛ فقط شرط اعتبار Lease را نامعتبر و Work را واجد Reclaim می‌کند. اگر Worker قدیمی در نقطه Guard هنوز Lease معتبر و Owner/Generation/Token/Authority جاری داشته باشد و Mutation سریال‌شده موفق شود، آن Transition پیش از Reclaim مرتب می‌شود. اگر Reclaim زودتر Commit شده باشد، Generation قدیمی رد می‌شود. این قاعده با ساعت محلی Worker یا Timestamp پیش از Lock قابل جایگزینی نیست. A23 روش پیاده‌سازی خاصی را به‌عنوان پاسخ عمومی تحمیل نمی‌کند.
 
