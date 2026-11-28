@@ -29,11 +29,15 @@ def evidence_rating(*, present: bool, sufficient: bool, fresh: bool = True,
     """Keep evidence state distinct from the 0..5/NS capability rating."""
     if coverage not in {"none", "partial", "complete"}:
         return Result("INVALID_INPUT", None, "unknown evidence coverage value", "Unknown")
+    if not present or coverage == "none":
+        state = "Unknown" if not present else "Insufficient"
+        return Result("NOT_SCORED", None, "no evidence covers the requested claim", state)
+    if not fresh or not scope_match or contradiction:
+        return Result("NOT_SCORED", None, "evidence is stale, out of scope or contradictory", "Insufficient")
     if coverage == "partial":
         return Result("NOT_SCORED", None, "partial coverage is retained as Partial; no parent rating", "Partial")
-    adequate = present and sufficient and fresh and scope_match and not contradiction
-    evidence_state = ("Unknown" if not present else
-                      "Sufficient" if adequate else "Insufficient")
+    adequate = present and sufficient
+    evidence_state = "Sufficient" if adequate else "Insufficient"
     if mutant == "MUT-01" and not adequate:
         return Result("SCORED", 0, "mutant converted unknown evidence to zero", "Sufficient")
     if mutant == "MUT-02" and not adequate:
@@ -44,13 +48,18 @@ def evidence_rating(*, present: bool, sufficient: bool, fresh: bool = True,
         return Result("NOT_SCORED", None,
                       "evidence is missing, insufficient, stale, contradictory or out of scope",
                       evidence_state)
-    if demonstrated == "absent_or_unacceptable":
-        return Result("SCORED", 0, "sufficient evidence demonstrates unacceptable/absent capability", "Sufficient")
-    if demonstrated == "meets":
-        return Result("SCORED", 3, "predefined threshold demonstrated for evidenced scope", "Sufficient")
-    if demonstrated == "above":
-        return Result("SCORED", 4, "strong evidence demonstrates above-threshold capability", "Sufficient")
-    return Result("NOT_SCORED", None, "capability outcome is not mapped to an approved anchor", "Insufficient")
+    anchors = {
+        "absent_or_unacceptable": (0, "sufficient evidence demonstrates unacceptable/absent capability"),
+        "severe_gap": (1, "sufficient evidence demonstrates a severe gap below minimum threshold"),
+        "partial_with_material_limits": (2, "sufficient evidence demonstrates partial capability with material limits"),
+        "meets": (3, "predefined threshold demonstrated for evidenced scope"),
+        "above": (4, "strong evidence demonstrates above-threshold capability"),
+        "exceptional": (5, "repeatable exceptional performance demonstrated for evidenced scope"),
+    }
+    if demonstrated not in anchors:
+        return Result("NOT_SCORED", None, "capability outcome is not mapped to an approved anchor", "Insufficient")
+    rating, reason = anchors[demonstrated]
+    return Result("SCORED", rating, reason, "Sufficient")
 
 
 def aggregate(*, scores: list[int], material_ns: bool, ns_present: bool,
