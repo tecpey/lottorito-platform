@@ -1,7 +1,7 @@
 # G09-A23-M2 — Authority Epoch and Writer Fencing Model
 
 **Document ID:** LOT-AFFILIATE-G09-A23-M2-001  
-**Version:** 0.1.2 | **Status:** TLC-CHECKED WITHIN FINITE BOUNDS; INDEPENDENT REVIEW AND CANDIDATE REFINEMENT PENDING  
+**Version:** 0.1.3 | **Status:** TLC-CHECKED WITHIN FINITE BOUNDS; INDEPENDENT REVIEW AND CANDIDATE REFINEMENT PENDING  
 **Model:** formal/G09M2AuthorityEpochFencing.tla  
 **Baseline:** formal/G09M2AuthorityEpochFencing.cfg  
 **Runner:** scripts/formal/run_g09_m2.sh  
@@ -150,3 +150,10 @@ These sources support the design method and failure model; they do not certify t
 ## 10. Disposition
 
 M2 is a candidate-neutral finite-state model with one baseline and six oracle-targeted negative controls. Its bounded TLC baseline and all six expected negative controls completed successfully on the latest exact head recorded above. Its status is **TLC-CHECKED WITHIN FINITE BOUNDS**; independent review and candidate refinement remain pending. It does not close A21 findings, approve ADR-002, satisfy an A4 gate, authorize R2, select a persistence candidate, or authorize runtime/partner/financial/production work, merge or deployment.
+
+
+## 11. Latest exact-PR-head revalidation
+
+The six-control M2 model was re-executed on exact PR head 66fa19c72418dd5376c179514d57970f5d29fe5f in [Run 46175559007](https://github.com/tecpey/lottorito-platform/actions/runs/46175559007) — SUCCESS. Synthetic merge: 1c9678f; base: f032065f47fe85de2aabf8d47565a57af6af3ae9. The model SHA-256 remained ad773d328db633da4789ad064633f933e5ba5870655045a033c1ac82587b4e78. Baseline: 515 generated / 136 distinct states, depth 12, no invariant violation; all six named negative controls matched their expected invariant violations. Artifact 15275815204; SHA-256 5c58aa70dce2bdcf93568ef9644f0cc1478da10f9b02f706d89f7a18ff85cbc3.
+
+On that same exact PR head, Documentation Governance Run 46175559048, M0 Run 46175558972, M1 Run 46175558925 and Affiliate Contract Validation Run 46175554261 also completed successfully. This confirms bilingual structure/local links, M0/M1 bounded models and contract/schema validation on that head. The result remains non-runtime and candidate-neutral.
