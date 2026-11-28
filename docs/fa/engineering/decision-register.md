@@ -1,6 +1,6 @@
 # دفتر ثبت تصمیم‌های Lottorito
 
-**شناسه سند:** LOT-ADR-REG-001 | **نسخه:** ۲.۵.۸ | **وضعیت:** دفتر ثبت نگهداری‌شده؛ هر رکورد اعتبار و اختیار مستقل خود را دارد
+**شناسه سند:** LOT-ADR-REG-001 | **نسخه:** ۲.۵.۹ | **وضعیت:** دفتر ثبت نگهداری‌شده؛ هر رکورد اعتبار و اختیار مستقل خود را دارد
 
 ## روش خواندن
 این دفتر مانع تبدیل گفتگو، مثال یا پیشنهاد به قانون محصول می‌شود. صرف درج یک مورد به‌معنای تصویب آن نیست؛ ستون وضعیت و مرجع اختیار تعیین‌کننده است. هر تغییر باید شواهد مرتبط داشته باشد.
@@ -153,3 +153,6 @@
 
 | LDR-087 | ثبت اجرای M0 روی Head آزموده‌شده PR #76 `fca277f` | TLC محدود و Artifact با Hash | Run `46172700581` روی synthetic merge `547989755f863440eb35bb42afee936c811b66dd`؛ Baseline: ۸۷ تولیدشده/۵۲ متمایز، عمق ۷؛ سه Mutant مورد انتظار کشف شدند. Artifact `15274721323`، SHA-256 `81f1e74a40622b1695952b663f0ccf1538411681e96efd2ed42f3a0bac94b7c2`. | فقط مدل محدود M0؛ Candidate/Runtime/Production یا مجوز Merge/Deploy را تأیید نمی‌کند. |
 | LDR-088 | ثبت اجرای M1 روی Head آزموده‌شده PR #76 `fca277f` | TLC محدود و Artifact با Hash | Run `46172700577` روی همان synthetic merge؛ دو Baseline: هرکدام ۲۵ تولیدشده/۱۹ متمایز، عمق ۸؛ سه Mutant مورد انتظار کشف شدند. Artifact `15274271466`، SHA-256 `52c8340c8a3d73b7597957589ddba619029b79e0728ec8ac6796881cdb64e751`. | فقط مدل محدود M1؛ DB/Jepsen/History/Liveness و Candidate refinement باز هستند. هیچ مجوز عملیاتی صادر نمی‌شود. |
+
+| LDR-089 | اصلاح Oracle ناامن در M1 | Oracle باید State سیستم را بسنجد، نه Helper Flag وابسته به Mutant | `NoRetryCommitWhileOriginalInflight` به رابطه مستقیم `~(originalStatus = "inflight" /\ retryStatus = "committed")` تغییر کرد و متغیر Ghost حذف شد؛ M1 Run `46172983952` روی Head `d20bded`، سه Mutant را با Invariantهای مورد انتظار کشف کرد. Artifact `15274741061`، SHA-256 `5fdf36c4378b09deccd8db776cf4ebd48eb8aed020e5ca8b56c9948dac75621f`. | اصلاح مدل محدود؛ Candidate/Runtime/DB behavior و Liveness اثبات نشده‌اند. |
+| LDR-090 | تثبیت اجرای M0 روی Head پس از اصلاح M1 | TLC و Artifact قابل‌بازتولید | M0 Run `46172983850` روی همان synthetic merge؛ Baseline: ۸۷ تولیدشده/۵۲ متمایز، عمق ۷؛ سه Mutant مورد انتظار. Artifact `15274098135`، SHA-256 `1a5d6a2d83eb71c7dec52355520a3159a8bbc42b58ce7ebc177eb712db0ec637`. | فقط M0 محدود؛ هیچ صلاحیت عملیاتی یا مجوز Merge/Deploy ایجاد نمی‌کند. |
