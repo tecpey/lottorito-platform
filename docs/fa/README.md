@@ -163,7 +163,7 @@ Validator ساختاری در [scripts/check_docs.py](../../scripts/check_docs.p
 
 - [LOT-EVAL-RDM-003A — کاتالوگ قواعد هنجاری و جدول‌های تصمیم](governance/enterprise-evaluation-decision-rule-catalogue-001.md) — تجزیه به‌دست نویسنده از LOT-EVAL-001 به قواعد اتمی، پنج جدول تصمیم، دفتر ابهام‌های حل‌نشده و ردیابی قاعده به آزمون؛ بازبینی Oracle مستقل و تعیین تکلیف مالک در انتظار.
 
-- [LOT-EVAL-RDM-004 — راستی‌آزمایی کامل جدول‌های تصمیم](governance/enterprise-evaluation-full-decision-table-verification-004.md) — آزمون اجرایی ردیف‌محور برای هر ۳۶ ردیف جدول تصمیم، شش آزمون Metamorphic و چهار جهش هدفمند مشخصات؛ راستی‌آزمایی CI روی Head دقیق الزامی است و ابهام‌های سیاستی/قواعد خارج از پوشش همچنان باز هستند.
+- [LOT-EVAL-RDM-004 — راستی‌آزمایی کامل جدول‌های تصمیم](governance/enterprise-evaluation-full-decision-table-verification-004.md) — آزمون اجرایی ردیف‌محور برای هر ۳۶ ردیف جدول تصمیم، ده آزمون Metamorphic و چهار جهش هدفمند مشخصات؛ CI دقیق شماره ۱۲۲۵ روی SHA کد `79751ad277968346fcd0044d74951af2a2c3301c` موفق شد؛ ابهام‌های سیاستی و قواعد خارج از پوشش همچنان باز هستند.
 
 
 ## پیش‌نویس تاریخی بازبینی کور LOT-EVAL-RDM-003B — منسوخ‌شده
