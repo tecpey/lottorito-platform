@@ -59,7 +59,11 @@ A23:
 | consumerReceipt | Deduplication/Receipt مستقل Consumer |
 | restoreIncarnation | شناسه یکتای چرخه Restore/Recovery |
 | tombstone | نشانگر پایدار هویت مصرف‌شده/منقضی‌شده طبق سیاست مصوب |
-| externalEffect | اثر مقصد خارجی؛ در مدل پایه غیرقابل‌اجرا و خارج از Transaction |
+| destinationIdentity | هویت پایدار اثر/عملیات در مقصد خارجی طبق قرارداد مقصد |
+| destinationAuthority | Epoch/Generation یا مرجع پذیرش مستقل مقصد، در صورت پشتیبانی |
+| destinationReceipt | Receipt مرجع مقصد برای Idempotency/Lookup |
+| destinationOutcome | نتیجه مشاهده‌شده Caller در مقصد: confirmed / rejected / unknown |
+| externalEffect | اثر مقصد خارجی؛ خارج از Transaction مبدأ و بدون تضمین اتمیک سرتاسری |
 | quarantineState | وضعیت مهار و عدم Claim توسط Worker عادی |
 
 فیلدهای Identity، Fingerprint، Retention، Epoch authority، مرجع ساعت، Cardinality فیزیکی و نتیجه‌های Wire تا تصویب ODها پارامتر باز می‌مانند؛ مدل نباید مقدار نمونه را به Policy تبدیل کند.
@@ -110,6 +114,7 @@ A23:
 | S-11 External Effect Boundary | Atomicity دیتابیس به‌عنوان Exactly-once برای مقصد خارجی معرفی نشود |
 | S-12 Financial Non-effect | Ingress و Worker فاقد مسیر مجاز به Mutation مالی باشند؛ Delta مالی صفر بماند |
 | S-13 Evidence Integrity | هر نتیجه به History، Config، Version، Clock، Actor و Artifact دارای Hash قابل انتساب باشد |
+| S-14 Destination Safety | هر اثر خارجی یا با Idempotency/Lookup/Fencing قابل اثبات در مقصد محافظت شود، یا صریحاً خارج از تضمین Exactly-once و در وضعیت UNKNOWN/Residual Risk باقی بماند؛ Token دیتابیس به‌تنهایی مقصد را Fence نمی‌کند |
 
 Safety باید برای تمام Prefixهای قابل‌دسترسی برقرار باشد؛ نه فقط در پایان اجرای خوش‌شانس. هر Counterexample معتبر، FAIL است؛ فقدان Counterexample در مدل محدود، اثبات کلی سامانه واقعی نیست.
 
@@ -119,7 +124,7 @@ Liveness فقط تحت فرض‌های صریح قابل طرح است. هیچ �
 
 خواص پیشرفت پیشنهادی، مشروط به فرض‌ها:
 
-- L-01: اگر Authority معتبر و پایدار، Persistence در دسترس، منابع زیر سقف مصوب و Scheduler منصف باشد، WorkItem واجد شرایط نهایتاً Claim یا به وضعیت صریح Quarantine/Blocked برسد.
+- L-01: اگر Authority معتبر و پایدار، Persistence در دسترس، منابع زیر سقف مصوب و Scheduler منصف باشد، WorkItem واجد شرایط نهایتاً Claim و به مرحله پردازش/نتیجه صریح برسد؛ Quarantine فقط با Predicate مشخص و Audit مجاز است و نباید مسیر فرار عمومی از پیشرفت باشد.
 - L-02: اگر Transaction اولیه پایان قطعی پیدا کند و مرجع Reconciliation در دسترس باشد، UNKNOWN نهایتاً به نتیجه قابل‌اثبات تبدیل شود؛ در غیر این صورت UNKNOWN حفظ و Escalate شود.
 - L-03: پس از بازیابی Broker/Consumer و رفع Backpressure، Outbox واجد شرایط نهایتاً دوباره تلاش شود؛ تحویل تکراری مجاز است، اثر دوم نه.
 - L-04: یک Tenant پرحجم نتواند بدون حد مصوب منابع، پیشرفت همه Tenantهای دیگر را نامحدود متوقف کند.
