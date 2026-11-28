@@ -269,7 +269,8 @@ ApplyClaim(w) ==
     /\ workerToken' = [workerToken EXCEPT ![w] = NextToken(claimToken)]
     /\ workerLifecycle' = [workerLifecycle EXCEPT ![w] = lifecycleVersion]
     /\ mutationCount' = mutationCount + 1
-    /\ claimEvents' = claimEvents \cup {ClaimEventRecord(w, "claim")}
+    /\ claimEvents' = claimEvents \cup
+         {ClaimEventRecord(w, IF workState = "ready" THEN "claim" ELSE "reclaim")}
     /\ requestState' = "idle"
     /\ requestWorker' = NoOwner
     /\ requestOp' = "none"
