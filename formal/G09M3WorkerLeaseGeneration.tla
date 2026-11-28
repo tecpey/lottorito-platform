@@ -228,6 +228,7 @@ ApplyClaim(w) ==
     /\ requestOp[w] = "claim"
     /\ ClaimEligible
     /\ claimGeneration < MaxGeneration
+    /\ mutationCount < 10
     /\ (Mutation = "wrong_tenant" \/ requestTenant[w] = TenantID)
     /\ (Mutation = "wrong_installation" \/ requestInstallation[w] = InstallationID)
     /\ claimGeneration' = claimGeneration + 1
