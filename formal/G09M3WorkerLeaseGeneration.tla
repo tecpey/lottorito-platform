@@ -194,6 +194,31 @@ ClaimEligible ==
     \/ workState = "ready"
     \/ (workState \in {"claimed", "processing"} /\ persistenceTime >= leaseExpiry)
 
+CompetingReclaim(w) ==
+    /\ w \in Workers
+    /\ \E old \in Workers \ {w} : requestState[old] = "waiting"
+    /\ lockOwner = NoOwner
+    /\ workState \in {"claimed", "processing"}
+    /\ persistenceTime >= leaseExpiry
+    /\ claimGeneration < MaxGeneration
+    /\ claimGeneration' = claimGeneration + 1
+    /\ generationHighWater' = claimGeneration + 1
+    /\ claimOwner' = PrincipalOf(w)
+    /\ claimToken' = claimGeneration + 1
+    /\ leaseExpiry' = persistenceTime + LeaseDuration
+    /\ workState' = "claimed"
+    /\ workerGeneration' = [workerGeneration EXCEPT ![w] = claimGeneration + 1]
+    /\ workerToken' = [workerToken EXCEPT ![w] = claimGeneration + 1]
+    /\ workerLifecycle' = [workerLifecycle EXCEPT ![w] = lifecycleVersion]
+    /\ mutationCount' = mutationCount + 1
+    /\ claimEvents' = claimEvents \cup {<<claimGeneration, claimGeneration + 1, w>>}
+    /\ lastGuardFailed' = FALSE
+    /\ UNCHANGED <<lifecycleVersion, persistenceTime, workerClock, requestState,
+       requestOp, requestGeneration, requestToken, requestLifecycle,
+       requestExpectedState, requestTenant, requestInstallation, requestStartTime,
+       requestPreLockValid, lockAcquireTime, lockOwner, blockerAvailable,
+       lastFailureMutationCount, acceptedHistory>>
+
 ApplyClaim(w) ==
     /\ w \in Workers
     /\ lockOwner = w
@@ -400,6 +425,7 @@ Next ==
     \/ \E w \in Workers : AcquireSerializationPoint(w)
     \/ \E w \in Workers : ReleaseSerializationPoint(w)
     \/ \E w \in Workers : ApplyClaim(w)
+    \/ \E w \in Workers : CompetingReclaim(w)
     \/ \E w \in Workers : RejectClaim(w)
     \/ \E w \in Workers : ApplyProtectedTransition(w)
     \/ \E w \in Workers : RejectProtectedTransition(w)
@@ -439,9 +465,9 @@ TypeOK ==
     /\ lockAcquireTime \in [Workers -> (0..MaxTime)]
     /\ lockOwner \in (Workers \cup {NoOwner, "external"})
     /\ blockerAvailable \in BOOLEAN
-    /\ mutationCount \in 0..20
+    /\ mutationCount \in 0..10
     /\ lastGuardFailed \in BOOLEAN
-    /\ lastFailureMutationCount \in 0..20
+    /\ lastFailureMutationCount \in 0..10
     /\ acceptedHistory \subseteq
        (Workers \X {"worker-service"} \X (0..MaxGeneration) \X (0..MaxGeneration) \X
         (0..MaxTime) \X (0..(MaxTime + LeaseDuration)) \X (0..1) \X
