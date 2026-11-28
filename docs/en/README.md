@@ -164,7 +164,7 @@ Read repository-root [AGENTS.md](../../AGENTS.md). Use a working branch and pull
 
 - [LOT-EVAL-RDM-003A — Normative Rule Catalogue & Decision Tables](governance/enterprise-evaluation-decision-rule-catalogue-001.md) — author-led decomposition of LOT-EVAL-001 into atomic rules, five decision tables, unresolved-ambiguity register and rule-to-test traceability; independent oracle review and owner disposition pending.
 
-- [LOT-EVAL-RDM-004 — Full Decision-Table Verification](governance/enterprise-evaluation-full-decision-table-verification-004.md) — executable row-level checks for all 36 decision-table rows, eleven metamorphic checks and four targeted specification mutations; exact-head CI #1225 passed on code SHA `2e0eadfcc2bc6200af1410197dcbeaa563e8fed0`; unresolved policy and non-covered atomic rules remain open.
+- [LOT-EVAL-RDM-004 — Full Decision-Table Verification](governance/enterprise-evaluation-full-decision-table-verification-004.md) — executable row-level checks for all 36 decision-table rows, eleven metamorphic checks and four targeted specification mutations; exact-head CI #1231 passed on code SHA `2e0eadfcc2bc6200af1410197dcbeaa563e8fed0`; unresolved policy and non-covered atomic rules remain open.
 
 
 ## Historical LOT-EVAL-RDM-003B blind-review draft — superseded
@@ -179,3 +179,5 @@ Read repository-root [AGENTS.md](../../AGENTS.md). Use a working branch and pull
 
 
 - DT05 schema hardening: row R5 directly rejects a missing residual pair; risk schema rejects duplicate/unknown dimensions and blank evidence fields; MT-11 added. Exact-head run #1231 succeeded on `2e0eadfcc2bc6200af1410197dcbeaa563e8fed0`.
+
+- [LOT-EVAL-RDM-005 — Bidirectional Traceability Audit](governance/enterprise-evaluation-bidirectional-traceability-audit-005.md) — static integrity checks for 18 rules, 21 AVTs, 10 specification mutations, 36 decision-table rows, 8 model guards, 11 metamorphic properties and 4 targeted mutations; exact-head CI #1245 passed 376/376 checks. This is structural traceability evidence, not semantic verification or independent assurance.
