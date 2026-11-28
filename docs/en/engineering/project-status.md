@@ -226,3 +226,10 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 - Baseline inspected: PR #76 head `736390f86ab425a8c273dcf254cc5974e9eb55ae`; Affiliate Contract Validation #235 and Documentation Governance #1062 both SUCCESS on that exact head. These runs do not apply to subsequent A15 documentation commits and do not prove persistence/runtime behavior.
 - The A12 package remains the independent-review procedure; no independent GitHub review sign-off was present in the inspected PR record. A15 is not an independent review. A11-F01..F08 remain OPEN; ADR-002 remains PROPOSED; all A4 gates remain NOT APPROVED; S01-S12 are NOT RUN.
 - A13-F02 installation-specific runtime allowlist and A13-F05 owner/candidate proof remain open. No persistence/queue/vendor selected; no runtime/harness execution, partner integration, financial operation, merge or deployment authorized. Latest-head CI must be checked after the A15 documentation commits.
+
+
+### G09-A15 exact-head CI verification — 2026-11-28
+- On exact head `5543d7ab24ec263fd0d71c40c157309a72d925c2`, Documentation Governance #1067 (run `46104632406`) and Affiliate Contract Validation #242 (run `46104632398`) both completed SUCCESS.
+- Documentation Governance validated bilingual structure and local links. Affiliate Contract Validation completed locked tool installation, OpenAPI validation, AsyncAPI validation and schema payload fixture validation.
+- A manual identifier-set comparison confirmed matching English/Persian inventories for PO-01..PO-07, OD-01..OD-12, S01..S12 and A11-F01..F08. This is structural ID parity, not a semantic translation audit.
+- These results apply only to the exact head above. Any later commit requires exact-head CI re-verification. No runtime/persistence proof was executed; A11-F01..F08 remain OPEN, ADR-002 remains PROPOSED, S01..S12 remain NOT RUN, and all A4 gates remain NOT APPROVED.
