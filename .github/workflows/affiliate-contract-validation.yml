@@ -31,6 +31,8 @@ on:
       - "scripts/validate_affiliate_contract_payloads.mjs"
       - "docs/en/engineering/affiliate-api-wire-contract.md"
       - "docs/fa/engineering/affiliate-api-wire-contract.md"
+      - "docs/en/engineering/affiliate-g09-a14-contract-validation-hardening.md"
+      - "docs/fa/engineering/affiliate-g09-a14-contract-validation-hardening.md"
       - "docs/en/engineering/project-status.md"
       - "docs/fa/engineering/project-status.md"
       - ".redocly.yaml"
