@@ -80,7 +80,7 @@ M0 فعلاً Liveness/Fairness را ادعا یا بررسی نمی‌کند. `
 | `G09M0MutantDuplicatePair.cfg` | جفت دوم برای همان Identity ساخته شود | AtMostOneReceipt / AtMostOneWorkItem |
 | `G09M0MutantEarlyAck.cfg` | Ack موفق پیش از Commit صادر شود | AcceptedAckSoundness |
 
-نتایج زیر در Run شماره ۶، روی Head دقیق `975bfe23062de06d8358f0fa9475d8b7e3ebde54` مشاهده شدند:
+نتایج زیر در Run شماره ۶، روی Head دقیق `2ec0350e476e6ec3b90ce241bfedbe53a50799af` مشاهده شدند:
 
 | پیکربندی | نتیجه واقعی TLC | جست‌وجوی ثبت‌شده |
 |---|---|---|
@@ -116,7 +116,7 @@ bash scripts/formal/run_g09_m0.sh
 
 Runner نسخه Java، Hash JAR، SHA-256 مدل و Configها، خروجی کامل هر Run و Metadata هر State Store را نگه می‌دارد. یک Worker، Seed ثابت و Metadata Directory مستقل برای هر پیکربندی استفاده می‌شود.
 
-**Evidence اجراشده:** [GitHub Actions — G09 M0 Formal Model Run #6](https://github.com/tecpey/lottorito-platform/actions/runs/46169921103). نتیجه Job: SUCCESS. Toolchain: Eclipse Temurin OpenJDK 17.0.21.1؛ TLA+ Tools v1.7.4 / TLC 2.19؛ SHA-256 JAR همان Hash Pin بالا. Artifact: `g09-a23-m0-tlc-46169921103-1`؛ Digest: `sha256:d39180206a5051dad3904decef6b839c7bb855e5c457536ce0d7d1813cceac65`.
+**Evidence اجراشده:** [GitHub Actions — G09 M0 Formal Model Run #11](https://github.com/tecpey/lottorito-platform/actions/runs/46170075939). نتیجه Job: SUCCESS. Toolchain: Eclipse Temurin OpenJDK 17.0.21.1؛ TLA+ Tools v1.7.4 / TLC 2.19؛ SHA-256 JAR همان Hash Pin بالا. Artifact: `g09-a23-m0-tlc-46170075939-1`؛ Digest: `sha256:c92d28c736ef367934a8823709ed9df11f81d9d131c4ce64b5df0420527e9e3b`.
 
 SHA-256 ماژول و پیکربندی‌های اجراشده:
 
