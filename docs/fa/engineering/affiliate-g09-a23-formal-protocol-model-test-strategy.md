@@ -1,7 +1,7 @@
 # G09-A23 — مدل رسمی پروتکل و راهبرد آزمون خصمانه
 
 **شناسه سند:** LOT-AFFILIATE-G09-A23-001  
-**نسخه:** ۰.۱.۱۶ | **وضعیت:** پیشنهادی؛ M0 و M1 با TLC در Bounds محدود بررسی شده‌اند؛ Runtime اجرا نشده و M2–M7 تألیف نشده‌اند  
+**نسخه:** ۰.۱.۱۷ | **وضعیت:** پیشنهادی؛ M0 و M1 با TLC در Bounds محدود بررسی شده‌اند؛ M2 تألیف شده و اجرای TLC در انتظار است؛ Runtime اجرا نشده و M3–M7 تألیف نشده‌اند  
 **تاریخ:** ۲۰۲۶-۱۱-۲۸  
 **مبنای بازبینی:** G09-A21، G09-A22، G09-A20، G09-A7، ADR-001 و ADR-002  
 **مرجعیت:** طراحی مشورتی؛ هیچ تصمیم مالک، Candidate، Gate یا مجوز اجرایی تصویب نمی‌شود.
@@ -166,7 +166,7 @@ Fairness قوی/ضعیف، Scheduler، نرخ ورود، ظرفیت، Retry Budg
 
 1. **M0 — Atomic Acceptance:** دو Caller، یک Identity، یک Receipt و یک WorkItem؛ Crash قبل/بعد نقطه Commit. ماژول و Configهای پایه/Mutant در `formal/G09M0AtomicAcceptance.tla` و فایل‌های همراه تألیف شده و TLC v1.7.4 در Run #11 با ۵۲ State متمایز Baseline و سه Counterexample منطبق با Mutantها اجرا شده است؛ این نتیجه فقط به Bounds M0 تعلق دارد.
 2. **M1 — UNKNOWN Arbitration:** Transaction اولیه In-flight، گم‌شدن پاسخ، Negative Read، Retry هم‌زمان و Commit/Abort دیرهنگام.
-3. **M2 — Authority Epoch:** دو Writer، دو Epoch، Partition، Promotion، بازگشت Primary قدیمی و Restore Epoch.
+3. **M2 — Authority Epoch:** دو Writer، دو Epoch، Partition، Promotion، بازگشت Primary قدیمی و Restore Epoch. ماژول TLA+ مستقل از Candidate، یک Baseline، پنج Negative Control، Runner/Workflow ثابت‌شده و سند همراه دوزبانه تألیف شده‌اند؛ اجرای TLC روی Head دقیق در انتظار است. [مدل M2](affiliate-g09-a23-m2-authority-epoch-model.md).
 4. **M3 — Worker Lease:** دو Worker/Generation، Claim و Reclaim، تمدید Lease، Heartbeat/Completion/Retry/Park، State/Token/LifecycleVersion mismatch، شکست Guard با صفر Mutation، توقف Lock، Timestamp قبل/بعد Lock، Clock Skew، انقضای Lease پیش از Reclaim و Resume Worker قدیمی.
 5. **M4 — Outbox/Consumer/Receiver:** انتشار تکراری، Delay، Reorder، Broker outage، Consumer crash، درخواست خارجی in-flight، پذیرش Receiver پس از انقضای Lease مبدأ، پاسخ گم‌شده، Retry، Idempotency/Fencing مقصد و انقضای Retention Dedup Receiver.
 6. **M5 — Restore/Lifecycle:** PITR/Backup قدیمی، Tombstone و مرز انقضا، افق Replay متناهی/نامتناهی، پیام دیررس Queue، Credential/Key/Schema Rotation، Recovery Incarnation، Failback، Clean-room Quarantine و Gate بازگشایی.
@@ -314,3 +314,6 @@ Mutantهای حداقلی اجباری: حذف Unique Constraint؛ Ack قبل ا
 **یادداشت بازبینی نسخه ۰.۱.۱۶:** در بازبینی خصمانه دور دوم M1 مشخص شد نسخه قبلی `NoRetryCommitWhileOriginalInflight` را از یک Helper Flag وابسته به مسیر Mutant ارزیابی می‌کرد، نه مستقیماً از State مدل. این ضعف Oracle اصلاح شد: Invariant اکنون رابطه `~(originalStatus = "inflight" /\ retryStatus = "committed")` را بررسی می‌کند و Helper Flag حذف شده است. M0 و M1 روی PR head `d20bdedcbd885a7de4945c0195ba7b738c5588df` و synthetic merge `6381c7ce70922edf1a865c73fb792c366d7dd11` (Base `f032065f47fe85de2aabf8d47565a57af6af3ae9`) مجدداً اجرا شدند. M0 Run [46172983850](https://github.com/tecpey/lottorito-platform/actions/runs/46172983850) PASS: ۸۷ تولیدشده/۵۲ متمایز، عمق ۷؛ سه Mutant مورد انتظار؛ Artifact `15274098135`، SHA-256 `1a5d6a2d83eb71c7dec52355520a3159a8bbc42b58ce7ebc177eb712db0ec637`. M1 Run [46172983952](https://github.com/tecpey/lottorito-platform/actions/runs/46172983952) PASS: دو Baseline هرکدام ۲۵ تولیدشده/۱۹ متمایز، عمق ۸؛ سه Mutant به‌ترتیب Invariantهای `NoRetryCommitWhileOriginalInflight`، `ReceiptCardinality` و `ConflictSoundness` را نقض کردند؛ Artifact `15274741061`، SHA-256 `5fdf36c4378b09deccd8db776cf4ebd48eb8aed020e5ca8b56c9948dac75621f`. Documentation Governance Run [46172983823](https://github.com/tecpey/lottorito-platform/actions/runs/46172983823) PASS؛ Affiliate Contract Validation Run `46172983921` هنگام ثبت In Progress است و PASS ادعا نمی‌شود. شواهد فقط به مدل‌های محدود مربوط‌اند؛ Candidate refinement، بازبینی مستقل کامل، DB integration، Jepsen/History Checker، Simulation و A20 انجام نشده‌اند. M2–M7 تألیف نشده‌اند.
 
 یادداشت سازگاری مستندات: پس از حذف Helper Flag از مدل اجرایی M1، ارجاع باقیمانده به آن از فهرست متغیرهای سند M1 نیز حذف شد تا سند فارسی/انگلیسی با ماژول TLA+ یکسان بماند. این اصلاح مستنداتی، معنای مدل و نتایج TLC را تغییر نمی‌دهد.
+
+
+**یادداشت بازبینی نسخه ۰.۱.۱۷ — تألیف M2:** State machine مربوط به M2، یک Baseline و پنج Negative Control، Runner ثابت‌شده TLC، GitHub Actions Workflow و سند همراه دوزبانه اضافه شدند. مدل تخصیص اختیار، Fencing در Mutation Sink، تأیید Fence و فعال‌سازی Writer را جدا می‌کند و مسیرهای Partition، بازگشت Primary قدیمی و Quarantine/Rollback در Restore را دربرمی‌گیرد. **هنوز هیچ اجرای TLC برای M2 ادعا نمی‌شود.** پیش از ثبت نتیجه، Baseline روی Head دقیق و هر پنج Counterexample مورد انتظار باید بررسی شوند. شواهد M0/M1 همچنان فقط به Model/Config/Toolchain/Bounds دقیق خودشان محدود است. M3–M7 تألیف نشده‌اند؛ هیچ Runtime/Candidate، تصمیم مالک، A4 Gate، Merge یا Deployment تصویب نشده است.
