@@ -59,7 +59,11 @@ Commission formulas, NGR, ledger posting, wallet, payment, payout, prize, player
 | consumerReceipt | consumer-side independent deduplication/receipt |
 | restoreIncarnation | unique identifier for a restore/recovery incarnation |
 | tombstone | durable marker for consumed/expired identity under approved policy |
-| externalEffect | destination-side effect; non-executable and outside the base transaction |
+| destinationIdentity | stable effect/operation identity at the external destination under its contract |
+| destinationAuthority | destination's independent epoch/generation or acceptance authority, if supported |
+| destinationReceipt | authoritative destination receipt for idempotency/lookup |
+| destinationOutcome | caller-observed destination result: confirmed / rejected / unknown |
+| externalEffect | destination-side effect; outside the source transaction and without end-to-end atomicity |
 | quarantineState | contained state not claimable by ordinary workers |
 
 Identity, fingerprint, retention, authority epoch, clock reference, physical cardinality and wire outcomes remain open parameters until ODs are approved. The model must not turn example values into policy.
@@ -88,6 +92,9 @@ The formal model must define at least the following transitions with preconditio
 | Restore | data and metadata are restored without silently rolling back authority/identity |
 | ReconcileRestore | data, epoch, tombstone, credential, schema and outbox divergence is exposed and resolved |
 | Quarantine/Repair | authorized, bounded, fully audited actor; ordinary workers cannot claim quarantined work |
+| SubmitExternalEffect | only after valid work/outbox; destination enforces its own identity/idempotency/fencing contract |
+| ReconcileExternalEffect | resolve destination UNKNOWN using authoritative destination lookup; do not infer absence from cache/timeout |
+| RejectStaleDestinationActor | a destination that supports fencing rejects old epoch/generation at effect time; otherwise record explicit residual risk and limited guarantee |
 
 **Linearization rule:** every protected transition must have a defined linearization point. Checking lease/epoch before waiting for a lock is insufficient; validity must be re-established at the serialized mutation point. A23 does not prescribe one implementation mechanism as a universal answer.
 
@@ -110,6 +117,7 @@ Each property must have a stable ID, related state/transitions, independent orac
 | S-11 External Effect Boundary | database atomicity is never represented as end-to-end exactly-once for an external destination |
 | S-12 Financial Non-effect | ingress and worker lack an authorized path to financial mutation; financial delta remains zero |
 | S-13 Evidence Integrity | every result is attributable to history, config, version, clock, actor and hashed artifact |
+| S-14 Destination Safety | every external effect is protected by provable destination-side idempotency/lookup/fencing, or explicitly remains outside any exactly-once guarantee as UNKNOWN/residual risk; a database token alone does not fence a destination |
 
 Safety must hold for every reachable prefix, not merely at the end of a lucky run. A valid counterexample is FAIL; absence of a counterexample in a bounded model is not proof of the real system.
 
@@ -119,7 +127,7 @@ Liveness is conditional on explicit assumptions. No claim that work is “always
 
 Proposed progress properties, under stated assumptions:
 
-- L-01: with valid/stable authority, available persistence, resources below approved limits and a fair scheduler, eligible WorkItem eventually becomes claimed or reaches an explicit quarantine/blocked state.
+- L-01: with valid/stable authority, available persistence, resources below approved limits and a fair scheduler, eligible WorkItem eventually becomes claimed and reaches processing/a declared outcome; quarantine is allowed only under an explicit predicate and audit, not as a general escape from progress.
 - L-02: when the original transaction terminates definitively and authoritative reconciliation is available, UNKNOWN eventually becomes provable; otherwise UNKNOWN is preserved and escalated.
 - L-03: after broker/consumer recovery and backpressure relief, eligible outbox work is eventually retried; duplicate delivery is allowed, a second effect is not.
 - L-04: one high-volume tenant cannot indefinitely prevent all other tenants from progressing beyond approved limits.
