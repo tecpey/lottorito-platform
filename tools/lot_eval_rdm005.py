@@ -212,7 +212,7 @@ def run() -> dict:
           "heading parser: nested section failed", failures)
     fa_digits = str.maketrans("۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩", "01234567890123456789")
     fa_section = "۱۷.۱۰.۳".translate(fa_digits)
-    check(heading_exists("### ۱۷.۱۰.۳ عنوان", fa_section),
+    check(heading_exists("### ۱۷.۱۰.۳ عنوان".translate(fa_digits), fa_section),
           "heading parser: Persian numeral section failed", failures)
     check(ids("LOT-EVAL-AVT-001 AVT-01", r"\bAVT-\d{2}\b") == {"AVT-01"},
           "identifier parser: AVT-001 prefix false positive", failures)
