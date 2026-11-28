@@ -1,6 +1,6 @@
 # Verified Project Status and Continuation Point
 
-**Document ID:** LOT-OPS-001 | **Version:** 2.0.10 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-28
+**Document ID:** LOT-OPS-001 | **Version:** 2.0.11 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-28
 
 ## Verified repository state
 - Repository: tecpey/lottorito-platform; default branch main; public visibility by owner decision.
@@ -287,4 +287,4 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 
 
 
-- Latest PR #76 snapshot with all four workflows passing: head `f88769965b5a259444e84a99373e7bd80b95f1ea`; synthetic merge `a86a80bf03a8bd309fa6927343d7b1a42a53da71`; base `f032065f47fe85de2aabf8d47565a57af6af3ae9`. M0 Run `46173159826` PASS: 87 generated / 52 distinct states, depth 7; artifact `15273919206` / `4c69f418349f57a866ca1f89ed34a7cb88c4d27fde4831a0d4c91884ec0497fc`. M1 Run `46173159827` PASS: both baselines 25 generated / 19 distinct states, depth 8; state-based oracle; all three expected mutants detected; artifact `15274292069` / `db8c119daa1ce3998e3314f701955c4f2311046437589070360d8f52119483b8`. Documentation Governance `46173159838` and Affiliate Contract Validation `46173159862` both PASS. TLC executed on the synthetic merge; evidence is bounded to the models. Candidate/runtime/DB integration/Jepsen/simulation/A20 have not run; M2–M7 are not authored. PR remains open/unmerged; no merge/deploy.
+- Recorded PR #76 snapshot with all four workflows passing: head `f88769965b5a259444e84a99373e7bd80b95f1ea`; synthetic merge `a86a80bf03a8bd309fa6927343d7b1a42a53da71`; base `f032065f47fe85de2aabf8d47565a57af6af3ae9`. M0 Run `46173159826` PASS: 87 generated / 52 distinct states, depth 7; artifact `15273919206` / `4c69f418349f57a866ca1f89ed34a7cb88c4d27fde4831a0d4c91884ec0497fc`. M1 Run `46173159827` PASS: both baselines 25 generated / 19 distinct states, depth 8; state-based oracle; all three expected mutants detected; artifact `15274292069` / `db8c119daa1ce3998e3314f701955c4f2311046437589070360d8f52119483b8`. Documentation Governance `46173159838` and Affiliate Contract Validation `46173159862` both PASS. TLC executed on the synthetic merge; evidence is bounded to the models. Candidate/runtime/DB integration/Jepsen/simulation/A20 have not run; M2–M7 are not authored. PR remains open/unmerged; no merge/deploy.
