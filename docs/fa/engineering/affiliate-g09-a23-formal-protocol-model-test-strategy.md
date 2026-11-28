@@ -1,7 +1,7 @@
 # G09-A23 — مدل رسمی پروتکل و راهبرد آزمون خصمانه
 
 **شناسه سند:** LOT-AFFILIATE-G09-A23-001  
-**نسخه:** ۰.۱.۵ | **وضعیت:** پیشنهادی؛ M0 با TLC در Bounds محدود بررسی شده؛ Runtime و مدل‌های M1–M7 اجرا/تألیف نشده‌اند  
+**نسخه:** ۰.۱.۶ | **وضعیت:** پیشنهادی؛ M0 با TLC در Bounds محدود بررسی شده؛ Runtime و مدل‌های M1–M7 اجرا/تألیف نشده‌اند  
 **تاریخ:** ۲۰۲۶-۱۱-۲۸  
 **مبنای بازبینی:** G09-A21، G09-A22، G09-A20، G09-A7، ADR-001 و ADR-002  
 **مرجعیت:** طراحی مشورتی؛ هیچ تصمیم مالک، Candidate، Gate یا مجوز اجرایی تصویب نمی‌شود.
@@ -306,6 +306,6 @@ Mutantهای حداقلی اجباری: حذف Unique Constraint؛ Ack قبل ا
 
 **یادداشت بازبینی نسخه ۰.۱.۴:** نخستین ماژول TLA+ برای M0 و یک پیکربندی Baseline به‌همراه سه Negative Control تألیف شد؛ مستند دوزبانه M0 نیز اضافه شد.
 
-**یادداشت بازبینی نسخه ۰.۱.۵:** TLC v1.7.4 / TLC 2.19 با Java 17.0.21.1 روی Head `2ec0350e476e6ec3b90ce241bfedbe53a50799af` اجرا شد. Baseline: ۸۷ State تولیدشده، ۵۲ Distinct، صفر در Queue، عمق ۷، بدون نقض. سه Mutant به‌ترتیب `PairAtomicity`، `AtMostOneReceipt` و `AcceptedAckSoundness` را نقض کردند. SHA-256 فایل‌ها، لاگ‌ها و Artifact در سند M0 ثبت شده‌اند. این مدل محدود هنوز بازبینی مستقل نشده و هیچ Candidate/Runtime را پوشش نمی‌دهد. M1–M7، History Checker و Simulation همچنان شروع‌نشده‌اند.
+**یادداشت بازبینی نسخه ۰.۱.۶:** M0 مجدداً در GitHub Actions Run `46170218651`، منتسب به PR head `c9d2e2b7e3d80bf53a64e928df647bcd1cb20ebc`، اجرا شد. Runner رویداد pull_request روی synthetic merge commit `9a9aa076de9700717e4d41d14766d8414fdd2b5b` کار کرد. TLC v2.19 / Tools v1.7.4، Java Temurin 17.0.21.1؛ Baseline: ۸۷ تولیدشده، ۵۲ متمایز، صفر در Queue، عمق ۷، بدون نقض. سه Mutant به‌ترتیب `PairAtomicity`، `AtMostOneReceipt` و `AcceptedAckSoundness` را نقض کردند. Artifact ID `15273631651`، SHA-256 آرشیو `0ae142aac63ca8bc9e9cdd1e802b98bdd8abf8e829045e3d99879ba92bd60d4d`. این مدل محدود هنوز بازبینی مستقل نشده و هیچ Candidate/Runtime را پوشش نمی‌دهد. M1–M7، History Checker و Simulation همچنان شروع‌نشده‌اند.
 
 **نتیجه:** A23 مدل‌سازی و آزمون را از فهرست سناریو به روش مهندسی قابل‌ردیابی ارتقا می‌دهد؛ اما هیچ شواهدی از اجرای واقعی یا قبولی سامانه ادعا نمی‌کند.
