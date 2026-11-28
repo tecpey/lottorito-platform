@@ -254,6 +254,9 @@ LOT-EVAL-001 سند مادر مشترک است. الزامات تخصصی مرت
 - **OWASP SAMM** — رویه‌های قابل‌اندازه‌گیری تضمین نرم‌افزار در Governance، Design، Implementation، Verification و Operations: https://owaspsamm.org/model/
 - **FinOps Framework** — تخصیص هزینه/مصرف، پیش‌بینی، اقتصاد واحد، مجوز و بهینه‌سازی تصمیم‌های Cloud: https://www.finops.org/framework/capabilities/
 - **NIST CSF 2.0** — پیامدهای امنیت سایبری سازمانی و حاکمیت: https://www.nist.gov/cyberframework
+- **NIST SP 800-30 Rev.1** — مفاهیم ارزیابی ریسک، تهدید/آسیب‌پذیری، احتمال، اثر و پاسخ: https://csrc.nist.gov/pubs/sp/800/30/r1/final
+- **ISO/IEC 42001:2023** — الزامات سیستم مدیریت هوش مصنوعی: https://www.iso.org/standard/42001
+- **NIST AI Risk Management Framework** — حاکمیت ریسک AI و رویه‌های هوش مصنوعی قابل‌اعتماد؛ وضعیت نسخه جاری بررسی شود: https://www.nist.gov/itl/ai-risk-management-framework
 
 ## ۱۷. الحاقیه سخت‌سازی خصمانه — شفاف‌سازی‌های الزام‌آور
 
