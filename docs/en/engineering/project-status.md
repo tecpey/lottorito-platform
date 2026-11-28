@@ -1,6 +1,6 @@
 # Verified Project Status and Continuation Point
 
-**Document ID:** LOT-OPS-001 | **Version:** 2.0.15 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-28
+**Document ID:** LOT-OPS-001 | **Version:** 2.0.16 | **Status:** Maintained verified baseline | **Reviewed:** 2026-11-28
 
 ## Verified repository state
 - Repository: tecpey/lottorito-platform; default branch main; public visibility by owner decision.
@@ -320,3 +320,9 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 ### M3 state-space refinement
 - The M3 module now uses one scalar pending-request context plus a dedicated RequestLockCoherence invariant. Two worker processes remain distinct for local claim-generation/token/clock state; CompetingReclaim models a new generation winning while the old request waits.
 - The baseline and eleven negative controls are still awaiting a successful exact-head TLC run. Earlier parse/config failures and long-running attempts are not verification evidence.
+
+
+### M3 adversarial model review — validation pending
+- A review found that the previous competing `AuthorizedStartProcessing` action changed WorkItem state outside the accepted-mutation history. It has been replaced by a current-claimant-authorized competing CLAIMED→PROCESSING action recorded in the same cumulative oracle.
+- Accepted protected mutations now accumulate in history rather than overwriting the previous event. Completion clears active owner/token/lease while preserving generation; the SingleClaimOwner invariant checks READY and terminal states have no active lease.
+- This is a model correctness refinement, not a runtime policy approval. Exact-head TLC baseline and all eleven mutant counterexamples remain pending. M3 remains draft.
