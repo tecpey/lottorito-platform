@@ -165,10 +165,10 @@ Read repository-root [AGENTS.md](../../AGENTS.md). Use a working branch and pull
 - [LOT-EVAL-RDM-003A — Normative Rule Catalogue & Decision Tables](governance/enterprise-evaluation-decision-rule-catalogue-001.md) — author-led decomposition of LOT-EVAL-001 into atomic rules, five decision tables, unresolved-ambiguity register and rule-to-test traceability; independent oracle review and owner disposition pending.
 
 
-## LOT-EVAL-RDM-003B — blind independent oracle review
+## Historical LOT-EVAL-RDM-003B blind-review draft — superseded
 
-- [LOT-EVAL-RDM-003B — Blind Independent Oracle Review Packet](governance/enterprise-evaluation-blind-oracle-review-003b.md) — reviewer-facing blind protocol, frozen source/blob manifest, 18 atomic rule IDs, 21 input-only adversarial cases and 35 decision-table input rows; no author-derived expected outputs disclosed. Status: PENDING_EXTERNAL_REVIEW.
-- [LOT-EVAL-RDM-003B — Independent Oracle Worksheet](governance/enterprise-evaluation-blind-oracle-worksheet-003b.md) — blank reviewer declaration, per-case oracle record, 74-entry coverage register and freeze/reconciliation record. Do not expose RDM-003A or RDM-001 outputs until the independent worksheet is frozen.
+- [Historical LOT-EVAL-RDM-003B — Blind Review Packet](governance/enterprise-evaluation-blind-oracle-review-003b.md) — superseded draft only; no blind review was performed and the 35-row input package was incomplete. Do not use as an active review gate.
+- [Historical LOT-EVAL-RDM-003B Worksheet](governance/enterprise-evaluation-blind-oracle-worksheet-003b.md) — superseded blank template; its former 74-entry count is historical and must not be represented as 74 independent tests.
 
 
 ### RDM-003B review correction
