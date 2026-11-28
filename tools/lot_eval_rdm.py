@@ -259,7 +259,7 @@ def _(m):
 def _(m):
     r = score_candidates(original_weights={"C1": 40, "C2": 30, "C3": 30},
                          excluded={"C3"}, approved_before_scoring=False,
-                         mandatory_gates={}, candidates={}, mutant=m)
+                         mandatory_gates={}, candidates={"Alpha": {"C1": 1, "C2": 1}, "Beta": {"C1": 3, "C2": 3}}, mutant=m)
     return r["state"] == "BLOCKED"
 
 
