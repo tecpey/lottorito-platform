@@ -1,7 +1,7 @@
 # G09-A23 — مدل رسمی پروتکل و راهبرد آزمون خصمانه
 
 **شناسه سند:** LOT-AFFILIATE-G09-A23-001  
-**نسخه:** ۰.۱.۸ | **وضعیت:** پیشنهادی؛ M0 و M1 با TLC در Bounds محدود بررسی شده‌اند؛ Runtime اجرا نشده و M2–M7 تألیف نشده‌اند  
+**نسخه:** ۰.۱.۹ | **وضعیت:** پیشنهادی؛ M0 و M1 با TLC در Bounds محدود بررسی شده‌اند؛ Runtime اجرا نشده و M2–M7 تألیف نشده‌اند  
 **تاریخ:** ۲۰۲۶-۱۱-۲۸  
 **مبنای بازبینی:** G09-A21، G09-A22، G09-A20، G09-A7، ADR-001 و ADR-002  
 **مرجعیت:** طراحی مشورتی؛ هیچ تصمیم مالک، Candidate، Gate یا مجوز اجرایی تصویب نمی‌شود.
@@ -311,4 +311,4 @@ Mutantهای حداقلی اجباری: حذف Unique Constraint؛ Ack قبل ا
 **نتیجه:** A23 مدل‌سازی و آزمون را از فهرست سناریو به روش مهندسی قابل‌ردیابی ارتقا می‌دهد؛ اما هیچ شواهدی از اجرای واقعی یا قبولی سامانه ادعا نمی‌کند.
 
 
-**یادداشت بازبینی نسخه ۰.۱.۸:** M0 و M1 روی PR head `10d143bfb8eaff1892a74e3277f4dcac1f024337` و synthetic merge commit `a7a670bd6453a2c86fd7733c4aeae3f8aa7b4777` در دو Run مستقل اجرا شدند. M0 Run `46171482274`: ۵۲ State متمایز در Baseline، سه Mutant با نقض‌های مورد انتظار؛ Artifact ID `15273523034`، SHA-256 `5cd254c2bd9b7121af93c0b7384d9927f054031d2acbd7c6eef1e41670eb72d9`. M1 Run `46171482180`: هر دو Baseline (Fingerprint یکسان/متفاوت) ۱۹ State متمایز، ۲۵ تولیدشده، عمق ۸؛ سه Mutant به‌ترتیب `NoRetryCommitWhileOriginalInflight`، `ReceiptCardinality` و `ConflictSoundness` را نقض کردند؛ Artifact ID `15273920318`، SHA-256 `eb38518421706ed88d03c8bf77339d1747036c5aff6811e6d666ef62b7b78ea9`. هر دو Workflow از Checkout v7.0.1 و Upload Artifact v7.0.2 با SHAهای immutable استفاده کردند؛ Persisted Credentials غیرفعال بود. این شواهد فقط مدل‌های محدودند؛ بازبینی مستقل، Refinement به Candidate، Jepsen/History Checker و Simulation انجام نشده‌اند. M2–M7 تألیف نشده‌اند.
+**یادداشت بازبینی نسخه ۰.۱.۹:** M0 و M1 روی PR head `19f8e995596bd4fca96b3bea0a211ddb916b1725` و synthetic merge commit `c50c70bcfb8e1ece85ab155b5c36d547099bac3e` اجرا شدند. M0 Run `46171747722`: ۵۲ State متمایز در Baseline، سه Mutant با نقض‌های مورد انتظار؛ Artifact ID `15273842484`، SHA-256 `7f346cde1cb5f48b9ae042b5cb23266a53561cccfc4960acd479e8ddf90cc832`. M1 Run `46171747725`: هر دو Baseline (Fingerprint یکسان/متفاوت) ۱۹ State متمایز، ۲۵ تولیدشده، عمق ۸؛ سه Mutant به‌ترتیب `NoRetryCommitWhileOriginalInflight`، `ReceiptCardinality` و `ConflictSoundness` را نقض کردند؛ Artifact ID `15274170741`، SHA-256 `1dd501ff70955f77ceb4ab9225a55285504ce6d0de905fc205f1fd67544f368e`. M1 Invariant مربوط به ReceiptShape برای تطبیق دقیق Owner و Fingerprint تقویت شد و همان نتایج را حفظ کرد. هر دو Workflow از Checkout v7.0.1 و Upload Artifact v7.0.2 با SHAهای immutable استفاده کردند؛ Persisted Credentials غیرفعال بود. Documentation Governance و Affiliate Contract Validation نیز روی همین Head موفق شدند. این شواهد فقط مدل‌های محدودند؛ بازبینی مستقل، Refinement به Candidate، Jepsen/History Checker و Simulation انجام نشده‌اند. M2–M7 تألیف نشده‌اند.
