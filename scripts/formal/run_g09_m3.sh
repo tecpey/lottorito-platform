@@ -18,7 +18,8 @@ sha256sum formal/G09M3WorkerLeaseGeneration.tla formal/G09M3*.cfg | tee "$OUT_DI
 
 run_case() {
   local name="$1" config="$2" expected="$3"
-  local log="$OUT_DIR/$name.log" meta="$OUT_DIR/meta-$name" status=0
+  local log="$OUT_DIR/$name.log" meta="${RUNNER_TEMP:-/tmp}/g09-m3-meta-$name" status=0
+  rm -rf "$meta"
   mkdir -p "$meta"
   printf '\n===== TLC case: %s (expected: %s) =====\n' "$name" "$expected"
   java -XX:+UseParallelGC -Xmx1g -cp "$TLA2TOOLS_JAR" \
@@ -37,6 +38,7 @@ run_case() {
       return 1
     fi
   fi
+  rm -rf "$meta"
 }
 
 run_case baseline formal/G09M3WorkerLeaseGeneration.cfg PASS
