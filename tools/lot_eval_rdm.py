@@ -103,6 +103,7 @@ def score_candidates(*, original_weights: dict[str, int],
                       excluded: set[str], approved_before_scoring: bool,
                       mandatory_gates: dict[str, str],
                       candidates: dict[str, dict[str, int]],
+                      mandatory_gate_criteria: set[str] | None = None,
                       mutant: str | None = None) -> dict:
     if mutant == "MUT-09":
         # Deliberate mutant: bypass prior approval and allow candidate-selective N/A.
@@ -112,6 +113,9 @@ def score_candidates(*, original_weights: dict[str, int],
                     "scores": {next(iter(candidates)): 100.0}}
     if not approved_before_scoring:
         return {"state": "BLOCKED", "reason": "N/A not approved before scoring"}
+    mandatory_gate_criteria = mandatory_gate_criteria or set()
+    if excluded.intersection(mandatory_gate_criteria):
+        return {"state": "INELIGIBLE", "reason": "N/A cannot remove a mandatory gate criterion"}
     if any(status != "PASS" for status in mandatory_gates.values()):
         return {"state": "INELIGIBLE", "reason": "mandatory gate failed or unknown"}
     if sum(original_weights.values()) != 100:
@@ -265,10 +269,14 @@ def _(m):
 
 @case("AVT-15")
 def _(m):
-    r = score_candidates(original_weights={"C1": 100}, excluded=set(),
-                         approved_before_scoring=True, mandatory_gates={"LEGAL": "N/A"},
-                         candidates={"A": {"C1": 3}}, mutant=m)
-    return r["state"] == "INELIGIBLE"
+    gate_marked_na = score_candidates(original_weights={"LEGAL": 100}, excluded=set(),
+                                       approved_before_scoring=True, mandatory_gates={"LEGAL": "N/A"},
+                                       candidates={}, mandatory_gate_criteria={"LEGAL"}, mutant=m)
+    gate_removed_by_scoring_na = score_candidates(original_weights={"LEGAL": 100}, excluded={"LEGAL"},
+                                                   approved_before_scoring=True, mandatory_gates={"LEGAL": "PASS"},
+                                                   candidates={}, mandatory_gate_criteria={"LEGAL"}, mutant=m)
+    return (gate_marked_na["state"] == "INELIGIBLE"
+            and gate_removed_by_scoring_na["state"] == "INELIGIBLE")
 
 
 @case("AVT-16")
