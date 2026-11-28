@@ -1,0 +1,100 @@
+# LOT-EVAL-001 — Author-led Adversarial Review & Remediation Record
+
+**Document ID:** LOT-EVAL-A18-001  
+**Version:** 0.1.0  
+**Date:** 2026-11-28  
+**Status:** REVIEW REPORT — author-led; independent review pending  
+**Review target:** LOT-EVAL-001 v0.1.0 and existing specialist profiles  
+**Remediated draft:** LOT-EVAL-001 v0.2.0 on PR #78 branch
+
+## 1. Executive determination
+
+LOT-EVAL-001 v0.1.0 was a useful governance skeleton but was not sufficiently deterministic for repeated enterprise decisions without further hardening. The author-led adversarial review identified material ambiguity in risk tiering, evidence strength, score semantics, TCO assumptions, supplier due diligence, AI/model evaluation, approval separation and specialist-document precedence.
+
+A bilingual normative addendum was added to LOT-EVAL-001, producing proposed version 0.2.0. This is document-design remediation only. It is not independent assurance, legal advice, procurement approval, security certification or proof that the standard works in operation.
+
+**Disposition:** LOT-EVAL-001 remains PROPOSED. Do not call it approved, operationalized or globally compliant. Do not select a candidate or use a scorecard for binding procurement until the exact decision unit, rubric, risk appetite and approvals are explicitly adopted.
+
+## 2. Review scope and evidence inspected
+
+Reviewed:
+- LOT-EVAL-001 in English and Persian.
+- LOT-PROVIDER-EVAL-001 in English and Persian.
+- LOT-TECH-ADR-001 in English and Persian.
+- LOT-QA-001.
+- LOT-SEC-TM-001.
+- Bilingual decision registers and project status.
+
+External framework cross-checks:
+- ISO 31000:2018; ISO/IEC 25010:2023.
+- NIST SP 800-161 Rev.1 Update 1; final NIST SP 1326 (2026); NIST SP 800-30 Rev.1.
+- NIST CSF 2.0; OWASP SAMM.
+- ISO/IEC 42001:2023; NIST AI RMF.
+- FinOps Framework unit economics.
+
+These frameworks inform the method; they do not certify Lottorito. Private legal opinions, supplier contracts, production systems, candidate products and external provider evidence were not reviewed.
+
+## 3. Findings and disposition
+
+| ID | Severity | Finding | Risk if unresolved | Draft remediation |
+|---|---|---|---|---|
+| A18-F01 | HIGH | T0–T3 examples were not sufficiently separated from per-risk likelihood/impact or inherent/residual risk. | Under-tiering and hidden residual risk. | Explicit tier triggers, highest-tier rule, separate inherent/residual fields, impact dimensions and risk-appetite ownership. |
+| A18-F02 | HIGH | Evidence class A combined official records, contracts, independent assurance and witnessed tests despite different authority and independence. | Contract or supplier-witnessed demo misread as independent operational proof. | Separate authority, independence, directness, scope, freshness and reproducibility. |
+| A18-F03 | CRITICAL | Score 0 conflated missing evidence with demonstrated unacceptable capability; score 5 and N/A normalization were underspecified. | Misleading rankings, false precision and hidden unknowns. | Separate evidence state from rating; NS is not zero; define normalization, N/A, material-unknown stop and uncertainty. |
+| A18-F04 | HIGH | Rubric lacked explicit controls for inter-rater bias, correlated criteria and post-hoc score manipulation. | Weight manipulation, double counting and unstable rankings. | Freeze rubric before scoring; independent scoring for material decisions; record disagreement; publish sensitivity. |
+| A18-F05 | HIGH | TCO did not require common horizon, currency/FX, discount assumptions, scenarios or build/buy/defer baseline. | Hidden lifecycle, labor, migration and exit costs. | Common assumptions, nominal/NPV separation, fully loaded costs, scenarios, unit economics and exclusions. |
+| A18-F06 | HIGH | Supplier due diligence did not make ownership/control/influence, provenance, supply-chain tiers, financial stability and subcontractor concentration a clear minimum. | Hidden ownership, compromised provenance and opaque fourth parties. | Risk-proportionate ICT supplier profile aligned to NIST SP 800-161 and final SP 1326. |
+| A18-F07 | HIGH | DATA/MODEL was in scope but lacked model-specific evaluation requirements. | Unassessed data rights, leakage, cohort performance, drift, hallucination and oversight. | Model/version, data rights, evaluation-set, cohort, robustness, oversight, drift, fallback and inference-cost requirements. |
+| A18-F08 | HIGH | Provider and technology documents had their own proposed scorecards without explicit parent precedence/reconciliation. | Conflicting score systems treated as active defaults. | Specialist weights remain proposals until owner adoption for a named decision unit and rubric reconciliation. |
+| A18-F09 | HIGH | Discovery, experiment, pilot, procurement, contract, production release and jurisdiction activation were not clearly independent approvals. | Sandbox approval or supplier licence misread as launch authority. | Separate recorded decisions and explicit budget/contract authority; supplier licence is not Lottorito authorization. |
+| A18-F10 | MEDIUM | ISO/IEC 25010:2023 was cited without explicit mapping of its nine quality characteristics to measurable scenarios. | Vague checklist or improvised quality score. | Map applicable characteristics to decision-specific scenarios and LOT-QA-001; no certification claim. |
+| A18-F11 | HIGH | Pilot examples did not consistently require hypotheses, baseline, success/failure thresholds and stop conditions before execution. | Demo-driven acceptance and post-hoc interpretation. | Pre-approved pilot protocol, measurable acceptance, negative/failure tests, synthetic/minimized data, rollback and evidence retention. |
+| A18-F12 | HIGH | Exit and monitoring needed stronger portability tests, dependency inventory and reassessment triggers. | Lock-in and unusable exit plan discovered after adoption. | Dependency inventory, portability/exit test, operational owner, SLO/incident model and suspension on failed gates or invalid evidence. |
+
+## 4. Remediation mapping
+
+LOT-EVAL-001 v0.2.0 Section 17 maps as follows:
+- 17.1 → A18-F01.
+- 17.2 → A18-F02.
+- 17.3 → A18-F03 and A18-F04.
+- 17.4 → A18-F05.
+- 17.5 → A18-F06.
+- 17.6 → A18-F07.
+- 17.7 → A18-F10 and A18-F11.
+- 17.8 → A18-F09 and A18-F12.
+- 17.9 → A18-F08.
+
+These are draft document remediations. They are not independently validated and do not prove that every ambiguity has been eliminated.
+
+## 5. Residual limitations
+
+1. T0–T3 remain governance triggers; the accountable owner must approve risk appetite, authority limits and exact decision-unit classification.
+2. Likelihood/impact scales are ordinal triage tools, not actuarial or monetary estimates.
+3. No universal weights or minimum composite score are approved.
+4. This standard gives no jurisdiction-specific legal conclusion and does not determine whether Lottorito, a tenant, operator or supplier may conduct regulated activity.
+5. It does not replace LOT-PROVIDER-EVAL-001, LOT-TECH-ADR-001, LOT-QA-001, LOT-SEC-TM-001 or domain contracts.
+6. No independent reviewer has signed off this report or v0.2.0.
+7. No candidate, supplier, technology, legal entity, jurisdiction, contract, runtime or operating model is selected or approved.
+
+## 6. Required next review
+
+An independent reviewer must receive the exact v0.2.0 files and this register; declare competence, independence and conflicts; inspect the specialist documents; challenge every finding and remediation; add counterexamples; and issue finding-by-finding dispositions. The reviewer must distinguish document reasoning from executed tests and must not make owner decisions on risk appetite, weights, legal scope or procurement.
+
+After independent review, reconcile findings, update both languages together, run exact-head Documentation Governance and obtain explicit owner approval before declaring LOT-EVAL-001 approved. No merge or deployment is authorized by this report.
+
+## 7. References
+
+- ISO 31000:2018: https://www.iso.org/standard/31000
+- ISO/IEC 25010:2023: https://www.iso.org/standard/78176.html
+- NIST SP 800-161 Rev.1 Update 1: https://csrc.nist.gov/pubs/sp/800/161/r1/upd1/final
+- NIST SP 1326 (final, 2026): https://csrc.nist.gov/pubs/sp/1326/final
+- NIST SP 800-30 Rev.1: https://csrc.nist.gov/pubs/sp/800/30/r1/final
+- NIST CSF 2.0: https://www.nist.gov/publications/nist-cybersecurity-framework-csf-20
+- OWASP SAMM: https://owaspsamm.org/model/
+- ISO/IEC 42001:2023: https://www.iso.org/standard/42001
+- NIST AI RMF: https://www.nist.gov/itl/ai-risk-management-framework
+- FinOps Unit Economics: https://www.finops.org/framework/capabilities/unit-economics/
+
+## 8. Change history
+
+- 0.1.0 (2026-11-28): first author-led adversarial review and remediation register for LOT-EVAL-001.
