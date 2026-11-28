@@ -62,38 +62,58 @@ The owner must define who can approve exceptions and residual risk. No author ma
 
 ## 4. Risk tiering and proportional depth
 
-Classify each decision before scoring. Use the highest applicable tier; do not average tiers.
+Classify the **decision unit and permission actually requested** before scoring. The decision unit is the exact combination of entity, product/capability, jurisdiction, environment, data/funds, users/parties, transaction path and lifecycle permission. Apply the highest tier triggered by any in-scope condition; do not average tiers. A future capability does not automatically determine the tier of a separately bounded experiment.
 
-| Tier | Indicative impact | Minimum evaluation depth |
+| Tier | Trigger for the decision unit | Minimum evaluation depth |
 |---|---|---|
-| T0 — Reversible / low impact | Easily replaced; no sensitive data, privileged access, customer funds or critical path | Lightweight fit, cost, license and security screen; documented owner |
-| T1 — Material | Customer-facing capability or business workflow; limited data or operational dependency | Full dossier, evidence register, architecture/security/privacy review as applicable, comparative analysis |
-| T2 — High | Sensitive/personal data, privileged access, critical service, cross-tenant boundary, external identity/payment, material vendor dependency | All T1 controls plus threat model, legal/privacy review, independent challenge, controlled negative testing, recovery/exit plan |
-| T3 — Critical / regulated / financial | Customer funds, ledger/commission posting, custody, payout, regulated gaming, market access, high-impact identity, safety or legally restricted activity | All T2 controls plus qualified jurisdiction-specific legal/compliance review, finance/control-owner sign-off, formal assurance, adversarial tests, explicit executive/owner approval and separate production authorization |
+| T0 — Reversible / low impact | Easily reversible; no sensitive data, privileged access, customer funds, critical path, cross-tenant exposure or material external dependency | Lightweight fit, cost, license and security screen; named owner and rollback/stop condition |
+| T1 — Material | Material customer-facing capability or business workflow, but no T2/T3 trigger | Full dossier and evidence register; proportionate architecture, security, privacy and operational review; documented alternatives |
+| T2 — High | Sensitive/personal data; privileged access; cross-tenant boundary; critical service dependency; material external identity/payment processing; or a failure with major but bounded impact | All T1 controls plus threat model, specialist legal/privacy/security challenge as applicable, controlled negative testing, recovery and exit plan |
+| T3 — Critical / regulated / financial | Capability or permission can enable custody/movement of customer funds, materially consequential ledger/commission posting, payout, regulated gaming/market access, legally restricted activity, safety-critical outcomes or severe/widespread harm | All T2 controls plus qualified jurisdiction-specific legal/compliance review, finance/control-owner sign-off, assurance proportionate to claim and risk, adversarial testing, explicit executive/owner approval and separate production/market/financial authorization |
 
-These tiers are governance triggers, not legal classifications. A product may be T3 in one jurisdiction or use and T1 in another. Where uncertainty could place a decision in a higher tier, use the higher tier until resolved.
+A bounded, isolated test using synthetic data, with no real users or funds, no production access, no external partner connection and no regulated-market activity, is tiered on that test's actual scope and impact; it is **not automatically T3** merely because a later operational capability may be T3. It may still be T1 or T2 due to its data, access, isolation boundary or failure impact. Assess later pilot, procurement, production, partner integration and financial/regulated activation as separate decision units and permissions. Passing a test never grants the next permission.
+
+These tiers are governance triggers, not legal classifications. The same capability may have different tiers across jurisdictions, deployments or permissions. Where scope, impact or legal status is uncertain and a higher tier is plausible, use the higher tier until resolved. Tier determines governance depth; likelihood and impact are separately assessed per risk under §17.10.4.
 
 ## 5. Evidence and claim discipline
 
 Every material requirement and claim must map to an evidence item. Record source, scope, provenance, retrieval date, version, validity, reviewer, integrity reference, limitations and contradictions.
 
-### 5.1 Evidence classes
+### 5.1 Evidence attributes and source types
 
-| Class | Definition | Use |
-|---|---|---|
-| A — authoritative / independently verified | Competent authority record, executed legal instrument, independently scoped assurance, or witnessed test with retained evidence | May substantiate only the specific claim and scope verified |
-| B — primary supplier/product evidence | Versioned API docs, architecture/security documents, signed proposal, test environment documentation | Establishes what is claimed and informs test design; not independent proof |
-| C — assertion / demonstration | Sales statement, presentation, marketing page, verbal claim, unrecorded demo | Discovery lead only |
-| D — secondary corroboration | Analyst/research report, public customer report, credible third-party review | Context; verify source, date, incentives and applicability |
-| U — unknown / unavailable / contradictory | Missing, expired, inaccessible or conflicting evidence | Remains unknown; cannot be treated as pass |
+Evidence is multidimensional; do not assign a single class that implies both authority and independence. For every material evidence item, record these attributes separately:
 
-Evidence quality is claim-specific. A licence record does not prove API behavior; a penetration-test summary does not prove legal eligibility; a contract does not prove resilience; a sandbox demo does not prove production readiness.
+- **Issuer/source and authority:** who issued it and whether that source is competent to establish this specific claim.
+- **Independence/objectivity:** relationship to the supplier, evaluator and decision owner; relevant conflicts and safeguards.
+- **Directness:** official record, executed instrument, independent assurance, directly witnessed test, supplier-controlled primary document, supplier assertion/demo or secondary source.
+- **Scope match:** exact legal entity, product/service, version, configuration, jurisdiction, environment, population, transaction path and period covered.
+- **Freshness/validity:** issue, retrieval, review and expiry dates; triggering changes that invalidate reliance.
+- **Reproducibility and integrity:** method, retained artifacts, provenance, hash/reference and ability to repeat or independently inspect.
+- **Limitations and contradiction:** exclusions, sampling, assumptions, unresolved conflicts and claim boundaries.
+
+Use source types to describe provenance, not as a universal quality ranking:
+
+- Official/public authority record.
+- Executed contractual instrument.
+- Independent assurance report.
+- Directly witnessed test with retained artifacts.
+- Supplier-controlled primary document.
+- Supplier assertion or demonstration.
+- Secondary commentary or research.
+- Unknown, unavailable, expired or contradictory evidence.
+
+A source may be authoritative but not independent (for example, an executed contract); independent but not authoritative for a legal claim (for example, a technical test); or both/neither. A licence record may establish a licence entry for the named entity and scope, not API behavior. A signed contract is authoritative for agreed terms, not independent proof of operational capability. A supplier-witnessed test is not automatically independent. One item may support one claim and be insufficient for another. Apply LOT-EVAL-001 §§8.3 and 17.10 for evidence sufficiency, capability rating, confidence and assurance semantics.
 
 ### 5.2 Confidence and freshness
 
-For each finding record confidence High / Medium / Low, separate from the 0–5 score. Confidence reflects source authority, independence, scope match, recency, reproducibility and completeness. A score without traceable evidence is invalid. A low-confidence high score must be treated as unresolved, not as a favorable result.
+Record confidence separately from evidence state and capability score. Use the following anchors:
+- **High:** current, complete and scope-matched evidence is reproducible and comes from a source authoritative or appropriately independent for the claim; no material contradiction remains.
+- **Medium:** evidence is credible and substantially scope-matched, but has a bounded limitation in independence, coverage, recency or reproducibility that does not invalidate the stated conclusion.
+- **Low:** material gaps, indirect or supplier-controlled evidence, stale evidence, unresolved contradiction or weak scope match remain. Low confidence cannot support a favorable definitive conclusion on a material claim.
 
-Set expiry/revalidation dates by evidence type. Recheck legal status, ownership, certifications, subprocessors, security posture, API versions, service terms and pricing at renewal and after material changes. Preserve superseded evidence and explain why it changed.
+State why the confidence label is justified, identify unresolved limitations and preserve evaluator disagreement. Do not average confidence labels or multiply confidence into capability scores. A low-confidence high rating is unresolved, not favorable evidence.
+
+Set expiry/revalidation dates by evidence type. Recheck legal status, ownership, certifications, subprocessors, security posture, API versions, service terms and pricing at renewal and after material changes. Preserve superseded evidence and explain why it changed. Evidence that expires or is invalidated by a material change returns to Unknown/Insufficient until revalidated.
 
 ## 6. Mandatory evaluation workflow
 
