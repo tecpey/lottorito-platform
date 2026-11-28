@@ -61,6 +61,8 @@ This evaluation covers the persistence and authority layer only. It does not cho
 - The application must treat connection loss during commit as UNKNOWN and reconcile by the stable identity, not by blindly replaying.
 - A successful database restore can still be unsafe if external authority epochs, idempotency tombstones, credential revocation or outbox publication state are restored inconsistently.
 
+**Critical PostgreSQL configuration nuance:** `synchronous_commit=on` does not by itself mean a remote standby acknowledged the commit. If `synchronous_standby_names` is empty, the commit waits only for local WAL flush. With synchronous standbys configured, `on` waits for remote durable WAL flush; `remote_write` waits only for the standby operating-system write; `remote_apply` waits for replay/application as well as durable storage. These modes have different latency and visibility semantics. The exact setting and synchronous-standby quorum must be pinned and verified for the selected transaction role. A label such as “sync replication enabled” is not sufficient evidence. [R12][R13]
+
 **Candidate is disqualified if**
 - promotion can occur without a demonstrated old-primary write fence;
 - the chosen RPO allows acknowledged receipt loss while the API returns success;
@@ -254,5 +256,7 @@ This dossier does not:
 - Google Cloud Spanner, Regional, dual-region and multi-region configurations: https://docs.cloud.google.com/spanner/docs/instance-configurations
 - Jepsen, published distributed-systems analyses: https://jepsen.io/analyses
 - AWS, Transactional Outbox Pattern: https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html
+- PostgreSQL, Write Ahead Log configuration (`synchronous_commit` modes): https://www.postgresql.org/docs/current/runtime-config-wal.html
+- PostgreSQL, Synchronous Replication and acknowledgement semantics: https://www.postgresql.org/docs/current/warm-standby.html
 
 **Final disposition:** G09-A18 is a comparative research dossier with a conditional next-step recommendation. All candidate families remain UNSELECTED / NOT QUALIFIED. ADR-002 remains PROPOSED; OD-01..OD-12 remain OPEN; A11 findings remain OPEN; A12 independent review remains NOT PERFORMED; R0 remains BLOCKED; R1 is research-only; R2 NOT STARTED; R3 NOT AUTHORIZED; A4 gates remain NOT APPROVED.
