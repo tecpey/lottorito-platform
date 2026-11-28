@@ -1,7 +1,7 @@
 # G09-A23 M3 — مدل Lease و نسل Claim در Worker
 
 **شناسه سند:** LOT-AFFILIATE-G09-A23-M3  
-**نسخه:** ۰.۱.۲  
+**نسخه:** ۰.۱.۳  
 **وضعیت:** پیش‌نویس مدل — اعتبارسنجی TLC در انتظار؛ بازبینی مستقل و Candidate refinement انجام نشده است  
 **سند مادر:** [راهبرد مدل رسمی و آزمون A23](affiliate-g09-a23-formal-protocol-model-test-strategy.md)  
 **پیشنهاد هنجاری:** [ADR-001 — پروتکل Claim، Lease و Fencing برای WorkItem](adr-001-workitem-claim-lease-fencing.md)  
@@ -21,7 +21,7 @@ M3 یک WorkItem پایدار و دو Process مربوط به Worker را جدا
 
 ۳. **Claim Token یک نماد انتزاعی و Opaque وابسته به Generation است.** TLC فقط Binding و Mismatch را مدل می‌کند، نه Entropy رمزنگاری، محرمانگی، انتقال Token یا سرقت Credential. Token به‌تنهایی Bearer Credential محسوب نمی‌شود.
 
-۴. **زمان Persistence از زمان محلی Worker جداست.** هر Worker یک Clock Offset غیرقطعی در دامنه {-1، ۰، +1} نسبت به زمان Persistence دارد. این کار مشاهده ساعت کند/تند را در یک دامنه محدود بررسی می‌کند، بدون آن‌که Bound کمی برای Drift ادعا شود. درخواست همچنین Snapshot اعتبار Lease پیش از Lock را ثبت می‌کند؛ در Baseline هیچ‌یک از این مشاهدات محلی مرجع تصمیم نیستند.
+۴. **زمان Persistence از زمان محلی Worker جداست.** هر Worker یک Clock Offset غیرقطعی در دامنه {-1، ۰، +1} نسبت به زمان Persistence دارد. این کار مشاهده ساعت کند/تند را در یک دامنه محدود بررسی می‌کند، بدون آن‌که Bound کمی برای Drift ادعا شود. درخواست همچنین Snapshot اعتبار Lease پیش از Lock را ثبت می‌کند؛ در Baseline هیچ‌یک از این مشاهدات محلی مرجع تصمیم نیستند. در هر لحظه حداکثر یک درخواست Worker برای این WorkItem در حالت Pending است؛ یک Transition اتمیک جداگانه برای Competing Reclaim نشان می‌دهد Claimant دیگر چگونه می‌تواند در زمان انتظار درخواست قدیمی برنده شود. این روش Interleaving بحرانی را حفظ می‌کند، بدون آن‌که Queue نامحدود درخواست‌ها مدل شود.
 
 ۵. **نقطه Serialization و Guard دو مرحله مجزا هستند.** درخواست، State/Generation/Token/Lifecycle مورد انتظار و مشاهده پیش از Lock را ثبت می‌کند؛ سپس منتظر می‌ماند، نقطه Serialization را می‌گیرد و Guard را در برابر وضعیت پایدار و زمان Persistence فعلی ارزیابی می‌کند. زمان می‌تواند هنگام انتظار یا حتی در زمان نگه‌داشتن نقطه Serialization جلو برود. Guard و Mutation محافظت‌شده یک گام اتمیک و نقطه Linearization هستند.
 
@@ -60,7 +60,7 @@ Mutation محافظت‌شده Worker فقط در نقطه Serialization/Lineari
 - WorkItem همچنان در State مجاز claimed یا processing باشد؛
 - زمان مرجع Persistence به‌طور سخت‌گیرانه پیش از leaseExpiry باشد.
 
-شکست Guard باید صفر ردیف محافظت‌شده را تغییر دهد. بررسی Clock محلی Worker، Timestamp پیش از Lock، پیام Queue، Lease Object محلی یا Thread مربوط به Heartbeat جای Guard پس از Serialization را نمی‌گیرد.
+شکست Guard باید صفر ردیف محافظت‌شده را تغییر دهد. شمارنده Mutation انتزاعی برای متناهی‌ماندن State Graph، بودجه ۱۰ Mutation موفق دارد؛ پس از مصرف آن، Actionهای Mutation بیشتر غیرفعال می‌شوند. این صرفاً Bound اکتشاف مدل است، نه محدودیت Throughput یا عملیات. بررسی Clock محلی Worker، Timestamp پیش از Lock، پیام Queue، Lease Object محلی یا Thread مربوط به Heartbeat جای Guard پس از Serialization را نمی‌گیرد.
 
 ## ۵. Invariantها و Oracleها
 
