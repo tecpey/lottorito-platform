@@ -336,10 +336,12 @@ def _(m):
 def _(m):
     gate_marked_na = score_candidates(original_weights={"LEGAL": 100}, excluded=set(),
                                        approved_before_scoring=True, mandatory_gates={"LEGAL": "N/A"},
-                                       candidates={}, mandatory_gate_criteria={"LEGAL"}, mutant=m)
+                                       candidates={"A": {"LEGAL": 3}},
+                                       mandatory_gate_criteria={"LEGAL"}, mutant=m)
     gate_removed_by_scoring_na = score_candidates(original_weights={"LEGAL": 100}, excluded={"LEGAL"},
                                                    approved_before_scoring=True, mandatory_gates={"LEGAL": "PASS"},
-                                                   candidates={}, mandatory_gate_criteria={"LEGAL"}, mutant=m)
+                                                   candidates={"A": {}},
+                                                   mandatory_gate_criteria={"LEGAL"}, mutant=m)
     return (gate_marked_na["state"] == "INELIGIBLE"
             and gate_removed_by_scoring_na["state"] == "INELIGIBLE")
 
