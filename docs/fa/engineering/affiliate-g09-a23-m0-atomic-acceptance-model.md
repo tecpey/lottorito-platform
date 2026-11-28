@@ -1,7 +1,7 @@
 # G09-A23-M0 — مدل رسمی پذیرش اتمیک
 
 **شناسه:** LOT-AFFILIATE-G09-A23-M0-001  
-**نسخه:** ۰.۱.۸  
+**نسخه:** ۰.۱.۹  
 **وضعیت:** مدل محدود اجراشده با TLC؛ بازبینی مستقل و Refinement به Candidate انجام نشده است  
 **مدل:** `formal/G09M0AtomicAcceptance.tla`  
 **پیکربندی مبنا:** `formal/G09M0AtomicAcceptance.cfg`  
@@ -148,11 +148,11 @@ M0 موارد زیر را اثبات نمی‌کند و عمداً به مدل�
 
 ## ۸. آخرین شواهد اجرای قابل‌بازتولید
 
-**آخرین PR head:** `fca277f4cae18735f9ce45f3e5b9b0a8c9909f8d`
-**Synthetic merge commit اجراشده:** `547989755f863440eb35bb42afee936c811b66dd` (Base: `f032065f47fe85de2aabf8d47565a57af6af3ae9`)
-**GitHub Actions Run:** [46172700581 — G09 M0 Formal Model](https://github.com/tecpey/lottorito-platform/actions/runs/46172700581) — PASS
-**Artifact:** [g09-a23-m0-tlc-46172700581-1](https://github.com/tecpey/lottorito-platform/actions/runs/46172700581/artifacts/15274721323)
-**Artifact ZIP SHA-256:** `81f1e74a40622b1695952b663f0ccf1538411681e96efd2ed42f3a0bac94b7c2`
+**آخرین PR head:** `d20bdedcbd885a7de4945c0195ba7b738c5588df`
+**Synthetic merge commit اجراشده:** `6381c7ce70922edf1a865c73fb792c366d7dd11` (Base: `f032065f47fe85de2aabf8d47565a57af6af3ae9`)
+**GitHub Actions Run:** [46172983850 — G09 M0 Formal Model](https://github.com/tecpey/lottorito-platform/actions/runs/46172983850) — PASS
+**Artifact:** [g09-a23-m0-tlc-46172983850-1](https://github.com/tecpey/lottorito-platform/actions/runs/46172983850/artifacts/15274098135)
+**Artifact ZIP SHA-256:** `1a5d6a2d83eb71c7dec52355520a3159a8bbc42b58ce7ebc177eb712db0ec637`
 
 Toolchain: TLA+ Tools v1.7.4 / TLC 2.19 (revision `5a47802`); JAR SHA-256 `936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88`; Eclipse Temurin 17.0.21.1؛ Ubuntu 24.04؛ BFS، یک Worker، Seed=1، fp=0، Heap برابر 1 GiB. Checkout v7.0.1 و Upload Artifact v7.0.2 با SHA ثابت؛ `persist-credentials: false`.
 
@@ -163,6 +163,6 @@ Toolchain: TLA+ Tools v1.7.4 / TLC 2.19 (revision `5a47802`); JAR SHA-256 `936a2
 | Duplicate-pair mutant | `AtMostOneReceipt` نقض شد | 34 / 24 | 5 |
 | Early-ack mutant | `AcceptedAckSoundness` نقض شد | 7 / 7 | 3 |
 
-Documentation Governance Run [46172700574](https://github.com/tecpey/lottorito-platform/actions/runs/46172700574) و Affiliate Contract Validation Run [46172700592](https://github.com/tecpey/lottorito-platform/actions/runs/46172700592) نیز روی همین Head موفق شدند.
+Documentation Governance Run [46172983823](https://github.com/tecpey/lottorito-platform/actions/runs/46172983823) و Affiliate Contract Validation Run [46172983921](https://github.com/tecpey/lottorito-platform/actions/runs/46172983921) نیز روی همین Head موفق شدند.
 
 **مرز تفسیر:** این نتیجه فقط به مدل، Configها، Constants، Bounds و Toolchain ثبت‌شده مربوط است. رفتار پیاده‌سازی، انتخاب/تأیید DB، Candidate refinement، تست تراکنش واقعی، Jepsen، Simulation، A20 یا Production را ثابت نمی‌کند. Run روی Synthetic merge انجام شده، نه روی Runtime/Candidate.
