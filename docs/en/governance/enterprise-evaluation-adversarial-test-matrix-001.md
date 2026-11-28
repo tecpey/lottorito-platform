@@ -1,10 +1,10 @@
 # LOT-EVAL-001 — Adversarial Acceptance Test Matrix
 
 **Document ID:** LOT-EVAL-AVT-001  
-**Version:** 0.1.0  
+**Version:** 0.2.0  
 **Date:** 2026-11-28  
 **Status:** PROPOSED — test design only; execution and owner disposition pending  
-**Parent:** LOT-EVAL-001 v0.3.0, §§4, 8.3 and 17.1–17.3  
+**Parent:** LOT-EVAL-001 v0.3.0, §§4, 8.3, 17.10.1–17.10.7; related lifecycle and governance provisions in §§17.1–17.3  
 **Scope:** REV-01, REV-03, REV-04, REV-12 and REV-14  
 **Authority:** This matrix defines falsifiable acceptance tests. It does not approve the parent standard, a risk appetite, a scorecard, a candidate, procurement, production use or residual-risk acceptance.
 
@@ -37,7 +37,7 @@ For every executed test retain: test ID and version; parent-standard commit SHA 
 
 | Test ID | Revision | Attack / property | Expected oracle | Failure condition |
 |---|---|---|---|---|
-| AVT-01 | REV-01 | Evidence absent | Capability = NS; evidence state = Unknown/Insufficient; no numeric score or definitive aggregate | Missing evidence becomes 0, 1, neutral, or silently disappears |
+| AVT-01 | REV-01 | Evidence absent | Affected criterion/subcriterion = NS; no numeric capability rating for that item. A definitive aggregate is blocked when the NS item is material; otherwise any provisional/aggregate treatment must follow §8.3 and disclose the NS, denominator and authority | Missing evidence becomes 0, 1, neutral, is silently omitted, or a material NS is hidden/treated as resolved |
 | AVT-02 | REV-01 | Supplier demo/assertion only | NS unless the pre-defined criterion expressly permits that evidence and its scope is sufficient; never 0 solely due to missing proof | Demo absence or assertion is treated as demonstrated failure or proven capability |
 | AVT-03 | REV-01 | Sufficient evidence proves capability absent/unacceptable | Rating 0; evidence state Sufficient; claim bounded to tested scope | 0 is rejected merely because it is negative, or assigned without sufficient evidence |
 | AVT-04 | REV-01 | Sufficient evidence proves threshold met | Rating at least 3 only if the pre-written criterion and threshold are met; scope stated | Score is inferred from document volume, vendor reputation or unrelated evidence |
@@ -64,12 +64,12 @@ For every executed test retain: test ID and version; parent-standard commit SHA 
 ### 3.1 REV-01 — Missing evidence is not a zero
 
 **Fixture A:** Criterion C-SEC-01 requires documented and tested tenant isolation for a named service/version/environment. No evidence is supplied.  
-**Expected:** evidence state Unknown or Insufficient; capability NS; no numeric score; a mandatory security gate remains Unknown/Blocked if applicable.
+**Expected:** evidence state Unknown or Insufficient; the affected criterion is NS and receives no numeric capability rating. If it is a mandatory gate, that gate remains Unknown/Blocked. If it is material, no definitive aggregate/rank may be published. If it is not material, do not automatically block every aggregate; apply §8.3, disclose the NS and any explicitly authorized provisional treatment, including denominator and limitations.
 
 **Fixture B:** A controlled, scope-matched negative test demonstrates that tenant B can read tenant A's protected record. Evidence is complete and reproducible.  
 **Expected:** evidence state Sufficient; capability rating 0 (or another anchored rating only if the rubric explicitly distinguishes the demonstrated severity); security gate Fail for the tested scope; do not soften the result because it is adverse.
 
-**Metamorphic property:** Removing evidence from Fixture B must change the state to NS, not preserve 0. Adding irrelevant evidence must not change the rating. Changing the entity/version/environment outside the evidence scope must invalidate the unsupported extrapolation.
+**Metamorphic property:** Removing evidence from Fixture B must change the affected item to NS, not preserve 0. Adding irrelevant evidence must not change its rating. Changing the entity/version/environment outside the evidence scope must invalidate unsupported extrapolation. Changing only the materiality classification must change aggregate publication control, not the underlying NS state.
 
 ### 3.2 REV-03 — Tier is a function of the exact decision unit and permission
 
@@ -131,7 +131,7 @@ This matrix is acceptable for **test-design completeness** only when:
 
 - every test has a stable ID, revision mapping, adversarial input, expected oracle and falsifiable failure condition;
 - both language versions are semantically equivalent and contain the same test IDs;
-- all normative outcomes trace to LOT-EVAL-001 v0.3.0 §§4, 8.3 and 17.1–17.3;
+- all normative outcomes trace to the exact controlling provisions: §§4 and 8.3; §§17.10.1–17.10.7 for the revisions and minimum acceptance tests; and relevant lifecycle/approval provisions in §§17.1–17.3;
 - no test assumes an unapproved risk appetite, score threshold, N/A policy exception or owner decision;
 - document review and execution status are recorded separately;
 - defects are recorded with severity, affected revision, evidence and retest requirement.
@@ -144,14 +144,37 @@ It is **not** acceptable evidence of standard adoption, successful operational u
 2. Perform bilingual semantic review and a cross-reference check against the exact parent sections.
 3. Have a second competent reviewer independently derive expected outcomes for AVT-01…AVT-21; record disagreements before adjudication.
 4. Execute the vectors against a controlled, synthetic evaluation dossier or a small deterministic test harness. Do not use production or real customer data.
-5. Run mutation tests: deliberately replace NS with 0; allow a post-hoc N/A; remove a T3 trigger; collapse L1×I5 and L5×I1; and promote partial evidence to a whole-criterion pass. The test process must detect every mutation.
+5. Perform specification-mutation analysis using the catalogue in §7. For each non-equivalent mutation, run the affected test vectors and record whether the oracle detects the altered decision rule. Do not report a conventional code mutation score unless an executable reference model and a defined, reproducible mutant population exist. Classify equivalent, unreachable and unresolved mutants separately.
 6. Record PASS/FAIL/BLOCKED with artifacts and exact versions. A failed test requires a defect and correction; a blocked test remains open.
 7. Re-run Documentation Governance on the exact PR head after all edits.
 8. Keep REV owner dispositions PENDING until the owner records a decision. Independent assurance, if required, is a separate commissioned activity.
 
 **Exit gate:** no unresolved Critical/High test failure; no unexplained blocked mandatory-gate test; bilingual semantic parity confirmed; owner and specialist approvals recorded where required. Passing these tests does not itself adopt LOT-EVAL-001.
 
-## 7. Research references
+## 7. Specification-mutation catalogue and execution protocol
+
+This is **specification-mutation analysis**, not a claim that a software mutation-testing tool has been run against an implementation. The object being challenged is the written decision rule and its test oracle. A future executable reference evaluator may support conventional mutation testing, but none is assumed here.
+
+| Mutant ID | Deliberate rule defect | Required detecting tests | Kill condition |
+|---|---|---|---|
+| MUT-01 | Convert missing/expired/out-of-scope evidence from NS to 0 | AVT-01, 05, 18–20 | At least one applicable fixture is incorrectly scored 0 and the suite flags the deviation |
+| MUT-02 | Treat NS as neutral, omit it silently, or hide it from the denominator | AVT-01, 05, 19 | The materiality-dependent aggregate rule or visible evidence state is violated |
+| MUT-03 | Remove the sufficient-evidence precondition for rating 0 | AVT-02, 03 | A missing assertion/demo is rated 0, or a proven failure is not distinguished from absence of evidence |
+| MUT-04 | Replace highest-trigger tiering with lowest-trigger selection or tier averaging | AVT-07–09 | Any in-scope T3 trigger fails to force T3 for that decision unit |
+| MUT-05 | Automatically classify every synthetic experiment as T3, or every synthetic experiment as T0 | AVT-06 | The test ignores actual scope, impact, access or an independent T1/T2 trigger |
+| MUT-06 | Remove the assessment horizon from likelihood | AVT-10 | Likelihood is compared or reused without an explicit horizon-specific rationale |
+| MUT-07 | Collapse risk profiles to L×I alone | AVT-11, 12 | Distinct raw pairs/scenarios are treated as interchangeable solely because products match |
+| MUT-08 | Credit a control as effective without evidence that it operates | AVT-13 | Residual risk is reduced solely on design/assertion without operating evidence and rationale |
+| MUT-09 | Permit post-score or candidate-selective N/A; conceal effective weights/denominator | AVT-14–17 | N/A changes only a preferred candidate, bypasses prior approval, hides weights or removes a mandatory gate |
+| MUT-10 | Allow partial compound evidence to pass the parent criterion or generalize beyond proven scope | AVT-18–21 | A parent passes without all required atoms, or a rating is extended beyond evidenced scope |
+
+**Protocol:** (1) Freeze the exact parent-standard and matrix commits. (2) Copy the decision rule into a controlled test fixture; never mutate the authoritative branch in place. (3) Apply one mutation at a time and record the exact before/after rule. (4) Execute all mapped tests against both original and mutated rule sets using identical synthetic inputs. (5) A mutant is *killed* only when a test produces an observable oracle mismatch. (6) If no test distinguishes the mutant, record it as *survived* and add/repair a test or explain why the mutant is equivalent. (7) A reviewer must adjudicate equivalence; do not silently discard survivors. (8) Retest after every oracle or rule correction.
+
+**Accounting:** report counts separately: generated; executed; killed; survived; equivalent (with rationale); unreachable/not applicable (with rationale); and unresolved. If a mutation score is later reported, state its formula and denominator explicitly and exclude only adjudicated equivalent mutants; do not use a single percentage as proof of overall test quality. For this governance standard, all non-equivalent mutations affecting mandatory gates or critical decision semantics must be killed before the corresponding acceptance tests can pass. No arbitrary universal percentage threshold is asserted.
+
+**Execution state:** all MUT-01…MUT-10 are designed only. No mutation has been applied or executed against an executable evaluator. A manual specification review is not an executed mutation test.
+
+## 8. Research references
 
 - NIST IR 8397, *Guidelines on Minimum Standards for Developer Verification of Software* (2021): https://csrc.nist.gov/pubs/ir/8397/final
 - NIST IR 8286A Rev. 1, *Identifying and Estimating Cybersecurity Risk for Enterprise Risk Management* (final, Dec 2025): https://csrc.nist.gov/pubs/ir/8286/a/r1/final
@@ -161,4 +184,5 @@ It is **not** acceptable evidence of standard adoption, successful operational u
 
 ## 8. Change history
 
+- 0.2.0 (2026-11-28): corrected REV-01 materiality/NS aggregate semantics; repaired parent-section traceability; added a ten-operator specification-mutation catalogue and explicit accounting/execution protocol. No tests or mutations executed.
 - 0.1.0 (2026-11-28): initial bilingual adversarial acceptance-test design for REV-01, REV-03, REV-04, REV-12 and REV-14. No tests executed.
