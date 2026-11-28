@@ -338,3 +338,11 @@ This record summarizes repository inspection, not an external audit. Re-fetch PR
 - RDM-001 was corrected for: explicit highest-plausible-tier input (not hard-coded T3); separate evidence state and capability rating; distinct AVT-17 ranking-sensitivity behavior; explicit late N/A state; and six model guard checks.
 - AVT-09, AVT-06, AVT-14 and AVT-17 matrix semantics and DT-04 non-overlap are being reconciled bilingually. Exact-head CI is required before any pass claim.
 - Historical CI results from the pre-correction harness do not apply to the corrected source. No independent assurance, owner acceptance, procurement, production, financial activity, merge or deployment is implied.
+
+
+### RDM-003B follow-up verification (latest exact head)
+
+- Full row-level review added AR-16…AR-18: DT-01 bounded-vs-unbounded tier ambiguity, DT-03 precedence, and DT-05 missing required risk-record fields. DT-05 now has seven rows; five decision tables contain 36 rows total.
+- Current review inventory is 18 rule propositions + 21 AVT scenarios + 36 table rows = 75 review obligations, not 75 independent tests.
+- RDM-001 now has 21 AVT checks and 8 separate model guards. All 8 guards include invalid trigger, empty candidate set, negative weight, empty compound atoms, inconsistent material-NS, incomplete provisional authorization, boolean capability rating and boolean risk anchor.
+- Exact-head CI #1202 (run ID 46123183828) passed on 2dd02e5fd4b06d46c995ee1e934053d15987c001: 67 bilingual Markdown pairs, 172 local links, 21/21 AVT, 8/8 guards, 10/10 hand-authored mutants killed, 210 AVT mutant/check evaluations, zero failures and zero survivors. Structural and registered-harness evidence only; no full matrix-property or independent-assurance claim.
