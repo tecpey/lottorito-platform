@@ -23,6 +23,7 @@ ASSUME
 
 TenantID == "tenant-A"
 InstallationID == "installation-A"
+PrincipalOf(w) == "worker-service"
 NoOwner == "none"
 MaxGeneration == 2
 MaxTime == 4
@@ -116,9 +117,8 @@ StartRequest(w, op) ==
     /\ requestLifecycle' = [requestLifecycle EXCEPT ![w] = workerLifecycle[w]]
     /\ requestExpectedState' = [requestExpectedState EXCEPT ![w] = workState]
     /\ requestTenant' = [requestTenant EXCEPT
-         ![w] = IF Mutation = "wrong_token" THEN TenantID
-                ELSE IF Mutation = "stale_state" /\ op \in ProtectedOps
-                     THEN TenantID ELSE TenantID]
+         ![w] = IF Mutation = "wrong_tenant" /\ op \in ProtectedOps
+                THEN "tenant-B" ELSE TenantID]
     /\ requestInstallation' = [requestInstallation EXCEPT ![w] = InstallationID]
     /\ requestStartTime' = [requestStartTime EXCEPT ![w] = persistenceTime]
     /\ requestPreLockValid' = [requestPreLockValid EXCEPT
@@ -199,7 +199,7 @@ ApplyClaim(w) ==
     /\ requestInstallation[w] = InstallationID
     /\ claimGeneration' = claimGeneration + 1
     /\ generationHighWater' = claimGeneration + 1
-    /\ claimOwner' = w
+    /\ claimOwner' = PrincipalOf(w)
     /\ claimToken' = claimGeneration + 1
     /\ leaseExpiry' = persistenceTime + LeaseDuration
     /\ workState' = "claimed"
@@ -288,14 +288,15 @@ OperatorQuarantine ==
        lastFailureMutationCount, acceptedHistory, claimEvents>>
 
 GuardOK(w) ==
-    /\ (Mutation = "stale_state" \/ claimOwner = w)
+    /\ (Mutation = "stale_state" \/ claimOwner = PrincipalOf(w))
     /\ (Mutation = "stale_state" \/ requestExpectedState[w] = workState)
     /\ (Mutation = "stale_state" \/ workState \in {"claimed", "processing"})
     /\ (Mutation = "stale_generation" \/ requestGeneration[w] = claimGeneration)
+    /\ (Mutation = "stale_generation" \/ requestToken[w] = claimToken)
     /\ (Mutation = "wrong_token" \/ requestToken[w] = claimToken)
     /\ (Mutation = "stale_lifecycle" \/ requestLifecycle[w] = lifecycleVersion)
     /\ (Mutation = "stale_state" \/ requestExpectedState[w] = workState)
-    /\ requestTenant[w] = TenantID
+    /\ (Mutation = "wrong_tenant" \/ requestTenant[w] = TenantID)
     /\ requestInstallation[w] = InstallationID
     /\ IF Mutation = "prelock_time"
           THEN requestPreLockValid[w]
@@ -394,7 +395,7 @@ TypeOK ==
     /\ workState \in WorkStates
     /\ claimGeneration \in 0..MaxGeneration
     /\ generationHighWater \in 0..MaxGeneration
-    /\ claimOwner \in (Workers \cup {NoOwner, "external"})
+    /\ claimOwner \in {NoOwner, "worker-service"}
     /\ claimToken \in 0..MaxGeneration
     /\ leaseExpiry \in 0..(MaxTime + LeaseDuration)
     /\ lifecycleVersion \in 0..1
@@ -431,7 +432,7 @@ TypeOK ==
 SingleClaimOwner ==
     /\ (workState = "ready" => claimOwner = NoOwner)
     /\ (workState = "quarantined" => claimOwner = NoOwner)
-    /\ (workState \in {"claimed", "processing"} => claimOwner \in Workers)
+    /\ (workState \in {"claimed", "processing"} => claimOwner = "worker-service")
 
 GenerationHighWaterNeverRegresses ==
     claimGeneration = generationHighWater
@@ -445,7 +446,7 @@ HeartbeatDoesNotAdvanceGeneration ==
 
 EveryAcceptedMutationWasAuthorized ==
     \A e \in acceptedHistory :
-        /\ e[1] = e[2]
+        /\ e[2] = "worker-service"
         /\ e[3] = e[8]
         /\ e[4] = e[9]
         /\ e[7] = e[10]
@@ -466,6 +467,6 @@ LeaseNeverRenewedAfterExpiry ==
 NewClaimHasCurrentOwnerAndToken ==
     /\ (claimGeneration = 0 => claimOwner = NoOwner)
     /\ (claimGeneration > 0 /\ workState \in {"claimed", "processing"}
-        => claimToken = claimGeneration)
+        => claimOwner = "worker-service" /\ claimToken = claimGeneration)
 
 =============================================================================
