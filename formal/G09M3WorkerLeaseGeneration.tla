@@ -565,6 +565,9 @@ ClaimTokenNeverReused ==
     \A e1, e2 \in claimEvents :
         e1[2] # e2[2] => e1[6] # e2[6]
 
+ClaimEventCountMatchesGeneration ==
+    Cardinality(claimEvents) = claimGeneration
+
 ClaimTokenIsLatest ==
     /\ (workState = "ready" /\ claimGeneration = 0 => claimToken = NoToken)
     /\ (workState \in {"claimed", "processing"} =>
