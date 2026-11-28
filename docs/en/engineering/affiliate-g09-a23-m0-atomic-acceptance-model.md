@@ -2,7 +2,7 @@
 
 **Document ID:** LOT-AFFILIATE-G09-A23-M0-001  
 **Version:** 0.1.0  
-**Status:** Initial proposed model; TLC execution and independent review not performed  
+**Status:** TLC-executed bounded model; independent review and candidate refinement not performed  
 **Model:** `formal/G09M0AtomicAcceptance.tla`  
 **Baseline configuration:** `formal/G09M0AtomicAcceptance.cfg`  
 **Normative basis:** ADR-002 §§2, 4, 5, 6 and 7; A22 §5; A23 §§3, 4, 5 and 7
@@ -80,9 +80,18 @@ Three mutant configurations deliberately enable an unsafe transition to test whe
 | `G09M0MutantDuplicatePair.cfg` | Create a second pair for the same identity | AtMostOneReceipt / AtMostOneWorkItem |
 | `G09M0MutantEarlyAck.cfg` | Emit success acknowledgement before commit | AcceptedAckSoundness |
 
-These are **design expectations**, not executed results. Until TLC is run, no actual counterexample or oracle-sensitivity result is recorded.
+The following results were observed in Run #6 on exact head `975bfe23062de06d8358f0fa9475d8b7e3ebde54`:
 
-## 6. Toolchain pin and reproducible execution
+| Configuration | Actual TLC result | Recorded exploration |
+|---|---|---|
+| Baseline | No invariant violation; state space exhausted | 87 generated, 52 distinct, zero queued, depth 7 |
+| Partial commit | `PairAtomicity` violated at depth 3 | 7 generated, 7 distinct; stopped after counterexample |
+| Duplicate pair | `AtMostOneReceipt` violated at depth 5 | 34 generated, 24 distinct; stopped after counterexample |
+| Early acknowledgement | `AcceptedAckSoundness` violated at depth 3 | 7 generated, 7 distinct; stopped after counterexample |
+
+All three negative controls triggered exactly the predicted oracle. Mutant counts are not complete state-space counts; TLC stopped after finding each counterexample.
+
+## 6. Toolchain pin and executed evidence
 
 The model's baseline toolchain is pinned to stable **TLA+ Tools v1.7.4 (TLC 2.19)**; Java 11 or newer is required. Version 1.8.0, published as a pre-release/rolling build at this review, is not adopted into the baseline. Expected JAR hash:
 
@@ -105,7 +114,21 @@ TLC_OUT_DIR=/tmp/g09-m0-results \
 bash scripts/formal/run_g09_m0.sh
 ```
 
-The runner records the Java version, JAR hash, complete output for each run and metadata for each state store. It uses one worker, a fixed seed and an isolated metadata directory per configuration. The baseline must complete with TLC's success output; each mutant must violate its predicted invariant. An unexpected exit code, different message, parser error or missing expected counterexample fails the gate.
+The runner records Java version, JAR hash, SHA-256 hashes for the model/configurations, complete output for each run and metadata for each state store. It uses one worker, a fixed seed and an isolated metadata directory per configuration.
+
+**Executed evidence:** [GitHub Actions — G09 M0 Formal Model Run #6](https://github.com/tecpey/lottorito-platform/actions/runs/46169921103). Job result: SUCCESS. Toolchain: Eclipse Temurin OpenJDK 17.0.21.1; TLA+ Tools v1.7.4 / TLC 2.19; JAR SHA-256 matches the pin above. Artifact: `g09-a23-m0-tlc-46169921103-1`; digest: `sha256:d39180206a5051dad3904decef6b839c7bb855e5c457536ce0d7d1813cceac65`.
+
+SHA-256 hashes of the executed module and configurations:
+
+| File | SHA-256 |
+|---|---|
+| `G09M0AtomicAcceptance.tla` | `4740bc9d76c10ec76bf0bca00b5f829963b99365fef0a600a0886a2fe9cf2e6f` |
+| `G09M0AtomicAcceptance.cfg` | `ad63aa16b0604b4c82d5f6c5e3435ccb5e6cd51a3fca994e303a3cd263132f7e` |
+| `G09M0MutantPartialCommit.cfg` | `3fab9ce1b8d3b1b1bcdad8690d28db2e9254171cc5b962526df7ba82fefc7767` |
+| `G09M0MutantDuplicatePair.cfg` | `7e24f26489c8e02c7798a298101d73efd71e49ca61ea383d5885aded91224f3a` |
+| `G09M0MutantEarlyAck.cfg` | `975ecfbf8e14541311ada32e812413a918c6f8d759bfa3c9024258e7b5e39938` |
+
+This result applies only to this module/config/toolchain/bounds; it does not generalize to an implementation, candidate, durability or production behavior.
 
 For every run, retain model/config hashes, complete TLC output, state/transition counts, elapsed time/resources, completion status and counterexamples. If a mutant is not detected, review the oracle or mutation; do not call it PASS.
 
@@ -126,12 +149,12 @@ In particular, M0 does not assume that observing no record proves the original t
 ## 8. Evidence status
 
 - TLA+ module and configurations are recorded;
-- TLC was not run in this step;
-- formal syntax/type checking has not yet been performed;
-- no state-space count or actual counterexample exists;
-- negative controls are design-only;
+- TLC ran: the baseline completed with 52 distinct states and all three negative controls produced their expected counterexamples;
+- parser/syntax and invariant checking occurred in the TLC run; no separate type-system tool was run;
+- mutant counterexamples are retained in the run log;
+- independent model review and candidate refinement have not yet been performed;
 - no candidate or runtime has been evaluated;
 - ADR-002 remains PROPOSED and A11-F01..F08 remain open;
 - A20-01..A20-28 remain NOT RUN.
 
-**Conclusion:** M0 defines an initial executable model for atomic acceptance. Until TLC execution and subsequent refinement against candidate behavior, no implementation-correctness or qualification claim is permitted.
+**Conclusion:** M0 was checked by TLC within its finite bounds and detected all three deliberate mutations with the predicted oracles. This is evidence for that bounded model only, not a general protocol proof or implementation qualification. Independent review and candidate refinement remain mandatory.
