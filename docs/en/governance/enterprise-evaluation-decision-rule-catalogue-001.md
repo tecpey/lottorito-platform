@@ -75,7 +75,7 @@ The method follows a requirements-to-verification chain:
 | DT01-R1 | Yes | – | – | – | Any | T3 |
 | DT01-R2 | No | Yes | – | – | Any | T2 |
 | DT01-R3 | No | No | Yes | No | Any | T1 |
-| DT01-R4 | No | No | No | No | Yes | T0 only if all T0 conditions are evidenced |
+| DT01-R4 | No | No | No | No | Any | T0 only if every §4 T0 condition is evidenced for the exact decision unit |
 | DT01-R5 | No/Unknown | Any | Any | Yes | Any | Highest plausible tier pending resolution |
 | DT01-R6 | Unknown | Unknown | Unknown | Unknown | Unknown | UNRESOLVED; do not default to T0 |
 
