@@ -118,17 +118,19 @@ The table does not convert an evidence state to a score mechanically. The capabi
 
 ## 7. Decision Table DT-04 — N/A and aggregate publication
 
-| Rule | N/A requested before scores? | Genuine inapplicability / prior approval? | Mandatory gate? | NS present? | NS material? | Expected outcome |
-|---|---|---|---|---|---|---|
-| DT04-R1 | No | Any | Any | Any | Any | Reject for current round; versioned re-baseline and rescore all candidates if scope legitimately changes |
-| DT04-R2 | Yes | No | Any | Any | Any | Reject N/A |
-| DT04-R3 | Yes | Yes | Yes | Any | Any | N/A cannot remove gate; reframe decision unit only through authorized prior scope change |
-| DT04-R4 | Yes | Yes | No | No | – | Apply uniform approved exclusion; show original/effective weights and denominator |
-| DT04-R5 | Yes | Yes | No | Yes | Yes | No definitive aggregate/rank |
-| DT04-R6 | Yes | Yes | No | Yes | No | UNRESOLVED unless a valid provisional authority path is explicitly defined and authorized |
-| DT04-R7 | Yes | Yes | No | Yes | Any | Provisional result only if authority, materiality, disclosure, scope and downstream-use rules are explicit; otherwise BLOCK/UNRESOLVED |
+Evaluate this table only after the N/A decision has passed the prior-approval and mandatory-gate checks. Rows DT04-R5…R7 are mutually exclusive by the final two columns.
 
-**Arithmetic guard:** applicable original weights must total 100 before N/A exclusions. The same approved exclusions and denominator apply to every candidate in the decision unit. No candidate-specific N/A.
+| Rule | N/A valid and pre-score? | Mandatory gate excluded? | NS present? | NS material? | Complete provisional authorization fixture? | Expected outcome |
+|---|---|---|---|---|---|---|
+| DT04-R1 | No | Any | Any | Any | Any | Reject for current round; versioned re-baseline and uniform rescoring if scope legitimately changes |
+| DT04-R2 | Yes | Yes | Any | Any | Any | Reject N/A; gate remains applicable |
+| DT04-R3 | Yes | No | No | – | Any | Apply uniform approved exclusion; show original/effective weights and denominator |
+| DT04-R4 | Yes | No | Yes | Yes | No | No definitive aggregate/rank; any provisional output remains unresolved absent the separate authority path |
+| DT04-R5 | Yes | No | Yes | No | No | UNRESOLVED; do not infer a definitive non-material-NS rule |
+| DT04-R6 | Yes | No | Yes | Any | Yes | Provisional non-selection information only; disclose NS, materiality, denominator, scope, authority, expiry and permitted use |
+| DT04-R7 | Yes | No | No | – | Any | No NS publication restriction; weighted aggregation may proceed only if all other gates and rubric controls pass |
+
+**Arithmetic guard:** applicable original weights must total 100 before N/A exclusions. The same approved exclusions and denominator apply to every candidate in the decision unit. No candidate-specific N/A. A provisional result under DT04-R6 is not a candidate ranking, selection or approval.
 
 ## 8. Decision Table DT-05 — risk record completeness
 
@@ -161,7 +163,7 @@ The table does not convert an evidence state to a score mechanically. The capabi
 | RDM-R09…R12 N/A / aggregate | AVT-01, AVT-14…AVT-17 | AVT-14 lacks event sequencing; AVT-17 is semantically duplicated in current harness |
 | RDM-R13…R14 evidence authority / confidence | Not directly covered | Inspection/review and new tests required; do not infer automated coverage |
 | RDM-R15…R16 risk | AVT-10…AVT-13 | Horizon test is syntactic; scenario and raw-pair checks are partial |
-| RDM-R17 assurance roles | AVT-21? none direct | No executable acceptance vector; require human governance review |
+| RDM-R17 assurance roles | No direct AVT mapping | No executable acceptance vector; require human governance review; AVT-21 is unrelated and must not be cited |
 | RDM-R18 traceability | Matrix protocol / CI structure | Requires bidirectional trace audit; CI link checks alone do not prove semantic traceability |
 
 ## 11. Acceptance criteria for RDM-003A
