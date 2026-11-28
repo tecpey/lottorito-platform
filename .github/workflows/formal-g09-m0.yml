@@ -6,7 +6,6 @@ on:
       - 'formal/G09M0*'
       - 'scripts/formal/run_g09_m0.sh'
       - '.github/workflows/formal-g09-m0.yml'
-      - 'docs/**/affiliate-g09-a23-m0-atomic-acceptance-model.md'
   push:
     branches: [main]
     paths:
