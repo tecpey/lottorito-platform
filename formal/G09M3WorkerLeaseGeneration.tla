@@ -202,6 +202,7 @@ CompetingReclaim(w) ==
     /\ workState \in {"claimed", "processing"}
     /\ persistenceTime >= leaseExpiry
     /\ claimGeneration < MaxGeneration
+    /\ mutationCount < 10
     /\ claimGeneration' = claimGeneration + 1
     /\ generationHighWater' = claimGeneration + 1
     /\ claimOwner' = PrincipalOf(w)
@@ -297,6 +298,7 @@ AuthorizedStartProcessing ==
     /\ lockOwner = NoOwner
     /\ workState = "claimed"
     /\ persistenceTime < leaseExpiry
+    /\ mutationCount < 10
     /\ workState' = "processing"
     /\ mutationCount' = mutationCount + 1
     /\ lastGuardFailed' = FALSE
@@ -322,6 +324,7 @@ AdvanceLifecycleVersion ==
 OperatorQuarantine ==
     /\ lockOwner = NoOwner
     /\ workState \in {"claimed", "processing"}
+    /\ mutationCount < 10
     /\ workState' = "quarantined"
     /\ claimOwner' = NoOwner
     /\ claimToken' = 0
@@ -368,6 +371,7 @@ ApplyProtectedTransition(w) ==
     /\ requestState[w] = "locked"
     /\ requestOp[w] \in ProtectedOps
     /\ GuardOK(w)
+    /\ mutationCount < 10
     /\ workState' =
          IF requestOp[w] = "start_processing" THEN "processing"
          ELSE IF requestOp[w] = "complete" THEN "completed"
