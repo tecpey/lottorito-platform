@@ -160,3 +160,6 @@ Read repository-root [AGENTS.md](../../AGENTS.md). Use a working branch and pull
 ## LOT-EVAL reference-model adversarial audit
 
 - [LOT-EVAL-RDM-002 — Adversarial Audit of the Reference Model and Test Oracles](governance/enterprise-evaluation-reference-model-adversarial-audit-002.md) — author-led audit; identifies unverified matrix properties and defines the independent-oracle and multi-layer verification path. Findings remain open.
+
+
+- [LOT-EVAL-RDM-003A — Normative Rule Catalogue & Decision Tables](governance/enterprise-evaluation-decision-rule-catalogue-001.md) — author-led decomposition of LOT-EVAL-001 into atomic rules, five decision tables, unresolved-ambiguity register and rule-to-test traceability; independent oracle review and owner disposition pending.
