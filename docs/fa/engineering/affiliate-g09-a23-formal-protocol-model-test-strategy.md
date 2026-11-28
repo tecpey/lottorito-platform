@@ -1,7 +1,7 @@
 # G09-A23 — مدل رسمی پروتکل و راهبرد آزمون خصمانه
 
 **شناسه سند:** LOT-AFFILIATE-G09-A23-001  
-**نسخه:** ۰.۱.۲ | **وضعیت:** پیشنهادی، تحقیق و طراحی مدل — بدون اجرای Model Checker یا Runtime  
+**نسخه:** ۰.۱.۳ | **وضعیت:** پیشنهادی، تحقیق و طراحی مدل — بدون اجرای Model Checker یا Runtime  
 **تاریخ:** ۲۰۲۶-۱۱-۲۸  
 **مبنای بازبینی:** G09-A21، G09-A22، G09-A20، G09-A7، ADR-001 و ADR-002  
 **مرجعیت:** طراحی مشورتی؛ هیچ تصمیم مالک، Candidate، Gate یا مجوز اجرایی تصویب نمی‌شود.
@@ -53,7 +53,11 @@ A23:
 | receipt | رکورد Durable پذیرش |
 | workItem | رکورد Durable کار پذیرفته‌شده |
 | callerOutcome | آخرین نتیجه‌ای که Caller واقعاً مشاهده کرده است |
-| claimGeneration | Generation افزایشی Claim برای هر WorkItem |
+| claimGeneration | Generation افزایشی Claim برای هر WorkItem؛ بدون کاهش، Wrap، Reset یا Reuse |
+| claimOwner | Principal احراز‌شده مالک Claim جاری |
+| claimToken | Token محرمانه/غیرقابل‌حدس متصل به Owner و Generation جاری |
+| lifecycleVersion | نسخه چرخه عمر برای Guard انتقال‌های محافظت‌شده |
+| leaseExpiry | زمان انقضای مرجع Persistence برای Claim جاری |
 | leaseState | وضعیت Lease؛ زمان انقضا به‌تنهایی مجوز Mutation نیست |
 | leaseClockModel | مدل مرجع زمان/Skew و نحوه نمونه‌برداری زمان در ارتباط با نقطه Serialization |
 | leaseObservation | مشاهده اعتبار Lease پس از گرفتن نقطه Serialization؛ نه Timestamp قدیمی پیش از انتظار Lock |
@@ -91,11 +95,12 @@ A23:
 | ConflictingIngress | Identity یکسان و Fingerprint متفاوت؛ Conflict/Quarantine، بدون Overwrite |
 | TransferAuthority | Epoch جدید فقط با پروتکل مرجع و Fencing قابل‌اعمال فعال شود |
 | RejectStaleWriter | Writer با Epoch قدیمی در نقطه Mutation رد شود |
-| ClaimWork | Claim و Generation جدید در مرجع پایدار و با Transition سریال‌شده |
-| ExpireAndReclaim | Lease قبلی واجد Reclaim شود؛ Claim جدید فقط در Transition سریال‌شده صادر شود؛ Generation قبلی پس از برنده‌شدن Reclaim باطل بماند |
+| ClaimWork | WorkItem و Binding Tenant/Installation از مرجع معتبر Resolve شوند؛ پس از Serialization، فقط READY یا CLAIMED با Lease منقضی و Policy مجاز Claim شود؛ Generation دقیقاً یک‌بار افزایش یابد و Owner/Token/Expiry/State در یک Transaction Commit شوند؛ مالکیت قبل از Commit اعلام نشود |
+| ExpireAndReclaim | CLAIMED با Lease منقضی و Policy مجاز؛ Reclaim سریال‌شده دقیقاً یک‌بار Generation را افزایش دهد و Owner/Token/Expiry/State را اتمیک تغییر دهد؛ Generation قبلی پس از Commit رد شود |
 | LinearizeLeaseTransition | پس از اخذ نقطه Serialization، Guard اعتبار Lease را همان‌جا ارزیابی کند؛ اگر منقضی است Mutation رد شود؛ فقط Transition دارای Lease معتبر و Guard کامل می‌تواند Linearize شود |
 | ResumeStaleWorker | Mutation روی State محافظت‌شده مبدأ در صورت انقضای Lease در نقطه Guard یا عدم تطابق Owner/Generation/Token/Authority رد شود. این ردشدن، درخواست خارجی قبلاً ارسال‌شده را لغو نمی‌کند؛ نتیجه مقصد باید با قرارداد Receiver بررسی شود |
-| CommitWorkTransition | فقط Owner/Generation/Authority معتبر در لحظه Mutation |
+| RenewLease | CLAIMED؛ Owner/Token/Generation/Authority/State/LifecycleVersion معتبر و Lease در Guard پس از Serialization هنوز معتبر باشد؛ فقط Expiry تمدید شود و Generation تغییر نکند؛ Lease منقضی احیا نشود |
+| CommitWorkTransition | WorkItem/Tenant/Installation Binding، State مورد انتظار، Principal احراز‌شده، Owner، Generation، Token، Lease معتبر در نقطه Linearization، Authority و LifecycleVersion همگی Guard شوند؛ شکست Guard صفر ردیف محافظت‌شده را تغییر دهد |
 | PublishOutbox | فقط از Outbox Durable؛ تحویل ممکن است تکراری/نامرتب باشد |
 | ConsumeMessage | Consumer مرجع Work را دوباره بخواند/Claim کند؛ پیام Broker به‌تنهایی Authority نیست |
 | Restore | داده و Metadata بازیابی شوند، اما محیط ابتدا در Quarantine بالا بیاید؛ Ingress/Worker غیرفعال، Egress خارجی مسدود و Credentialها ایزوله باشند |
@@ -127,7 +132,7 @@ A23:
 | S-04 Ack Soundness | ACCEPTED فقط پس از اثبات Commit پایدار تحت Policy مصوب صادر شود |
 | S-05 Unknown Preservation | UNKNOWN تا Reconciliation معتبر، نه ACCEPTED و نه REJECTED تفسیر نشود |
 | S-06 Authority Fencing | Actor با Epoch قدیمی پس از انتقال Authority نتواند State محافظت‌شده را تغییر دهد |
-| S-07 Worker Fencing | Generation قدیمی نتواند State محافظت‌شده تحت مالکیت Persistence مبدأ را Commit کند؛ اثر خارجی فقط در صورت Fencing/Idempotency اثبات‌شده سمت Receiver قابل رد/Deduplicate است و در غیر این صورت مشمول S-14 و UNKNOWN/Residual Risk است |
+| S-07 Worker Fencing | هر Mutation محافظت‌شده تمام Guardهای Identity/Tenant/Installation، State مورد انتظار، Principal، Owner، Generation، Token، Lease معتبر در نقطه Linearization، Authority و LifecycleVersion را بررسی کند؛ Generation قدیمی رد شود و شکست Guard صفر ردیف محافظت‌شده را تغییر دهد. اثر خارجی فقط با کنترل اثبات‌شده سمت Receiver محافظت می‌شود و در غیر این صورت مشمول S-14/UNKNOWN/Residual Risk است |
 | S-08 Restore Monotonicity | Restore/PITR نتواند Epoch، Identity مصرف‌شده یا Revocation را ناخواسته احیا/عقب ببرد؛ محیط Restoreشده تا تکمیل Reconciliation و Gateهای مصوب در Quarantine بماند و Ingress/Worker/Egress فعال نشوند |
 | S-09 Tenant Isolation | هیچ Read/Write/Disclosure بین Tenantها از طریق Identity، Payload، Retry یا Repair رخ ندهد |
 | S-10 Outbox Boundary | پیام Broker مرجع Acceptance نیست؛ Publisher/Consumer و Receipt داخلی طبق قرارداد Dedup سمت Consumer عمل کنند؛ تحویل تکراری Broker به‌تنهایی نباید Mutation تکراری در Store مرجع Consumer بسازد. تضمین اثر Receiver خارجی جداگانه تحت S-14 است |
@@ -162,7 +167,7 @@ Fairness قوی/ضعیف، Scheduler، نرخ ورود، ظرفیت، Retry Budg
 1. **M0 — Atomic Acceptance:** دو Caller، یک Identity، یک Receipt و یک WorkItem؛ Crash قبل/حین/بعد Commit.
 2. **M1 — UNKNOWN Arbitration:** Transaction اولیه In-flight، گم‌شدن پاسخ، Negative Read، Retry هم‌زمان و Commit/Abort دیرهنگام.
 3. **M2 — Authority Epoch:** دو Writer، دو Epoch، Partition، Promotion، بازگشت Primary قدیمی و Restore Epoch.
-4. **M3 — Worker Lease:** دو Worker، دو Generation، Expiry/Reclaim، توقف Lock، Timestamp قبل/بعد Lock، Clock Skew، انقضای Lease پیش از Reclaim و Resume Worker قدیمی.
+4. **M3 — Worker Lease:** دو Worker/Generation، Claim و Reclaim، تمدید Lease، Heartbeat/Completion/Retry/Park، State/Token/LifecycleVersion mismatch، شکست Guard با صفر Mutation، توقف Lock، Timestamp قبل/بعد Lock، Clock Skew، انقضای Lease پیش از Reclaim و Resume Worker قدیمی.
 5. **M4 — Outbox/Consumer/Receiver:** انتشار تکراری، Delay، Reorder، Broker outage، Consumer crash، درخواست خارجی in-flight، پذیرش Receiver پس از انقضای Lease مبدأ، پاسخ گم‌شده، Retry، Idempotency/Fencing مقصد و انقضای Retention Dedup Receiver.
 6. **M5 — Restore/Lifecycle:** PITR/Backup قدیمی، Tombstone و مرز انقضا، افق Replay متناهی/نامتناهی، پیام دیررس Queue، Credential/Key/Schema Rotation، Recovery Incarnation، Failback، Clean-room Quarantine و Gate بازگشایی.
 7. **M6 — Tenant/Principal:** حداقل دو Tenant و دو Principal با سطح دسترسی متفاوت؛ جعل Payload و Repair کم‌اختیار.
@@ -231,7 +236,7 @@ Retry باید Error-classified، Idempotent، محدود به Budget/Deadline �
 5. هر Bug کشف‌شده به Regression دائمی با Seed/Trace ثابت تبدیل شود.
 6. Mutation Testing صحت Oracle/Checker را با Mutantهای شناخته‌شده ارزیابی کند.
 
-Mutantهای حداقلی اجباری: حذف Unique Constraint؛ Ack قبل از Commit؛ قبول Negative Read از Replica قدیمی؛ عدم بررسی Epoch در Mutation؛ قبول Worker Generation قدیمی؛ قبول Mutation پس از انقضای Lease پیش از Reclaim؛ بازنشانی Epoch پس از Restore؛ انقضای Tombstone پیش از پایان افق Replay/Backup؛ فعال‌سازی Ingress/Worker/Egress پیش از تکمیل Gateهای Restore؛ Retry با Identity جدید؛ پذیرش درخواست خارجی قدیمی بدون قرارداد Receiver؛ Retry اثر خارجی با Idempotency Key جدید؛ اجرای Side Effect داخل Transaction قابل Retry؛ حذف Consumer Dedup؛ و تبدیل UNKNOWN به REJECTED/ACCEPTED بدون Evidence. اگر Checker Mutant متناظر را تشخیص ندهد، آزمون حساسیت آن INCONCLUSIVE است.
+Mutantهای حداقلی اجباری: حذف Unique Constraint؛ Ack قبل از Commit؛ قبول Negative Read از Replica قدیمی؛ عدم بررسی Epoch در Mutation؛ قبول Worker Generation قدیمی؛ قبول Mutation پس از انقضای Lease پیش از Reclaim؛ تمدید Lease منقضی یا افزایش Generation در Heartbeat؛ Commit با Token/State/LifecycleVersion نادرست؛ تغییر ردیف با Guard ناموفق؛ بازنشانی Epoch پس از Restore؛ انقضای Tombstone پیش از پایان افق Replay/Backup؛ فعال‌سازی Ingress/Worker/Egress پیش از تکمیل Gateهای Restore؛ Retry با Identity جدید؛ پذیرش درخواست خارجی قدیمی بدون قرارداد Receiver؛ Retry اثر خارجی با Idempotency Key جدید؛ اجرای Side Effect داخل Transaction قابل Retry؛ حذف Consumer Dedup؛ و تبدیل UNKNOWN به REJECTED/ACCEPTED بدون Evidence. اگر Checker Mutant متناظر را تشخیص ندهد، آزمون حساسیت آن INCONCLUSIVE است.
 
 تعداد Seed، تکرار، مدت Soak، پوشش ترکیبی و Thresholdها باید با Workload/Risk مصوب تعیین شوند؛ هیچ عدد نمونه‌ای Default نیست.
 
@@ -285,7 +290,7 @@ Mutantهای حداقلی اجباری: حذف Unique Constraint؛ Ack قبل ا
 
 ## ۱۴. وضعیت نهایی
 
-**یادداشت بازبینی نسخه ۰.۱.۲:** بازبینی تطبیقی با ADR-001 و A22 سه مرز را صریح کرد: Lease منقضی در Guard پس از Serialization، حتی پیش از Reclaim، Mutation را رد می‌کند؛ Fencing مبدأ درخواست خارجی in-flight را لغو نمی‌کند؛ Restore باید در Quarantine بماند تا High-water Mark هویت، Tombstone، Queue/Outbox، Credential/Key، Schema و Tenant تطبیق و Gateهای بازگشایی تکمیل شوند. Transitionهای Restore/Reopen/Replay/ExpireTombstone، متغیرهای Lifecycle، S-08 و M5 اصلاح شدند. A21-F04/F05/F10/F11 همچنان OPEN هستند و این اصلاحات جایگزین Model Checking، Evidence یا Assurance مستقل نیستند.
+**یادداشت بازبینی نسخه ۰.۱.۳:** بازبینی تطبیقی با ADR-001 و A22 سه مرز را صریح کرد: Lease منقضی در Guard پس از Serialization، حتی پیش از Reclaim، Mutation را رد می‌کند؛ Fencing مبدأ درخواست خارجی in-flight را لغو نمی‌کند؛ Restore باید در Quarantine بماند تا High-water Mark هویت، Tombstone، Queue/Outbox، Credential/Key، Schema و Tenant تطبیق و Gateهای بازگشایی تکمیل شوند. Transitionهای Restore/Reopen/Replay/ExpireTombstone، متغیرهای Lifecycle، S-08 و M5 اصلاح شدند. A21-F04/F05/F10/F11 همچنان OPEN هستند و این اصلاحات جایگزین Model Checking، Evidence یا Assurance مستقل نیستند.
 
 
 - A23: قرارداد مدل و راهبرد آزمون پیشنهادی؛ **NOT EXECUTED**.
