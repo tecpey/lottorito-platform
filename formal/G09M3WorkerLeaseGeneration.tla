@@ -126,7 +126,7 @@ StartRequest(w, op) ==
                 THEN "installation-B" ELSE InstallationID]
     /\ requestStartTime' = [requestStartTime EXCEPT ![w] = persistenceTime]
     /\ requestPreLockValid' = [requestPreLockValid EXCEPT
-         ![w] = workerClock[w] < leaseExpiry]
+         ![w] = persistenceTime + workerClock[w] < leaseExpiry]
     /\ lastGuardFailed' = FALSE
     /\ UNCHANGED <<workState, claimGeneration, generationHighWater, claimOwner,
        claimToken, leaseExpiry, lifecycleVersion, persistenceTime, workerClock,
@@ -254,10 +254,10 @@ AdvancePersistenceTime ==
        lockOwner, blockerAvailable, mutationCount, lastGuardFailed,
        lastFailureMutationCount, acceptedHistory, claimEvents>>
 
-AdvanceWorkerClock(w) ==
+SetWorkerClockSkew(w, skew) ==
     /\ w \in Workers
-    /\ workerClock[w] < MaxTime
-    /\ workerClock' = [workerClock EXCEPT ![w] = @ + 1]
+    /\ skew \in (-1)..1
+    /\ workerClock' = [workerClock EXCEPT ![w] = skew]
     /\ UNCHANGED <<workState, claimGeneration, generationHighWater, claimOwner,
        claimToken, leaseExpiry, lifecycleVersion, persistenceTime, workerGeneration,
        workerToken, workerLifecycle, requestState, requestOp, requestGeneration,
@@ -266,20 +266,6 @@ AdvanceWorkerClock(w) ==
        lockOwner, blockerAvailable, mutationCount, lastGuardFailed,
        lastFailureMutationCount, acceptedHistory, claimEvents>>
 
-AuthorizedStartProcessing ==
-    /\ lockOwner = NoOwner
-    /\ workState = "claimed"
-    /\ persistenceTime < leaseExpiry
-    /\ workState' = "processing"
-    /\ mutationCount' = mutationCount + 1
-    /\ lastGuardFailed' = FALSE
-    /\ UNCHANGED <<claimGeneration, generationHighWater, claimOwner, claimToken,
-       leaseExpiry, lifecycleVersion, persistenceTime, workerClock, workerGeneration,
-       workerToken, workerLifecycle, requestState, requestOp, requestGeneration,
-       requestToken, requestLifecycle, requestExpectedState, requestTenant,
-       requestInstallation, requestStartTime, requestPreLockValid, lockAcquireTime,
-       lockOwner, blockerAvailable, lastFailureMutationCount, acceptedHistory,
-       claimEvents>>
 
 AdvanceLifecycleVersion ==
     /\ lifecycleVersion < 1
@@ -405,7 +391,7 @@ Next ==
     \/ AcquireSerializationBlocker
     \/ ReleaseSerializationBlocker
     \/ AdvancePersistenceTime
-    \/ \E w \in Workers : AdvanceWorkerClock(w)
+    \/ \E w \in Workers : \E skew \in (-1)..1 : SetWorkerClockSkew(w, skew)
     \/ AdvanceLifecycleVersion
     \/ AuthorizedStartProcessing
     \/ OperatorQuarantine
@@ -421,7 +407,7 @@ TypeOK ==
     /\ leaseExpiry \in (0..(MaxTime + LeaseDuration))
     /\ lifecycleVersion \in (0..1)
     /\ persistenceTime \in (0..MaxTime)
-    /\ workerClock \in [Workers -> (0..MaxTime)]
+    /\ workerClock \in [Workers -> ((-1)..1)]
     /\ workerGeneration \in [Workers -> (0..MaxGeneration)]
     /\ workerToken \in [Workers -> (0..MaxGeneration)]
     /\ workerLifecycle \in [Workers -> (0..1)]
