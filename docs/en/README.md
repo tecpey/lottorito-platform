@@ -155,3 +155,8 @@ Read repository-root [AGENTS.md](../../AGENTS.md). Use a working branch and pull
 ## LOT-EVAL reference decision model
 
 - [LOT-EVAL-RDM-001 — Reference Decision Model & Adversarial Harness](governance/enterprise-evaluation-reference-decision-model-001.md) — isolated Python standard-library harness for AVT-01…AVT-21 and MUT-01…MUT-10; synthetic/non-production only; independent review and owner disposition pending.
+
+
+## LOT-EVAL reference-model adversarial audit
+
+- [LOT-EVAL-RDM-002 — Adversarial Audit of the Reference Model and Test Oracles](governance/enterprise-evaluation-reference-model-adversarial-audit-002.md) — author-led audit; identifies unverified matrix properties and defines the independent-oracle and multi-layer verification path. Findings remain open.
