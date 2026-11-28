@@ -246,3 +246,12 @@
 - سند دوزبانه LOT-AFFILIATE-G09-A20-001 در PR شماره ۷۶ اضافه شد. این سند اخذ Evidence برای C-01 تا C-16، Inventory سراسری Data-flow/Location، ناورداها و Oracleهای مستقل، ۲۸ طراحی آزمون خصمانه، Gateهای ایمنی اجرا و Manifest بازتولیدپذیری را تعریف می‌کند.
 - تمام Caseهای A20 در وضعیت DESIGNED / NOT RUN هستند. هیچ Evidence مالک اخذ یا پذیرفته نشده؛ هیچ Candidate انتخاب/Qualify نشده؛ G1 تا G9 همچنان NOT TESTED؛ ADR-002 همچنان PROPOSED؛ OD-01 تا OD-12 و یافته‌های A11 باز؛ بازبینی مستقل A12 انجام‌نشده/غیرقابل ارزیابی است.
 - R0 مسدود؛ R1 صرفاً تحقیق؛ R2 شروع‌نشده؛ R3 غیرمجاز؛ تمام Gateهای A4 تصویب‌نشده‌اند. هیچ Runtime/Harness، اتصال Partner، عملیات مالی، Merge یا Deploy مجاز نیست. CI روی Head دقیق پس از تمام Commitهای متوالی مستندات باید بررسی شود.
+
+
+## G09-A21 — بازبینی خصمانه تضمین کیفیت A20 (۲۰۲۶-۱۱-۲۸)
+- سند دوزبانه LOT-AFFILIATE-G09-A21-001 به PR شماره ۷۶ اضافه شد؛ LDR-066 در هر دو Decision Register ثبت و هر دو README به‌روزرسانی شدند.
+- A21 خودبازبینی خصمانه داخلی در همان بستر همکاری تدوین‌کننده A20 است؛ صریحاً Assurance مستقل نیست. A12 همچنان NOT PERFORMED / NOT ASSESSABLE است.
+- ۱۳ یافته باز ثبت شد: P0=1 (استقلال Assurance)؛ P1=9 (Identity/Deduplication، پروتکل UNKNOWN Commit، Idempotency/Fencing اثر خارجی، کران Retention/Replay/Restore، Trust Boundary اوراکل، Traceability، قرارداد اجرایی نتیجه، مرز مالی و کنترل‌های Recovery)؛ P2=3 (Liveness/Fairness، تولید سیستماتیک آزمون مبتنی بر Model/Property، هم‌ارزی معنایی دوزبانه).
+- A20 هنوز مشخصات اجرایی Qualification نیست. A20-01 تا A20-28 همچنان DESIGNED / NOT RUN هستند. هیچ یافته‌ای بسته و هیچ اصلاحی در A20 پنهانی اعمال نشده است.
+- توالی پیشنهادی کنترل‌شده: A22 اصلاح مشخصات؛ A23 مدل رسمی و راهبرد آزمون؛ A24 بسته Evidence و Assurance دوزبانه. تصمیم‌های مالک همچنان متعلق به مالک‌اند.
+- C-01 تا C-16 باز؛ G1 تا G9 تست‌نشده؛ ADR-002 PROPOSED؛ OD-01 تا OD-12 باز؛ A11-F01 تا F08 باز؛ A12 انجام‌نشده؛ R0 مسدود؛ R1 صرفاً تحقیق؛ R2 شروع‌نشده؛ R3 غیرمجاز؛ A4 تصویب‌نشده. هیچ Runtime/Harness، انتخاب Provider، اتصال Partner، عملیات مالی، Merge یا Deploy مجاز نیست. CI روی Head دقیق پس از Commitهای متوالی بررسی شود.
